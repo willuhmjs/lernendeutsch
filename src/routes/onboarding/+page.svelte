@@ -5,8 +5,19 @@
 	let userInput = '';
 	let loading = false;
 	let error = '';
-	let completed = data?.user?.hasOnboarded || false;
-	let completionData: { level?: string; feedback?: string } = { level: data?.user?.cefrLevel };
+	let hasExistingLevel = !!data?.user?.cefrLevel;
+	let completed = data?.user?.hasOnboarded || hasExistingLevel || false;
+	let completionData: { level?: string; feedback?: string } = { 
+		level: data?.user?.cefrLevel,
+		feedback: hasExistingLevel ? "You have already completed your onboarding." : undefined
+	};
+
+	const restartOnboarding = () => {
+		completed = false;
+		selectedPath = 'choose';
+		messages = [];
+		error = '';
+	};
 	let lastLevelGuess = data?.user?.cefrLevel || 'A1';
 
 	// Path selection: 'choose' | 'beginner' | 'test'
@@ -264,7 +275,7 @@
 	{:else}
 	<!-- Placement Test / Completion -->
 	<header class="page-header">
-		{#if completed && selectedPath === 'beginner'}
+		{#if completed}
 			<h1>You're All Set!</h1>
 			<p>We've prepared a personalized curriculum for you.</p>
 		{:else}
@@ -308,19 +319,26 @@
 						<span>Your assessed level:</span>
 						<strong class="level-badge">{completionData.level}</strong>
 					</div>
-					<p class="feedback-text"><strong>Feedback:</strong> {completionData.feedback}</p>
+					{#if completionData.feedback}
+						<p class="feedback-text"><strong>Feedback:</strong> {completionData.feedback}</p>
+					{/if}
 					<div class="completion-actions">
 							{#if selectedPath === 'beginner'}
 						<p class="action-note">We've loaded essential starter vocabulary and grammar for you. Your lessons will begin with the very basics — no prior German knowledge needed!</p>
 					{:else}
 						<p class="action-note">Your personalized curriculum has been bulk-generated. We've marked the basics you already know as Mastered!</p>
 					{/if}
-						<button class="btn btn-success" on:click={() => window.location.href = '/'}>
-							Go to Dashboard
-						</button>
-						<button class="btn btn-primary" on:click={() => window.location.href = '/play'}>
-							Start Playing
-						</button>
+						<div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+							<button class="btn btn-success" on:click={() => window.location.href = '/'}>
+								Go to Dashboard
+							</button>
+							<button class="btn btn-primary" on:click={() => window.location.href = '/play'}>
+								Start Playing
+							</button>
+							<button class="btn btn-secondary" on:click={restartOnboarding}>
+								Restart Onboarding
+							</button>
+						</div>
 					</div>
 				</div>
 			{:else}
