@@ -1,0 +1,424 @@
+import { prisma } from './prisma';
+
+type SrsState = 'UNSEEN' | 'LEARNING' | 'KNOWN' | 'MASTERED';
+type Vocabulary = { id: string; lemma: string; meaning: string | null; partOfSpeech: string | null; gender: 'der' | 'die' | 'das' | null; plural: string | null; createdAt: Date; updatedAt: Date };
+type GrammarRule = { id: string; title: string; description: string | null; level: string; createdAt: Date; updatedAt: Date };
+
+export type GameMode = 'en-to-de' | 'de-to-en' | 'fill-blank' | 'multiple-choice';
+
+export interface EvaluationPayload {
+	globalScore: number;
+	vocabularyUpdates: { id: string; score: number }[];
+	grammarUpdates: { id: string; score: number }[];
+	extraVocabLemmas?: string[];
+	feedback: string;
+	feedbackEnglish?: string;
+}
+
+const normalizeGerman = (text: string) => {
+	return text
+		.replace(/ß/g, 'ss')
+		.replace(/ä/g, 'ae')
+		.replace(/ö/g, 'oe')
+		.replace(/ü/g, 'ue')
+		.replace(/Ä/g, 'Ae')
+		.replace(/Ö/g, 'Oe')
+		.replace(/Ü/g, 'Ue');
+};
+
+/**
+ * Builds the system prompt and user message for evaluation, without calling the LLM.
+ * Used by the streaming submit-answer endpoint.
+ */
+export function buildEvaluationPrompt(
+	userInput: string,
+	targetSentence: string,
+	targetedVocabulary: Vocabulary[],
+	targetedGrammar: GrammarRule[],
+	gameMode: GameMode = 'en-to-de',
+	userLevel: string = 'A1'
+): { systemPrompt: string; userMessage: string; idMap: Record<string, string> } {
+	// Build short ID maps so the LLM sees tiny tokens like "v0" instead of full UUIDs
+	const idMap: Record<string, string> = {}; // short -> real
+	targetedVocabulary.forEach((v, i) => { idMap[`v${i}`] = v.id; });
+	targetedGrammar.forEach((g, i) => { idMap[`g${i}`] = g.id; });
+
+	const vocabList = targetedVocabulary.map((v, i) => `- ${v.lemma} (ID: v${i})`).join('\n');
+	const grammarList = targetedGrammar.map((g, i) => `- ${g.title} (ID: g${i})`).join('\n');
+
+	const isAbsoluteBeginner = userLevel === 'A1';
+	const beginnerEncouragement = isAbsoluteBeginner
+		? `\nIMPORTANT BEGINNER CONTEXT: This student is at A1 level and may be just starting out. Be extra encouraging in your feedback. Celebrate what they got right before mentioning errors. Use simple language in feedback. If they attempted something even partially correct, give partial credit (at least 0.3). The goal is to build confidence while learning.\n`
+		: '';
+
+	if (gameMode === 'fill-blank') {
+		const systemPrompt = `You are an expert language tutor evaluating a student's fill-in-the-blank answers.
+You must output ONLY strictly valid JSON. Do not include markdown formatting or extra text.
+${beginnerEncouragement}
+
+Your task:
+The student was given a German sentence with blanks for targeted vocabulary words. They provided answers for each blank.
+Compare their answers against the expected complete German sentence.
+Calculate a global accuracy score between 0.0 and 1.0. Be forgiving of minor typos and capitalization errors.
+Note: Do not penalize the user if they use ASCII equivalents for German special characters (e.g., 'ss' instead of 'ß', 'ae' instead of 'ä', 'oe' instead of 'ö', 'ue' instead of 'ü', or their uppercase equivalents like 'Ae' for 'Ä', 'Ue' for 'Ü', etc.). Treat these as ENTIRELY correct — they MUST receive a score of 1.0 for that vocabulary item.
+IMPORTANT: Capitalization errors (e.g., writing "Gluecklich" instead of "glücklich") are MINOR issues. If the student wrote the correct word with only a capitalization difference, the vocabulary score for that word MUST be at least 0.8. Do NOT give a score of 0 for capitalization-only errors.
+SCORING CONSISTENCY: Each vocabulary/grammar item score must be consistent with the global score. If the global score is above 0.8, no individual item that the student attempted correctly (even with minor issues) should receive a score below 0.5.
+Provide helpful, concise feedback in German ("feedback") and English ("feedbackEnglish").
+For vocabularyUpdates and grammarUpdates, provide a score between 0.0 and 1.0 depending on how well they used the item. Score each item INDEPENDENTLY.
+If the user correctly used any OTHER German words by coincidence that are not in the targeted list, output their base forms (lemmas) in lowercase in the "extraVocabLemmas" array.
+
+IMPORTANT: "feedback" MUST be the very first key in your JSON response.
+
+Targeted Vocabulary:
+${vocabList}
+
+Targeted Grammar Rules:
+${grammarList}
+
+JSON format:
+{
+  "feedback": "<string (German feedback)>",
+  "feedbackEnglish": "<string (English translation of feedback)>",
+  "globalScore": <number>,
+  "vocabularyUpdates": [ { "id": "<vocabulary ID>", "score": <number (0.0 to 1.0)> } ],
+  "grammarUpdates": [ { "id": "<grammar ID>", "score": <number (0.0 to 1.0)> } ],
+  "extraVocabLemmas": ["<lemma1>", "<lemma2>"]
+}`;
+
+		const userMessage = `Complete German sentence: ${normalizeGerman(targetSentence)}\nUser's blank answers: ${normalizeGerman(userInput)}`;
+		return { systemPrompt, userMessage, idMap };
+	}
+
+	if (gameMode === 'multiple-choice') {
+		const systemPrompt = `You are an expert language tutor evaluating a student's multiple choice answer.
+You must output ONLY strictly valid JSON. Do not include markdown formatting or extra text.
+${beginnerEncouragement}
+
+Your task:
+The student was shown a German sentence and chose an English translation from multiple options.
+Compare their chosen answer to the correct translation.
+If they chose correctly, score 1.0. If wrong, score 0.0.
+Provide brief feedback in German ("feedback") and English ("feedbackEnglish") explaining why the correct answer is right.
+For vocabularyUpdates, provide a score of 1.0 or 0.0 based on whether they got the question right.
+Since this is a recognition task (German to English), do NOT evaluate grammar rules. Always return an empty array for "grammarUpdates".
+If the user correctly recognized any OTHER German words by coincidence that are not in the targeted list, output their base forms (lemmas) in lowercase in the "extraVocabLemmas" array.
+
+IMPORTANT: "feedback" MUST be the very first key in your JSON response.
+
+Targeted Vocabulary:
+${vocabList}
+
+Targeted Grammar Rules:
+${grammarList}
+
+JSON format:
+{
+  "feedback": "<string (German feedback)>",
+  "feedbackEnglish": "<string (English translation of feedback)>",
+  "globalScore": <number>,
+  "vocabularyUpdates": [ { "id": "<vocabulary ID>", "score": <number (0.0 to 1.0)> } ],
+  "grammarUpdates": [ { "id": "<grammar ID>", "score": <number (0.0 to 1.0)> } ],
+  "extraVocabLemmas": ["<lemma1>", "<lemma2>"]
+}`;
+
+		const userMessage = `Correct English translation: ${targetSentence}\nUser's chosen answer: ${userInput}`;
+		return { systemPrompt, userMessage, idMap };
+	}
+
+	// Translation modes (en-to-de, de-to-en)
+	const isEnToDe = gameMode === 'en-to-de';
+	const userLanguage = isEnToDe ? 'German' : 'English';
+	const targetLanguage = isEnToDe ? 'German' : 'English';
+
+	const asciiNote = isEnToDe
+		? `Note: Do not penalize the user if they use ASCII equivalents for German special characters (e.g., 'ss' instead of 'ß', 'ae' instead of 'ä', 'oe' instead of 'ö', 'ue' instead of 'ü', or their uppercase equivalents like 'Ae' for 'Ä'). Treat these as entirely correct.`
+		: '';
+
+	const grammarNote = isEnToDe
+		? ''
+		: `Note: Since this is a German-to-English translation, do NOT evaluate grammar rules. Always return an empty array for "grammarUpdates".`;
+
+	const vocabScoringNote = isEnToDe
+		? ''
+		: `IMPORTANT: For vocabulary scoring in German-to-English mode, score each targeted vocabulary word INDEPENDENTLY based solely on whether the user correctly conveyed its meaning in English. Do NOT penalize a vocabulary word for unrelated errors elsewhere in the sentence. The user is translating INTO English, so they will not write the German words themselves — instead, check whether the English translation accurately reflects the meaning of each targeted German vocabulary word. For example, if "die Klasse" is targeted and the user writes "the class", that vocabulary word MUST receive a score of 1.0, even if other parts of the sentence contain errors (like writing "Ist" instead of "Is"). Each vocabulary score should reflect ONLY whether that specific word's meaning was correctly translated.`;
+
+	const helpNote = isEnToDe
+		? `Note: The user is allowed to ask for an English translation, or provide an English translation of the sentence alongside their answer. If they ask for a translation or provide an English translation because they are stuck, do not penalize them for it. Provide the translation in the feedback and give a neutral score (e.g., 0.5) to keep them motivated, rather than failing them.`
+		: `Note: The user is allowed to ask for help or a German translation. If they do, provide the translation in the feedback and give a neutral score (e.g., 0.5) to keep them motivated, rather than failing them.`;
+
+	const systemPrompt = `You are an expert language tutor evaluating a student's ${userLanguage} translation.
+You must output ONLY strictly valid JSON. Do not include markdown formatting or extra text.
+${beginnerEncouragement}
+
+Your task:
+Evaluate the user's ${userLanguage} input against the target expected ${targetLanguage} output.
+Calculate a global accuracy score between 0.0 and 1.0. Be forgiving of minor mistakes like slight typos, capitalization errors, or minor word order issues that do not change the core meaning. Do not penalize minor errors harshly; keep the score proportional to the overall understanding shown.
+Assess if the user correctly used the targeted vocabulary and grammar rules. Give a decimal score between 0.0 and 1.0 for each item in vocabularyUpdates and grammarUpdates. Score each vocabulary and grammar item INDEPENDENTLY — do not penalize one item for errors related to a different item.
+Provide helpful, concise feedback in German ("feedback") and English ("feedbackEnglish").
+If the user correctly used or recognized any OTHER German words by coincidence that are not in the targeted list, output their base forms (lemmas) in lowercase in the "extraVocabLemmas" array.
+${asciiNote}
+${grammarNote}
+${vocabScoringNote}
+${helpNote}
+
+IMPORTANT: "feedback" MUST be the very first key in your JSON response.
+
+Targeted Vocabulary:
+${vocabList}
+
+Targeted Grammar Rules:
+${grammarList}
+
+JSON format:
+{
+  "feedback": "<string (German feedback)>",
+  "feedbackEnglish": "<string (English translation of feedback)>",
+  "globalScore": <number>,
+  "vocabularyUpdates": [ { "id": "<vocabulary ID>", "score": <number (0.0 to 1.0)> } ],
+  "grammarUpdates": [ { "id": "<grammar ID>", "score": <number (0.0 to 1.0)> } ],
+  "extraVocabLemmas": ["<lemma1>", "<lemma2>"]
+}`;
+
+	const normalizedTarget = isEnToDe ? normalizeGerman(targetSentence) : targetSentence;
+	const normalizedInput = isEnToDe ? normalizeGerman(userInput) : userInput;
+
+	const userMessage = `Target Expected Output: ${normalizedTarget}\nUser Input: ${normalizedInput}`;
+	return { systemPrompt, userMessage, idMap };
+}
+
+/**
+ * Parses raw LLM content into a typed EvaluationPayload.
+ */
+export function parseEvaluationResponse(content: string): EvaluationPayload {
+	const cleanedContent = content.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
+	const payload = JSON.parse(cleanedContent);
+
+	// Ensure backwards compatibility if LLM returns "success" (boolean) instead of "score"
+	const mapItem = (item: { id: string; score?: number; success?: boolean }) => ({
+		id: item.id,
+		score: typeof item.score === 'number' ? item.score : (item.success ? 1.0 : 0.0)
+	});
+
+	const result: EvaluationPayload = {
+		globalScore: payload.globalScore ?? 0,
+		vocabularyUpdates: (payload.vocabularyUpdates || []).map(mapItem),
+		grammarUpdates: (payload.grammarUpdates || []).map(mapItem),
+		extraVocabLemmas: payload.extraVocabLemmas || [],
+		feedback: payload.feedback || '',
+		feedbackEnglish: payload.feedbackEnglish || ''
+	};
+
+	// Reconcile contradictory scores: if globalScore is high but individual items
+	// are scored at 0, the LLM is being inconsistent. Bump low scores to at least
+	// match the global signal (e.g. capitalize-only errors scored at 0 despite 95% global).
+	if (result.globalScore >= 0.8) {
+		const minItemScore = 0.5;
+		result.vocabularyUpdates = result.vocabularyUpdates.map(u => ({
+			...u,
+			score: Math.max(u.score, minItemScore)
+		}));
+		result.grammarUpdates = result.grammarUpdates.map(u => ({
+			...u,
+			score: Math.max(u.score, minItemScore)
+		}));
+	}
+
+	return result;
+}
+
+export function mapLevelToElo(level: string): number {
+	const levels: Record<string, number> = {
+		A1: 1000,
+		A2: 1200,
+		B1: 1400,
+		B2: 1600,
+		C1: 1800,
+		C2: 2000
+	};
+	return levels[level.toUpperCase()] || 1200;
+}
+
+const K_FACTOR = 32;
+
+function calculateNewElo(currentElo: number, score: number, baseDifficulty: number, gameMode: string): number {
+	const expectedScore = 1 / (1 + Math.pow(10, (baseDifficulty - currentElo) / 400));
+	
+	let kMultiplier = 1.0;
+	if (gameMode === 'multiple-choice') kMultiplier = 0.5; // easier, less reward/penalty
+	if (gameMode === 'en-to-de') kMultiplier = 1.2;        // harder, more reward/penalty
+
+	const effectiveK = K_FACTOR * kMultiplier;
+	return currentElo + effectiveK * (score - expectedScore);
+}
+
+export function deriveSrsState(eloRating: number, baseDifficulty: number): SrsState {
+	const competence = eloRating - baseDifficulty;
+	if (competence < 50) return 'LEARNING';
+	if (competence < 150) return 'KNOWN';
+	return 'MASTERED';
+}
+
+export function calculateNextReviewDate(eloRating: number, baseDifficulty: number): Date {
+	const competence = eloRating - baseDifficulty;
+	const intervalInDays = Math.max(1, Math.floor(Math.pow(2, competence / 50)));
+	const nextDate = new Date();
+	nextDate.setDate(nextDate.getDate() + intervalInDays);
+	return nextDate;
+}
+
+/**
+ * Updates the user's database records based on the evaluation payload.
+ * Adjusts Elo ratings and SRS states for targeted Vocabulary and Grammar rules.
+ */
+export async function updateEloRatings(userId: string, payload: EvaluationPayload, gameMode: string = 'en-to-de') {
+	console.log(`Updating Elos for user ${userId} with payload:`, JSON.stringify(payload, null, 2));
+	for (const vocabUpdate of payload.vocabularyUpdates || []) {
+		try {
+			// Ensure the Vocabulary exists
+			const vocabExists = await prisma.vocabulary.findUnique({
+				where: { id: vocabUpdate.id }
+			});
+
+			if (!vocabExists) {
+				await prisma.vocabulary.create({
+					data: {
+						id: vocabUpdate.id,
+						lemma: vocabUpdate.id // Fallback to id if lemma isn't available
+					}
+				});
+			}
+
+			// We don't have CEFR levels for Vocabulary, so we assume an average 1200 base difficulty for words
+			const baseDifficulty = 1200;
+
+			const userVocab = await prisma.userVocabulary.findUnique({
+				where: { userId_vocabularyId: { userId, vocabularyId: vocabUpdate.id } }
+			});
+
+			const currentElo = userVocab?.eloRating ?? baseDifficulty;
+
+			const newElo = calculateNewElo(currentElo, vocabUpdate.score, baseDifficulty, gameMode);
+			const newState = deriveSrsState(newElo, baseDifficulty);
+			const nextReviewDate = calculateNextReviewDate(newElo, baseDifficulty);
+
+			await prisma.userVocabulary.upsert({
+				where: { userId_vocabularyId: { userId, vocabularyId: vocabUpdate.id } },
+				create: {
+					userId,
+					vocabularyId: vocabUpdate.id,
+					eloRating: newElo,
+					srsState: newState,
+					nextReviewDate
+				},
+				update: {
+					eloRating: newElo,
+					srsState: newState,
+					nextReviewDate
+				}
+			});
+		} catch (err) {
+			console.error(`Failed to update user vocabulary ${vocabUpdate.id}:`, err);
+		}
+	}
+
+	// Skip grammar updates for de-to-en and multiple-choice — only award grammar credit for en-to-de and fill-blank
+	if (gameMode === 'de-to-en' || gameMode === 'multiple-choice') {
+		console.log(`Skipping grammar updates for ${gameMode} mode`);
+	} else
+	for (const grammarUpdate of payload.grammarUpdates || []) {
+		try {
+			// Ensure the GrammarRule exists
+			const grammarExists = await prisma.grammarRule.findUnique({
+				where: { id: grammarUpdate.id }
+			});
+
+			if (!grammarExists) {
+				await prisma.grammarRule.create({
+					data: {
+						id: grammarUpdate.id,
+						title: grammarUpdate.id // Fallback to id if title isn't available
+					}
+				});
+			}
+
+			const baseDifficulty = mapLevelToElo(grammarExists?.level || 'A1');
+
+			const userGrammar = await prisma.userGrammarRule.findUnique({
+				where: { userId_grammarRuleId: { userId, grammarRuleId: grammarUpdate.id } }
+			});
+
+			const currentElo = userGrammar?.eloRating ?? baseDifficulty;
+
+			const newElo = calculateNewElo(currentElo, grammarUpdate.score, baseDifficulty, gameMode);
+			const newState = deriveSrsState(newElo, baseDifficulty);
+			const nextReviewDate = calculateNextReviewDate(newElo, baseDifficulty);
+
+			await prisma.userGrammarRule.upsert({
+				where: { userId_grammarRuleId: { userId, grammarRuleId: grammarUpdate.id } },
+				create: {
+					userId,
+					grammarRuleId: grammarUpdate.id,
+					eloRating: newElo,
+					srsState: newState,
+					nextReviewDate
+				},
+				update: {
+					eloRating: newElo,
+					srsState: newState,
+					nextReviewDate
+				}
+			});
+		} catch (err) {
+			console.error(`Failed to update user grammar rule ${grammarUpdate.id}:`, err);
+		}
+	}
+
+	// Process any extra vocabulary the user correctly used by coincidence
+	for (const lemma of payload.extraVocabLemmas || []) {
+		if (!lemma) continue;
+		try {
+			// Look up the word in the global vocabulary
+			let vocabExists = await prisma.vocabulary.findFirst({
+				where: { lemma: { equals: lemma, mode: 'insensitive' } }
+			});
+
+			if (!vocabExists) {
+				vocabExists = await prisma.vocabulary.create({
+					data: { lemma: lemma.toLowerCase() }
+				});
+			}
+
+			const baseDifficulty = 1200;
+
+			const userVocab = await prisma.userVocabulary.findUnique({
+				where: { userId_vocabularyId: { userId, vocabularyId: vocabExists.id } }
+			});
+
+			const currentElo = userVocab?.eloRating ?? baseDifficulty;
+
+			// A coincidentally correct usage implies success (score = 1.0)
+			// But maybe a lower multiplier so it's not a huge jump? No, standard update is fine.
+			const newElo = calculateNewElo(currentElo, 1.0, baseDifficulty, gameMode);
+			const newState = deriveSrsState(newElo, baseDifficulty);
+			const nextReviewDate = calculateNextReviewDate(newElo, baseDifficulty);
+
+			await prisma.userVocabulary.upsert({
+				where: { userId_vocabularyId: { userId, vocabularyId: vocabExists.id } },
+				create: {
+					userId,
+					vocabularyId: vocabExists.id,
+					eloRating: newElo,
+					srsState: newState,
+					nextReviewDate
+				},
+				update: {
+					eloRating: newElo,
+					srsState: newState,
+					nextReviewDate
+				}
+			});
+		} catch (err) {
+			console.error(`Failed to process extra vocab lemma ${lemma}:`, err);
+		}
+	}
+}

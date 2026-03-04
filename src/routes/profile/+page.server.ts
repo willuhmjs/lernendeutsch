@@ -1,0 +1,71 @@
+import { redirect, fail } from '@sveltejs/kit';
+import type { PageServerLoad, Actions } from './$types';
+import { prisma } from '$lib/server/prisma';
+import bcrypt from 'bcrypt';
+import { z } from 'zod';
+
+export const load: PageServerLoad = async ({ locals }) => {
+	if (!locals.user) {
+		throw redirect(303, '/login');
+	}
+
+	const user = await prisma.user.findUnique({
+		where: { id: locals.user.id },
+		select: { passwordHash: true }
+	});
+
+	return {
+		user: locals.user,
+		hasPassword: !!user?.passwordHash
+	};
+};
+
+const passwordSchema = z.object({
+	currentPassword: z.string().optional(),
+	newPassword: z.string().min(8)
+});
+
+export const actions: Actions = {
+	updatePassword: async ({ request, locals }) => {
+		if (!locals.user) {
+			throw redirect(303, '/login');
+		}
+
+		const formData = await request.formData();
+		const data = Object.fromEntries(formData);
+		const parsed = passwordSchema.safeParse(data);
+
+		if (!parsed.success) {
+			return fail(400, { error: 'Invalid input. Password must be at least 8 characters.' });
+		}
+
+		const { currentPassword, newPassword } = parsed.data;
+
+		const user = await prisma.user.findUnique({
+			where: { id: locals.user.id }
+		});
+
+		if (!user) {
+			return fail(404, { error: 'User not found' });
+		}
+
+		if (user.passwordHash) {
+			if (!currentPassword) {
+				return fail(400, { error: 'Current password is required' });
+			}
+			const match = await bcrypt.compare(currentPassword, user.passwordHash);
+			if (!match) {
+				return fail(400, { error: 'Incorrect current password' });
+			}
+		}
+
+		const passwordHash = await bcrypt.hash(newPassword, 10);
+
+		await prisma.user.update({
+			where: { id: locals.user.id },
+			data: { passwordHash }
+		});
+
+		return { success: 'Password updated successfully' };
+	}
+};
