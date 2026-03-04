@@ -22,7 +22,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 const passwordSchema = z.object({
 	currentPassword: z.string().optional(),
-	newPassword: z.string().min(8)
+	newPassword: z.string().min(8).max(128)
 });
 
 export const actions: Actions = {
@@ -67,5 +67,28 @@ export const actions: Actions = {
 		});
 
 		return { success: 'Password updated successfully' };
+	},
+
+	deleteAccount: async ({ locals, cookies }) => {
+		if (!locals.user) {
+			throw redirect(303, '/login');
+		}
+
+		// Prisma will cascade delete UserVocabulary, UserGrammarRule, Accounts, Sessions 
+		// due to the onDelete: Cascade in the schema
+		await prisma.user.delete({
+			where: { id: locals.user.id }
+		});
+
+		// Clear auth cookies using Auth.js standard session cookie names
+		// This ensures the user is logged out
+		cookies.delete('authjs.session-token', { path: '/' });
+		cookies.delete('authjs.csrf-token', { path: '/' });
+		cookies.delete('authjs.callback-url', { path: '/' });
+
+		// We could also call the signout endpoint, but redirecting to / with a cleared cookie usually works well
+		// and we don't want to get stuck in a weird state.
+		
+		throw redirect(303, '/login');
 	}
 };

@@ -55,6 +55,30 @@
 			<button type="submit" class="submit-btn">Update Password</button>
 		</form>
 	</section>
+
+	<section class="delete-card">
+		<h2>Danger Zone</h2>
+		<p class="warning-text">Deleting your account is permanent and cannot be undone. All your progress, vocabulary, and settings will be lost.</p>
+		
+		<button class="delete-btn" on:click={() => document.getElementById('delete-modal')?.showModal()}>
+			Delete Account
+		</button>
+
+		<dialog id="delete-modal" class="modal">
+			<div class="modal-box">
+				<h3 class="font-bold text-lg text-red-600">Delete Account</h3>
+				<p class="py-4">Are you absolutely sure you want to delete your account? This action cannot be undone.</p>
+				<div class="modal-action">
+					<form method="dialog">
+						<button class="btn">Cancel</button>
+					</form>
+					<form method="POST" action="?/deleteAccount">
+						<button class="btn btn-error" type="submit">Yes, Delete My Account</button>
+					</form>
+				</div>
+			</div>
+		</dialog>
+	</section>
 </div>
 
 <style>
@@ -199,5 +223,104 @@
 
 	.submit-btn:hover {
 		background-color: #1d4ed8;
+	}
+
+	.delete-card {
+		background: #ffffff;
+		border: 1px solid #fecaca;
+		border-radius: 0.75rem;
+		padding: 1.5rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.delete-card h2 {
+		font-size: 1.125rem;
+		font-weight: 600;
+		color: #991b1b;
+		margin: 0 0 0.5rem 0;
+	}
+
+	.warning-text {
+		color: #6b7280;
+		font-size: 0.875rem;
+		margin: 0 0 1rem 0;
+	}
+
+	.delete-btn {
+		background-color: #ef4444;
+		color: white;
+		border: none;
+		padding: 0.625rem 1.25rem;
+		border-radius: 0.5rem;
+		font-size: 0.875rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: background-color 0.2s;
+	}
+
+	.delete-btn:hover {
+		background-color: #dc2626;
+	}
+
+	.modal {
+		border: none;
+		border-radius: 1rem;
+		padding: 0;
+		background: transparent;
+	}
+
+	.modal::backdrop {
+		background: rgba(0, 0, 0, 0.5);
+	}
+
+	.modal-box {
+		background: white;
+		padding: 1.5rem;
+		border-radius: 1rem;
+		max-width: 400px;
+		width: 100%;
+	}
+
+	.modal-box h3 {
+		margin: 0 0 1rem 0;
+		font-size: 1.25rem;
+		color: #111827;
+	}
+
+	.modal-box p {
+		margin: 0 0 1.5rem 0;
+		color: #4b5563;
+		font-size: 0.875rem;
+	}
+
+	.modal-action {
+		display: flex;
+		justify-content: flex-end;
+		gap: 0.5rem;
+	}
+
+	.btn {
+		padding: 0.5rem 1rem;
+		border-radius: 0.5rem;
+		font-size: 0.875rem;
+		font-weight: 500;
+		cursor: pointer;
+		border: 1px solid #d1d5db;
+		background: white;
+		color: #374151;
+	}
+
+	.btn:hover {
+		background: #f3f4f6;
+	}
+
+	.btn-error {
+		background: #ef4444;
+		color: white;
+		border: none;
+	}
+
+	.btn-error:hover {
+		background: #dc2626;
 	}
 </style>
