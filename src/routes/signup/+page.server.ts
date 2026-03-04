@@ -8,8 +8,8 @@ import { getSiteSettings } from '$lib/server/settings';
 
 const signupSchema = z.object({
 	username: z.string().min(3).max(31),
-	email: z.email(),
-	password: z.string().min(8)
+	email: z.email().max(128),
+	password: z.string().max(128)
 });
 
 export const load: PageServerLoad = async () => {
