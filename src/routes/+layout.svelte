@@ -1,12 +1,12 @@
 <script lang="ts">
 	import favicon from '$lib/assets/favicon.svg';
-	import { SvelteToast } from '@zerodevx/svelte-toast';
+	import { Toaster } from 'svelte-french-toast';
 
 	let { data, children } = $props();
 	let user = $derived(data.user);
 </script>
 
-<SvelteToast />
+<Toaster />
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
@@ -152,6 +152,31 @@
 		background: var(--input-bg) !important;
 		border-color: var(--input-border) !important;
 		color: var(--input-text) !important;
+	}
+
+	:global(html[data-theme="dark"] .dark\:bg-slate-800) {
+		background-color: #1e293b !important;
+	}
+	:global(html[data-theme="dark"] .dark\:bg-slate-900) {
+		background-color: #0f172a !important;
+	}
+	:global(html[data-theme="dark"] .dark\:text-white) {
+		color: #ffffff !important;
+	}
+	:global(html[data-theme="dark"] .dark\:text-slate-200) {
+		color: #e2e8f0 !important;
+	}
+	:global(html[data-theme="dark"] .dark\:text-slate-300) {
+		color: #cbd5e1 !important;
+	}
+	:global(html[data-theme="dark"] .dark\:text-slate-400) {
+		color: #94a3b8 !important;
+	}
+	:global(html[data-theme="dark"] .dark\:border-slate-700) {
+		border-color: #334155 !important;
+	}
+	:global(html[data-theme="dark"] .dark\:border-slate-600) {
+		border-color: #475569 !important;
 	}
 
 	.app-container {

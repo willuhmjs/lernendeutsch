@@ -27,58 +27,58 @@
 	}, {} as Record<string, number>);
 </script>
 
-<div class="dashboard-container">
+<div class="dashboard-container dark:text-slate-300">
 	<header class="dashboard-header">
-		<h1>Proficiency Dashboard</h1>
-		<p>Track your language learning progress.</p>
-		<a href="/onboarding" class="re-onboard-link">Retake Placement Test</a>
+		<h1 class="dark:text-white">Proficiency Dashboard</h1>
+		<p class="dark:text-slate-400">Track your language learning progress.</p>
+		<a href="/onboarding" class="re-onboard-link dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:border dark:border-slate-700">Retake Placement Test</a>
 	</header>
 
 	<section class="summary-section">
-		<h2>Summary Statistics</h2>
+		<h2 class="dark:text-white dark:border-slate-700">Summary Statistics</h2>
 		<div class="summary-grid">
-			<div class="summary-card">
-				<h3>Vocabulary</h3>
+			<div class="summary-card dark:bg-slate-800 dark:border-slate-700">
+				<h3 class="dark:text-white dark:border-slate-700">Vocabulary</h3>
 				<div class="stat-row">
-					<span class="stat-label">Total Terms:</span>
-					<span class="stat-value">{totalVocab}</span>
+					<span class="stat-label dark:text-slate-400">Total Terms:</span>
+					<span class="stat-value dark:text-white">{totalVocab}</span>
 				</div>
 				<div class="stat-row">
-					<span class="stat-label">Average ELO:</span>
-					<span class="stat-value">{avgVocabElo}</span>
+					<span class="stat-label dark:text-slate-400">Average ELO:</span>
+					<span class="stat-value dark:text-white">{avgVocabElo}</span>
 				</div>
 				<div class="srs-breakdown">
-					<h4>SRS State Breakdown</h4>
+					<h4 class="dark:text-slate-300">SRS State Breakdown</h4>
 					{#each Object.entries(srsColors) as [state, color]}
 						<div class="breakdown-row">
 							<div class="breakdown-label">
 								<span class="color-box" style="background-color: {color}"></span>
 								{state}
 							</div>
-							<span>{vocabSrsBreakdown[state] || 0}</span>
+							<span class="dark:text-slate-300">{vocabSrsBreakdown[state] || 0}</span>
 						</div>
 					{/each}
 				</div>
 			</div>
-			<div class="summary-card">
-				<h3>Grammar</h3>
+			<div class="summary-card dark:bg-slate-800 dark:border-slate-700">
+				<h3 class="dark:text-white dark:border-slate-700">Grammar</h3>
 				<div class="stat-row">
-					<span class="stat-label">Total Rules:</span>
-					<span class="stat-value">{totalGrammar}</span>
+					<span class="stat-label dark:text-slate-400">Total Rules:</span>
+					<span class="stat-value dark:text-white">{totalGrammar}</span>
 				</div>
 				<div class="stat-row">
-					<span class="stat-label">Average ELO:</span>
-					<span class="stat-value">{avgGrammarElo}</span>
+					<span class="stat-label dark:text-slate-400">Average ELO:</span>
+					<span class="stat-value dark:text-white">{avgGrammarElo}</span>
 				</div>
 				<div class="srs-breakdown">
-					<h4>SRS State Breakdown</h4>
+					<h4 class="dark:text-slate-300">SRS State Breakdown</h4>
 					{#each Object.entries(srsColors) as [state, color]}
 						<div class="breakdown-row">
 							<div class="breakdown-label">
 								<span class="color-box" style="background-color: {color}"></span>
 								{state}
 							</div>
-							<span>{grammarSrsBreakdown[state] || 0}</span>
+							<span class="dark:text-slate-300">{grammarSrsBreakdown[state] || 0}</span>
 						</div>
 					{/each}
 				</div>
@@ -88,8 +88,8 @@
 
 	<div class="dashboard-content">
 		<section class="vocabulary-section">
-			<h2>Vocabulary Heatmap</h2>
-			<div class="heatmap-legend">
+			<h2 class="dark:text-white dark:border-slate-700">Vocabulary Heatmap</h2>
+			<div class="heatmap-legend dark:text-slate-300">
 				<div class="legend-item">
 					<span class="color-box" style="background-color: {srsColors.UNSEEN}"></span> Unseen
 				</div>
@@ -105,17 +105,17 @@
 			</div>
 			
 			{#if data.vocabularies.length === 0}
-				<p class="empty-state">No vocabulary data available yet. Start learning!</p>
+				<p class="empty-state dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400">No vocabulary data available yet. Start learning!</p>
 			{:else}
-				<div class="heatmap-grid">
+				<div class="heatmap-grid dark:bg-slate-800 dark:border-slate-700">
 					{#each data.vocabularies as vocab}
 						<div 
 							class="heatmap-cell tooltip-trigger" 
 							style="background-color: {srsColors[vocab.srsState]}"
 						>
 							<span class="sr-only">{vocab.vocabulary.lemma}</span>
-							<div class="tooltip-content">
-								<div class="tooltip-header">
+							<div class="tooltip-content dark:bg-slate-700 dark:text-white">
+								<div class="tooltip-header dark:border-slate-600">
 									{#if vocab.vocabulary.partOfSpeech?.toLowerCase() === 'noun'}
 										{vocab.vocabulary.lemma.charAt(0).toUpperCase() + vocab.vocabulary.lemma.slice(1)}
 									{:else}
@@ -144,30 +144,30 @@
 		</section>
 
 		<section class="grammar-section">
-			<h2>Grammar Skill Tree</h2>
+			<h2 class="dark:text-white dark:border-slate-700">Grammar Skill Tree</h2>
 			{#if data.grammarRules.length === 0}
-				<p class="empty-state">No grammar data available yet. Start learning!</p>
+				<p class="empty-state dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400">No grammar data available yet. Start learning!</p>
 			{:else}
 				<div class="skill-tree">
 					{#each data.grammarRules as rule}
-						<div class="skill-node">
+						<div class="skill-node dark:bg-slate-800 dark:border-slate-700">
 							<div class="skill-info">
-								<h3>{rule.grammarRule.title}</h3>
-								<p class="skill-desc">{rule.grammarRule.description || ''}</p>
+								<h3 class="dark:text-white">{rule.grammarRule.title}</h3>
+								<p class="skill-desc dark:text-slate-400">{rule.grammarRule.description || ''}</p>
 								
-								<div class="debug-details">
+								<div class="debug-details dark:bg-slate-900 dark:text-slate-400">
 									<div class="debug-grid">
-										<div class="debug-item"><strong>SRS State:</strong> {rule.srsState}</div>
-										<div class="debug-item"><strong>Raw ELO:</strong> {Math.ceil(rule.eloRating)}</div>
+										<div class="debug-item"><strong class="dark:text-slate-300">SRS State:</strong> {rule.srsState}</div>
+										<div class="debug-item"><strong class="dark:text-slate-300">Raw ELO:</strong> {Math.ceil(rule.eloRating)}</div>
 									</div>
 								</div>
 							</div>
 							<div class="skill-progress">
-								<div class="progress-labels">
+								<div class="progress-labels dark:text-slate-400">
 									<span>ELO {Math.ceil(rule.eloRating)}</span>
 									<span>{rule.srsState}</span>
 								</div>
-								<div class="progress-bar-container">
+								<div class="progress-bar-container dark:bg-slate-700">
 									<!-- Baseline is roughly 1200, max mastery could be around 2000 -->
 									<div 
 										class="progress-bar-fill"
@@ -242,8 +242,8 @@
 	}
 
 	.summary-card {
-		background: #f8fafc;
-		border: 1px solid #e2e8f0;
+		background: var(--card-bg, #f8fafc);
+		border: 1px solid var(--card-border, #e2e8f0);
 		border-radius: 8px;
 		padding: 1.5rem;
 	}
@@ -251,9 +251,9 @@
 	.summary-card h3 {
 		margin-top: 0;
 		margin-bottom: 1rem;
-		color: #0f172a;
+		color: var(--text-color, #0f172a);
 		font-size: 1.25rem;
-		border-bottom: 1px solid #cbd5e1;
+		border-bottom: 1px solid var(--card-border, #cbd5e1);
 		padding-bottom: 0.5rem;
 	}
 
@@ -312,9 +312,9 @@
 
 	h2 {
 		font-size: 1.5rem;
-		color: #1e293b;
+		color: var(--text-color, #1e293b);
 		margin-bottom: 1.5rem;
-		border-bottom: 2px solid #e2e8f0;
+		border-bottom: 2px solid var(--card-border, #e2e8f0);
 		padding-bottom: 0.5rem;
 	}
 
@@ -345,10 +345,10 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: 4px;
-		background: #f8fafc;
+		background: var(--card-bg, #f8fafc);
 		padding: 1rem;
 		border-radius: 8px;
-		border: 1px solid #e2e8f0;
+		border: 1px solid var(--card-border, #e2e8f0);
 	}
 
 	.heatmap-cell {
@@ -442,8 +442,8 @@
 	}
 
 	.skill-node {
-		background: #f8fafc;
-		border: 1px solid #e2e8f0;
+		background: var(--card-bg, #f8fafc);
+		border: 1px solid var(--card-border, #e2e8f0);
 		border-radius: 8px;
 		padding: 1.25rem;
 		transition: box-shadow 0.2s;
@@ -456,7 +456,7 @@
 	.skill-info h3 {
 		margin: 0 0 0.5rem 0;
 		font-size: 1.25rem;
-		color: #0f172a;
+		color: var(--text-color, #0f172a);
 	}
 
 	.skill-desc {
@@ -469,7 +469,7 @@
 	.debug-details {
 		margin-bottom: 1rem;
 		padding: 0.75rem;
-		background-color: #e2e8f0;
+		background-color: var(--input-bg, #e2e8f0);
 		border-radius: 6px;
 		font-size: 0.8rem;
 		color: #475569;
@@ -511,9 +511,9 @@
 	.empty-state {
 		text-align: center;
 		padding: 3rem;
-		background: #f8fafc;
+		background: var(--card-bg, #f8fafc);
 		border-radius: 8px;
-		border: 1px dashed #cbd5e1;
+		border: 1px dashed var(--card-border, #cbd5e1);
 		color: #64748b;
 	}
 </style>

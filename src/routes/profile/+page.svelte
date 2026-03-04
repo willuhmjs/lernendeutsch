@@ -8,30 +8,30 @@
 
 <div class="profile-container">
 	<header class="profile-header">
-		<h1>Profile</h1>
-		<p>Manage your account settings.</p>
+		<h1 class="dark:text-white">Profile</h1>
+		<p class="dark:text-slate-400">Manage your account settings.</p>
 	</header>
 
-	<section class="info-card">
-		<h2>Your Information</h2>
+	<section class="info-card dark:bg-slate-800 dark:border-slate-700">
+		<h2 class="dark:text-white">Your Information</h2>
 		<div class="info-grid">
 			<div class="info-item">
-				<span class="info-label">Username</span>
-				<span class="info-value">{data.user?.username}</span>
+				<span class="info-label dark:text-slate-400">Username</span>
+				<span class="info-value dark:text-white">{data.user?.username}</span>
 			</div>
 			<div class="info-item">
-				<span class="info-label">CEFR Level</span>
+				<span class="info-label dark:text-slate-400">CEFR Level</span>
 				<span class="info-value level-badge">{data.user?.cefrLevel}</span>
 			</div>
 			<div class="info-item">
-				<span class="info-label">Role</span>
-				<span class="info-value">{data.user?.role}</span>
+				<span class="info-label dark:text-slate-400">Role</span>
+				<span class="info-value dark:text-white">{data.user?.role}</span>
 			</div>
 		</div>
 	</section>
 
-	<section class="theme-card">
-		<h2>Theme Settings</h2>
+	<section class="theme-card dark:bg-slate-800 dark:border-slate-700">
+		<h2 class="dark:text-white">Theme Settings</h2>
 		
 		{#if form?.themeSuccess}
 			<div class="alert alert-success">{form.themeSuccess}</div>
@@ -50,8 +50,8 @@
 			};
 		}}>
 			<div class="form-group">
-				<label for="theme">Select Theme</label>
-				<select id="theme" name="theme" class="theme-select">
+				<label for="theme" class="dark:text-slate-300">Select Theme</label>
+				<select id="theme" name="theme" class="theme-select dark:bg-slate-900 dark:text-white dark:border-slate-700">
 					<option value="default" selected={data.user?.theme === 'default'}>Default</option>
 					<option value="dark" selected={data.user?.theme === 'dark'}>Dark</option>
 					<option value="bavarian" selected={data.user?.theme === 'bavarian'}>Historic German (Bavarian)</option>
@@ -62,8 +62,8 @@
 	</section>
 
 	{#if data.localLoginEnabled}
-		<section class="password-card">
-			<h2>Update Password</h2>
+		<section class="password-card dark:bg-slate-800 dark:border-slate-700">
+			<h2 class="dark:text-white">Update Password</h2>
 
 			{#if form?.error}
 				<div class="alert alert-error">{form.error}</div>
@@ -75,14 +75,14 @@
 			<form method="POST" action="?/updatePassword">
 				{#if data.hasPassword}
 					<div class="form-group">
-						<label for="currentPassword">Current Password</label>
-						<input type="password" id="currentPassword" name="currentPassword" required />
+						<label for="currentPassword" class="dark:text-slate-300">Current Password</label>
+						<input type="password" id="currentPassword" name="currentPassword" required class="dark:bg-slate-900 dark:text-white dark:border-slate-700" />
 					</div>
 				{/if}
 
 				<div class="form-group">
-					<label for="newPassword">New Password</label>
-					<input type="password" id="newPassword" name="newPassword" required minlength="8" />
+					<label for="newPassword" class="dark:text-slate-300">New Password</label>
+					<input type="password" id="newPassword" name="newPassword" required minlength="8" class="dark:bg-slate-900 dark:text-white dark:border-slate-700" />
 				</div>
 
 				<button type="submit" class="submit-btn">Update Password</button>

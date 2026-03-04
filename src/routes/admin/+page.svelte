@@ -315,7 +315,7 @@
 	.admin-header h1 {
 		font-size: 2rem;
 		font-weight: 700;
-		color: #111827;
+		color: var(--text-color, #111827);
 		margin: 0 0 0.5rem 0;
 	}
 
@@ -334,7 +334,7 @@
 
 	.seed-card {
 		background: var(--card-bg, #ffffff);
-		border: 1px solid #e5e7eb;
+		border: 1px solid var(--card-border, #e5e7eb);
 		border-radius: 0.75rem;
 		padding: 1.5rem;
 		display: flex;
@@ -347,7 +347,7 @@
 	.seed-info h2 {
 		font-size: 1.25rem;
 		font-weight: 600;
-		color: #111827;
+		color: var(--text-color, #111827);
 		margin: 0 0 0.25rem 0;
 	}
 
@@ -410,13 +410,13 @@
 	.users-section h2 {
 		font-size: 1.25rem;
 		font-weight: 600;
-		color: #111827;
+		color: var(--text-color, #111827);
 		margin: 0 0 1rem 0;
 	}
 
 	.table-wrapper {
 		background: var(--card-bg, #ffffff);
-		border: 1px solid #e5e7eb;
+		border: 1px solid var(--card-border, #e5e7eb);
 		border-radius: 0.75rem;
 		overflow-x: auto;
 	}
@@ -428,21 +428,21 @@
 	}
 
 	thead {
-		background-color: #f9fafb;
+		background-color: var(--header-bg, #f9fafb);
 	}
 
 	th {
 		padding: 0.75rem 1rem;
 		text-align: left;
 		font-weight: 600;
-		color: #374151;
-		border-bottom: 1px solid #e5e7eb;
+		color: var(--text-color, #374151);
+		border-bottom: 1px solid var(--card-border, #e5e7eb);
 	}
 
 	td {
 		padding: 0.75rem 1rem;
-		border-bottom: 1px solid #f3f4f6;
-		color: #4b5563;
+		border-bottom: 1px solid var(--card-border, #f3f4f6);
+		color: var(--text-color, #4b5563);
 	}
 
 	tr:last-child td {
@@ -450,7 +450,7 @@
 	}
 
 	tr:hover td {
-		background-color: #f9fafb;
+		background-color: var(--link-hover-bg, #f9fafb);
 	}
 
 	.id-cell {

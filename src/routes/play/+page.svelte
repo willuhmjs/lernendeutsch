@@ -1,6 +1,6 @@
-<script lang="ts">
+r<script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import { toast } from '@zerodevx/svelte-toast';
+	import toast from 'svelte-french-toast';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -547,7 +547,7 @@
 			
 			if (!res.ok) {
 				const error = await res.json();
-				toast.push(`Error: ${error.error}`, { theme: { '--toastBackground': '#F56565', '--toastBarBackground': '#C53030' } });
+				toast.error(`Error: ${error.error}`);
 				return;
 			}
 			
@@ -694,7 +694,7 @@
 				return;
 			}
 			console.error(error);
-			toast.push(`Failed to generate challenge: ${error instanceof Error ? error.message : 'Unknown error'}`, { theme: { '--toastBackground': '#F56565', '--toastBarBackground': '#C53030' } });
+			toast.error(`Failed to generate challenge: ${error instanceof Error ? error.message : 'Unknown error'}`);
 		} finally {
 			generateController = null;
 			loading = false;
@@ -718,11 +718,11 @@
 		}
 
 		if (isStreaming) {
-			toast.push('Please wait for the challenge to finish generating.', { theme: { '--toastBackground': '#F6E05E', '--toastBarBackground': '#D69E2E', '--toastColor': '#000' } });
+			toast('Please wait for the challenge to finish generating.', { icon: '⏳' });
 			return;
 		}
 		if (!challenge?.targetSentence) {
-			toast.push('Challenge was not properly generated (missing target sentence). Please generate a new challenge.', { theme: { '--toastBackground': '#F56565', '--toastBarBackground': '#C53030' } });
+			toast.error('Challenge was not properly generated (missing target sentence). Please generate a new challenge.');
 			return;
 		}
 		
@@ -752,7 +752,7 @@
 			
 			if (!res.ok) {
 				const error = await res.json();
-				toast.push(`Error: ${error.error}`, { theme: { '--toastBackground': '#F56565', '--toastBarBackground': '#C53030' } });
+				toast.error(`Error: ${error.error}`);
 				feedback = null;
 				return;
 			}
@@ -829,7 +829,7 @@
 				return;
 			}
 			console.error(error);
-			toast.push(`Failed to submit answer: ${error instanceof Error ? error.message : 'Unknown error'}`, { theme: { '--toastBackground': '#F56565', '--toastBarBackground': '#C53030' } });
+			toast.error(`Failed to submit answer: ${error instanceof Error ? error.message : 'Unknown error'}`);
 			feedback = null;
 			hasSubmittedMc = false;
 		} finally {
@@ -846,50 +846,50 @@
 <div class="page-container">
 	<div class="content-wrapper">
 		<header class="page-header">
-			<h1>Play Mode</h1>
-			<p>Test your skills with personalized challenges.</p>
+			<h1 class="dark:text-white">Play Mode</h1>
+			<p class="dark:text-slate-400">Test your skills with personalized challenges.</p>
 		</header>
 
 		{#if !challenge && !loading}
-			<div class="card empty-state">
-				<h2>Ready to test your skills?</h2>
+			<div class="card empty-state dark:bg-slate-800 dark:border-slate-700">
+				<h2 class="dark:text-white">Ready to test your skills?</h2>
 
 				{#if isAbsoluteBeginner}
-					<div class="beginner-tip">
+					<div class="beginner-tip dark:bg-slate-900 dark:border-slate-700 dark:text-emerald-400">
 						<span class="tip-icon">💡</span>
 						<div>
-							<strong>Tip for beginners:</strong> Start with <strong>Multiple Choice</strong> or <strong>German to English</strong> — these let you recognize words before producing them. Once you feel confident, try <strong>Fill in the Blank</strong> and <strong>English to German</strong>!
+							<strong class="dark:text-emerald-300">Tip for beginners:</strong> Start with <strong>Multiple Choice</strong> or <strong>German to English</strong> — these let you recognize words before producing them. Once you feel confident, try <strong>Fill in the Blank</strong> and <strong>English to German</strong>!
 						</div>
 					</div>
 				{/if}
 
 				<div class="mode-selector">
-					<span class="mode-label">Game Mode:</span>
+					<span class="mode-label dark:text-slate-400">Game Mode:</span>
 					<div class="mode-buttons">
 						<!-- Easiest first -->
 						<button
-							class="mode-btn" class:active={gameMode === 'multiple-choice'}
+							class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700" class:active={gameMode === 'multiple-choice'}
 							on:click={() => gameMode = 'multiple-choice'}
 						>
 							🔘 Multiple Choice
 							<span class="mode-difficulty easy">Easiest</span>
 						</button>
 						<button
-							class="mode-btn" class:active={gameMode === 'de-to-en'}
+							class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700" class:active={gameMode === 'de-to-en'}
 							on:click={() => gameMode = 'de-to-en'}
 						>
 							🇩🇪 → {englishFlag} German to English
 							<span class="mode-difficulty easy">Easy</span>
 						</button>
 						<button
-							class="mode-btn" class:active={gameMode === 'fill-blank'}
+							class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700" class:active={gameMode === 'fill-blank'}
 							on:click={() => gameMode = 'fill-blank'}
 						>
 							✏️ Fill in the Blank
 							<span class="mode-difficulty medium">Medium</span>
 						</button>
 						<button
-							class="mode-btn" class:active={gameMode === 'en-to-de'}
+							class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700" class:active={gameMode === 'en-to-de'}
 							on:click={() => gameMode = 'en-to-de'}
 						>
 							{englishFlag} → 🇩🇪 English to German
@@ -904,43 +904,43 @@
 		{/if}
 
 		{#if loading}
-			<div class="card loading-state">
+			<div class="card loading-state dark:bg-slate-800 dark:border-slate-700">
 				<div class="spinner"></div>
-				<p>Generating your personalized i+1 challenge...</p>
+				<p class="dark:text-slate-400">Generating your personalized i+1 challenge...</p>
 			</div>
 		{/if}
 
 		{#if challenge && !loading}
-			<div class="card challenge-card">
+			<div class="card challenge-card dark:bg-slate-800 dark:border-slate-700">
 				<div class="challenge-section">
 					{#if challenge.gameMode === 'fill-blank'}
-						<h3>Fill in the blanks:</h3>
+						<h3 class="dark:text-slate-400">Fill in the blanks:</h3>
 					{:else if challenge.gameMode === 'multiple-choice'}
-						<h3>Choose the correct English translation:</h3>
+						<h3 class="dark:text-slate-400">Choose the correct English translation:</h3>
 					{:else if challenge.gameMode === 'de-to-en'}
-						<h3>Translate this to English:</h3>
+						<h3 class="dark:text-slate-400">Translate this to English:</h3>
 					{:else}
-						<h3>Translate this to German:</h3>
+						<h3 class="dark:text-slate-400">Translate this to German:</h3>
 					{/if}
-					<p class="challenge-text">{@html parsedChallengeText}</p>
+					<p class="challenge-text dark:text-white">{@html parsedChallengeText}</p>
 				</div>
 
 				{#if challenge.gameMode === 'fill-blank' && challenge.hints?.length > 0}
 					<div class="challenge-section">
-						<h3>Hints:</h3>
+						<h3 class="dark:text-slate-400">Hints:</h3>
 						<ul class="hint-list">
 							{#each challenge.hints as hint, i}
-								<li><span class="hint-number">Blank {i + 1}:</span> {hint.hint}</li>
+								<li class="dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300"><span class="hint-number">Blank {i + 1}:</span> {hint.hint}</li>
 							{/each}
 						</ul>
 					</div>
 				{/if}
 
 				<div class="challenge-section">
-					<h3>Grammar:</h3>
+					<h3 class="dark:text-slate-400">Grammar:</h3>
 					<ul class="concept-list">
 						{#each challenge.targetedGrammar as grammar}
-							<li><span class="concept-type">Grammar</span> {grammar.title}</li>
+							<li class="dark:text-slate-300"><span class="concept-type dark:bg-slate-700 dark:text-slate-300">Grammar</span> {grammar.title}</li>
 						{/each}
 					</ul>
 				</div>
@@ -950,14 +950,14 @@
 						<div class="fill-blank-inputs">
 							{#each fillBlankAnswers as _, i}
 								<div class="form-group">
-									<label for="blank-{i}">Blank {i + 1}{challenge.hints?.[i] ? ` (${challenge.hints[i].hint})` : ''}</label>
+									<label for="blank-{i}" class="dark:text-slate-300">Blank {i + 1}{challenge.hints?.[i] ? ` (${challenge.hints[i].hint})` : ''}</label>
 									<input
 										id="blank-{i}"
 										type="text"
 										bind:value={fillBlankAnswers[i]}
 										disabled={submitting || feedback !== null || isStreaming}
 										placeholder="Type the missing German word..."
-										class="blank-input"
+										class="blank-input dark:bg-slate-900 dark:text-white dark:border-slate-700"
 									/>
 								</div>
 							{/each}
@@ -967,7 +967,7 @@
 							{#each shuffledChoices as choice}
 								<button
 									type="button"
-									class="mc-choice-btn"
+									class="mc-choice-btn dark:bg-slate-900 dark:text-slate-200 dark:border-slate-700"
 									class:selected={selectedChoice === choice}
 									class:correct={(feedback || hasSubmittedMc) && choice === challenge.targetSentence}
 									class:incorrect={(feedback || hasSubmittedMc) && selectedChoice === choice && choice !== challenge.targetSentence}
@@ -980,13 +980,14 @@
 						</div>
 					{:else}
 						<div class="form-group">
-							<label for="answer">Your Translation</label>
+							<label for="answer" class="dark:text-slate-300">Your Translation</label>
 							<textarea
 								id="answer"
 								bind:value={userInput}
 								disabled={submitting || feedback || isStreaming}
 								rows="3"
 								placeholder={isStreaming ? "Generating challenge..." : (challenge?.gameMode === 'de-to-en' ? "Type your English translation here..." : "Type your German translation here... (Or ask for help / translation in English)")}
+								class="dark:bg-slate-900 dark:text-white dark:border-slate-700"
 							></textarea>
 						</div>
 					{/if}
@@ -1014,17 +1015,17 @@
 		{/if}
 
 		{#if feedback}
-			<div class="card feedback-card">
+			<div class="card feedback-card dark:bg-slate-800 dark:border-slate-700">
 				<div class="feedback-header">
-					<h2>Feedback</h2>
+					<h2 class="dark:text-white">Feedback</h2>
 					{#if feedback.feedbackEnglish}
 					<label class="toggle-container">
 						<input type="checkbox" bind:checked={showEnglishFeedback}>
-						<span class="toggle-label">Translate to English</span>
+						<span class="toggle-label dark:text-slate-400">Translate to English</span>
 					</label>
 					{/if}
 					<div class="score-display">
-						<span class="score-label">Score:</span>
+						<span class="score-label dark:text-slate-400">Score:</span>
 						{#if feedback.globalScore === null}
 							<div class="score-spinner"></div>
 						{:else}
@@ -1035,25 +1036,25 @@
 					</div>
 				</div>
 
-				<div class="feedback-message">
+				<div class="feedback-message dark:bg-slate-900 dark:border-blue-900 dark:text-blue-300">
 					<p>{showEnglishFeedback && feedback.feedbackEnglish ? feedback.feedbackEnglish : feedback.feedback}</p>
 				</div>
 
 				<div class="feedback-section">
-					<h3>Expected Answer:</h3>
-					<div class="expected-answer">
-						<p>{@html parsedTargetSentence}</p>
+					<h3 class="dark:text-slate-400">Expected Answer:</h3>
+					<div class="expected-answer dark:bg-slate-900 dark:border-emerald-900">
+						<p class="dark:text-emerald-400">{@html parsedTargetSentence}</p>
 					</div>
 				</div>
 
 				<div class="feedback-grid">
 					{#if feedback.vocabularyUpdates?.length > 0}
 						<div class="feedback-list-section">
-							<h3>Vocabulary Used</h3>
+							<h3 class="dark:text-slate-400">Vocabulary Used</h3>
 							<ul>
 								{#each feedback.vocabularyUpdates as update}
 									{@const v = challenge.targetedVocabulary.find((v: any) => v.id === update.id)}
-									<li>
+									<li class="dark:text-slate-300">
 										<span class="icon">{(update.score ?? 0) >= 0.5 ? '✅' : '❌'}</span>
 										{#if v}
 											{#if v.gender}{v.gender} {/if}{v.lemma}{#if v.plural} (pl: {v.plural}){/if}
@@ -1068,10 +1069,10 @@
 
 					{#if feedback.grammarUpdates?.length > 0}
 						<div class="feedback-list-section">
-							<h3>Grammar Rules Followed</h3>
+							<h3 class="dark:text-slate-400">Grammar Rules Followed</h3>
 							<ul>
 								{#each feedback.grammarUpdates as update}
-									<li>
+									<li class="dark:text-slate-300">
 										<span class="icon">{(update.score ?? 0) >= 0.5 ? '✅' : '❌'}</span>
 										{challenge.targetedGrammar.find((g: any) => g.id === update.id)?.title || update.id}
 									</li>

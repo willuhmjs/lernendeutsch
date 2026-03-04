@@ -6,30 +6,30 @@
 	<meta name="description" content="AI-powered German language learning platform" />
 </svelte:head>
 
-<section class="hero">
-	<h1>Willkommen bei <span class="highlight">LernenDeutsch</span></h1>
-	<p class="subtitle">
+<section class="hero dark:text-slate-200">
+	<h1 class="dark:text-white">Willkommen bei <span class="highlight">LernenDeutsch</span></h1>
+	<p class="subtitle dark:text-slate-400">
 		Your personal, AI-powered platform to master the German language.
 		Engage in personalized lessons, get instant feedback, and track your progress seamlessly.
 	</p>
 	<div class="actions">
 		<a href="/signup" class="btn btn-primary">Get Started</a>
-		<a href="/login" class="btn btn-secondary">Login</a>
+		<a href="/login" class="btn btn-secondary dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700">Login</a>
 	</div>
 </section>
 
 <section class="features">
-	<div class="feature-card">
-		<h3>🤖 AI-Powered Lessons</h3>
-		<p>Dynamically generated lessons tailored to your skill level and learning pace.</p>
+	<div class="feature-card dark:bg-slate-800 dark:border-slate-700">
+		<h3 class="dark:text-white">🤖 AI-Powered Lessons</h3>
+		<p class="dark:text-slate-400">Dynamically generated lessons tailored to your skill level and learning pace.</p>
 	</div>
-	<div class="feature-card">
-		<h3>⚡ Instant Feedback</h3>
-		<p>Get real-time corrections and explanations from our intelligent grader.</p>
+	<div class="feature-card dark:bg-slate-800 dark:border-slate-700">
+		<h3 class="dark:text-white">⚡ Instant Feedback</h3>
+		<p class="dark:text-slate-400">Get real-time corrections and explanations from our intelligent grader.</p>
 	</div>
-	<div class="feature-card">
-		<h3>📈 Track Progress</h3>
-		<p>Monitor your vocabulary and grammar improvements over time.</p>
+	<div class="feature-card dark:bg-slate-800 dark:border-slate-700">
+		<h3 class="dark:text-white">📈 Track Progress</h3>
+		<p class="dark:text-slate-400">Monitor your vocabulary and grammar improvements over time.</p>
 	</div>
 </section>
 
