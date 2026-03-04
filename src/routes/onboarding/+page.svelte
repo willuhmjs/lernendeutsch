@@ -212,14 +212,14 @@
 </script>
 
 <svelte:head>
-	<title>Adaptive Onboarding | Lernendeutsch</title>
+	<title>Adaptive Onboarding | LernenDeutsch</title>
 </svelte:head>
 
 <main class="onboarding-container">
 	{#if selectedPath === 'choose' && !completed}
 		<!-- Path Selection Screen -->
 		<header class="page-header">
-			<h1>Welcome to Lernendeutsch!</h1>
+			<h1>Welcome to LernenDeutsch!</h1>
 			<p>Let's set up your learning experience. Choose the option that best describes you:</p>
 		</header>
 
