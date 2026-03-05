@@ -104,6 +104,15 @@
 		return assignment.scores.find((s: any) => s.userId === userId) ?? null;
 	}
 
+	let copiedAssignmentId: string | null = null;
+
+	async function copyAssignmentLink(assignmentId: string) {
+		const url = `${window.location.origin}/play?assignmentId=${assignmentId}`;
+		await navigator.clipboard.writeText(url);
+		copiedAssignmentId = assignmentId;
+		setTimeout(() => { copiedAssignmentId = null; }, 2000);
+	}
+
 	async function handleLeaveClass() {
 		if (!confirm('Leave this class? You will need the invite code to rejoin.')) return;
 		try {
@@ -294,6 +303,13 @@
 										>
 											View Details
 										</a>
+										<button
+											type="button"
+											class="btn-duo btn-secondary assignment-play-btn text-center"
+											on:click={() => copyAssignmentLink(assignment.id)}
+										>
+											{copiedAssignmentId === assignment.id ? '&#10003; Copied!' : '&#128279; Copy Link'}
+										</button>
 									{/if}
 									<a
 										href="/play?assignmentId={assignment.id}"

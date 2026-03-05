@@ -17,6 +17,15 @@
 	$: totalStudents = studentMembers.length;
 	$: passedStudents = studentMembers.filter(m => getScoreForUser(m.userId)?.passed).length;
 	$: passPercentage = totalStudents > 0 ? Math.round((passedStudents / totalStudents) * 100) : 0;
+
+	let copied = false;
+
+	async function copyLink() {
+		const url = `${window.location.origin}/play?assignmentId=${assignment.id}`;
+		await navigator.clipboard.writeText(url);
+		copied = true;
+		setTimeout(() => { copied = false; }, 2000);
+	}
 </script>
 
 <svelte:head>
@@ -37,6 +46,9 @@
 				<span class="meta-sep">&bull;</span>
 				<span>Target Score: {assignment.targetScore}</span>
 			</div>
+			<button type="button" class="copy-link-btn" on:click={copyLink}>
+				{#if copied}&#10003; Copied!{:else}&#128279; Copy Link{/if}
+			</button>
 		</div>
 		<div class="pass-rate-box">
 			<p class="pass-rate-label">Pass Rate</p>
@@ -162,6 +174,28 @@
 		color: #bfdbfe;
 		text-transform: uppercase;
 		letter-spacing: 0.08em;
+	}
+
+	.copy-link-btn {
+		margin-top: 1rem;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		background: rgba(255, 255, 255, 0.15);
+		border: 2px solid rgba(255, 255, 255, 0.3);
+		color: white;
+		font-size: 0.75rem;
+		font-weight: 800;
+		letter-spacing: 0.04em;
+		padding: 0.35rem 0.85rem;
+		border-radius: 0.6rem;
+		cursor: pointer;
+		transition: background 0.15s, border-color 0.15s;
+	}
+
+	.copy-link-btn:hover {
+		background: rgba(255, 255, 255, 0.25);
+		border-color: rgba(255, 255, 255, 0.5);
 	}
 
 	.meta-tag {

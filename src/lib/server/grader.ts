@@ -328,55 +328,56 @@ export async function updateEloRatings(userId: string, payload: EvaluationPayloa
 	// Skip grammar updates for target-to-native and multiple-choice — only award grammar credit for native-to-target and fill-blank
 	if (gameMode === 'target-to-native' || gameMode === 'multiple-choice') {
 		console.log(`Skipping grammar updates for ${gameMode} mode`);
-	} else
-	for (const grammarUpdate of payload.grammarUpdates || []) {
-		try {
-			// Ensure the GrammarRule exists
-			const grammarExists = await prisma.grammarRule.findUnique({
-				where: { id: grammarUpdate.id }
-			});
+	} else {
+		for (const grammarUpdate of payload.grammarUpdates || []) {
+			try {
+				// Ensure the GrammarRule exists
+				const grammarExists = await prisma.grammarRule.findUnique({
+					where: { id: grammarUpdate.id }
+				});
 
-			if (!grammarExists) {
-				await prisma.grammarRule.create({
-					data: {
-						id: grammarUpdate.id,
-						title: grammarUpdate.id // Fallback to id if title isn't available
+				if (!grammarExists) {
+					await prisma.grammarRule.create({
+						data: {
+							id: grammarUpdate.id,
+							title: grammarUpdate.id // Fallback to id if title isn't available
+						}
+					});
+				}
+
+				const baseDifficulty = mapLevelToElo(grammarExists?.level || 'A1');
+
+				const userGrammar = await prisma.userGrammarRule.findUnique({
+					where: { userId_grammarRuleId: { userId, grammarRuleId: grammarUpdate.id } }
+				});
+
+				const currentElo = userGrammar?.eloRating ?? baseDifficulty;
+
+				const newElo = calculateNewElo(currentElo, grammarUpdate.score, baseDifficulty, gameMode);
+				const newState = deriveSrsState(newElo, baseDifficulty);
+				const nextReviewDate = calculateNextReviewDate(newElo, baseDifficulty);
+
+				grammarUpdate.eloBefore = currentElo;
+				grammarUpdate.eloAfter = newElo;
+
+				await prisma.userGrammarRule.upsert({
+					where: { userId_grammarRuleId: { userId, grammarRuleId: grammarUpdate.id } },
+					create: {
+						userId,
+						grammarRuleId: grammarUpdate.id,
+						eloRating: newElo,
+						srsState: newState,
+						nextReviewDate
+					},
+					update: {
+						eloRating: newElo,
+						srsState: newState,
+						nextReviewDate
 					}
 				});
+			} catch (err) {
+				console.error(`Failed to update user grammar rule ${grammarUpdate.id}:`, err);
 			}
-
-			const baseDifficulty = mapLevelToElo(grammarExists?.level || 'A1');
-
-			const userGrammar = await prisma.userGrammarRule.findUnique({
-				where: { userId_grammarRuleId: { userId, grammarRuleId: grammarUpdate.id } }
-			});
-
-			const currentElo = userGrammar?.eloRating ?? baseDifficulty;
-
-			const newElo = calculateNewElo(currentElo, grammarUpdate.score, baseDifficulty, gameMode);
-			const newState = deriveSrsState(newElo, baseDifficulty);
-			const nextReviewDate = calculateNextReviewDate(newElo, baseDifficulty);
-
-			grammarUpdate.eloBefore = currentElo;
-			grammarUpdate.eloAfter = newElo;
-
-			await prisma.userGrammarRule.upsert({
-				where: { userId_grammarRuleId: { userId, grammarRuleId: grammarUpdate.id } },
-				create: {
-					userId,
-					grammarRuleId: grammarUpdate.id,
-					eloRating: newElo,
-					srsState: newState,
-					nextReviewDate
-				},
-				update: {
-					eloRating: newElo,
-					srsState: newState,
-					nextReviewDate
-				}
-			});
-		} catch (err) {
-			console.error(`Failed to update user grammar rule ${grammarUpdate.id}:`, err);
 		}
 	}
 

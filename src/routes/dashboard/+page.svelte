@@ -451,6 +451,7 @@
 	.elo-header {
 		display: flex;
 		justify-content: space-between;
+		gap: 1rem;
 		font-size: 0.75rem;
 		color: #94a3b8;
 		font-weight: 600;
