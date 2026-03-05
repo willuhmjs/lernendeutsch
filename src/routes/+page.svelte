@@ -184,16 +184,16 @@
 	}
 
 	.btn-primary {
-		background-color: #2563eb;
+		background-color: #22c55e;
 		color: #ffffff;
 		border: 1px solid transparent;
-		box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.35);
+		box-shadow: 0 4px 14px 0 rgba(34, 197, 94, 0.35);
 	}
 
 	.btn-primary:hover {
-		background-color: #1d4ed8;
+		background-color: #16a34a;
 		border-color: transparent;
-		box-shadow: 0 6px 20px 0 rgba(37, 99, 235, 0.45);
+		box-shadow: 0 6px 20px 0 rgba(22, 163, 74, 0.45);
 		transform: scale(1.05) translateY(-2px);
 	}
 

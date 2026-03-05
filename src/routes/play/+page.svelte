@@ -1,5 +1,5 @@
 r<script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount, onDestroy, tick } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
 	import toast from 'svelte-french-toast';
 	import { marked } from 'marked';
@@ -696,6 +696,36 @@ r<script lang="ts">
 				}
 			}
 
+			// Try multi-word English matches (e.g. "television program" → Fernsehprogramm)
+			// This handles cases where a German compound word has a multi-word English meaning
+			if (isEnToDe) {
+				let multiWordVocab: any = null;
+				let multiWordEnd = i;
+				for (let len = 3; len >= 2 && !multiWordVocab; len--) {
+					const wordIndices: number[] = [i];
+					for (let j = i + 1; j < tokens.length && wordIndices.length < len; j++) {
+						if (!/^\s+$/.test(tokens[j]) && !tokens[j].match(/\x00VOCAB_\d+\x00/)) {
+							wordIndices.push(j);
+						}
+					}
+					if (wordIndices.length < len) continue;
+					const phrase = wordIndices
+						.map(idx => tokens[idx].replace(/[.,!?;:'"|()\[\]{}\-\u2014\u2013]/g, '').toLowerCase())
+						.join(' ');
+					const v = vocabMap.get(phrase);
+					if (v) {
+						multiWordVocab = v;
+						multiWordEnd = wordIndices[len - 1];
+					}
+				}
+				if (multiWordVocab) {
+					const combinedText = tokens.slice(i, multiWordEnd + 1).join('');
+					result.push(`<span class="word-hover has-info tooltip-trigger">${combinedText}${buildTooltipHtml(multiWordVocab)}</span>`);
+					i = multiWordEnd;
+					continue;
+				}
+			}
+
 			const vocabResult = findVocab(cleanWord);
 			if (vocabResult) {
 				result.push(`<span class="word-hover has-info tooltip-trigger">${token}${buildTooltipHtml(vocabResult.vocab, undefined, vocabResult.inflectionNote)}</span>`);
@@ -866,7 +896,16 @@ r<script lang="ts">
 								}
 
 								// Only stop loading once we have actual text to show
-								if (loading) loading = false;
+								if (loading) {
+									loading = false;
+									tick().then(() => {
+										fetch('/api/load-time-stat', {
+											method: 'POST',
+											headers: { 'Content-Type': 'application/json' },
+											body: JSON.stringify({ loadTimeMs: Date.now() - progressStart })
+										}).catch(() => {});
+									});
+								}
 							}
 
 							// Progressive extraction of other fields to allow early submission
@@ -1034,6 +1073,7 @@ r<script lang="ts">
 	}
 
 	async function submitAnswer() {
+		if (submitting) return;
 		const mode = challenge?.gameMode || 'native-to-target';
 
 		// Build userInput based on mode
@@ -1322,31 +1362,37 @@ r<script lang="ts">
 				{/if}
 
 				<div class="challenge-section">
-					<h3 class="dark:text-slate-400">Grammar:</h3>
-					<ul class="concept-list">
-						{#each challenge.targetedGrammar as grammar}
-							<li class="dark:text-slate-300 grammar-item">
-								<div class="grammar-header">
-									<span class="concept-type dark:bg-slate-700 dark:text-slate-300">Grammar</span> 
-									<span class="grammar-title">{grammar.title}</span>
-									{#if grammar.guide}
-										<button 
-											type="button" 
-											class="guide-toggle-btn dark:text-slate-400 dark:hover:text-slate-200"
-											on:click={() => toggleGrammar(grammar.id)}
-										>
-											{expandedGrammarId === grammar.id ? 'Hide Guide' : 'Show Guide'}
-										</button>
-									{/if}
-								</div>
-								{#if grammar.guide && expandedGrammarId === grammar.id}
-									<div class="grammar-guide markdown-body dark:bg-slate-900 dark:border-slate-700" transition:fly={{ y: -5, duration: 200 }}>
-										{@html marked(grammar.guide)}
+					<h3 class="dark:text-slate-400">Grammar Reference:</h3>
+					{#if isStreaming}
+						<p class="dark:text-slate-400 italic">Loading...</p>
+					{:else if challenge.targetedGrammar?.length > 0}
+						<ul class="concept-list">
+							{#each challenge.targetedGrammar as grammar}
+								<li class="dark:text-slate-300 grammar-item">
+									<div class="grammar-header">
+										<span class="concept-type dark:bg-slate-700 dark:text-slate-300">Grammar</span> 
+										<span class="grammar-title">{grammar.title}</span>
+										{#if grammar.guide}
+											<button 
+												type="button" 
+												class="guide-toggle-btn dark:text-slate-400 dark:hover:text-slate-200"
+												on:click={() => toggleGrammar(grammar.id)}
+											>
+												{expandedGrammarId === grammar.id ? 'Hide Guide' : 'Show Guide'}
+											</button>
+										{/if}
 									</div>
-								{/if}
-							</li>
-						{/each}
-					</ul>
+									{#if grammar.guide && expandedGrammarId === grammar.id}
+										<div class="grammar-guide markdown-body dark:bg-slate-900 dark:border-slate-700" transition:fly={{ y: -5, duration: 200 }}>
+											{@html marked(grammar.guide)}
+										</div>
+									{/if}
+								</li>
+							{/each}
+						</ul>
+					{:else}
+						<p class="dark:text-slate-400 italic">None found</p>
+					{/if}
 				</div>
 
 				<form on:submit|preventDefault={submitAnswer} class="answer-form">

@@ -246,12 +246,12 @@
 	.form-group input:focus,
 	.theme-select:focus {
 		outline: none;
-		border-color: #2563eb;
-		box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+		border-color: #22c55e;
+		box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
 	}
 
 	.submit-btn {
-		background-color: #2563eb;
+		background-color: #22c55e;
 		color: white;
 		border: none;
 		padding: 0.625rem 1.25rem;
@@ -264,7 +264,7 @@
 	}
 
 	.submit-btn:hover {
-		background-color: #1d4ed8;
+		background-color: #16a34a;
 	}
 
 	.delete-card {

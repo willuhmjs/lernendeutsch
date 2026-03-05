@@ -315,7 +315,7 @@
 	.field input:focus,
 	.field textarea:focus,
 	.field select:focus {
-		border-color: #3b82f6;
+		border-color: #22c55e;
 	}
 
 	.field textarea {

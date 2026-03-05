@@ -73,6 +73,10 @@
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
 						Classes
 					</a>
+					<a href="/dictionary" class="nav-item {$page.url.pathname.startsWith('/dictionary') ? 'active' : ''}">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+						Dictionary
+					</a>
 					<a href="/onboarding" class="nav-item {$page.url.pathname.startsWith('/onboarding') ? 'active' : ''}">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
 						Onboarding
@@ -178,18 +182,18 @@
 	}
 
 	:global(.btn-primary) {
-		background-color: #3b82f6;
+		background-color: #22c55e;
 		color: white;
 		border-color: transparent;
-		box-shadow: 0 4px 0 #2563eb;
+		box-shadow: 0 4px 0 #16a34a;
 	}
 	:global(.btn-primary:hover) {
-		background-color: #60a5fa;
+		background-color: #4ade80;
 		transform: scale(1.02);
 	}
 	:global(.btn-primary:active) {
 		transform: scale(0.98) translateY(2px);
-		box-shadow: 0 2px 0 #2563eb;
+		box-shadow: 0 2px 0 #16a34a;
 	}
 
 	:global(.btn-secondary) {
@@ -380,9 +384,9 @@
 	}
 
 	.navbar {
-		max-width: 1200px;
+		max-width: 1536px;
 		margin: 0 auto;
-		padding: 0.75rem 2rem;
+		padding: 0.75rem 1rem;
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
@@ -594,9 +598,9 @@
 
 	.main-content {
 		flex: 1;
-		max-width: 1200px;
+		max-width: 1536px;
 		margin: 0 auto;
-		padding: 2rem;
+		padding: 2rem 1rem;
 		width: 100%;
 		box-sizing: border-box;
 	}

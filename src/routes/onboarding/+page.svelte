@@ -560,7 +560,7 @@
 	}
 
 	.message-bubble.user {
-		background-color: #2563eb;
+		background-color: #22c55e;
 		color: #ffffff;
 		border-bottom-right-radius: 0.25rem;
 	}
@@ -616,8 +616,8 @@
 
 	.chat-input:focus {
 		outline: none;
-		border-color: #3b82f6;
-		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+		border-color: #22c55e;
+		box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
 	}
 
 	.chat-input:disabled {
@@ -645,12 +645,12 @@
 	}
 
 	.btn-primary {
-		background-color: #2563eb;
+		background-color: #22c55e;
 		color: #ffffff;
 	}
 
 	.btn-primary:hover:not(:disabled) {
-		background-color: #1d4ed8;
+		background-color: #16a34a;
 	}
 
 	.btn-secondary {

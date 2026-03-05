@@ -1,0 +1,39 @@
+import { json } from '@sveltejs/kit';
+import { prisma } from '$lib/server/prisma';
+import type { RequestEvent } from '@sveltejs/kit';
+
+export const POST = async ({ request, locals }: RequestEvent) => {
+	if (!locals.user) {
+		return json({ error: 'Unauthorized' }, { status: 401 });
+	}
+
+	const body = await request.json();
+	const { vocabularyId } = body;
+
+	if (!vocabularyId) {
+		return json({ error: 'Missing vocabularyId' }, { status: 400 });
+	}
+
+	try {
+		const result = await prisma.userVocabulary.upsert({
+			where: {
+				userId_vocabularyId: {
+					userId: locals.user.id,
+					vocabularyId
+				}
+			},
+			update: {}, // Do nothing if it already exists
+			create: {
+				userId: locals.user.id,
+				vocabularyId,
+				srsState: 'UNSEEN',
+				eloRating: 1200
+			}
+		});
+
+		return json({ success: true, result });
+	} catch (error) {
+		console.error('Failed to add vocabulary:', error);
+		return json({ error: 'Failed to add vocabulary' }, { status: 500 });
+	}
+};

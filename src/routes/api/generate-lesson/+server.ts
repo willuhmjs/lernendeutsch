@@ -2,7 +2,6 @@ import { json } from '@sveltejs/kit';
 import { SrsState } from '@prisma/client';
 import { prisma } from '$lib/server/prisma';
 import { generateChatCompletion } from '$lib/server/llm';
-import { recordLoadTime } from '$lib/server/loadTimeStat';
 import { generateLessonRateLimiter } from '$lib/server/ratelimit';
 
 export type GameMode = 'native-to-target' | 'target-to-native' | 'fill-blank' | 'multiple-choice';
@@ -16,8 +15,6 @@ export async function POST(event) {
 	if (!locals.user) {
 		return json({ error: 'Unauthorized' }, { status: 401 });
 	}
-
-	const requestStartTime = Date.now();
 
 	try {
 		const body = await request.json().catch(() => ({}));
@@ -334,7 +331,8 @@ export async function POST(event) {
 		} else {
 			// native-to-target (default)
 			modeInstruction = `User translates FROM English TO ${activeLangName} ("challengeText"=English, "targetSentence"=${activeLangName}).`;
-			vocabTagInstruction = `CRITICAL: In the "challengeText" (which is English), you MUST use the ENGLISH meaning of the targeted vocabulary word and wrap it in a <vocab id="VOCAB_ID">...</vocab> tag. For example, if targeting vocabulary ID "123" with lemma "Hund" and meaning "dog", write: "The <vocab id="123">dog</vocab> is barking." Do NOT put ${activeLangName} words in the English challengeText.`;
+			vocabTagInstruction = `CRITICAL: In the "challengeText" (which is English), you MUST use the ENGLISH meaning of the targeted vocabulary word and wrap it in a <vocab id="VOCAB_ID">...</vocab> tag. For example, if targeting vocabulary ID "123" with lemma "Hund" and meaning "dog", write: "The <vocab id="123">dog</vocab> is barking." Do NOT put ${activeLangName} words in the English challengeText.
+MULTI-WORD MEANINGS: If a ${activeLangName} word's English meaning contains multiple words (e.g., "Fernsehprogramm" = "television program"), you MUST wrap ALL the words together as a single unit inside ONE <vocab> tag. For example: "I watched the <vocab id="v0">television program</vocab> last night." — NOT "<vocab id="v0">television</vocab> program" or "television <vocab id="v0">program</vocab>". The entire multi-word phrase must be inside a single <vocab> tag.`;
 			jsonFormatBlock = `JSON format:
 {
   "challengeText": "<English text>",
@@ -791,7 +789,6 @@ ${jsonFormatBlock}`;
 						console.error('Vocab enrichment failed:', enrichErr);
 					}
 					
-				await recordLoadTime(Date.now() - requestStartTime);
 					controller.close();
 				} catch (e) {
 					controller.error(e);

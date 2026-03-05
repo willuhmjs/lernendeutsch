@@ -110,9 +110,13 @@
 			{:else}
 				<div class="heatmap-grid dark:bg-slate-800 dark:border-slate-700">
 					{#each data.vocabularies as vocab}
+						{@const elo = vocab.eloRating !== undefined ? Math.round(vocab.eloRating) : 1000}
+						{@const level = elo < 1200 ? 'LEARNING' : elo < 1500 ? 'KNOWN' : 'MASTERED'}
+						{@const levelText = level.charAt(0) + level.slice(1).toLowerCase()}
+						{@const cellColor = vocab.srsState === 'UNSEEN' ? srsColors.UNSEEN : srsColors[level]}
 						<div 
 							class="heatmap-cell tooltip-trigger" 
-							style="background-color: {srsColors[vocab.srsState]}"
+							style="background-color: {cellColor}"
 						>
 							<span class="sr-only">{vocab.vocabulary.lemma}</span>
 							<div class="tooltip-content dark:bg-slate-700 dark:text-white">
@@ -125,8 +129,6 @@
 								</div>
 								<div class="tooltip-body">
 									{#if vocab.eloRating !== undefined}
-										{@const elo = Math.round(vocab.eloRating)}
-										{@const levelText = elo < 1200 ? 'Learning' : elo < 1500 ? 'Known' : 'Mastered'}
 										{@const progressPct = Math.max(0, Math.min(100, elo < 1200 ? ((elo - 1000) / 200) * 100 : elo < 1500 ? ((elo - 1200) / 300) * 100 : 100))}
 										<div class="word-tooltip-elo">
 											<div class="elo-header"><span>Mastery: {levelText}</span><span class="elo-score">ELO {elo}</span></div>
@@ -477,9 +479,9 @@
 		transition: width 0.3s ease;
 	}
 	
-	.elo-progress-fill.learning { background: #3b82f6; }
-	.elo-progress-fill.known { background: #eab308; }
-	.elo-progress-fill.mastered { background: #22c55e; }
+	.elo-progress-fill.learning { background: var(--color-learning, #fef08a); }
+	.elo-progress-fill.known { background: var(--color-known, #6ee7b7); }
+	.elo-progress-fill.mastered { background: var(--color-mastered, #10b981); }
 
 	.sr-only {
 		position: absolute;
