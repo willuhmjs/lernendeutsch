@@ -28,6 +28,9 @@
 				</svg>
 				Sign in with Google
 			</button>
+			<p class="legal-notice-google dark:text-slate-400">
+				By signing up, you agree to our <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.
+			</p>
 		</div>
 
 		{#if data.localLoginEnabled}
@@ -72,6 +75,10 @@
 						class="dark:bg-slate-900 dark:text-white dark:border-slate-700"
 					/>
 				</div>
+
+				<p class="legal-notice dark:text-slate-400">
+					By signing up, you agree to our <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.
+				</p>
 
 				<button type="submit" class="submit-btn">
 					Sign up
@@ -227,6 +234,44 @@
 
 	.form-group input::placeholder {
 		color: #9ca3af;
+	}
+
+	.legal-notice-google {
+		font-size: 0.8rem;
+		color: #6b7280;
+		text-align: center;
+		line-height: 1.5;
+		margin-top: 0.75rem;
+	}
+
+	.legal-notice-google a {
+		color: #4f46e5;
+		text-decoration: none;
+		font-weight: 500;
+	}
+
+	.legal-notice-google a:hover {
+		color: #4338ca;
+		text-decoration: underline;
+	}
+
+	.legal-notice {
+		font-size: 0.8rem;
+		color: #6b7280;
+		text-align: center;
+		line-height: 1.5;
+		margin-top: 0.25rem;
+	}
+
+	.legal-notice a {
+		color: #4f46e5;
+		text-decoration: none;
+		font-weight: 500;
+	}
+
+	.legal-notice a:hover {
+		color: #4338ca;
+		text-decoration: underline;
 	}
 
 	.submit-btn {

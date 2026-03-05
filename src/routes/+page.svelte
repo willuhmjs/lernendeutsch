@@ -84,6 +84,48 @@
 	</div>
 </section>
 
+<section class="how-it-works">
+	<h2 class="section-title dark:text-white">How LingoLearn Works</h2>
+	<div class="steps-container">
+		<div class="step-item">
+			<div class="step-number">1</div>
+			<div class="step-content">
+				<h4 class="dark:text-white">Choose Your Language</h4>
+				<p class="dark:text-slate-400">Select German or Spanish to start your journey. We'll assess your current level to personalize your path.</p>
+			</div>
+		</div>
+		<div class="step-item">
+			<div class="step-number">2</div>
+			<div class="step-content">
+				<h4 class="dark:text-white">Practice Daily</h4>
+				<p class="dark:text-slate-400">Engage in short, bite-sized lessons that fit your schedule, covering grammar, vocabulary, and reading.</p>
+			</div>
+		</div>
+		<div class="step-item">
+			<div class="step-number">3</div>
+			<div class="step-content">
+				<h4 class="dark:text-white">AI-Powered Feedback</h4>
+				<p class="dark:text-slate-400">Our advanced AI grades your answers instantly and provides detailed explanations to help you improve faster.</p>
+			</div>
+		</div>
+		<div class="step-item">
+			<div class="step-number">4</div>
+			<div class="step-content">
+				<h4 class="dark:text-white">Achieve Fluency</h4>
+				<p class="dark:text-slate-400">Watch your skills grow as you unlock new achievements and tackle more complex conversations.</p>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="cta-section dark:bg-slate-800 dark:border-t dark:border-slate-700">
+	<div class="cta-content">
+		<h2 class="dark:text-white">Ready to start your language journey?</h2>
+		<p class="dark:text-slate-400">Join LingoLearn today and master your next language with AI-guided lessons.</p>
+		<a href="/signup" class="btn btn-primary cta-btn">Create Free Account</a>
+	</div>
+</section>
+
 <style>
 	.hero {
 		text-align: center;
@@ -283,6 +325,99 @@
 		color: #6b7280;
 		line-height: 1.5;
 		font-size: 0.95rem;
+	}
+
+	.how-it-works {
+		padding: 4rem 1rem;
+		max-width: 800px;
+		margin: 2rem auto;
+		text-align: center;
+	}
+
+	.section-title {
+		font-size: 2rem;
+		font-weight: 700;
+		color: #111827;
+		margin-bottom: 2.5rem;
+	}
+
+	.steps-container {
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+	}
+
+	.step-item {
+		display: flex;
+		align-items: flex-start;
+		gap: 1.5rem;
+		text-align: left;
+		background: var(--card-bg, #ffffff);
+		padding: 1.5rem;
+		border-radius: 0.75rem;
+		box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.05);
+	}
+
+	:global(.dark) .step-item {
+		background: #1e293b;
+		border: 1px solid #334155;
+	}
+
+	.step-number {
+		background: #2563eb;
+		color: white;
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-weight: 700;
+		font-size: 1.25rem;
+		flex-shrink: 0;
+	}
+
+	.step-content h4 {
+		font-size: 1.25rem;
+		color: #111827;
+		margin-bottom: 0.5rem;
+		margin-top: 0;
+	}
+
+	.step-content p {
+		color: #4b5563;
+		line-height: 1.6;
+		margin: 0;
+	}
+
+	.cta-section {
+		background-color: #f3f4f6;
+		padding: 5rem 1rem;
+		text-align: center;
+		margin-top: 4rem;
+	}
+
+	.cta-content {
+		max-width: 600px;
+		margin: 0 auto;
+	}
+
+	.cta-content h2 {
+		font-size: 2.25rem;
+		font-weight: 800;
+		color: #111827;
+		margin-bottom: 1rem;
+	}
+
+	.cta-content p {
+		font-size: 1.15rem;
+		color: #4b5563;
+		margin-bottom: 2rem;
+	}
+
+	.cta-btn {
+		font-size: 1.15rem;
+		padding: 1rem 2.5rem;
 	}
 
 	@media (max-width: 640px) {

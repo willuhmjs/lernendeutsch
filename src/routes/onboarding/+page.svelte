@@ -244,7 +244,7 @@
 				<span class="path-badge beginner-badge">Recommended for new learners</span>
 			</button>
 
-			<button class="path-card test-card dark:bg-slate-900 dark:border-blue-900" on:click={startPlacementTest}>
+			<button class="path-card test-card dark:bg-slate-900 dark:border-emerald-900" on:click={startPlacementTest}>
 				<span class="path-icon">💬</span>
 				<h2 class="dark:text-white">I Know Some {data?.user?.activeLanguage?.name}</h2>
 				<p class="dark:text-slate-400">I have some language knowledge. Chat with our AI teacher to find my level so I don't repeat what I already know.</p>
@@ -802,17 +802,17 @@
 	}
 
 	.test-card {
-		border-color: #bfdbfe;
-		background: linear-gradient(135deg, #eff6ff 0%, var(--card-bg, #ffffff) 100%);
+		border-color: #86efac;
+		background: linear-gradient(135deg, #f0fdf4 0%, var(--card-bg, #ffffff) 100%);
 	}
 
 	.test-card:hover:not(:disabled) {
-		border-color: #2563eb;
+		border-color: #22c55e;
 	}
 
 	.test-card .path-badge {
-		background-color: #dbeafe;
-		color: #1e40af;
+		background-color: #dcfce7;
+		color: #166534;
 	}
 
 	.manual-section {

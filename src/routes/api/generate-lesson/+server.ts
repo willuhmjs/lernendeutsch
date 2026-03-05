@@ -212,8 +212,8 @@ export async function POST(event) {
 			}
 		}
 
-		const masteredVocab = masteredVocabDb.map((uv: any) => ({ ...uv.vocabulary, eloRating: uv.eloRating ?? 1200, srsState: uv.srsState ?? 'UNSEEN' }));
-		const learningVocab = learningVocabDb.map((uv: any) => ({ ...uv.vocabulary, eloRating: uv.eloRating ?? 1200, srsState: uv.srsState ?? 'UNSEEN' }));
+		const masteredVocab = masteredVocabDb.map((uv: any) => ({ ...uv.vocabulary, eloRating: uv.eloRating ?? 1000, srsState: uv.srsState ?? 'UNSEEN' }));
+		const learningVocab = learningVocabDb.map((uv: any) => ({ ...uv.vocabulary, eloRating: uv.eloRating ?? 1000, srsState: uv.srsState ?? 'UNSEEN' }));
 		const masteredGrammar = masteredGrammarDb.map(ug => ug.grammarRule);
 		const learningGrammar = learningGrammarDb.map(ug => ug.grammarRule);
 
@@ -687,8 +687,9 @@ ${jsonFormatBlock}`;
 										if (aiResult?.vocabulary?.length > 0) {
 											const aiVocabEntries = await Promise.all(
 												aiResult.vocabulary.map(async (v: any) => {
+													const cleanLemma = v.lemma?.replace(/^[.,!?;:'"()[\\]{}-]+|[.,!?;:'"()[\\]{}-]+$/g, '') || '';
 													const existing = await prisma.vocabulary.findFirst({
-														where: { lemma: v.lemma, languageId: activeLanguageId }
+														where: { lemma: cleanLemma, languageId: activeLanguageId }
 													});
 													if (existing) {
 														if (!existing.meaning && v.meaning) {
@@ -701,7 +702,7 @@ ${jsonFormatBlock}`;
 													}
 													return prisma.vocabulary.create({
 														data: {
-															lemma: v.lemma,
+															lemma: cleanLemma,
 															meaning: v.meaning,
 															partOfSpeech: v.partOfSpeech,
 															gender: v.gender ?? null,
@@ -746,8 +747,9 @@ ${jsonFormatBlock}`;
 										if (ctxResult?.vocabulary?.length > 0) {
 											const ctxEntries = await Promise.all(
 												ctxResult.vocabulary.map(async (v: any) => {
+													const cleanLemma = v.lemma?.replace(/^[.,!?;:'"()[\\]{}-]+|[.,!?;:'"()[\\]{}-]+$/g, '') || '';
 													const existing = await prisma.vocabulary.findFirst({
-														where: { lemma: v.lemma, languageId: activeLanguageId }
+														where: { lemma: cleanLemma, languageId: activeLanguageId }
 													});
 													if (existing) {
 														if (!existing.meaning && v.meaning) {
@@ -760,7 +762,7 @@ ${jsonFormatBlock}`;
 													}
 													return prisma.vocabulary.create({
 														data: {
-															lemma: v.lemma,
+															lemma: cleanLemma,
 															meaning: v.meaning,
 															partOfSpeech: v.partOfSpeech ?? 'pronoun',
 															gender: null,

@@ -520,7 +520,7 @@ r<script lang="ts">
 		return map;
 	}
 
-	function parseTextWithTooltips(text: string, isTargetedVocab: boolean): string {
+	function parseTextWithTooltips(text: string, isTargetedVocab: boolean, stillStreaming: boolean = false): string {
 		const vocabMap = buildVocabMap();
 		const isDeToEn = challenge.gameMode === 'target-to-native';
 		// Whether this text is German (to enable article case tooltips)
@@ -729,6 +729,9 @@ r<script lang="ts">
 			const vocabResult = findVocab(cleanWord);
 			if (vocabResult) {
 				result.push(`<span class="word-hover has-info tooltip-trigger">${token}${buildTooltipHtml(vocabResult.vocab, undefined, vocabResult.inflectionNote)}</span>`);
+			} else if (stillStreaming) {
+				const loadingTooltip = `<span class="word-tooltip"><span class="word-tooltip-header">${token}</span><span class="word-tooltip-body"><span class="word-tooltip-row">Loading...</span></span></span>`;
+				result.push(`<span class="word-hover has-info tooltip-trigger">${token}${loadingTooltip}</span>`);
 			} else {
 				result.push(`<span class="word-hover">${token}</span>`);
 			}
@@ -743,12 +746,12 @@ r<script lang="ts">
 
 	$: parsedChallengeText = (() => {
 		if (!challenge?.challengeText) return '';
-		return parseTextWithTooltips(challenge.challengeText, true);
+		return parseTextWithTooltips(challenge.challengeText, true, isStreaming);
 	})();
 
 	$: parsedTargetSentence = (() => {
 		if (!challenge?.targetSentence) return '';
-		return parseTextWithTooltips(challenge.targetSentence, false);
+		return parseTextWithTooltips(challenge.targetSentence, false, isStreaming);
 	})();
 
 	let showAfterElo = false;

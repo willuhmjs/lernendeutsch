@@ -68,9 +68,12 @@ export async function POST({ request, locals }: RequestEvent) {
 		const activeLangName = user.activeLanguage?.name || 'German';
 
 		if (messages.length === 0) {
+			const greeting = activeLangName === 'German' ? 'Hallo' : 'Hola';
+			const question = activeLangName === 'German' ? 'Wie heißt du?' : '¿Cómo te llamas?';
+			
 			return json({
 				message:
-					`Hallo! Welcome! I'm excited to find out where you are with your ${activeLangName}. Don't worry if you're just starting out — I'll adjust to your level.\n\nLet's begin: Wie heißt du? (What is your name?) Feel free to answer in ${activeLangName} or English!`,
+					`${greeting}! Welcome! I'm excited to find out where you are with your ${activeLangName}. Don't worry if you're just starting out — I'll adjust to your level.\n\nLet's begin: ${question} (What is your name?) Feel free to answer in ${activeLangName} or English!`,
 				completed: false,
 				currentLevelGuess: 'A1'
 			});
@@ -125,13 +128,13 @@ export async function POST({ request, locals }: RequestEvent) {
 		const processWords = async (words: string[], state: 'MASTERED' | 'KNOWN' | 'LEARNING', userLevel: string) => {
 			if (!Array.isArray(words) || words.length === 0) return;
 			try {
-				const normalizedWords = await normalizeGermanWords(userId, words);
+				const normalizedWords = (await normalizeGermanWords(userId, words)).map(w => w.replace(/^[.,!?;:'"()[\\]{}-]+|[.,!?;:'"()[\\]{}-]+$/g, ''));
 				
 				// Map the level to base Elo
 				const levels: Record<string, number> = {
 					A1: 1000, A2: 1200, B1: 1400, B2: 1600, C1: 1800, C2: 2000
 				};
-				const startingElo = levels[userLevel.toUpperCase()] || 1200;
+				const startingElo = levels[userLevel.toUpperCase()] || 1000;
 
 				let skippedCount = 0;
 				for (const word of normalizedWords) {
@@ -180,7 +183,7 @@ export async function POST({ request, locals }: RequestEvent) {
 				const levels: Record<string, number> = {
 					A1: 1000, A2: 1200, B1: 1400, B2: 1600, C1: 1800, C2: 2000
 				};
-				const startingElo = levels[userLevel.toUpperCase()] || 1200;
+				const startingElo = levels[userLevel.toUpperCase()] || 1000;
 
 				for (const rule of rules) {
 					let grammarRule = await prisma.grammarRule.findFirst({

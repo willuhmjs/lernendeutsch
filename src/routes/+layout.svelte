@@ -149,6 +149,17 @@
 	<main class="main-content">
 		{@render children()}
 	</main>
+
+	<footer class="site-footer dark:text-slate-400">
+		<div class="footer-content">
+			<span class="footer-brand">© {new Date().getFullYear()} LingoLearn</span>
+			<nav class="footer-links">
+				<a href="/privacy">Privacy Policy</a>
+				<span class="footer-dot">·</span>
+				<a href="/terms">Terms of Service</a>
+			</nav>
+		</div>
+	</footer>
 </div>
 
 <style>
@@ -539,6 +550,7 @@
 		font-weight: 800;
 		box-shadow: 0 4px 0 #16a34a;
 		border-radius: 1rem;
+		margin-left: 0.5rem;
 	}
 
 	.signup-link:hover {
@@ -603,5 +615,48 @@
 		padding: 2rem 1rem;
 		width: 100%;
 		box-sizing: border-box;
+	}
+
+	.site-footer {
+		padding: 1.5rem 1rem;
+		text-align: center;
+		font-size: 0.85rem;
+		color: #9ca3af;
+		border-top: 1px solid var(--card-border, #e5e7eb);
+	}
+
+	.footer-content {
+		max-width: 1536px;
+		margin: 0 auto;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 1.5rem;
+		flex-wrap: wrap;
+	}
+
+	.footer-brand {
+		font-weight: 600;
+	}
+
+	.footer-links {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.footer-links a {
+		color: #6b7280;
+		text-decoration: none;
+		transition: color 0.15s;
+	}
+
+	.footer-links a:hover {
+		color: #4f46e5;
+		text-decoration: underline;
+	}
+
+	.footer-dot {
+		color: #d1d5db;
 	}
 </style>

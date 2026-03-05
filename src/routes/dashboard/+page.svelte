@@ -110,10 +110,11 @@
 			{:else}
 				<div class="heatmap-grid dark:bg-slate-800 dark:border-slate-700">
 					{#each data.vocabularies as vocab}
+						{@const isUnseen = vocab.srsState === 'UNSEEN'}
 						{@const elo = vocab.eloRating !== undefined ? Math.round(vocab.eloRating) : 1000}
-						{@const level = elo < 1200 ? 'LEARNING' : elo < 1500 ? 'KNOWN' : 'MASTERED'}
-						{@const levelText = level.charAt(0) + level.slice(1).toLowerCase()}
-						{@const cellColor = vocab.srsState === 'UNSEEN' ? srsColors.UNSEEN : srsColors[level]}
+						{@const level = vocab.srsState}
+						{@const levelText = isUnseen ? 'Unseen' : level.charAt(0) + level.slice(1).toLowerCase()}
+						{@const cellColor = srsColors[level]}
 						<div 
 							class="heatmap-cell tooltip-trigger" 
 							style="background-color: {cellColor}"
@@ -128,11 +129,15 @@
 									{/if}
 								</div>
 								<div class="tooltip-body">
-									{#if vocab.eloRating !== undefined}
-										{@const progressPct = Math.max(0, Math.min(100, elo < 1200 ? ((elo - 1000) / 200) * 100 : elo < 1500 ? ((elo - 1200) / 300) * 100 : 100))}
+									{#if vocab.eloRating !== undefined && !isUnseen}
+										{@const progressPct = Math.max(0, Math.min(100, level === 'LEARNING' ? ((elo - 1000) / 50) * 100 : level === 'KNOWN' ? ((elo - 1050) / 100) * 100 : 100))}
 										<div class="word-tooltip-elo">
 											<div class="elo-header"><span>Mastery: {levelText}</span><span class="elo-score">ELO {elo}</span></div>
 											<div class="elo-progress-track"><div class="elo-progress-fill {levelText.toLowerCase()}" style="width: {progressPct}%"></div></div>
+										</div>
+									{:else if isUnseen}
+										<div class="word-tooltip-elo">
+											<div class="elo-header"><span>Status: {levelText}</span></div>
 										</div>
 									{/if}
 									{#if vocab.vocabulary.partOfSpeech}
@@ -180,7 +185,7 @@
 									<span>{rule.srsState}</span>
 								</div>
 								<div class="progress-bar-container dark:bg-slate-700">
-									<!-- Baseline is roughly 1200, max mastery could be around 2000 -->
+									<!-- Baseline is roughly 1000, max mastery could be around 2000 -->
 									<div 
 										class="progress-bar-fill"
 										style="width: {Math.max(0, Math.min(100, ((rule.eloRating - 1000) / 1000) * 100))}%"

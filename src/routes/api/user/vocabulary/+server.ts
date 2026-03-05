@@ -27,7 +27,7 @@ export const POST = async ({ request, locals }: RequestEvent) => {
 				userId: locals.user.id,
 				vocabularyId,
 				srsState: 'UNSEEN',
-				eloRating: 1200
+				eloRating: 1000
 			}
 		});
 

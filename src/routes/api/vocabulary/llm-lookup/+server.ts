@@ -1,0 +1,133 @@
+import { json, type RequestEvent } from '@sveltejs/kit';
+import { prisma } from '$lib/server/prisma';
+import { llmDictionaryRateLimiter } from '$lib/server/ratelimit';
+import { generateChatCompletion } from '$lib/server/llm';
+
+export async function POST(event: RequestEvent) {
+	const { request, locals } = event;
+
+	if (!locals.user) {
+		return json({ error: 'Unauthorized' }, { status: 401 });
+	}
+
+	// Apply Rate Limiting
+	if (await llmDictionaryRateLimiter.isLimited(event)) {
+		return json({ error: 'Too many requests' }, { status: 429 });
+	}
+
+	try {
+		const body = await request.json();
+		const { word, languageId } = body;
+
+		if (!word || !languageId) {
+			return json({ error: 'Missing word or languageId' }, { status: 400 });
+		}
+
+		// Retrieve target language name
+		const language = await prisma.language.findUnique({
+			where: { id: languageId }
+		});
+
+		if (!language) {
+			return json({ error: 'Invalid languageId' }, { status: 400 });
+		}
+
+		// Prepare LLM Call
+		const systemPrompt = `You are an expert linguist and dictionary assistant for the ${language.name} language.
+The user will provide a word or short phrase they searched for. The input may be in ${language.name} or in English.
+
+Your task is to determine the correct ${language.name} translation or dictionary entry.
+If the input is an English word or phrase (like "Apple Juice"), you must accurately translate it into ${language.name}. 
+However, you MUST be extremely strict about safety: only allow inputs that are "classroom safe" (e.g., everyday vocabulary, academic, or polite words). If the input is slang, inappropriate, or unsafe for a school environment, reject it.
+If the input is already in ${language.name}, verify it is a real, valid word or common phrase in ${language.name}.
+
+If the input is gibberish, highly inappropriate, unsafe, or not a real word/phrase in either language, respond with:
+{ "valid": false }
+
+If it is a valid word or safe English translation, normalize the ${language.name} result to its absolute dictionary form (lemma).
+- Verbs: infinitive
+- Nouns: nominative singular
+- Adjectives: uninflected base form
+- For phrases (like "Apfelsaft" for "Apple Juice"): use the most standard, natural base form.
+
+Return the dictionary entry in the following JSON format:
+{
+  "valid": true,
+  "lemma": "normalized base form in ${language.name}",
+  "meaning": "English translation/meaning",
+  "partOfSpeech": "noun" | "verb" | "adjective" | "adverb" | "pronoun" | "preposition" | "conjunction" | "interjection" | "particle" | "article" | "phrase",
+  "gender": "MASCULINE" | "FEMININE" | "NEUTER" | null,
+  "plural": "plural form" | null
+}`;
+
+		const response = await generateChatCompletion({
+			userId: locals.user.id,
+			messages: [{ role: 'user', content: word }],
+			systemPrompt,
+			jsonMode: true,
+			temperature: 0.1
+		});
+
+		const content = response.choices?.[0]?.message?.content;
+		if (!content) {
+			throw new Error('No content returned from LLM');
+		}
+
+		let llmResult;
+		try {
+			llmResult = JSON.parse(content);
+		} catch {
+			console.error('Failed to parse LLM dictionary response:', content);
+			return json({ success: false, error: 'Invalid response from language model' }, { status: 500 });
+		}
+
+		if (!llmResult.valid) {
+			return json(
+				{ success: false, error: 'The word you entered could not be found or is invalid.' },
+				{ status: 400 }
+			);
+		}
+
+		// Validate required fields for valid result
+		if (!llmResult.lemma) {
+			return json(
+				{ success: false, error: 'The word you entered could not be found or is invalid.' },
+				{ status: 400 }
+			);
+		}
+
+		// Check if it already exists in the database
+		const existingVocab = await prisma.vocabulary.findFirst({
+			where: {
+				languageId: languageId,
+				lemma: {
+					equals: llmResult.lemma,
+					mode: 'insensitive'
+				}
+			}
+		});
+
+		if (existingVocab) {
+			return json({ success: true, data: existingVocab });
+		}
+
+		// If new valid word, insert it
+		const newVocab = await prisma.vocabulary.create({
+			data: {
+				languageId,
+				lemma: llmResult.lemma,
+				meaning: llmResult.meaning || null,
+				partOfSpeech: llmResult.partOfSpeech || null,
+				gender: ['MASCULINE', 'FEMININE', 'NEUTER'].includes(llmResult.gender) ? llmResult.gender : null,
+				plural: llmResult.plural || null,
+				isBeginner: false
+			}
+		});
+
+		return json({ success: true, data: newVocab });
+
+	} catch (err: unknown) {
+		console.error('LLM Dictionary Lookup Error:', err);
+		return json({ error: 'Internal server error' }, { status: 500 });
+	}
+}

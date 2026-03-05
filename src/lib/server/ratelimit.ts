@@ -19,3 +19,8 @@ export const submitAnswerRateLimiter = new RateLimiter({
 	IP: [15, 'm'],
 	IPUA: [300, 'd']
 });
+
+export const llmDictionaryRateLimiter = new RateLimiter({
+	IP: [5, 'm'],
+	IPUA: [20, 'h']
+});

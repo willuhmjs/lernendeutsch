@@ -204,7 +204,7 @@ export function parseEvaluationResponse(content: string): EvaluationPayload {
 		globalScore: payload.globalScore ?? 0,
 		vocabularyUpdates: (payload.vocabularyUpdates || []).map(mapItem),
 		grammarUpdates: (payload.grammarUpdates || []).map(mapItem),
-		extraVocabLemmas: payload.extraVocabLemmas || [],
+		extraVocabLemmas: (payload.extraVocabLemmas || []).map((l: string) => l.replace(/^[.,!?;:'"()[\]{}-]+|[.,!?;:'"()[\]{}-]+$/g, '')),
 		feedback: payload.feedback || '',
 		feedbackEnglish: payload.feedbackEnglish || ''
 	};
@@ -236,7 +236,7 @@ export function mapLevelToElo(level: string): number {
 		C1: 1800,
 		C2: 2000
 	};
-	return levels[level.toUpperCase()] || 1200;
+	return levels[level.toUpperCase()] || 1000;
 }
 
 const K_FACTOR = 256;
@@ -289,8 +289,8 @@ export async function updateEloRatings(userId: string, payload: EvaluationPayloa
 				});
 			}
 
-			// We don't have CEFR levels for Vocabulary, so we assume an average 1200 base difficulty for words
-			const baseDifficulty = 1200;
+			// We don't have CEFR levels for Vocabulary, so we assume an average 1000 base difficulty for words
+			const baseDifficulty = 1000;
 
 			const userVocab = await prisma.userVocabulary.findUnique({
 				where: { userId_vocabularyId: { userId, vocabularyId: vocabUpdate.id } }
@@ -396,7 +396,7 @@ export async function updateEloRatings(userId: string, payload: EvaluationPayloa
 				});
 			}
 
-			const baseDifficulty = 1200;
+			const baseDifficulty = 1000;
 
 			const userVocab = await prisma.userVocabulary.findUnique({
 				where: { userId_vocabularyId: { userId, vocabularyId: vocabExists.id } }
