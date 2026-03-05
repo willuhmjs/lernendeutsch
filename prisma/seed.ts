@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import pg from 'pg';
+import 'dotenv/config';
 
 const connectionString = process.env.DATABASE_URL;
 
@@ -9,29 +10,53 @@ const adapter = new PrismaPg(pool);
 
 const prisma = new PrismaClient({ adapter });
 
-import { verbs } from './vocab/verbs';
-import { nouns } from './vocab/nouns';
-import { adverbs } from './vocab/adverbs';
-import { adjectives } from './vocab/adjectives';
-import { conjunctions } from './vocab/conjunctions';
-import { prepositions } from './vocab/prepositions';
-import { pronouns } from './vocab/pronouns';
-import { particles } from './vocab/particles';
-import { interjections } from './vocab/interjections';
-import { articles } from './vocab/articles';
+import { verbs as deVerbs } from './german_vocab/verbs';
+import { nouns as deNouns } from './german_vocab/nouns';
+import { adverbs as deAdverbs } from './german_vocab/adverbs';
+import { adjectives as deAdjectives } from './german_vocab/adjectives';
+import { conjunctions as deConjunctions } from './german_vocab/conjunctions';
+import { prepositions as dePrepositions } from './german_vocab/prepositions';
+import { pronouns as dePronouns } from './german_vocab/pronouns';
+import { particles as deParticles } from './german_vocab/particles';
+import { interjections as deInterjections } from './german_vocab/interjections';
+import { articles as deArticles } from './german_vocab/articles';
+
+import { verbs as esVerbs } from './spanish_vocab/verbs';
+import { nouns as esNouns } from './spanish_vocab/nouns';
+import { adverbs as esAdverbs } from './spanish_vocab/adverbs';
+import { adjectives as esAdjectives } from './spanish_vocab/adjectives';
+import { conjunctions as esConjunctions } from './spanish_vocab/conjunctions';
+import { prepositions as esPrepositions } from './spanish_vocab/prepositions';
+import { pronouns as esPronouns } from './spanish_vocab/pronouns';
+import { particles as esParticles } from './spanish_vocab/particles';
+import { interjections as esInterjections } from './spanish_vocab/interjections';
+import { articles as esArticles } from './spanish_vocab/articles';
 
 
-const basicVocabulary = [
-  ...articles,
-	...verbs,
-	...nouns,
-	...adverbs,
-	...adjectives,
-	...conjunctions,
-	...prepositions,
-	...pronouns,
-	...particles,
-	...interjections
+const germanVocabulary = [
+  ...deArticles,
+	...deVerbs,
+	...deNouns,
+	...deAdverbs,
+	...deAdjectives,
+	...deConjunctions,
+	...dePrepositions,
+	...dePronouns,
+	...deParticles,
+	...deInterjections
+];
+
+const spanishVocabulary = [
+  ...esArticles,
+	...esVerbs,
+	...esNouns,
+	...esAdverbs,
+	...esAdjectives,
+	...esConjunctions,
+	...esPrepositions,
+	...esPronouns,
+	...esParticles,
+	...esInterjections
 ];
 
 const basicGrammarRules = [
@@ -538,14 +563,51 @@ export async function runSeed(client: PrismaClient = prisma, override: boolean =
 
   console.log('Start seeding...');
 
+  // 1.5 Create Languages
+  console.log('Creating languages...');
+  const german = await client.language.upsert({
+    where: { code: 'de' },
+    update: {},
+    create: { code: 'de', name: 'German', flag: '🇩🇪' },
+  });
+
+  const spanish = await client.language.upsert({
+    where: { code: 'es' },
+    update: {},
+    create: { code: 'es', name: 'Spanish', flag: '🇪🇸' },
+  });
+
   // 2. Insert Vocabulary
   console.log('Seeding vocabulary...');
-  for (const vocab of basicVocabulary) {
+  for (const vocab of germanVocabulary) {
+    let gender: any = (vocab as any).gender;
+    if (gender === 'der') gender = 'MASCULINE';
+    else if (gender === 'die') gender = 'FEMININE';
+    else if (gender === 'das') gender = 'NEUTER';
+
     await client.vocabulary.create({
-      data: vocab,
+      data: {
+        ...vocab,
+        gender,
+        languageId: german.id
+      },
     });
   }
-  console.log(`Seeded ${basicVocabulary.length} vocabulary words.`);
+  console.log(`Seeded ${germanVocabulary.length} vocabulary words for German.`);
+
+  console.log('Seeding Spanish vocabulary...');
+  for (const vocab of spanishVocabulary) {
+    let gender: any = (vocab as any).gender;
+
+    await client.vocabulary.create({
+      data: {
+        ...vocab,
+        gender,
+        languageId: spanish.id
+      },
+    });
+  }
+  console.log(`Seeded ${spanishVocabulary.length} vocabulary words for Spanish.`);
 
   // 3. Insert Grammar Rules (First Pass: Create without dependencies)
   console.log('Seeding grammar rules (First Pass)...');
@@ -555,9 +617,11 @@ export async function runSeed(client: PrismaClient = prisma, override: boolean =
         title: rule.title,
         description: rule.description,
         level: rule.level,
+        languageId: german.id
       },
     });
   }
+
   console.log(`Seeded ${basicGrammarRules.length} grammar rules.`);
 
   // 4. Update Grammar Rules (Second Pass: Connect dependencies)
@@ -590,7 +654,7 @@ export async function runSeed(client: PrismaClient = prisma, override: boolean =
 }
 
 async function main() {
-  await runSeed();
+  await runSeed(prisma, true);
 }
 
 import { fileURLToPath } from 'url';

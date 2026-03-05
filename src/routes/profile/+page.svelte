@@ -20,8 +20,12 @@
 				<span class="info-value dark:text-white">{data.user?.username}</span>
 			</div>
 			<div class="info-item">
-				<span class="info-label dark:text-slate-400">CEFR Level</span>
-				<span class="info-value level-badge">{data.user?.cefrLevel}</span>
+				<span class="info-label dark:text-slate-400">Active Language</span>
+				<span class="info-value dark:text-white">{data.user?.activeLanguage?.name || 'None'}</span>
+			</div>
+			<div class="info-item">
+				<span class="info-label dark:text-slate-400">CEFR Level (Active)</span>
+				<span class="info-value level-badge">{data.activeProgress?.cefrLevel || 'A1'}</span>
 			</div>
 			<div class="info-item">
 				<span class="info-label dark:text-slate-400">Role</span>
@@ -54,7 +58,7 @@
 				<select id="theme" name="theme" class="theme-select dark:bg-slate-900 dark:text-white dark:border-slate-700">
 					<option value="default" selected={data.user?.theme === 'default'}>Default</option>
 					<option value="dark" selected={data.user?.theme === 'dark'}>Dark</option>
-					<option value="bavarian" selected={data.user?.theme === 'bavarian'}>Historic German (Bavarian)</option>
+					<option value="bavarian" selected={data.user?.theme === 'bavarian'}>Historic (Bavarian)</option>
 				</select>
 			</div>
 			<button type="submit" class="submit-btn">Update Theme</button>

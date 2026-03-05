@@ -12,7 +12,7 @@ export async function POST({ request, locals }) {
 		const body = await request.json();
 		const { userInput, targetSentence, targetedVocabularyIds, targetedGrammarIds, gameMode: bodyGameMode } = body;
 		const userId = locals.user.id;
-		const gameMode = bodyGameMode || 'en-to-de';
+		const gameMode = bodyGameMode || 'native-to-target';
 
 		if (!userInput || !targetSentence) {
 			return json({ error: 'Missing userInput or targetSentence' }, { status: 400 });
@@ -42,7 +42,7 @@ export async function POST({ request, locals }) {
 				vocabularyUpdates: targetedVocabulary.map((v: { id: string }) => ({ id: v.id, score })),
 				grammarUpdates: [],
 				extraVocabLemmas: [],
-				feedback: isCorrect ? 'Richtig!' : 'Falsch.',
+				feedback: isCorrect ? 'Correct!' : 'Incorrect.',
 				feedbackEnglish: isCorrect ? 'Correct!' : 'Incorrect.'
 			};
 
@@ -59,13 +59,15 @@ export async function POST({ request, locals }) {
 
 		// Build prompt and call LLM with streaming
 		const userLevel = locals.user.cefrLevel || 'A1';
+		const activeLanguageName = locals.user.activeLanguage?.name || 'German';
 		const { systemPrompt, userMessage, idMap } = buildEvaluationPrompt(
 			userInput,
 			targetSentence,
 			targetedVocabulary,
 			targetedGrammar,
 			gameMode,
-			userLevel
+			userLevel,
+			activeLanguageName
 		);
 
 		const llmResponse = await generateChatCompletion({

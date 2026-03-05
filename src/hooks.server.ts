@@ -2,6 +2,10 @@ import { sequence } from '@sveltejs/kit/hooks';
 import { handle as authHandle } from './auth';
 import type { Handle } from '@sveltejs/kit';
 import { prisma } from '$lib/server/prisma';
+import { initLoadTimeStat } from '$lib/server/loadTimeStat';
+
+// Hydrate rolling load-time average from DB on startup
+initLoadTimeStat();
 
 const authorization: Handle = async ({ event, resolve }) => {
 	const session = await event.locals.auth();
@@ -23,18 +27,54 @@ const authorization: Handle = async ({ event, resolve }) => {
 		return resolve(event);
 	}
 
+	const dbUser = await prisma.user.findUnique({
+		where: { id: session.user.id },
+		include: { activeLanguage: true }
+	});
+
+	if (!dbUser) {
+		event.locals.user = null;
+		return resolve(event);
+	}
+
+	let activeLanguage = dbUser.activeLanguage;
+	if (!activeLanguage) {
+		activeLanguage = await prisma.language.findUnique({
+			where: { code: 'de' }
+		});
+	}
+
+	let cefrLevel = 'A1';
+	let hasOnboarded = false;
+
+	if (activeLanguage) {
+		const progress = await prisma.userProgress.findUnique({
+			where: {
+				userId_languageId: {
+					userId: dbUser.id,
+					languageId: activeLanguage.id
+				}
+			}
+		});
+		if (progress) {
+			cefrLevel = progress.cefrLevel;
+			hasOnboarded = progress.hasOnboarded;
+		}
+	}
+
 	event.locals.user = {
-		id: session.user.id,
-		// @ts-expect-error - Custom property
-		username: session.user.username,
-		// @ts-expect-error - Custom property
-		cefrLevel: session.user.cefrLevel,
-		// @ts-expect-error - Custom property
-		hasOnboarded: session.user.hasOnboarded,
-		// @ts-expect-error - Custom property
-		role: session.user.role,
-		// @ts-expect-error - Custom property
-		theme: session.user.theme || 'default'
+		id: dbUser.id,
+		username: dbUser.username || '',
+		cefrLevel,
+		hasOnboarded,
+		role: dbUser.role,
+		theme: dbUser.theme || 'default',
+		activeLanguage: activeLanguage ? {
+			id: activeLanguage.id,
+			code: activeLanguage.code,
+			name: activeLanguage.name,
+			flag: activeLanguage.flag
+		} : null
 	};
 
 	// Fire-and-forget lastActive update

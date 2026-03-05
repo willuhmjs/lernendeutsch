@@ -4,7 +4,7 @@ type SrsState = 'UNSEEN' | 'LEARNING' | 'KNOWN' | 'MASTERED';
 type Vocabulary = { id: string; lemma: string; meaning: string | null; partOfSpeech: string | null; gender: 'der' | 'die' | 'das' | null; plural: string | null; createdAt: Date; updatedAt: Date };
 type GrammarRule = { id: string; title: string; description: string | null; level: string; createdAt: Date; updatedAt: Date };
 
-export type GameMode = 'en-to-de' | 'de-to-en' | 'fill-blank' | 'multiple-choice';
+export type GameMode = 'native-to-target' | 'target-to-native' | 'fill-blank' | 'multiple-choice';
 
 export interface EvaluationPayload {
 	globalScore: number;
@@ -15,7 +15,7 @@ export interface EvaluationPayload {
 	feedbackEnglish?: string;
 }
 
-const normalizeGerman = (text: string) => {
+const normalizeText = (text: string) => {
 	return text
 		.replace(/ß/g, 'ss')
 		.replace(/ä/g, 'ae')
@@ -35,8 +35,9 @@ export function buildEvaluationPrompt(
 	targetSentence: string,
 	targetedVocabulary: Vocabulary[],
 	targetedGrammar: GrammarRule[],
-	gameMode: GameMode = 'en-to-de',
-	userLevel: string = 'A1'
+	gameMode: GameMode = 'native-to-target',
+	userLevel: string = 'A1',
+	activeLanguageName: string = '${activeLanguageName}'
 ): { systemPrompt: string; userMessage: string; idMap: Record<string, string> } {
 	// Build short ID maps so the LLM sees tiny tokens like "v0" instead of full UUIDs
 	const idMap: Record<string, string> = {}; // short -> real
@@ -57,15 +58,15 @@ You must output ONLY strictly valid JSON. Do not include markdown formatting or 
 ${beginnerEncouragement}
 
 Your task:
-The student was given a German sentence with blanks for targeted vocabulary words. They provided answers for each blank.
-Compare their answers against the expected complete German sentence.
+The student was given a ${activeLanguageName} sentence with blanks for targeted vocabulary words. They provided answers for each blank.
+Compare their answers against the expected complete ${activeLanguageName} sentence.
 Calculate a global accuracy score between 0.0 and 1.0. Be forgiving of minor typos and capitalization errors.
-Note: Do not penalize the user if they use ASCII equivalents for German special characters (e.g., 'ss' instead of 'ß', 'ae' instead of 'ä', 'oe' instead of 'ö', 'ue' instead of 'ü', or their uppercase equivalents like 'Ae' for 'Ä', 'Ue' for 'Ü', etc.). Treat these as ENTIRELY correct — they MUST receive a score of 1.0 for that vocabulary item.
+Note: Do not penalize the user if they use ASCII equivalents for ${activeLanguageName} special characters (e.g., 'ss' instead of 'ß', 'ae' instead of 'ä', 'oe' instead of 'ö', 'ue' instead of 'ü', or their uppercase equivalents like 'Ae' for 'Ä', 'Ue' for 'Ü', etc.). Treat these as ENTIRELY correct — they MUST receive a score of 1.0 for that vocabulary item.
 IMPORTANT: Capitalization errors (e.g., writing "Gluecklich" instead of "glücklich") are MINOR issues. If the student wrote the correct word with only a capitalization difference, the vocabulary score for that word MUST be at least 0.8. Do NOT give a score of 0 for capitalization-only errors.
 SCORING CONSISTENCY: Each vocabulary/grammar item score must be consistent with the global score. If the global score is above 0.8, no individual item that the student attempted correctly (even with minor issues) should receive a score below 0.5.
-Provide helpful, concise feedback in German ("feedback") and English ("feedbackEnglish").
+Provide helpful, concise feedback in ${activeLanguageName} ("feedback") and English ("feedbackEnglish").
 For vocabularyUpdates and grammarUpdates, provide a score between 0.0 and 1.0 depending on how well they used the item. Score each item INDEPENDENTLY.
-If the user correctly used any OTHER German words by coincidence that are not in the targeted list, output their base forms (lemmas) in lowercase in the "extraVocabLemmas" array.
+If the user correctly used any OTHER ${activeLanguageName} words by coincidence that are not in the targeted list, output their base forms (lemmas) in lowercase in the "extraVocabLemmas" array.
 
 IMPORTANT: "feedback" MUST be the very first key in your JSON response.
 
@@ -77,7 +78,7 @@ ${grammarList}
 
 JSON format:
 {
-  "feedback": "<string (German feedback)>",
+  "feedback": "<string (${activeLanguageName} feedback)>",
   "feedbackEnglish": "<string (English translation of feedback)>",
   "globalScore": <number>,
   "vocabularyUpdates": [ { "id": "<vocabulary ID>", "score": <number (0.0 to 1.0)> } ],
@@ -85,7 +86,7 @@ JSON format:
   "extraVocabLemmas": ["<lemma1>", "<lemma2>"]
 }`;
 
-		const userMessage = `Complete German sentence: ${normalizeGerman(targetSentence)}\nUser's blank answers: ${normalizeGerman(userInput)}`;
+		const userMessage = `Complete ${activeLanguageName} sentence: ${normalizeText(targetSentence)}\nUser's blank answers: ${normalizeText(userInput)}`;
 		return { systemPrompt, userMessage, idMap };
 	}
 
@@ -95,13 +96,13 @@ You must output ONLY strictly valid JSON. Do not include markdown formatting or 
 ${beginnerEncouragement}
 
 Your task:
-The student was shown a German sentence and chose an English translation from multiple options.
+The student was shown a ${activeLanguageName} sentence and chose an English translation from multiple options.
 Compare their chosen answer to the correct translation.
 If they chose correctly, score 1.0. If wrong, score 0.0.
-Provide brief feedback in German ("feedback") and English ("feedbackEnglish") explaining why the correct answer is right.
+Provide brief feedback in ${activeLanguageName} ("feedback") and English ("feedbackEnglish") explaining why the correct answer is right.
 For vocabularyUpdates, provide a score of 1.0 or 0.0 based on whether they got the question right.
-Since this is a recognition task (German to English), do NOT evaluate grammar rules. Always return an empty array for "grammarUpdates".
-If the user correctly recognized any OTHER German words by coincidence that are not in the targeted list, output their base forms (lemmas) in lowercase in the "extraVocabLemmas" array.
+Since this is a recognition task (${activeLanguageName} to English), do NOT evaluate grammar rules. Always return an empty array for "grammarUpdates".
+If the user correctly recognized any OTHER ${activeLanguageName} words by coincidence that are not in the targeted list, output their base forms (lemmas) in lowercase in the "extraVocabLemmas" array.
 
 IMPORTANT: "feedback" MUST be the very first key in your JSON response.
 
@@ -113,7 +114,7 @@ ${grammarList}
 
 JSON format:
 {
-  "feedback": "<string (German feedback)>",
+  "feedback": "<string (${activeLanguageName} feedback)>",
   "feedbackEnglish": "<string (English translation of feedback)>",
   "globalScore": <number>,
   "vocabularyUpdates": [ { "id": "<vocabulary ID>", "score": <number (0.0 to 1.0)> } ],
@@ -125,26 +126,26 @@ JSON format:
 		return { systemPrompt, userMessage, idMap };
 	}
 
-	// Translation modes (en-to-de, de-to-en)
-	const isEnToDe = gameMode === 'en-to-de';
-	const userLanguage = isEnToDe ? 'German' : 'English';
-	const targetLanguage = isEnToDe ? 'German' : 'English';
+	// Translation modes (native-to-target, target-to-native)
+	const isEnToDe = gameMode === 'native-to-target';
+	const userLanguage = isEnToDe ? '${activeLanguageName}' : 'English';
+	const targetLanguage = isEnToDe ? '${activeLanguageName}' : 'English';
 
 	const asciiNote = isEnToDe
-		? `Note: Do not penalize the user if they use ASCII equivalents for German special characters (e.g., 'ss' instead of 'ß', 'ae' instead of 'ä', 'oe' instead of 'ö', 'ue' instead of 'ü', or their uppercase equivalents like 'Ae' for 'Ä'). Treat these as entirely correct.`
+		? `Note: Do not penalize the user if they use ASCII equivalents for ${activeLanguageName} special characters (e.g., 'ss' instead of 'ß', 'ae' instead of 'ä', 'oe' instead of 'ö', 'ue' instead of 'ü', or their uppercase equivalents like 'Ae' for 'Ä'). Treat these as entirely correct.`
 		: '';
 
 	const grammarNote = isEnToDe
 		? ''
-		: `Note: Since this is a German-to-English translation, do NOT evaluate grammar rules. Always return an empty array for "grammarUpdates".`;
+		: `Note: Since this is a ${activeLanguageName}-to-English translation, do NOT evaluate grammar rules. Always return an empty array for "grammarUpdates".`;
 
 	const vocabScoringNote = isEnToDe
 		? ''
-		: `IMPORTANT: For vocabulary scoring in German-to-English mode, score each targeted vocabulary word INDEPENDENTLY based solely on whether the user correctly conveyed its meaning in English. Do NOT penalize a vocabulary word for unrelated errors elsewhere in the sentence. The user is translating INTO English, so they will not write the German words themselves — instead, check whether the English translation accurately reflects the meaning of each targeted German vocabulary word. For example, if "die Klasse" is targeted and the user writes "the class", that vocabulary word MUST receive a score of 1.0, even if other parts of the sentence contain errors (like writing "Ist" instead of "Is"). Each vocabulary score should reflect ONLY whether that specific word's meaning was correctly translated.`;
+		: `IMPORTANT: For vocabulary scoring in ${activeLanguageName}-to-English mode, score each targeted vocabulary word INDEPENDENTLY based solely on whether the user correctly conveyed its meaning in English. Do NOT penalize a vocabulary word for unrelated errors elsewhere in the sentence. The user is translating INTO English, so they will not write the ${activeLanguageName} words themselves — instead, check whether the English translation accurately reflects the meaning of each targeted ${activeLanguageName} vocabulary word. For example, if "die Klasse" is targeted and the user writes "the class", that vocabulary word MUST receive a score of 1.0, even if other parts of the sentence contain errors (like writing "Ist" instead of "Is"). Each vocabulary score should reflect ONLY whether that specific word's meaning was correctly translated.`;
 
 	const helpNote = isEnToDe
 		? `Note: The user is allowed to ask for an English translation, or provide an English translation of the sentence alongside their answer. If they ask for a translation or provide an English translation because they are stuck, do not penalize them for it. Provide the translation in the feedback and give a neutral score (e.g., 0.5) to keep them motivated, rather than failing them.`
-		: `Note: The user is allowed to ask for help or a German translation. If they do, provide the translation in the feedback and give a neutral score (e.g., 0.5) to keep them motivated, rather than failing them.`;
+		: `Note: The user is allowed to ask for help or a ${activeLanguageName} translation. If they do, provide the translation in the feedback and give a neutral score (e.g., 0.5) to keep them motivated, rather than failing them.`;
 
 	const systemPrompt = `You are an expert language tutor evaluating a student's ${userLanguage} translation.
 You must output ONLY strictly valid JSON. Do not include markdown formatting or extra text.
@@ -154,8 +155,8 @@ Your task:
 Evaluate the user's ${userLanguage} input against the target expected ${targetLanguage} output.
 Calculate a global accuracy score between 0.0 and 1.0. Be forgiving of minor mistakes like slight typos, capitalization errors, or minor word order issues that do not change the core meaning. Do not penalize minor errors harshly; keep the score proportional to the overall understanding shown.
 Assess if the user correctly used the targeted vocabulary and grammar rules. Give a decimal score between 0.0 and 1.0 for each item in vocabularyUpdates and grammarUpdates. Score each vocabulary and grammar item INDEPENDENTLY — do not penalize one item for errors related to a different item.
-Provide helpful, concise feedback in German ("feedback") and English ("feedbackEnglish").
-If the user correctly used or recognized any OTHER German words by coincidence that are not in the targeted list, output their base forms (lemmas) in lowercase in the "extraVocabLemmas" array.
+Provide helpful, concise feedback in ${activeLanguageName} ("feedback") and English ("feedbackEnglish").
+If the user correctly used or recognized any OTHER ${activeLanguageName} words by coincidence that are not in the targeted list, output their base forms (lemmas) in lowercase in the "extraVocabLemmas" array.
 ${asciiNote}
 ${grammarNote}
 ${vocabScoringNote}
@@ -171,7 +172,7 @@ ${grammarList}
 
 JSON format:
 {
-  "feedback": "<string (German feedback)>",
+  "feedback": "<string (${activeLanguageName} feedback)>",
   "feedbackEnglish": "<string (English translation of feedback)>",
   "globalScore": <number>,
   "vocabularyUpdates": [ { "id": "<vocabulary ID>", "score": <number (0.0 to 1.0)> } ],
@@ -179,8 +180,8 @@ JSON format:
   "extraVocabLemmas": ["<lemma1>", "<lemma2>"]
 }`;
 
-	const normalizedTarget = isEnToDe ? normalizeGerman(targetSentence) : targetSentence;
-	const normalizedInput = isEnToDe ? normalizeGerman(userInput) : userInput;
+	const normalizedTarget = isEnToDe ? normalizeText(targetSentence) : targetSentence;
+	const normalizedInput = isEnToDe ? normalizeText(userInput) : userInput;
 
 	const userMessage = `Target Expected Output: ${normalizedTarget}\nUser Input: ${normalizedInput}`;
 	return { systemPrompt, userMessage, idMap };
@@ -245,7 +246,7 @@ function calculateNewElo(currentElo: number, score: number, baseDifficulty: numb
 	
 	let kMultiplier = 1.0;
 	if (gameMode === 'multiple-choice') kMultiplier = 0.5; // easier, less reward/penalty
-	if (gameMode === 'en-to-de') kMultiplier = 1.2;        // harder, more reward/penalty
+	if (gameMode === 'native-to-target') kMultiplier = 1.2;        // harder, more reward/penalty
 
 	const effectiveK = K_FACTOR * kMultiplier;
 	return currentElo + effectiveK * (score - expectedScore);
@@ -270,7 +271,7 @@ export function calculateNextReviewDate(eloRating: number, baseDifficulty: numbe
  * Updates the user's database records based on the evaluation payload.
  * Adjusts Elo ratings and SRS states for targeted Vocabulary and Grammar rules.
  */
-export async function updateEloRatings(userId: string, payload: EvaluationPayload, gameMode: string = 'en-to-de') {
+export async function updateEloRatings(userId: string, payload: EvaluationPayload, gameMode: string = 'native-to-target') {
 	console.log(`Updating Elos for user ${userId} with payload:`, JSON.stringify(payload, null, 2));
 	for (const vocabUpdate of payload.vocabularyUpdates || []) {
 		try {
@@ -321,8 +322,8 @@ export async function updateEloRatings(userId: string, payload: EvaluationPayloa
 		}
 	}
 
-	// Skip grammar updates for de-to-en and multiple-choice — only award grammar credit for en-to-de and fill-blank
-	if (gameMode === 'de-to-en' || gameMode === 'multiple-choice') {
+	// Skip grammar updates for target-to-native and multiple-choice — only award grammar credit for native-to-target and fill-blank
+	if (gameMode === 'target-to-native' || gameMode === 'multiple-choice') {
 		console.log(`Skipping grammar updates for ${gameMode} mode`);
 	} else
 	for (const grammarUpdate of payload.grammarUpdates || []) {

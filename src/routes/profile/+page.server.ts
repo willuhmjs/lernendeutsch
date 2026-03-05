@@ -10,18 +10,26 @@ export const load: PageServerLoad = async ({ locals }) => {
 		throw redirect(303, '/login');
 	}
 
-	const [user, settings] = await Promise.all([
+	const [user, settings, userProgress] = await Promise.all([
 		prisma.user.findUnique({
 			where: { id: locals.user.id },
 			select: { passwordHash: true }
 		}),
-		getSiteSettings()
+		getSiteSettings(),
+		prisma.userProgress.findMany({
+			where: { userId: locals.user.id },
+			include: { language: true }
+		})
 	]);
+
+	const activeProgress = userProgress.find((p: { languageId: string }) => p.languageId === locals.user?.activeLanguage?.id);
 
 	return {
 		user: locals.user,
 		hasPassword: !!user?.passwordHash,
-		localLoginEnabled: settings.localLoginEnabled
+		localLoginEnabled: settings.localLoginEnabled,
+		activeProgress,
+		allProgress: userProgress
 	};
 };
 

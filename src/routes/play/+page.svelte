@@ -1,11 +1,12 @@
 r<script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
+	import { fade, fly } from 'svelte/transition';
 	import toast from 'svelte-french-toast';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
 
-	type GameMode = 'en-to-de' | 'de-to-en' | 'fill-blank' | 'multiple-choice';
+	type GameMode = 'native-to-target' | 'target-to-native' | 'fill-blank' | 'multiple-choice';
 
 	let englishFlag = '🇬🇧';
 
@@ -30,11 +31,92 @@ r<script lang="ts">
 	let feedback: any = null;
 	let submitting = false;
 	let showEnglishFeedback = false;
-	let gameMode: GameMode = data.cefrLevel === 'A1' ? 'multiple-choice' : 'en-to-de';
+	let gameMode: GameMode = data.cefrLevel === 'A1' ? 'multiple-choice' : 'native-to-target';
 	let fillBlankAnswers: string[] = [];
 	let selectedChoice: string | null = null;
 	let shuffledChoices: string[] = [];
 	let hasSubmittedMc = false;
+
+	// Loading progress & cycling tips
+	let loadProgressPct = 0;
+	let loadTipIndex = 0;
+	let estimatedLoadMs = 9000;
+	let _loadProgressInterval: ReturnType<typeof setInterval> | null = null;
+	let _loadTipInterval: ReturnType<typeof setInterval> | null = null;
+
+	const LOADING_TIPS = [
+		// German tips
+		'All nouns in German are capitalized — even in the middle of a sentence.',
+		'The word \'Schadenfreude\' has no direct English equivalent: joy at others\' misfortune.',
+		'German compound nouns can be infinitely long — \'Donaudampfschifffahrtsgesellschaft\' is a real word.',
+		'\'Fingerspitzengefühl\' means \'fingertip feeling\' — a delicate touch or sensitivity.',
+		'German has formal (Sie) and informal (du) ways of addressing people.',
+		'In German main clauses, the conjugated verb always sits in the second position.',
+		'\'Weltschmerz\' meaning world-weariness was coined by Jean Paul, a German author.',
+		'German and English share about 60% of their vocabulary roots.',
+		'The German alphabet adds 4 extra letters: ä, ö, ü, and ß.',
+		'\'Doch\' can contradict a negative question — like \'Oh yes it is!\' in English.',
+		'Modal verbs (können, müssen, dürfen…) push the main verb to the very end of the clause.',
+		'German has 4 grammatical cases: Nominative, Accusative, Dative, and Genitive.',
+		'German word order in subordinate clauses sends the verb to the very end.',
+		'\'Gemütlichkeit\' describes a feeling of warmth, coziness, and belonging — untranslatable in English.',
+		'The longest German word in everyday use is \'Rechtsschutzversicherungsgesellschaften\' (legal insurance companies).',
+		'German separable verbs split apart in main clauses — \'anfangen\' becomes \'Ich fange an.\'',
+		'The German \'ch\' sound doesn\'t exist in English — it\'s like a soft hiss from the roof of your mouth.',
+		'In German, adjective endings change based on case, gender, and whether an article is present.',
+		'\'Kummerspeck\' literally means \'grief bacon\' — weight gained from emotional eating.',
+		'German uses three genders: der (masculine), die (feminine), and das (neuter).',
+		'The Dative case is used after prepositions like mit, bei, nach, seit, von, zu, and aus.',
+		// Spanish tips
+		'Spanish is the 2nd most spoken native language in the world with ~500 million speakers.',
+		'Spanish has two verbs for \'to be\': ser (permanent) and estar (temporary).',
+		'In Spanish, nouns have grammatical gender — either masculine or feminine.',
+		'The ¡ and ¿ marks at the start of sentences are unique to Spanish.',
+		'Spanish is spoken in over 20 countries across 4 continents.',
+		'The subjunctive mood in Spanish expresses doubt, wishes, and hypotheticals — and it\'s used constantly.',
+		'\'Sobremesa\' is the time spent chatting at the table after a meal — there\'s no English word for it.',
+		'Spanish \'ll\' and \'y\' sound the same in most dialects — a phenomenon called yeísmo.',
+		'The letter ñ is unique to Spanish and represents a palatal nasal sound.',
+		'In Spanish, adjectives usually come after the noun: \'casa blanca\' not \'blanca casa.\'',
+		'\'Empalagar\' means to feel sick from eating too much of something sweet.',
+		'The Spanish Royal Academy (RAE) officially regulates the language since 1713.',
+		'Spanish has about 10 million words, but you only need ~2,000 for everyday conversation.',
+		'The word \'ojalá\' comes from Arabic (inshallah) and means \'hopefully\' or \'God willing.\'',
+		'Ser vs. estar: \'Estoy aburrido\' = I am bored, but \'Soy aburrido\' = I am boring!',
+		'Spanish uses the personal \'a\' before direct objects that are people: \'Veo a María.\'',
+		'\'Madrugada\' refers to the wee hours between midnight and dawn — a single word English lacks.',
+		// French tips
+		'French is spoken on all 5 continents and is an official language in 29 countries.',
+		'About 45% of modern English vocabulary comes from French or Norman French.',
+		'In French, adjectives usually agree in gender and number with the noun they describe.',
+		'The French \'r\' is pronounced in the back of the throat — quite different from the English \'r.\'',
+		'French has a formal \'vous\' and informal \'tu\' — using the wrong one can be a social faux pas.',
+		'\'Dépaysement\' describes the disorienting feeling of being in a foreign country.',
+		'French liaisons connect words together: \'les amis\' is pronounced \'lez-ami.\'',
+		'The Académie française has regulated the French language since 1635.',
+		'In French, the number 80 is \'quatre-vingts\' — literally \'four twenties.\'',
+		'\'L\'esprit de l\'escalier\' means thinking of the perfect comeback too late — on the staircase leaving.',
+		'French has 16 vowel sounds compared to English\'s ~12, making pronunciation tricky.',
+		'Most final consonants in French are silent: \'petit\' is pronounced \'puh-TEE.\'',
+		'The passé composé vs. imparfait distinction is one of the trickiest parts of French grammar.',
+		'\'Flâner\' means to stroll without purpose, soaking in your surroundings — a very Parisian concept.',
+		'French nasal vowels (on, an, in, un) don\'t exist in English and take practice to master.',
+		'Ne...pas wraps around the verb to make it negative: \'Je ne sais pas\' (I don\'t know).',
+		'The word \'croissant\' literally means \'crescent\' in French, referring to its shape.',
+		// General language learning tips
+		'Spaced repetition (SRS) is proven to make vocabulary stick up to 3× faster.',
+		'Reading just 15 minutes a day in your target language dramatically speeds up fluency.',
+		'Context beats memorization — learning words in sentences helps retention by ~40%.',
+		'The i+1 principle: you learn best when input is just slightly above your current level.',
+		'Mistakes are part of the process — every error is your brain recalibrating.',
+		'Listening to music in your target language is a fun way to absorb natural phrasing.',
+		'Most polyglots agree: speaking on day one — even badly — accelerates learning.',
+		'Thinking in your target language (even simple thoughts) builds fluency faster than translation.',
+		'The forgetting curve shows you lose ~70% of new info in 24 hours without review.',
+		'Writing by hand activates more brain regions than typing, boosting word retention.',
+		'Immersion doesn\'t require travel — change your phone\'s language for instant practice.',
+		'You need roughly 3,000 words to understand ~95% of everyday conversation in most languages.',
+	];
 
 	// User level tracking (populated from page data and updated from lesson metadata)
 	let userLevel = data.cefrLevel || 'A1';
@@ -43,6 +125,11 @@ r<script lang="ts">
 	// AbortControllers for in-flight API requests
 	let generateController: AbortController | null = null;
 	let submitController: AbortController | null = null;
+
+	function stopLoadingIntervals() {
+		if (_loadProgressInterval) { clearInterval(_loadProgressInterval); _loadProgressInterval = null; }
+		if (_loadTipInterval) { clearInterval(_loadTipInterval); _loadTipInterval = null; }
+	}
 
 	function cancelAllRequests() {
 		if (generateController) {
@@ -53,6 +140,7 @@ r<script lang="ts">
 			submitController.abort();
 			submitController = null;
 		}
+		stopLoadingIntervals();
 	}
 
 	onDestroy(() => {
@@ -239,23 +327,62 @@ r<script lang="ts">
 		'vors': { lemma: 'vor', note: 'vors = vor + das (in front of the)' },
 	};
 
+	// Maps Prisma Gender enum values to German article strings
+	function genderToArticle(gender: string | null | undefined): string | null {
+		if (!gender) return null;
+		const g = gender.toUpperCase();
+		if (g === 'MASCULINE' || g === 'DER') return 'der';
+		if (g === 'FEMININE'  || g === 'DIE') return 'die';
+		if (g === 'NEUTER'    || g === 'DAS') return 'das';
+		return null;
+	}
+
+	// German article forms → case + gender info for building smart tooltips
+	// Each entry has: definite/indefinite flag, an array of possible {caseLabel, nominativeArticle} combos
+	type ArticleForm = { caseLabel: string; nomArticle: string };
+	const GERMAN_ARTICLE_MAP: Record<string, { definite: boolean; forms: ArticleForm[] }> = {
+		// Definite articles
+		'der':   { definite: true,  forms: [{ caseLabel: 'Nom. Masc.',          nomArticle: 'der' }, { caseLabel: 'Dat. Fem.',   nomArticle: 'die' }, { caseLabel: 'Gen. Fem.',  nomArticle: 'die' }] },
+		'die':   { definite: true,  forms: [{ caseLabel: 'Nom./Acc. Fem.',       nomArticle: 'die' }, { caseLabel: 'Nom./Acc. Plural', nomArticle: 'die' }] },
+		'das':   { definite: true,  forms: [{ caseLabel: 'Nom./Acc. Neut.',      nomArticle: 'das' }] },
+		'den':   { definite: true,  forms: [{ caseLabel: 'Acc. Masc.',           nomArticle: 'der' }, { caseLabel: 'Dat. Plural', nomArticle: 'die' }] },
+		'dem':   { definite: true,  forms: [{ caseLabel: 'Dat. Masc.',           nomArticle: 'der' }, { caseLabel: 'Dat. Neut.',  nomArticle: 'das' }] },
+		'des':   { definite: true,  forms: [{ caseLabel: 'Gen. Masc.',           nomArticle: 'der' }, { caseLabel: 'Gen. Neut.',  nomArticle: 'das' }] },
+		// Indefinite articles
+		'ein':   { definite: false, forms: [{ caseLabel: 'Nom. Masc.',           nomArticle: 'der' }, { caseLabel: 'Nom./Acc. Neut.', nomArticle: 'das' }] },
+		'eine':  { definite: false, forms: [{ caseLabel: 'Nom./Acc. Fem.',       nomArticle: 'die' }] },
+		'einen': { definite: false, forms: [{ caseLabel: 'Acc. Masc.',           nomArticle: 'der' }] },
+		'einem': { definite: false, forms: [{ caseLabel: 'Dat. Masc./Neut.',     nomArticle: 'der' }] },
+		'einer': { definite: false, forms: [{ caseLabel: 'Dat./Gen. Fem.',       nomArticle: 'die' }, { caseLabel: 'Gen. Masc./Neut.', nomArticle: 'der' }] },
+		'eines': { definite: false, forms: [{ caseLabel: 'Gen. Masc./Neut.',     nomArticle: 'der' }] },
+		// Negative articles (kein/keine/...)
+		'kein':   { definite: false, forms: [{ caseLabel: 'Nom. Masc.',           nomArticle: 'der' }, { caseLabel: 'Nom./Acc. Neut.', nomArticle: 'das' }] },
+		'keine':  { definite: false, forms: [{ caseLabel: 'Nom./Acc. Fem./Pl.',  nomArticle: 'die' }] },
+		'keinen': { definite: false, forms: [{ caseLabel: 'Acc. Masc.',           nomArticle: 'der' }] },
+		'keinem': { definite: false, forms: [{ caseLabel: 'Dat. Masc./Neut.',     nomArticle: 'der' }] },
+		'keiner': { definite: false, forms: [{ caseLabel: 'Dat./Gen. Fem.',       nomArticle: 'die' }] },
+		'keines': { definite: false, forms: [{ caseLabel: 'Gen. Masc./Neut.',     nomArticle: 'der' }] },
+	};
+
 	function buildTooltipHtml(vocab: any, overrideArticle?: string, inflectionNote?: string): string {
 		const isNoun = vocab.partOfSpeech?.toLowerCase() === 'noun';
 		const lemmaDisplay = isNoun
 			? vocab.lemma.charAt(0).toUpperCase() + vocab.lemma.slice(1)
 			: vocab.lemma;
+		const genderDisplay = genderToArticle(vocab.gender);
+		const isAiGenerated = typeof vocab.id === 'string' && vocab.id.startsWith('ai_');
 		let html = `<span class="word-tooltip">`;
-		html += `<span class="word-tooltip-header">${overrideArticle ?? lemmaDisplay}</span>`;
+		html += `<span class="word-tooltip-header">${overrideArticle ?? lemmaDisplay}${isAiGenerated ? '<span class="word-tooltip-ai-badge">AI</span>' : ''}</span>`;
 		html += `<span class="word-tooltip-body">`;
 		if (inflectionNote) {
 			html += `<span class="word-tooltip-row"><strong>Form:</strong> ${inflectionNote}</span>`;
 		}
 		if (overrideArticle) {
 			html += `<span class="word-tooltip-row"><strong>Noun:</strong> ${lemmaDisplay}</span>`;
-			if (vocab.gender) html += `<span class="word-tooltip-row"><strong>Gender:</strong> ${vocab.gender}</span>`;
+			if (genderDisplay) html += `<span class="word-tooltip-row"><strong>Gender:</strong> ${genderDisplay}</span>`;
 		} else {
 			if (vocab.partOfSpeech) html += `<span class="word-tooltip-row"><strong>POS:</strong> ${vocab.partOfSpeech}</span>`;
-			if (isNoun && vocab.gender) html += `<span class="word-tooltip-row"><strong>Gender:</strong> ${vocab.gender}</span>`;
+			if (isNoun && genderDisplay) html += `<span class="word-tooltip-row"><strong>Gender:</strong> ${genderDisplay}</span>`;
 		}
 		if (vocab.plural) html += `<span class="word-tooltip-row"><strong>Plural:</strong> ${vocab.plural}</span>`;
 		if (vocab.meaning) html += `<span class="word-tooltip-row"><strong>Meaning:</strong> ${vocab.meaning}</span>`;
@@ -338,7 +465,7 @@ r<script lang="ts">
 
 	function buildVocabMap(): Map<string, any> {
 		const map = new Map();
-		const isEnToDe = challenge?.gameMode === 'en-to-de';
+		const isEnToDe = challenge?.gameMode === 'native-to-target';
 		for (const v of challenge?.allVocabulary || []) {
 			map.set(v.lemma.toLowerCase(), v);
 			if (isEnToDe && v.meaning) {
@@ -362,7 +489,14 @@ r<script lang="ts">
 
 	function parseTextWithTooltips(text: string, isTargetedVocab: boolean): string {
 		const vocabMap = buildVocabMap();
-		const isDeToEn = challenge.gameMode === 'de-to-en';
+		const isDeToEn = challenge.gameMode === 'target-to-native';
+		// Whether this text is German (to enable article case tooltips)
+		const mode = challenge.gameMode as string;
+		const isGermanText =
+			mode === 'fill-blank' ? true :
+			mode === 'target-to-native' ? isTargetedVocab :
+			mode === 'native-to-target' ? !isTargetedVocab :
+			mode === 'multiple-choice' ? isTargetedVocab : false;
 
 		// Step 1: Replace <vocab> tags with placeholders to protect them
 		const vocabReplacements: string[] = [];
@@ -377,7 +511,7 @@ r<script lang="ts">
 		// Clean up incomplete tags from streaming
 		text = text.replace(/<vocab[^>]*>|<\/vocab>|<vocab[^>]*$/g, '');
 
-		const isEnToDe = challenge.gameMode === 'en-to-de';
+		const isEnToDe = challenge.gameMode === 'native-to-target';
 		const englishArticles = new Set(['the', 'a', 'an']);
 
 		// Helper: find vocab entry for a cleaned word
@@ -467,7 +601,7 @@ r<script lang="ts">
 				continue;
 			}
 
-			// Handle English articles in en-to-de mode
+			// Handle English articles in native-to-target mode
 			if (isEnToDe && englishArticles.has(cleanWord)) {
 				// Get only non-whitespace tokens ahead
 				const upcomingWords = tokens.slice(i + 1).filter((t: string) => !/^\s+$/.test(t));
@@ -478,11 +612,13 @@ r<script lang="ts">
 					);
 					let article: string;
 					if (cleanWord === 'the') {
-						article = isPlural ? 'die' : (nounVocab.gender || 'der/die/das');
+						const nomArt = genderToArticle(nounVocab.gender);
+						article = isPlural ? 'die' : (nomArt || 'der/die/das');
 					} else {
 						// "a" / "an" — indefinite
 						const genderMap: Record<string, string> = { 'der': 'ein', 'die': 'eine', 'das': 'ein' };
-						article = nounVocab.gender ? (genderMap[nounVocab.gender] || 'ein/eine') : 'ein/eine';
+						const nomArt = genderToArticle(nounVocab.gender);
+						article = nomArt ? (genderMap[nomArt] || 'ein/eine') : 'ein/eine';
 					}
 					const tooltip = buildTooltipHtml(nounVocab, article);
 					result.push(`<span class="word-hover has-info tooltip-trigger">${token}${tooltip}</span>`);
@@ -493,6 +629,38 @@ r<script lang="ts">
 				const genericTooltip = `<span class="word-tooltip"><span class="word-tooltip-header">${genericArticle}</span><span class="word-tooltip-body"><span class="word-tooltip-row"><strong>Article:</strong> ${cleanWord === 'the' ? 'definite' : 'indefinite'}</span></span></span>`;
 				result.push(`<span class="word-hover has-info tooltip-trigger">${token}${genericTooltip}</span>`);
 				continue;
+			}
+
+			// Handle German article forms — show case + gender tooltip
+			if (isGermanText) {
+				const artEntry = GERMAN_ARTICLE_MAP[cleanWord];
+				if (artEntry) {
+					const upcomingGerman = tokens.slice(i + 1).filter((t: string) => !/^\s+$/.test(t));
+					const nounVocab = findNextNoun(upcomingGerman, 0);
+					const nomArt = nounVocab ? genderToArticle(nounVocab.gender) : null;
+					// Narrow down possible case forms using the noun's gender
+					const matchedForms = nomArt
+						? artEntry.forms.filter(f => f.nomArticle === nomArt)
+						: artEntry.forms;
+					const caseLabel = (matchedForms.length > 0 ? matchedForms : artEntry.forms)
+						.map(f => f.caseLabel).join(' / ');
+					const artType = artEntry.definite ? 'Definite' : (cleanWord.startsWith('k') ? 'Negative' : 'Indefinite');
+					let ttHtml = `<span class="word-tooltip">`;
+					ttHtml += `<span class="word-tooltip-header">${token}</span>`;
+					ttHtml += `<span class="word-tooltip-body">`;
+					ttHtml += `<span class="word-tooltip-row"><strong>Article:</strong> ${artType}</span>`;
+					ttHtml += `<span class="word-tooltip-row"><strong>Form:</strong> ${caseLabel}</span>`;
+					if (nounVocab) {
+						const nDisplay = nounVocab.lemma.charAt(0).toUpperCase() + nounVocab.lemma.slice(1);
+						const nGender = genderToArticle(nounVocab.gender);
+						ttHtml += `<span class="word-tooltip-row"><strong>Noun:</strong> ${nDisplay}</span>`;
+						if (nGender) ttHtml += `<span class="word-tooltip-row"><strong>Gender:</strong> ${nGender}</span>`;
+						if (nounVocab.meaning) ttHtml += `<span class="word-tooltip-row"><strong>Meaning:</strong> ${nounVocab.meaning}</span>`;
+					}
+					ttHtml += `</span></span>`;
+					result.push(`<span class="word-hover has-info tooltip-trigger">${token}${ttHtml}</span>`);
+					continue;
+				}
 			}
 
 			const vocabResult = findVocab(cleanWord);
@@ -534,6 +702,35 @@ r<script lang="ts">
 		selectedChoice = null;
 		shuffledChoices = [];
 		hasSubmittedMc = false;
+
+		// Fetch average load time for accurate progress bar
+		try {
+			const statRes = await fetch('/api/load-time-stat');
+			if (statRes.ok) {
+				const statData = await statRes.json();
+				estimatedLoadMs = statData.averageMs || 9000;
+			}
+		} catch { /* use default */ }
+
+		// Start progress bar
+		loadProgressPct = 0;
+		const progressStart = Date.now();
+		_loadProgressInterval = setInterval(() => {
+			const elapsed = Date.now() - progressStart;
+			if (elapsed < estimatedLoadMs) {
+				loadProgressPct = Math.min(88, (elapsed / estimatedLoadMs) * 88);
+			} else {
+				// Logarithmic crawl toward 99% once past the estimate
+				const extra = elapsed - estimatedLoadMs;
+				loadProgressPct = Math.min(99, 88 + 11 * (1 - Math.exp(-extra / 6000)));
+			}
+		}, 80);
+
+		// Start cycling tips
+		loadTipIndex = Math.floor(Math.random() * LOADING_TIPS.length);
+		_loadTipInterval = setInterval(() => {
+			loadTipIndex = (loadTipIndex + 1) % LOADING_TIPS.length;
+		}, 3500);
 
 		generateController = new AbortController();
 		
@@ -599,7 +796,15 @@ r<script lang="ts">
 							// Try to extract challengeText for progressive display
 							const challengeMatch = accumulatedJson.match(/"challengeText"\s*:\s*"((?:[^"\\]|\\.)*)/);
 							if (challengeMatch && challengeMatch[1]) {
-								challenge.challengeText = challengeMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+								let extractedText = challengeMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+								// Remap short vocab IDs (v0, v1, ...) to real UUIDs so tooltips work during streaming
+								if (idMap && Object.keys(idMap).length > 0) {
+									extractedText = extractedText.replace(
+										/<vocab\s+id="([^"]+)">/g,
+										(_m: string, shortId: string) => `<vocab id="${idMap[shortId] || shortId}">`
+									);
+								}
+								challenge.challengeText = extractedText;
 								// Only stop loading once we have actual text to show
 								if (loading) loading = false;
 							}
@@ -697,13 +902,17 @@ r<script lang="ts">
 			toast.error(`Failed to generate challenge: ${error instanceof Error ? error.message : 'Unknown error'}`);
 		} finally {
 			generateController = null;
+			// Complete progress bar then clean up
+			stopLoadingIntervals();
+			loadProgressPct = 100;
+			setTimeout(() => { loadProgressPct = 0; }, 500);
 			loading = false;
 			isStreaming = false;
 		}
 	}
 
 	async function submitAnswer() {
-		const mode = challenge?.gameMode || 'en-to-de';
+		const mode = challenge?.gameMode || 'native-to-target';
 
 		// Build userInput based on mode
 		let effectiveInput = userInput;
@@ -745,7 +954,7 @@ r<script lang="ts">
 					targetSentence: challenge.targetSentence,
 					targetedVocabularyIds: challenge.targetedVocabulary?.map((v: any) => v.id) || [],
 					targetedGrammarIds: challenge.targetedGrammar?.map((g: any) => g.id) || [],
-					gameMode: challenge.gameMode || 'en-to-de'
+					gameMode: challenge.gameMode || 'native-to-target'
 				}),
 				signal: submitController.signal
 			});
@@ -840,7 +1049,7 @@ r<script lang="ts">
 </script>
 
 <svelte:head>
-	<title>Play - LernenDeutsch</title>
+	<title>Play - LingoLearn</title>
 </svelte:head>
 
 <div class="page-container">
@@ -851,14 +1060,14 @@ r<script lang="ts">
 		</header>
 
 		{#if !challenge && !loading}
-			<div class="card empty-state dark:bg-slate-800 dark:border-slate-700">
+			<div class="card card-duo empty-state dark:bg-slate-800 dark:border-slate-700" in:fly={{ y: 20, duration: 400 }}>
 				<h2 class="dark:text-white">Ready to test your skills?</h2>
 
 				{#if isAbsoluteBeginner}
 					<div class="beginner-tip dark:bg-slate-900 dark:border-slate-700 dark:text-emerald-400">
 						<span class="tip-icon">💡</span>
 						<div>
-							<strong class="dark:text-emerald-300">Tip for beginners:</strong> Start with <strong>Multiple Choice</strong> or <strong>German to English</strong> — these let you recognize words before producing them. Once you feel confident, try <strong>Fill in the Blank</strong> and <strong>English to German</strong>!
+							<strong class="dark:text-emerald-300">Tip for beginners:</strong> Start with <strong>Multiple Choice</strong> or <strong>{data.user?.activeLanguage?.name || 'Target'} to English</strong> — these let you recognize words before producing them. Once you feel confident, try <strong>Fill in the Blank</strong> and <strong>English to {data.user?.activeLanguage?.name || 'Target'}</strong>!
 						</div>
 					</div>
 				{/if}
@@ -875,10 +1084,10 @@ r<script lang="ts">
 							<span class="mode-difficulty easy">Easiest</span>
 						</button>
 						<button
-							class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700" class:active={gameMode === 'de-to-en'}
-							on:click={() => gameMode = 'de-to-en'}
+							class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700" class:active={gameMode === 'target-to-native'}
+							on:click={() => gameMode = 'target-to-native'}
 						>
-							🇩🇪 → {englishFlag} German to English
+							{data.user?.activeLanguage?.flag || '🏁'} → {englishFlag} {data.user?.activeLanguage?.name || 'Target'} to English
 							<span class="mode-difficulty easy">Easy</span>
 						</button>
 						<button
@@ -889,38 +1098,47 @@ r<script lang="ts">
 							<span class="mode-difficulty medium">Medium</span>
 						</button>
 						<button
-							class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700" class:active={gameMode === 'en-to-de'}
-							on:click={() => gameMode = 'en-to-de'}
+							class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700" class:active={gameMode === 'native-to-target'}
+							on:click={() => gameMode = 'native-to-target'}
 						>
-							{englishFlag} → 🇩🇪 English to German
+							{englishFlag} → {data.user?.activeLanguage?.flag || '🏁'} English to {data.user?.activeLanguage?.name || 'Target'}
 							<span class="mode-difficulty hard">Hardest</span>
 						</button>
 					</div>
 				</div>
-				<button on:click={generateChallenge} class="btn btn-primary">
+				<button on:click={generateChallenge} class="btn-duo btn-primary" style="margin-top: 1.5rem; width: 100%;">
 					Generate Next Challenge
 				</button>
 			</div>
 		{/if}
 
 		{#if loading}
-			<div class="card loading-state dark:bg-slate-800 dark:border-slate-700">
+			<div class="card card-duo loading-state dark:bg-slate-800 dark:border-slate-700">
 				<div class="spinner"></div>
-				<p class="dark:text-slate-400">Generating your personalized i+1 challenge...</p>
+				<div class="load-progress-track dark:bg-slate-700">
+					<div class="load-progress-fill" style="width: {loadProgressPct}%"></div>
+				</div>
+				<div class="load-tip-container">
+					{#key loadTipIndex}
+						<p class="load-tip dark:text-slate-400" in:fade={{ duration: 350, delay: 50 }} out:fade={{ duration: 300 }}>
+							{LOADING_TIPS[loadTipIndex]}
+						</p>
+					{/key}
+				</div>
 			</div>
 		{/if}
 
 		{#if challenge && !loading}
-			<div class="card challenge-card dark:bg-slate-800 dark:border-slate-700">
+			<div class="card card-duo challenge-card dark:bg-slate-800 dark:border-slate-700" in:fly={{ y: 20, duration: 400 }}>
 				<div class="challenge-section">
 					{#if challenge.gameMode === 'fill-blank'}
 						<h3 class="dark:text-slate-400">Fill in the blanks:</h3>
 					{:else if challenge.gameMode === 'multiple-choice'}
 						<h3 class="dark:text-slate-400">Choose the correct English translation:</h3>
-					{:else if challenge.gameMode === 'de-to-en'}
+					{:else if challenge.gameMode === 'target-to-native'}
 						<h3 class="dark:text-slate-400">Translate this to English:</h3>
 					{:else}
-						<h3 class="dark:text-slate-400">Translate this to German:</h3>
+						<h3 class="dark:text-slate-400">Translate this to {data.user?.activeLanguage?.name || 'Target'}:</h3>
 					{/if}
 					<p class="challenge-text dark:text-white">{@html parsedChallengeText}</p>
 				</div>
@@ -955,8 +1173,8 @@ r<script lang="ts">
 										id="blank-{i}"
 										type="text"
 										bind:value={fillBlankAnswers[i]}
-										disabled={submitting || feedback !== null || isStreaming}
-										placeholder="Type the missing German word..."
+										disabled={submitting || feedback !== null || loading}
+										placeholder="Type the missing {data.user?.activeLanguage?.name || 'Target'} word..."
 										class="blank-input dark:bg-slate-900 dark:text-white dark:border-slate-700"
 									/>
 								</div>
@@ -971,7 +1189,7 @@ r<script lang="ts">
 									class:selected={selectedChoice === choice}
 									class:correct={(feedback || hasSubmittedMc) && choice === challenge.targetSentence}
 									class:incorrect={(feedback || hasSubmittedMc) && selectedChoice === choice && choice !== challenge.targetSentence}
-									disabled={submitting || feedback !== null || isStreaming || hasSubmittedMc}
+									disabled={submitting || feedback !== null || loading || hasSubmittedMc}
 									on:click={() => { selectedChoice = choice; submitAnswer(); }}
 								>
 									{choice}
@@ -984,9 +1202,9 @@ r<script lang="ts">
 							<textarea
 								id="answer"
 								bind:value={userInput}
-								disabled={submitting || feedback || isStreaming}
+								disabled={submitting || feedback || loading}
 								rows="3"
-								placeholder={isStreaming ? "Generating challenge..." : (challenge?.gameMode === 'de-to-en' ? "Type your English translation here..." : "Type your German translation here... (Or ask for help / translation in English)")}
+								placeholder={loading ? "Generating challenge..." : (challenge?.gameMode === 'target-to-native' ? "Type your English translation here..." : `Type your ${data.user?.activeLanguage?.name || 'Target'} translation here... (Or ask for help / translation in English)`)}
 								class="dark:bg-slate-900 dark:text-white dark:border-slate-700"
 							></textarea>
 						</div>
@@ -996,10 +1214,11 @@ r<script lang="ts">
 						{#if challenge.gameMode !== 'multiple-choice'}
 							<button 
 								type="submit" 
-								disabled={submitting || isStreaming || !challenge?.targetSentence || (challenge.gameMode === 'fill-blank' ? fillBlankAnswers.some(a => !a.trim()) : !userInput.trim())}
-								class="btn btn-success submit-btn"
+								disabled={submitting || !challenge?.targetSentence || (challenge.gameMode === 'fill-blank' ? fillBlankAnswers.some(a => !a.trim()) : !userInput.trim())}
+								class="btn-duo btn-primary submit-btn"
+								style="margin-top: 1.5rem; width: 100%;"
 							>
-								{submitting ? 'Evaluating...' : (isStreaming ? 'Generating...' : 'Submit Answer')}
+								{submitting ? 'Evaluating...' : 'Submit Answer'}
 							</button>
 						{/if}
 					{/if}
@@ -1008,14 +1227,14 @@ r<script lang="ts">
 		{/if}
 
 		{#if submitting}
-			<div class="card loading-state">
+			<div class="card card-duo loading-state" in:fly={{ y: 20, duration: 400 }}>
 				<div class="spinner"></div>
 				<p>Evaluating your answer...</p>
 			</div>
 		{/if}
 
 		{#if feedback}
-			<div class="card feedback-card dark:bg-slate-800 dark:border-slate-700">
+			<div class="card card-duo feedback-card dark:bg-slate-800 dark:border-slate-700" in:fly={{ y: 20, duration: 400 }}>
 				<div class="feedback-header">
 					<h2 class="dark:text-white">Feedback</h2>
 					{#if feedback.feedbackEnglish}
@@ -1057,7 +1276,7 @@ r<script lang="ts">
 									<li class="dark:text-slate-300">
 										<span class="icon">{(update.score ?? 0) >= 0.5 ? '✅' : '❌'}</span>
 										{#if v}
-											{#if v.gender}{v.gender} {/if}{v.lemma}{#if v.plural} (pl: {v.plural}){/if}
+											{[genderToArticle(v.gender), v.lemma].filter(Boolean).join('\u00A0') + (v.plural ? '\u00A0(pl: ' + v.plural + ')' : '')}
 										{:else}
 											{update.id}
 										{/if}
@@ -1082,7 +1301,7 @@ r<script lang="ts">
 					{/if}
 				</div>
 
-				<button on:click={generateChallenge} class="btn btn-primary next-btn">
+				<button on:click={generateChallenge} class="btn-duo btn-primary next-btn" style="margin-top: 1.5rem; width: 100%;">
 					Next Challenge
 				</button>
 			</div>
@@ -1192,6 +1411,44 @@ r<script lang="ts">
 		margin: 0;
 	}
 
+	.load-progress-track {
+		width: 80%;
+		max-width: 320px;
+		height: 5px;
+		background: #e2e8f0;
+		border-radius: 999px;
+		margin: 1.25rem auto 0;
+		overflow: hidden;
+	}
+
+	.load-progress-fill {
+		height: 100%;
+		background: linear-gradient(to right, #3b82f6, #6366f1);
+		border-radius: 999px;
+		transition: width 0.12s linear;
+	}
+
+	.load-tip-container {
+		min-height: 3.5rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		position: relative;
+		margin-top: 1rem;
+		width: 100%;
+	}
+
+	.load-tip {
+		color: #64748b;
+		font-size: 0.85rem;
+		margin: 0;
+		max-width: 380px;
+		text-align: center;
+		line-height: 1.5;
+		position: absolute;
+		padding: 0 1rem;
+	}
+
 	.challenge-section {
 		margin-bottom: 1.5rem;
 	}
@@ -1265,7 +1522,23 @@ r<script lang="ts">
 		padding-bottom: 0.25rem;
 		border-bottom: 1px solid #475569;
 		margin-bottom: 0.125rem;
-		display: block;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.4rem;
+	}
+
+	:global(.word-tooltip-ai-badge) {
+		font-size: 0.6rem;
+		font-weight: 700;
+		letter-spacing: 0.04em;
+		color: #93c5fd;
+		background: rgba(59, 130, 246, 0.2);
+		border: 1px solid rgba(59, 130, 246, 0.35);
+		border-radius: 3px;
+		padding: 0 0.3em;
+		line-height: 1.6;
+		flex-shrink: 0;
 	}
 
 	:global(.word-tooltip-body) {
@@ -1402,24 +1675,6 @@ r<script lang="ts">
 	.btn:disabled {
 		opacity: 0.5;
 		cursor: not-allowed;
-	}
-
-	.btn-primary {
-		background-color: #2563eb;
-		color: #ffffff;
-	}
-
-	.btn-primary:hover:not(:disabled) {
-		background-color: #1d4ed8;
-	}
-
-	.btn-success {
-		background-color: #16a34a;
-		color: #ffffff;
-	}
-
-	.btn-success:hover:not(:disabled) {
-		background-color: #15803d;
 	}
 
 	.submit-btn {
@@ -1562,27 +1817,31 @@ r<script lang="ts">
 	}
 
 	.mode-btn {
-		padding: 0.625rem 1.25rem;
-		border-radius: 8px;
+		padding: 0.75rem 1.25rem;
+		border-radius: 1rem;
 		border: 2px solid var(--card-border, #e2e8f0);
 		background: var(--card-bg, #ffffff);
 		color: var(--text-color, #475569);
-		font-size: 0.9rem;
-		font-weight: 500;
+		font-size: 0.95rem;
+		font-weight: 700;
 		cursor: pointer;
-		transition: all 0.2s;
+		transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+		box-shadow: 0 4px 0 var(--card-border, #e2e8f0);
 	}
 
 	.mode-btn:hover {
 		border-color: #93c5fd;
 		background: #eff6ff;
+		transform: translateY(-2px);
+		box-shadow: 0 6px 0 #93c5fd;
 	}
 
 	.mode-btn.active {
-		border-color: #2563eb;
-		background: #eff6ff;
-		color: #1d4ed8;
-		font-weight: 600;
+		border-color: #1cb0f6;
+		background: #ddf4ff;
+		color: #1cb0f6;
+		transform: translateY(2px);
+		box-shadow: 0 2px 0 #1899d6;
 	}
 
 	/* Fill in the Blank styles */
@@ -1654,43 +1913,51 @@ r<script lang="ts">
 		width: 100%;
 		padding: 1rem 1.25rem;
 		border: 2px solid var(--card-border, #e2e8f0);
-		border-radius: 10px;
+		border-radius: 1rem;
 		background: var(--card-bg, #ffffff);
 		color: var(--text-color, #1e293b);
 		font-size: 1.05rem;
-		font-weight: 500;
+		font-weight: 700;
 		text-align: left;
 		cursor: pointer;
-		transition: all 0.15s;
+		transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+		box-shadow: 0 4px 0 var(--card-border, #e2e8f0);
 	}
 
 	.mc-choice-btn:hover:not(:disabled) {
 		border-color: #93c5fd;
 		background: #eff6ff;
+		transform: translateY(-2px);
+		box-shadow: 0 6px 0 #93c5fd;
 	}
 
 	.mc-choice-btn.selected {
-		border-color: #2563eb;
-		background: #eff6ff;
-		color: #1d4ed8;
-		font-weight: 600;
+		border-color: #1cb0f6;
+		background: #ddf4ff;
+		color: #1cb0f6;
+		transform: translateY(2px);
+		box-shadow: 0 2px 0 #1899d6;
 	}
 
 	.mc-choice-btn.correct {
 		border-color: #16a34a;
 		background: #f0fdf4;
 		color: #166534;
+		box-shadow: 0 2px 0 #15803d;
 	}
 
 	.mc-choice-btn.incorrect {
 		border-color: #dc2626;
 		background: #fef2f2;
 		color: #991b1b;
+		box-shadow: 0 2px 0 #b91c1c;
 	}
 
 	.mc-choice-btn:disabled {
 		cursor: default;
 		opacity: 0.85;
+		transform: translateY(2px);
+		box-shadow: 0 2px 0 var(--card-border, #e2e8f0);
 	}
 
 	/* Beginner guidance styles */

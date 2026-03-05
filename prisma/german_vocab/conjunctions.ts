@@ -193,5 +193,48 @@ export const conjunctions = [
 		lemma: "sowohl ... als auch",
 		meaning: "both ... and",
 		partOfSpeech: 'conjunction' as const,
-	}
+	},
+	{
+	  "lemma": "und",
+	  "meaning": "and",
+	  "partOfSpeech": "conjunction",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "oder",
+	  "meaning": "or",
+	  "partOfSpeech": "conjunction",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "aber",
+	  "meaning": "but",
+	  "partOfSpeech": "conjunction",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "weil",
+	  "meaning": "because",
+	  "partOfSpeech": "conjunction",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "dass",
+	  "meaning": "that",
+	  "partOfSpeech": "conjunction",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "wenn",
+	  "meaning": "if, when",
+	  "partOfSpeech": "conjunction",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "als",
+	  "meaning": "as, when",
+	  "partOfSpeech": "conjunction",
+	  "isBeginner": true
+	},
+
 ];

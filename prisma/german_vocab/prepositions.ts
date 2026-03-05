@@ -353,5 +353,54 @@ export const prepositions = [
 		lemma: "mitsamt",
 		meaning: "together with",
 		partOfSpeech: 'preposition' as const,
-	}
+	},
+	{
+	  "lemma": "in",
+	  "meaning": "in",
+	  "partOfSpeech": "preposition",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "auf",
+	  "meaning": "on",
+	  "partOfSpeech": "preposition",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "mit",
+	  "meaning": "with",
+	  "partOfSpeech": "preposition",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "zu",
+	  "meaning": "to",
+	  "partOfSpeech": "preposition",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "von",
+	  "meaning": "from, of",
+	  "partOfSpeech": "preposition",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "aus",
+	  "meaning": "out of, from",
+	  "partOfSpeech": "preposition",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "für",
+	  "meaning": "for",
+	  "partOfSpeech": "preposition",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "an",
+	  "meaning": "at, on",
+	  "partOfSpeech": "preposition",
+	  "isBeginner": true
+	},
+
 ];

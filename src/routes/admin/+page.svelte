@@ -13,7 +13,12 @@
 		username: string;
 		email: string;
 		role: string;
-		cefrLevel: string;
+		progress: Array<{
+			languageId: string;
+			languageName: string;
+			cefrLevel: string;
+			hasOnboarded: boolean;
+		}>;
 	} | null = null;
 
 	let isSaving = false;
@@ -27,7 +32,12 @@
 			username: user.username,
 			email: user.email || '',
 			role: user.role,
-			cefrLevel: user.cefrLevel
+			progress: user.progress.map((p) => ({
+				languageId: p.languageId,
+				languageName: p.language.name,
+				cefrLevel: p.cefrLevel,
+				hasOnboarded: p.hasOnboarded
+			}))
 		};
 		modalError = '';
 		showDeleteConfirm = false;
@@ -60,7 +70,7 @@
 					username: editingUser.username,
 					email: editingUser.email,
 					role: editingUser.role,
-					cefrLevel: editingUser.cefrLevel
+					progress: editingUser.progress
 				})
 			});
 
@@ -206,7 +216,9 @@
 							<td>
 								<span class="role-badge" class:role-admin={user.role === 'ADMIN'}>{user.role}</span>
 							</td>
-							<td>{user.cefrLevel}</td>
+							<td>
+								{user.progress?.find((p) => p.languageId === user.activeLanguage?.id)?.cefrLevel || 'A1'}
+							</td>
 							<td>{new Date(user.createdAt).toLocaleDateString()}</td>
 							<td>
 								{new Date(user.lastActive).toLocaleDateString()}<br />
@@ -250,27 +262,41 @@
 					<input id="edit-email" type="email" bind:value={editingUser.email} required />
 				</div>
 
-				<div class="form-row">
-					<div class="form-group">
-						<label for="edit-role">Role</label>
-						<select id="edit-role" bind:value={editingUser.role}>
-							<option value="USER">USER</option>
-							<option value="ADMIN">ADMIN</option>
-						</select>
-					</div>
-
-					<div class="form-group">
-						<label for="edit-cefr">CEFR Level</label>
-						<select id="edit-cefr" bind:value={editingUser.cefrLevel}>
-							<option value="A1">A1</option>
-							<option value="A2">A2</option>
-							<option value="B1">B1</option>
-							<option value="B2">B2</option>
-							<option value="C1">C1</option>
-							<option value="C2">C2</option>
-						</select>
-					</div>
+				<div class="form-group">
+					<label for="edit-role">Role</label>
+					<select id="edit-role" bind:value={editingUser.role}>
+						<option value="USER">USER</option>
+						<option value="ADMIN">ADMIN</option>
+					</select>
 				</div>
+
+				{#if editingUser.progress && editingUser.progress.length > 0}
+					<div class="progress-section">
+						<h3>Language Progress</h3>
+						{#each editingUser.progress as prog}
+							<div class="progress-row">
+								<div class="progress-lang">{prog.languageName}</div>
+								<div class="form-group mb-0">
+									<label for={`cefr-${prog.languageId}`} class="sr-only">CEFR Level</label>
+									<select id={`cefr-${prog.languageId}`} bind:value={prog.cefrLevel}>
+										<option value="A1">A1</option>
+										<option value="A2">A2</option>
+										<option value="B1">B1</option>
+										<option value="B2">B2</option>
+										<option value="C1">C1</option>
+										<option value="C2">C2</option>
+									</select>
+								</div>
+								<div class="form-group mb-0 checkbox-group">
+									<label>
+										<input type="checkbox" bind:checked={prog.hasOnboarded} />
+										Onboarded
+									</label>
+								</div>
+							</div>
+						{/each}
+					</div>
+				{/if}
 
 				<div class="modal-actions">
 					{#if !showDeleteConfirm}
@@ -711,5 +737,66 @@
 
 	.cancel-delete-btn:hover {
 		background-color: #f9fafb;
+	}
+
+	.progress-section {
+		margin-top: 1rem;
+		border-top: 1px solid #e5e7eb;
+		padding-top: 1rem;
+	}
+
+	.progress-section h3 {
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: #374151;
+		margin: 0 0 0.75rem 0;
+	}
+
+	.progress-row {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		margin-bottom: 0.5rem;
+		padding: 0.5rem;
+		background: #f9fafb;
+		border-radius: 0.375rem;
+		border: 1px solid #e5e7eb;
+	}
+
+	.progress-lang {
+		flex: 1;
+		font-weight: 500;
+		color: #111827;
+		font-size: 0.875rem;
+	}
+
+	.mb-0 {
+		margin-bottom: 0 !important;
+	}
+
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border-width: 0;
+	}
+
+	.checkbox-group label {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-weight: normal;
+		margin-bottom: 0;
+		cursor: pointer;
+	}
+
+	.checkbox-group input[type="checkbox"] {
+		width: auto;
+		cursor: pointer;
 	}
 </style>

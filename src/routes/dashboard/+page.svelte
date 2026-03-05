@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
+	import { fly } from 'svelte/transition';
 
 	export let data: PageData;
 
@@ -28,10 +29,10 @@
 </script>
 
 <div class="dashboard-container dark:text-slate-300">
-	<header class="dashboard-header">
+	<header class="dashboard-header" in:fly={{ y: 20, duration: 400 }}>
 		<h1 class="dark:text-white">Proficiency Dashboard</h1>
 		<p class="dark:text-slate-400">Track your language learning progress.</p>
-		<a href="/onboarding" class="re-onboard-link dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:border dark:border-slate-700">Retake Placement Test</a>
+		<a href="/onboarding" class="btn-duo btn-secondary">Retake Placement Test</a>
 	</header>
 
 	<section class="summary-section">
@@ -242,10 +243,16 @@
 	}
 
 	.summary-card {
-		background: var(--card-bg, #f8fafc);
-		border: 1px solid var(--card-border, #e2e8f0);
-		border-radius: 8px;
+		background: var(--card-bg, #ffffff);
+		border: 2px solid var(--card-border, #e5e7eb);
+		border-radius: 1.5rem;
 		padding: 1.5rem;
+		box-shadow: 0 4px 0 var(--card-border, #e5e7eb);
+		transition: transform 0.2s;
+	}
+
+	.summary-card:hover {
+		transform: translateY(-4px);
 	}
 
 	.summary-card h3 {
@@ -344,19 +351,20 @@
 	.heatmap-grid {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 4px;
-		background: var(--card-bg, #f8fafc);
-		padding: 1rem;
-		border-radius: 8px;
-		border: 1px solid var(--card-border, #e2e8f0);
+		gap: 6px;
+		background: var(--card-bg, #ffffff);
+		padding: 1.5rem;
+		border-radius: 1.5rem;
+		border: 2px solid var(--card-border, #e5e7eb);
+		box-shadow: 0 4px 0 var(--card-border, #e5e7eb);
 	}
 
 	.heatmap-cell {
-		width: 16px;
-		height: 16px;
-		border-radius: 3px;
+		width: 18px;
+		height: 18px;
+		border-radius: 5px;
 		cursor: help;
-		transition: transform 0.1s;
+		transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 		border: 1px solid rgba(0,0,0,0.05);
 	}
 
@@ -365,9 +373,9 @@
 	}
 
 	.tooltip-trigger:hover {
-		transform: scale(1.2);
+		transform: scale(1.3) translateY(-2px);
 		z-index: 10;
-		box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+		box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 	}
 
 	.tooltip-content {
@@ -442,15 +450,17 @@
 	}
 
 	.skill-node {
-		background: var(--card-bg, #f8fafc);
-		border: 1px solid var(--card-border, #e2e8f0);
-		border-radius: 8px;
+		background: var(--card-bg, #ffffff);
+		border: 2px solid var(--card-border, #e5e7eb);
+		border-radius: 1.5rem;
 		padding: 1.25rem;
-		transition: box-shadow 0.2s;
+		box-shadow: 0 4px 0 var(--card-border, #e5e7eb);
+		transition: transform 0.2s, box-shadow 0.2s;
 	}
 
 	.skill-node:hover {
-		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+		transform: translateY(-4px);
+		box-shadow: 0 8px 0 var(--card-border, #e5e7eb);
 	}
 
 	.skill-info h3 {
@@ -495,17 +505,36 @@
 	}
 
 	.progress-bar-container {
-		height: 0.75rem;
+		height: 1rem;
 		background-color: #e2e8f0;
 		border-radius: 9999px;
 		overflow: hidden;
+		border: 2px solid #cbd5e1;
+		box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
 	}
 
 	.progress-bar-fill {
 		height: 100%;
 		background-color: #3b82f6; /* blue-500 */
+		background-image: linear-gradient(
+			45deg,
+			rgba(255, 255, 255, 0.15) 25%,
+			transparent 25%,
+			transparent 50%,
+			rgba(255, 255, 255, 0.15) 50%,
+			rgba(255, 255, 255, 0.15) 75%,
+			transparent 75%,
+			transparent
+		);
+		background-size: 1rem 1rem;
 		border-radius: 9999px;
-		transition: width 0.5s ease-out;
+		transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+		animation: progress-stripes 1s linear infinite;
+	}
+
+	@keyframes progress-stripes {
+		from { background-position: 1rem 0; }
+		to { background-position: 0 0; }
 	}
 
 	.empty-state {

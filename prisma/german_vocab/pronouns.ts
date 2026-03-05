@@ -1,9 +1,10 @@
 export const pronouns = [
 	{
-		lemma: "es",
+    lemma: "es",
 		meaning: "it",
 		partOfSpeech: 'pronoun' as const,
-	},
+    isBeginner: true
+  },
 	{
 		lemma: "mich",
 		meaning: "me (accusative)",
@@ -70,30 +71,35 @@ export const pronouns = [
 		partOfSpeech: 'pronoun' as const,
 	},
 	{
-		lemma: "ich",
+    lemma: "ich",
 		meaning: "I",
 		partOfSpeech: 'pronoun' as const,
-	},
+    isBeginner: true
+  },
 	{
-		lemma: "du",
+    lemma: "du",
 		meaning: "you",
 		partOfSpeech: 'pronoun' as const,
-	},
+    isBeginner: true
+  },
 	{
-		lemma: "er",
+    lemma: "er",
 		meaning: "him, it",
 		partOfSpeech: 'pronoun' as const,
-	},
+    isBeginner: true
+  },
 	{
-		lemma: "sie",
+    lemma: "sie",
 		meaning: "you (formal), she, they",
 		partOfSpeech: 'pronoun' as const,
-	},
+    isBeginner: true
+  },
 	{
-		lemma: "wir",
+    lemma: "wir",
 		meaning: "we",
 		partOfSpeech: 'pronoun' as const,
-	},
+    isBeginner: true
+  },
 	{
 		lemma: "ihr",
 		meaning: "her, their, your",
@@ -144,4 +150,52 @@ export const pronouns = [
 		meaning: "nobody, no one",
 		partOfSpeech: 'pronoun' as const,
 	},
+	{
+	  "lemma": "ich",
+	  "meaning": "I",
+	  "partOfSpeech": "pronoun",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "du",
+	  "meaning": "you",
+	  "partOfSpeech": "pronoun",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "er",
+	  "meaning": "he",
+	  "partOfSpeech": "pronoun",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "sie",
+	  "meaning": "she, they",
+	  "partOfSpeech": "pronoun",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "es",
+	  "meaning": "it",
+	  "partOfSpeech": "pronoun",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "wir",
+	  "meaning": "we",
+	  "partOfSpeech": "pronoun",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "ihr",
+	  "meaning": "you (plural)",
+	  "partOfSpeech": "pronoun",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "mich",
+	  "meaning": "me",
+	  "partOfSpeech": "pronoun",
+	  "isBeginner": true
+	}
 ];

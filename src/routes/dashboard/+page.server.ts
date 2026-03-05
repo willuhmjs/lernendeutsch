@@ -7,20 +7,39 @@ export const load: PageServerLoad = async ({ locals }) => {
 		throw redirect(302, '/login');
 	}
 
-	if (!locals.user.hasOnboarded) {
+	const user = locals.user;
+
+	if (user.activeLanguage?.id) {
+		const progress = await prisma.userProgress.findUnique({
+			where: {
+				userId_languageId: {
+					userId: user.id,
+					languageId: user.activeLanguage.id
+				}
+			}
+		});
+
+		if (!progress?.hasOnboarded) {
+			throw redirect(302, '/onboarding');
+		}
+	} else {
 		throw redirect(302, '/onboarding');
 	}
 
-	const user = locals.user;
-
 	const vocabularies = await prisma.userVocabulary.findMany({
-		where: { userId: user.id },
+		where: { 
+			userId: user.id,
+			vocabulary: { languageId: user.activeLanguage?.id }
+		},
 		include: { vocabulary: true },
 		orderBy: { eloRating: 'desc' }
 	});
 
 	const grammarRules = await prisma.userGrammarRule.findMany({
-		where: { userId: user.id },
+		where: { 
+			userId: user.id,
+			grammarRule: { languageId: user.activeLanguage?.id }
+		},
 		include: { grammarRule: true },
 		orderBy: { eloRating: 'desc' }
 	});

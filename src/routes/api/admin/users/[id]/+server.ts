@@ -11,17 +11,11 @@ export async function PUT({ params, request, locals }: RequestEvent) {
 
 	try {
 		const body = await request.json();
-		const { username, email, role, cefrLevel } = body;
+		const { username, email, role, progress } = body;
 
 		// Validate role
 		if (role && !['USER', 'ADMIN'].includes(role)) {
 			return json({ error: 'Invalid role. Must be USER or ADMIN.' }, { status: 400 });
-		}
-
-		// Validate CEFR level
-		const validLevels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
-		if (cefrLevel && !validLevels.includes(cefrLevel)) {
-			return json({ error: 'Invalid CEFR level.' }, { status: 400 });
 		}
 
 		// Prevent admin from removing their own admin role
@@ -33,19 +27,47 @@ export async function PUT({ params, request, locals }: RequestEvent) {
 		if (username !== undefined) updateData.username = username;
 		if (email !== undefined) updateData.email = email;
 		if (role !== undefined) updateData.role = role;
-		if (cefrLevel !== undefined) updateData.cefrLevel = cefrLevel;
 
-		const user = await prisma.user.update({
-			where: { id },
-			data: updateData,
-			select: {
-				id: true,
-				username: true,
-				email: true,
-				role: true,
-				cefrLevel: true,
-				createdAt: true
+		// Run in a transaction if we are updating user progress
+		const [user] = await prisma.$transaction(async (tx) => {
+			const u = await tx.user.update({
+				where: { id },
+				data: updateData,
+				select: {
+					id: true,
+					username: true,
+					email: true,
+					role: true,
+					createdAt: true
+				}
+			});
+
+			if (progress && Array.isArray(progress)) {
+				for (const p of progress) {
+					if (p.languageId && p.cefrLevel) {
+						await tx.userProgress.upsert({
+							where: {
+								userId_languageId: {
+									userId: id,
+									languageId: p.languageId
+								}
+							},
+							update: {
+								cefrLevel: p.cefrLevel,
+								hasOnboarded: p.hasOnboarded ?? false
+							},
+							create: {
+								userId: id,
+								languageId: p.languageId,
+								cefrLevel: p.cefrLevel,
+								hasOnboarded: p.hasOnboarded ?? true
+							}
+						});
+					}
+				}
 			}
+
+			return [u];
 		});
 
 		return json({ user });

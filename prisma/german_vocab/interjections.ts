@@ -30,25 +30,28 @@ export const interjections = [
 		partOfSpeech: 'interjection' as const,
 	},
 	{
-		lemma: "hallo",
+    lemma: "hallo",
 		meaning: "hello",
 		partOfSpeech: 'interjection' as const,
-	},
+    isBeginner: true
+  },
 	{
 		lemma: "tschüss",
 		meaning: "bye, goodbye",
 		partOfSpeech: 'interjection' as const,
 	},
 	{
-		lemma: "bitte",
+    lemma: "bitte",
 		meaning: "please, you're welcome",
 		partOfSpeech: 'interjection' as const,
-	},
+    isBeginner: true
+  },
 	{
-		lemma: "danke",
+    lemma: "danke",
 		meaning: "thank you, thanks",
 		partOfSpeech: 'interjection' as const,
-	},
+    isBeginner: true
+  },
 	{
 		lemma: "prost",
 		meaning: "cheers",
@@ -108,5 +111,54 @@ export const interjections = [
 		lemma: "verdammt",
 		meaning: "damn",
 		partOfSpeech: 'interjection' as const,
-	}
+	},
+	{
+	  "lemma": "Hallo",
+	  "meaning": "hello",
+	  "partOfSpeech": "interjection",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "Tschüss",
+	  "meaning": "bye",
+	  "partOfSpeech": "interjection",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "Danke",
+	  "meaning": "thanks",
+	  "partOfSpeech": "interjection",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "Bitte",
+	  "meaning": "please, you're welcome",
+	  "partOfSpeech": "interjection",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "Entschuldigung",
+	  "meaning": "excuse me, sorry",
+	  "partOfSpeech": "interjection",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "Ja",
+	  "meaning": "yes",
+	  "partOfSpeech": "interjection",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "Nein",
+	  "meaning": "no",
+	  "partOfSpeech": "interjection",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "Oh",
+	  "meaning": "oh",
+	  "partOfSpeech": "interjection",
+	  "isBeginner": true
+	},
+
 ];

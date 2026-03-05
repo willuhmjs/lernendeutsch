@@ -18,9 +18,12 @@ export const load: PageServerLoad = async ({ locals }) => {
 				username: true,
 				email: true,
 				role: true,
-				cefrLevel: true,
 				createdAt: true,
-				lastActive: true
+				lastActive: true,
+				activeLanguage: true,
+				progress: {
+					include: { language: true }
+				}
 			}
 		}),
 		getSiteSettings()

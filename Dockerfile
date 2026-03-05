@@ -15,32 +15,38 @@ RUN pnpm install --frozen-lockfile
 # Copy the rest of the application
 COPY . .
 
-# Generate Prisma client
-RUN pnpm dlx prisma generate
+# Generate Prisma client and build the application
+RUN pnpm prisma generate && pnpm run build
 
-# Build the application
-RUN pnpm run build
+# Install only production dependencies in a separate stage
+FROM node:22-alpine AS deps
 
-# Start a new stage for a smaller image
-FROM node:22-alpine
-
-# Set working directory
 WORKDIR /app
 
-# Install pnpm and tsx for potential runtime needs (optional, could just run node build)
-RUN npm install -g pnpm tsx
+RUN npm install -g pnpm
 
-# Copy only production dependencies and built app from builder
-COPY --from=builder /app/package.json /app/pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --prod --frozen-lockfile
 
-# Copy the built app and prisma schema
+# Final production image
+FROM node:22-alpine
+
+WORKDIR /app
+
+# Install pnpm and tsx for runtime needs
+RUN npm install -g pnpm tsx
+
+# Copy production dependencies
+COPY --from=deps /app/node_modules ./node_modules
+
+# Copy the built app, prisma schema, and config
 COPY --from=builder /app/build ./build
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./
+COPY --from=builder /app/package.json ./
 
-# Generate Prisma client
-RUN pnpm dlx prisma generate
+# Generate Prisma client using locally installed prisma (fast, no download)
+RUN pnpm prisma generate
 
 # Expose port
 EXPOSE 3000

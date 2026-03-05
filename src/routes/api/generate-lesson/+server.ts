@@ -2,18 +2,23 @@ import { json } from '@sveltejs/kit';
 import { SrsState } from '@prisma/client';
 import { prisma } from '$lib/server/prisma';
 import { generateChatCompletion } from '$lib/server/llm';
+import { recordLoadTime } from '$lib/server/loadTimeStat';
 
-export type GameMode = 'en-to-de' | 'de-to-en' | 'fill-blank' | 'multiple-choice';
+export type GameMode = 'native-to-target' | 'target-to-native' | 'fill-blank' | 'multiple-choice';
 
 export async function POST({ request, locals }) {
 	if (!locals.user) {
 		return json({ error: 'Unauthorized' }, { status: 401 });
 	}
 
+	const requestStartTime = Date.now();
+
 	try {
 		const body = await request.json().catch(() => ({}));
-		const gameMode: GameMode = body.gameMode || 'en-to-de';
+		const gameMode: GameMode = body.gameMode || 'native-to-target';
+		const activeLangName = locals.user.activeLanguage?.name || '${activeLangName}';
 		const userId = locals.user.id;
+		const activeLanguageId = locals.user.activeLanguage?.id;
 
 		const cefrLevels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 		const userLevelIndex = cefrLevels.indexOf(locals.user.cefrLevel || 'A1');
@@ -35,9 +40,7 @@ export async function POST({ request, locals }) {
 						{ nextReviewDate: null },
 						{ nextReviewDate: { lte: now } }
 					],
-					vocabulary: {
-						meaning: { not: null }
-					}
+					vocabulary: { meaning: { not: null }, languageId: activeLanguageId }
 				},
 				include: { vocabulary: true },
 				take: 100
@@ -50,9 +53,7 @@ export async function POST({ request, locals }) {
 						{ nextReviewDate: null },
 						{ nextReviewDate: { lte: now } }
 					],
-					vocabulary: {
-						meaning: { not: null }
-					}
+					vocabulary: { meaning: { not: null }, languageId: activeLanguageId }
 				},
 				include: { vocabulary: true },
 				take: 100
@@ -88,9 +89,7 @@ export async function POST({ request, locals }) {
 					{ nextReviewDate: null },
 					{ nextReviewDate: { lte: now } }
 				],
-				grammarRule: {
-					level: { in: allowedLevels }
-				}
+				grammarRule: { level: { in: allowedLevels }, languageId: activeLanguageId }
 			},
 			include: { 
 				grammarRule: {
@@ -118,20 +117,14 @@ export async function POST({ request, locals }) {
 		// To get random unseen words, we can't easily order by random in standard Prisma findMany without fetching all.
 		// A fast approximation is getting a random offset using count.
 		const unseenCount = await prisma.vocabulary.count({
-			where: { 
-				id: { notIn: knownIdsArray },
-				meaning: { not: null }
-			}
+			where: { id: { notIn: knownIdsArray }, meaning: { not: null }, languageId: activeLanguageId }
 		});
 
 		if (unseenCount > 0 && learningVocabDb.length < targetLearningCount) {
 			const needed = targetLearningCount - learningVocabDb.length;
 			const randomSkip = Math.max(0, Math.floor(Math.random() * unseenCount) - needed);
 			const unseenVocabs = await prisma.vocabulary.findMany({
-				where: { 
-					id: { notIn: knownIdsArray },
-					meaning: { not: null }
-				},
+				where: { id: { notIn: knownIdsArray }, meaning: { not: null }, languageId: activeLanguageId },
 				skip: randomSkip,
 				take: needed
 			});
@@ -146,7 +139,7 @@ export async function POST({ request, locals }) {
 		// Fallback for new users: if no UserVocabulary exists, pick random Vocabulary
 		if (masteredVocabDb.length === 0 && learningVocabDb.length === 0) {
 			const allVocabs = await prisma.vocabulary.findMany({
-				where: { meaning: { not: null } },
+				where: { meaning: { not: null }, languageId: activeLanguageId },
 				take: 22
 			});
 			// @ts-expect-error type inference
@@ -162,10 +155,7 @@ export async function POST({ request, locals }) {
 				select: { vocabularyId: true }
 			});
 			const unseenVocabs = await prisma.vocabulary.findMany({
-				where: { 
-					id: { notIn: knownVocabIds.map(v => v.vocabularyId) },
-					meaning: { not: null }
-				},
+				where: { id: { notIn: knownVocabIds.map(v => v.vocabularyId) }, meaning: { not: null }, languageId: activeLanguageId },
 				take: 2
 			});
 			// @ts-expect-error type inference
@@ -175,7 +165,7 @@ export async function POST({ request, locals }) {
 		// 3. Same for Grammar
 		if (masteredGrammarDb.length === 0 && learningGrammarDb.length === 0) {
 			const potentialNewGrammars = await prisma.grammarRule.findMany({ 
-				where: { level: { in: allowedLevels } },
+				where: { level: { in: allowedLevels }, languageId: activeLanguageId },
 				include: { dependencies: { select: { id: true } } },
 				take: 20
 			});
@@ -204,10 +194,7 @@ export async function POST({ request, locals }) {
 			const knownIdsSet = new Set(knownGrammarIds.map(g => g.grammarRuleId));
 
 			const potentialNewGrammars = await prisma.grammarRule.findMany({
-				where: { 
-					id: { notIn: Array.from(knownIdsSet) },
-					level: { in: allowedLevels }
-				},
+				where: { id: { notIn: Array.from(knownIdsSet) }, level: { in: allowedLevels }, languageId: activeLanguageId },
 				include: { dependencies: { select: { id: true } } },
 				take: 20
 			});
@@ -244,10 +231,10 @@ export async function POST({ request, locals }) {
 		const isAbsoluteBeginner = userLevel === 'A1' && masteredVocabDb.length <= 5;
 
 		const sentenceConstraint = isAbsoluteBeginner
-			? `Generate EXACTLY ONE very simple German sentence (3-6 words, no run-ons) suitable for someone who is just starting to learn German. Use only basic vocabulary like greetings, pronouns, simple verbs (sein, haben, heißen, kommen), and common nouns. Keep it extremely simple.`
+			? `Generate EXACTLY ONE very simple ${activeLangName} sentence (3-6 words, no run-ons) suitable for someone who is just starting to learn ${activeLangName}. Use only basic vocabulary like greetings, pronouns, simple verbs (sein, haben, heißen, kommen), and common nouns. Keep it extremely simple.`
 			: isBeginner
-			? `Generate EXACTLY ONE simple, natural German sentence (no run-ons/semi-colons) as a challenge.`
-			: `Generate a natural German challenge (complex sentence or exactly 2 STRICTLY related, narrative sentences forming a micro-story) suitable for ${userLevel}.`;
+			? `Generate EXACTLY ONE simple, natural ${activeLangName} sentence (no run-ons/semi-colons) as a challenge.`
+			: `Generate a natural ${activeLangName} challenge (complex sentence or exactly 2 STRICTLY related, narrative sentences forming a micro-story) suitable for ${userLevel}.`;
 
 		// Build mode-specific prompt parts
 		let modeInstruction: string;
@@ -256,12 +243,12 @@ export async function POST({ request, locals }) {
 		let jsonSchemaObj: Record<string, unknown>;
 
 		if (gameMode === 'fill-blank') {
-			modeInstruction = `This is a FILL IN THE BLANK exercise. Generate a German sentence, then create the "challengeText" by replacing targeted vocabulary words with blanks "___". The "targetSentence" must be the complete German sentence with no blanks. Provide a "hints" array with one object per blank: each has the "vocabId" and a "hint" string (the English meaning of the missing word).`;
-			vocabTagInstruction = `Do NOT use <vocab> tags. Instead, replace targeted words with "___" in challengeText. The targetSentence has the full correct German sentence.`;
+			modeInstruction = `This is a FILL IN THE BLANK exercise. Generate a ${activeLangName} sentence, then create the "challengeText" by replacing targeted vocabulary words with blanks "___". The "targetSentence" must be the complete ${activeLangName} sentence with no blanks. Provide a "hints" array with one object per blank: each has the "vocabId" and a "hint" string (the English meaning of the missing word).`;
+			vocabTagInstruction = `Do NOT use <vocab> tags. Instead, replace targeted words with "___" in challengeText. The targetSentence has the full correct ${activeLangName} sentence.`;
 			jsonFormatBlock = `JSON format:
 {
-  "challengeText": "<German sentence with ___ for blanked words>",
-  "targetSentence": "<Complete German sentence>",
+  "challengeText": "<${activeLangName} sentence with ___ for blanked words>",
+  "targetSentence": "<Complete ${activeLangName} sentence>",
   "hints": [{ "vocabId": "<id>", "hint": "<English meaning>" }],
   "targetedVocabularyIds": ["<id1>"],
   "targetedGrammarIds": ["<id1>"]
@@ -269,8 +256,8 @@ export async function POST({ request, locals }) {
 			jsonSchemaObj = {
 				type: "object",
 				properties: {
-					challengeText: { type: "string", description: "German sentence with ___ blanks" },
-					targetSentence: { type: "string", description: "Complete German sentence" },
+					challengeText: { type: "string", description: "${activeLangName} sentence with ___ blanks" },
+					targetSentence: { type: "string", description: "Complete ${activeLangName} sentence" },
 					hints: {
 						type: "array",
 						items: {
@@ -291,11 +278,11 @@ export async function POST({ request, locals }) {
 				additionalProperties: false
 			};
 		} else if (gameMode === 'multiple-choice') {
-			modeInstruction = `This is a MULTIPLE CHOICE exercise. Generate a German sentence as "challengeText". Provide the correct English translation as "targetSentence". Also provide exactly 3 plausible but INCORRECT English translations as "distractors". The distractors should be similar enough to be challenging but clearly wrong.`;
-			vocabTagInstruction = `CRITICAL: In the "challengeText" (which is German), you MUST wrap the German lemma form of targeted vocabulary words in a <vocab id="VOCAB_ID">...</vocab> tag. For example, if targeting vocabulary ID "123" with lemma "Hund", write: "Der <vocab id="123">Hund</vocab> bellt."`;
+			modeInstruction = `This is a MULTIPLE CHOICE exercise. Generate a ${activeLangName} sentence as "challengeText". Provide the correct English translation as "targetSentence". Also provide exactly 3 plausible but INCORRECT English translations as "distractors". The distractors should be similar enough to be challenging but clearly wrong.`;
+			vocabTagInstruction = `CRITICAL: In the "challengeText" (which is ${activeLangName}), you MUST wrap the ${activeLangName} lemma form of targeted vocabulary words in a <vocab id="VOCAB_ID">...</vocab> tag. For example, if targeting vocabulary ID "123" with lemma "Hund", write: "Der <vocab id="123">Hund</vocab> bellt."`;
 			jsonFormatBlock = `JSON format:
 {
-  "challengeText": "<German sentence with vocab tags>",
+  "challengeText": "<${activeLangName} sentence with vocab tags>",
   "targetSentence": "<Correct English translation>",
   "distractors": ["<wrong1>", "<wrong2>", "<wrong3>"],
   "targetedVocabularyIds": ["<id1>"],
@@ -304,7 +291,7 @@ export async function POST({ request, locals }) {
 			jsonSchemaObj = {
 				type: "object",
 				properties: {
-					challengeText: { type: "string", description: "German sentence to translate" },
+					challengeText: { type: "string", description: "${activeLangName} sentence to translate" },
 					targetSentence: { type: "string", description: "Correct English translation" },
 					distractors: {
 						type: "array",
@@ -317,12 +304,12 @@ export async function POST({ request, locals }) {
 				required: ["challengeText", "targetSentence", "distractors", "targetedVocabularyIds", "targetedGrammarIds"],
 				additionalProperties: false
 			};
-		} else if (gameMode === 'de-to-en') {
-			modeInstruction = `User translates FROM German TO English ("challengeText"=German, "targetSentence"=English).`;
-			vocabTagInstruction = `CRITICAL: In the "challengeText" (which is German), you MUST wrap the German lemma form of targeted vocabulary words in a <vocab id="VOCAB_ID">...</vocab> tag. For example, if targeting vocabulary ID "123" with lemma "Hund", write: "Der <vocab id="123">Hund</vocab> bellt."`;
+		} else if (gameMode === 'target-to-native') {
+			modeInstruction = `User translates FROM ${activeLangName} TO English ("challengeText"=${activeLangName}, "targetSentence"=English).`;
+			vocabTagInstruction = `CRITICAL: In the "challengeText" (which is ${activeLangName}), you MUST wrap the ${activeLangName} lemma form of targeted vocabulary words in a <vocab id="VOCAB_ID">...</vocab> tag. For example, if targeting vocabulary ID "123" with lemma "Hund", write: "Der <vocab id="123">Hund</vocab> bellt."`;
 			jsonFormatBlock = `JSON format:
 {
-  "challengeText": "<German text>",
+  "challengeText": "<${activeLangName} text>",
   "targetSentence": "<English translation>",
   "targetedVocabularyIds": ["<id1>", "<id2>"],
   "targetedGrammarIds": ["<id1>"]
@@ -330,7 +317,7 @@ export async function POST({ request, locals }) {
 			jsonSchemaObj = {
 				type: "object",
 				properties: {
-					challengeText: { type: "string", description: "The German text to translate" },
+					challengeText: { type: "string", description: "The ${activeLangName} text to translate" },
 					targetSentence: { type: "string", description: "The English translation" },
 					targetedVocabularyIds: { type: "array", items: { type: "string" } },
 					targetedGrammarIds: { type: "array", items: { type: "string" } }
@@ -339,13 +326,13 @@ export async function POST({ request, locals }) {
 				additionalProperties: false
 			};
 		} else {
-			// en-to-de (default)
-			modeInstruction = `User translates FROM English TO German ("challengeText"=English, "targetSentence"=German).`;
-			vocabTagInstruction = `CRITICAL: In the "challengeText" (which is English), you MUST use the ENGLISH meaning of the targeted vocabulary word and wrap it in a <vocab id="VOCAB_ID">...</vocab> tag. For example, if targeting vocabulary ID "123" with lemma "Hund" and meaning "dog", write: "The <vocab id="123">dog</vocab> is barking." Do NOT put German words in the English challengeText.`;
+			// native-to-target (default)
+			modeInstruction = `User translates FROM English TO ${activeLangName} ("challengeText"=English, "targetSentence"=${activeLangName}).`;
+			vocabTagInstruction = `CRITICAL: In the "challengeText" (which is English), you MUST use the ENGLISH meaning of the targeted vocabulary word and wrap it in a <vocab id="VOCAB_ID">...</vocab> tag. For example, if targeting vocabulary ID "123" with lemma "Hund" and meaning "dog", write: "The <vocab id="123">dog</vocab> is barking." Do NOT put ${activeLangName} words in the English challengeText.`;
 			jsonFormatBlock = `JSON format:
 {
   "challengeText": "<English text>",
-  "targetSentence": "<German translation>",
+  "targetSentence": "<${activeLangName} translation>",
   "targetedVocabularyIds": ["<id1>", "<id2>"],
   "targetedGrammarIds": ["<id1>"]
 }`;
@@ -353,7 +340,7 @@ export async function POST({ request, locals }) {
 				type: "object",
 				properties: {
 					challengeText: { type: "string", description: "The English text to translate" },
-					targetSentence: { type: "string", description: "The German translation" },
+					targetSentence: { type: "string", description: "The ${activeLangName} translation" },
 					targetedVocabularyIds: { type: "array", items: { type: "string" } },
 					targetedGrammarIds: { type: "array", items: { type: "string" } }
 				},
@@ -364,21 +351,21 @@ export async function POST({ request, locals }) {
 
 		// 4. Construct System Prompt
 		const beginnerGuidance = isAbsoluteBeginner
-			? `\nABSOLUTE BEGINNER MODE: This student is just starting to learn German. They may know almost nothing.
+			? `\nABSOLUTE BEGINNER MODE: This student is just starting to learn ${activeLangName}. They may know almost nothing.
 - Use extremely simple vocabulary (greetings, personal pronouns, basic verbs like sein/haben/heißen)
 - Sentences should be 3-6 words maximum
-- For en-to-de mode: use simple English sentences like "I am a man", "The child is small", "I have a book"
-- For de-to-en mode: use simple German like "Ich bin gut", "Das Kind ist klein"
+- For native-to-target mode: use simple English sentences like "I am a man", "The child is small", "I have a book"
+- For target-to-native mode: use simple ${activeLangName} like "Ich bin gut", "Das Kind ist klein"
 - For fill-blank: blank only ONE very basic word
 - For multiple-choice: make distractors clearly different from the correct answer
 - Focus on building confidence — correctness over complexity\n`
 			: '';
 
-		const systemPrompt = `Act as an expert German tutor for a ${userLevel} student. Output ONLY strictly valid JSON, no markdown or extra text.
+		const systemPrompt = `Act as an expert ${activeLangName} tutor for a ${userLevel} student. Output ONLY strictly valid JSON, no markdown or extra text.
 ${beginnerGuidance}
 
 ${sentenceConstraint}
-Compose the German text focusing on the "Mastered" and "Learning" vocabulary provided below. You are ALLOWED to use other natural German vocabulary appropriate for a ${userLevel} student, even if it is not in the provided lists. However, you MUST ABSOLUTELY AVOID using any custom or user-provided words that are not explicitly present in the provided vocabulary lists below. If you think the user might have learned a specific obscure word elsewhere but it is not in these lists, do not use it.
+Compose the ${activeLangName} text focusing on the "Mastered" and "Learning" vocabulary provided below. You are ALLOWED to use other natural ${activeLangName} vocabulary appropriate for a ${userLevel} student, even if it is not in the provided lists. However, you MUST ABSOLUTELY AVOID using any custom or user-provided words that are not explicitly present in the provided vocabulary lists below. If you think the user might have learned a specific obscure word elsewhere but it is not in these lists, do not use it.
 CRITICAL THEMATIC INJECTION: The "Learning Concepts" list below is a POOL of words. You MUST choose ONE word from it to establish a central theme. Then, try to incorporate other words from the Learning list ONLY if they fit naturally within that theme.
 CRITICAL QUALITY INSTRUCTION: Prioritize sentence quality, natural flow, and logic over using every single word provided in the lists. Do NOT try to force or jam words together if they don't make sense. You DO NOT have to use all the words provided, just pick the ones that fit naturally and make logical sense.
 ${modeInstruction}
@@ -509,7 +496,7 @@ ${jsonFormatBlock}`;
 						}
 						const parsedResponse = JSON.parse(cleaned);
 
-						// Extract all text that may contain German words
+						// Extract all text that may contain ${activeLangName} words
 						const allText = [
 							parsedResponse.challengeText || '',
 							parsedResponse.targetSentence || ''
@@ -531,47 +518,49 @@ ${jsonFormatBlock}`;
 							candidates.add(lower);
 							candidates.add(lower.charAt(0).toUpperCase() + lower.slice(1));
 
-							// Basic German stemming: strip inflectional suffixes
-							const suffixes = ['ung', 'te', 'ten', 'tet', 'test', 'en', 'er', 'es', 'em', 'et', 'st', 'e', 't', 'n', 's'];
-							for (const suffix of suffixes) {
-								if (lower.length > suffix.length + 2 && lower.endsWith(suffix)) {
-									const stem = lower.slice(0, -suffix.length);
-									candidates.add(stem);
-									candidates.add(stem.charAt(0).toUpperCase() + stem.slice(1));
-									if (suffix !== 'en') {
-										candidates.add(stem + 'en');
-										candidates.add((stem + 'en').charAt(0).toUpperCase() + (stem + 'en').slice(1));
-									}
-								}
-							}
-
-							// Past participle: ge-...-t or ge-...-en
-							if (lower.startsWith('ge') && lower.length > 4) {
-								const rest = lower.slice(2);
-								candidates.add(rest);
-								candidates.add(rest.charAt(0).toUpperCase() + rest.slice(1));
-								if (rest.endsWith('t') && rest.length > 2) {
-									const pStem = rest.slice(0, -1);
-									candidates.add(pStem + 'en');
-									candidates.add((pStem + 'en').charAt(0).toUpperCase() + (pStem + 'en').slice(1));
-								}
-								if (rest.endsWith('en') && rest.length > 3) {
-									candidates.add(rest);
-									candidates.add(rest.charAt(0).toUpperCase() + rest.slice(1));
-								}
-							}
-
-							// zu-infinitive: aufzugeben → aufgeben
-							const zuMatch = lower.match(/^(.+?)zu(.+)$/);
-							if (zuMatch && zuMatch[1].length >= 2 && zuMatch[2].length >= 2) {
-								const combined = zuMatch[1] + zuMatch[2];
-								candidates.add(combined);
-								candidates.add(combined.charAt(0).toUpperCase() + combined.slice(1));
-							}
+							if (activeLangName === 'German') {
+							// Basic ${activeLangName} stemming: strip inflectional suffixes
+														const suffixes = ['ung', 'te', 'ten', 'tet', 'test', 'en', 'er', 'es', 'em', 'et', 'st', 'e', 't', 'n', 's'];
+														for (const suffix of suffixes) {
+															if (lower.length > suffix.length + 2 && lower.endsWith(suffix)) {
+																const stem = lower.slice(0, -suffix.length);
+																candidates.add(stem);
+																candidates.add(stem.charAt(0).toUpperCase() + stem.slice(1));
+																if (suffix !== 'en') {
+																	candidates.add(stem + 'en');
+																	candidates.add((stem + 'en').charAt(0).toUpperCase() + (stem + 'en').slice(1));
+																}
+															}
+														}
+							
+														// Past participle: ge-...-t or ge-...-en
+														if (lower.startsWith('ge') && lower.length > 4) {
+															const rest = lower.slice(2);
+															candidates.add(rest);
+															candidates.add(rest.charAt(0).toUpperCase() + rest.slice(1));
+															if (rest.endsWith('t') && rest.length > 2) {
+																const pStem = rest.slice(0, -1);
+																candidates.add(pStem + 'en');
+																candidates.add((pStem + 'en').charAt(0).toUpperCase() + (pStem + 'en').slice(1));
+															}
+															if (rest.endsWith('en') && rest.length > 3) {
+																candidates.add(rest);
+																candidates.add(rest.charAt(0).toUpperCase() + rest.slice(1));
+															}
+														}
+							
+														// zu-infinitive: aufzugeben → aufgeben
+														const zuMatch = lower.match(/^(.+?)zu(.+)$/);
+														if (zuMatch && zuMatch[1].length >= 2 && zuMatch[2].length >= 2) {
+															const combined = zuMatch[1] + zuMatch[2];
+															candidates.add(combined);
+															candidates.add(combined.charAt(0).toUpperCase() + combined.slice(1));
+														}
+													}
 						}
-
+						let enrichmentVocab: any[] = [];
 						if (candidates.size > 0) {
-							const enrichmentVocab = await prisma.vocabulary.findMany({
+							enrichmentVocab = await prisma.vocabulary.findMany({
 								where: {
 									lemma: { in: Array.from(candidates) },
 									id: { notIn: Array.from(existingIds) }
@@ -589,10 +578,180 @@ ${jsonFormatBlock}`;
 								);
 							}
 						}
+
+						// AI fallback: ask the LLM (using the configured model) to generate vocab data
+						// for content words that remain unknown after DB lookup.
+						const functionWords = new Set([
+							// German articles & determiners
+							'der','die','das','den','dem','des','ein','eine','einen','einem','einer','eines',
+							'kein','keine','keinen','keinem','keiner','keines',
+							// German pronouns & common particles
+							'ich','du','er','sie','es','wir','ihr','sie','sie','sich',
+							'mich','dich','ihn','uns','euch','ihnen',
+							'mir','dir','ihm','ihr','uns','euch','ihnen',
+							'mein','dein','sein','unser','euer','ihr',
+							// German conjunctions / particles
+							'und','oder','aber','doch','denn','weil','dass','wenn','ob','als','wie',
+							'nicht','auch','noch','schon','nur','sehr','so','ja','nein','gar',
+							// German prepositions (contracted forms already in inflection map)
+							'in','an','auf','für','mit','von','zu','bei','nach','aus','über','unter',
+							'vor','hinter','neben','zwischen','durch','um','gegen','ohne','bis',
+							'am','im','ins','zum','zur','vom','beim','ans','aufs','fürs',
+							// English function words
+							'a','an','the','of','in','is','it','to','he','she','we','they','i','you',
+							'this','that','and','or','but','at','as','be','by','do','for','if','me',
+							'my','no','not','on','up','us','was','are','has','had','his','her','its',
+						]);
+
+						const foundLemmas = new Set<string>([
+							...masteredVocab.map(v => v.lemma.toLowerCase()),
+							...learningVocab.map(v => v.lemma.toLowerCase()),
+							...enrichmentVocab.map((v: any) => v.lemma.toLowerCase()),
+						]);
+
+						const unknownContentWords = [
+							...new Set(
+								rawWords
+									.map((w: string) => w.replace(/[.,!?;:'"|()/[\]{}\-\u2014\u2013]/g, '').trim())
+									.filter((w: string) =>
+										w.length >= 3 &&
+										!functionWords.has(w.toLowerCase()) &&
+										!foundLemmas.has(w.toLowerCase())
+									)
+							)
+						].slice(0, 20); // cap to avoid huge requests
+
+						// Contextual pronoun / conjugation lookup:
+						// Many words have generic DB meanings that are misleading in context.
+						// E.g. German "es" = "it" but "es gibt" = "there is/are"; Spanish "es" is a
+						// conjugated verb (ser → "is"), "se" is a reflexive/passive marker, etc.
+						const AMBIGUOUS_WORDS_BY_LANG: Record<string, string[]> = {
+							'German': [
+								'er','sie','es','wir','ihr',          // personal pronouns (she/they/formal-you ambiguity)
+								'man','sich',                          // impersonal / reflexive
+								'ihn','ihm','ihnen',                   // accusative/dative pronoun forms
+								'jemand','niemand','etwas','nichts',   // indefinite pronouns
+							],
+							'Spanish': [
+								// Conjugated forms of ser / estar / tener / ir / haber — contextually ambiguous
+								'es','está','son','están','era','fue','sido','siendo',
+								'hay','hubo','había',                  // haber impersonal
+								'va','van','voy','vamos',              // ir conjugations
+								'tiene','tienen','tengo',              // tener
+								// Object / reflexive / indirect-object pronouns
+								'se','le','les','lo','la','los','las', // clitic pronouns
+								'me','te','nos','os',                  // other clitics
+							],
+						};
+						const ambiguousForLang = AMBIGUOUS_WORDS_BY_LANG[activeLangName] ?? [];
+						const ambiguousSet = new Set(ambiguousForLang);
+						const sentenceWordsLower = rawWords
+							.map((w: string) => w.replace(/[.,!?;:'"|()/[\]{}\-\u2014\u2013¡¿]/g, '').toLowerCase())
+							.filter(Boolean);
+						const ambiguousInSentence = ambiguousForLang.length > 0
+							? [...new Set(sentenceWordsLower.filter((w: string) => ambiguousSet.has(w)))]
+							: [];
+						const fullSentence = [
+							parsedResponse.challengeText || '',
+							parsedResponse.targetSentence || ''
+						].join(' ').replace(/<[^>]+>/g, '').trim();
+
+						if (unknownContentWords.length > 0 || ambiguousInSentence.length > 0) {
+							// Run both AI enrichment calls in parallel — do NOT await them sequentially.
+							const aiTasks: Promise<void>[] = [];
+
+							if (unknownContentWords.length > 0) {
+								aiTasks.push((async () => {
+									try {
+										const aiRes = await generateChatCompletion({
+											userId,
+											messages: [{
+												role: 'user',
+												content: `Provide vocabulary dictionary entries for these ${activeLangName} words or inflected forms: ${JSON.stringify(unknownContentWords)}\n\nRespond with JSON in this exact shape:\n{"vocabulary":[{"lemma":"...","meaning":"...","partOfSpeech":"noun|verb|adjective|adverb|preposition|conjunction|pronoun|article|particle|interjection|other","gender":"MASCULINE|FEMININE|NEUTER or null for non-nouns","plural":"plural form or null"}]}`
+											}],
+											systemPrompt: `You are an expert ${activeLangName} lexicographer. For each word given (which may be an inflected form), output its base-form (lemma) dictionary entry with an English meaning. Output ONLY valid JSON matching the requested schema, no markdown or extra text.`,
+											jsonMode: true,
+											temperature: 0.1
+										});
+										let aiResultRaw: string;
+										if (typeof aiRes.choices?.[0]?.message?.content === 'string') {
+											aiResultRaw = aiRes.choices[0].message.content;
+										} else {
+											aiResultRaw = JSON.stringify(aiRes);
+										}
+										const aiResult = JSON.parse(aiResultRaw);
+										if (aiResult?.vocabulary?.length > 0) {
+											const aiVocabEntries = aiResult.vocabulary.map((v: any, idx: number) => ({
+												id: `ai_${Date.now()}_${idx}`,
+												lemma: v.lemma,
+												meaning: v.meaning,
+												partOfSpeech: v.partOfSpeech,
+												gender: v.gender ?? null,
+												plural: v.plural ?? null,
+												languageId: activeLanguageId,
+											}));
+											controller.enqueue(
+												new TextEncoder().encode(
+													JSON.stringify({ type: 'vocab_enrichment', data: aiVocabEntries }) + '\n'
+												)
+											);
+										}
+									} catch (aiFallbackErr) {
+										console.error('AI vocab fallback failed:', aiFallbackErr);
+									}
+								})());
+							}
+
+							if (ambiguousInSentence.length > 0 && fullSentence) {
+								aiTasks.push((async () => {
+									try {
+										const ctxRes = await generateChatCompletion({
+											userId,
+											messages: [{
+												role: 'user',
+												content: `Sentence: "${fullSentence}"\nWords to explain: ${JSON.stringify(ambiguousInSentence)}\n\nRespond with JSON in this exact shape:\n{"vocabulary":[{"lemma":"the word as it appears","meaning":"precise contextual meaning/role in this sentence","partOfSpeech":"verb|pronoun|particle|other"}]}`
+											}],
+											systemPrompt: `You are an expert ${activeLangName} grammar tutor. For each word given, explain its specific meaning and grammatical role IN THE PROVIDED SENTENCE only — not a generic dictionary definition. Be concise but precise. Examples: Spanish "es" → "is (3rd person singular of ser)", "se lava" → "se = reflexive marker (washes himself)", German "sie" → "they (subject)" or "she (subject)" depending on context, "es gibt" → "there is/are (impersonal)". Output ONLY valid JSON, no markdown.`,
+											jsonMode: true,
+											temperature: 0.1
+										});
+										let ctxRaw: string;
+										if (typeof ctxRes.choices?.[0]?.message?.content === 'string') {
+											ctxRaw = ctxRes.choices[0].message.content;
+										} else {
+											ctxRaw = JSON.stringify(ctxRes);
+										}
+										const ctxResult = JSON.parse(ctxRaw);
+										if (ctxResult?.vocabulary?.length > 0) {
+											const ctxEntries = ctxResult.vocabulary.map((v: any, idx: number) => ({
+												id: `ai_ctx_${Date.now()}_${idx}`,
+												lemma: v.lemma,
+												meaning: v.meaning,
+												partOfSpeech: v.partOfSpeech ?? 'pronoun',
+												gender: null,
+												plural: null,
+												languageId: activeLanguageId,
+											}));
+											controller.enqueue(
+												new TextEncoder().encode(
+													JSON.stringify({ type: 'vocab_enrichment', data: ctxEntries }) + '\n'
+												)
+											);
+										}
+									} catch (ctxErr) {
+										console.error('Contextual word AI lookup failed:', ctxErr);
+									}
+								})());
+							}
+
+							// Wait for whichever tasks exist — both run concurrently
+							await Promise.allSettled(aiTasks);
+						}
 					} catch (enrichErr) {
 						console.error('Vocab enrichment failed:', enrichErr);
 					}
 					
+				await recordLoadTime(Date.now() - requestStartTime);
 					controller.close();
 				} catch (e) {
 					controller.error(e);

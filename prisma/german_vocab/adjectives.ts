@@ -1,34 +1,39 @@
 export const adjectives = [
 	{
-		lemma: "gut",
+    lemma: "gut",
 		meaning: "good",
 		partOfSpeech: 'adjective' as const,
-	},
+    isBeginner: true
+  },
 	{
 		lemma: "schlecht",
 		meaning: "bad",
 		partOfSpeech: 'adjective' as const,
 	},
 	{
-		lemma: "groß",
+    lemma: "groß",
 		meaning: "big, tall",
 		partOfSpeech: 'adjective' as const,
-	},
+    isBeginner: true
+  },
 	{
-		lemma: "klein",
+    lemma: "klein",
 		meaning: "small, short",
 		partOfSpeech: 'adjective' as const,
-	},
+    isBeginner: true
+  },
 	{
-		lemma: "neu",
+    lemma: "neu",
 		meaning: "new",
 		partOfSpeech: 'adjective' as const,
-	},
+    isBeginner: true
+  },
 	{
-		lemma: "alt",
+    lemma: "alt",
 		meaning: "old",
 		partOfSpeech: 'adjective' as const,
-	},
+    isBeginner: true
+  },
 	{
 		lemma: "schön",
 		meaning: "beautiful, nice",
@@ -240,15 +245,17 @@ export const adjectives = [
 		partOfSpeech: 'adjective' as const,
 	},
 	{
-		lemma: "drei",
+    lemma: "drei",
 		meaning: "three",
 		partOfSpeech: 'adjective' as const,
-	},
+    isBeginner: true
+  },
 	{
-		lemma: "zwei",
+    lemma: "zwei",
 		meaning: "two",
 		partOfSpeech: 'adjective' as const,
-	},
+    isBeginner: true
+  },
 				{
 		lemma: "ganz",
 		meaning: "whole, entire, quite",
@@ -2028,5 +2035,54 @@ export const adjectives = [
 		lemma: "architektonisch",
 		meaning: "architectural",
 		partOfSpeech: 'adjective' as const,
-	}
+	},
+	{
+	  "lemma": "schnell",
+	  "meaning": "fast",
+	  "partOfSpeech": "adjective",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "langsam",
+	  "meaning": "slow",
+	  "partOfSpeech": "adjective",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "gut",
+	  "meaning": "good",
+	  "partOfSpeech": "adjective",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "neu",
+	  "meaning": "new",
+	  "partOfSpeech": "adjective",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "alt",
+	  "meaning": "old",
+	  "partOfSpeech": "adjective",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "groß",
+	  "meaning": "big, tall",
+	  "partOfSpeech": "adjective",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "klein",
+	  "meaning": "small, little",
+	  "partOfSpeech": "adjective",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "schön",
+	  "meaning": "beautiful, nice",
+	  "partOfSpeech": "adjective",
+	  "isBeginner": true
+	},
+
 ];

@@ -11,6 +11,12 @@ declare global {
 				hasOnboarded: boolean;
 				role: string;
 				theme: string;
+				activeLanguage: {
+					id: string;
+					code: string;
+					name: string;
+					flag: string | null;
+				} | null;
 			} | null;
 		}
 		// interface PageData {}

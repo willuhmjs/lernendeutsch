@@ -117,13 +117,19 @@ export async function generateChatCompletion({
 }
 
 /**
- * Normalizes an array of German words to their absolute dictionary form (lemma).
+ * Normalizes an array of words to their absolute dictionary form (lemma) based on the user's active language.
  * E.g., infinitives for verbs, nominative singular for nouns, base form for adjectives.
  */
 export async function normalizeGermanWords(userId: string, words: string[]): Promise<string[]> {
 	if (!words || words.length === 0) return [];
 
-	const systemPrompt = `You are an expert German linguist. Given a list of German words, normalize each one to its absolute dictionary form (lemma).
+	const user = await prisma.user.findUnique({
+		where: { id: userId },
+		include: { activeLanguage: true }
+	});
+	const languageName = user?.activeLanguage?.name || 'German';
+
+	const systemPrompt = `You are an expert ${languageName} linguist. Given a list of ${languageName} words, normalize each one to its absolute dictionary form (lemma).
 Rules:
 1. Verbs: infinitive (e.g., "gehst" -> "gehen", "gemacht" -> "machen")
 2. Nouns: nominative singular (e.g., "Äpfeln" -> "apfel", "Hauses" -> "haus")

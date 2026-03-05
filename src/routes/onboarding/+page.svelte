@@ -5,11 +5,11 @@
 	let userInput = '';
 	let loading = false;
 	let error = '';
-	let hasExistingLevel = !!data?.user?.cefrLevel;
-	let completed = data?.user?.hasOnboarded || hasExistingLevel || false;
+	let completed = data?.user?.hasOnboarded || false;
+	
 	let completionData: { level?: string; feedback?: string } = { 
 		level: data?.user?.cefrLevel,
-		feedback: hasExistingLevel ? "You have already completed your onboarding." : undefined
+		feedback: completed ? "You have already completed your onboarding." : undefined
 	};
 
 	const restartOnboarding = () => {
@@ -225,14 +225,14 @@
 </script>
 
 <svelte:head>
-	<title>Adaptive Onboarding | LernenDeutsch</title>
+	<title>Adaptive Onboarding | LingoLearn</title>
 </svelte:head>
 
-<main class="onboarding-container">
+<main class="onboarding-container" class:chat-active={messages.length > 0 || (selectedPath === 'test' && !completed)}>
 	{#if selectedPath === 'choose' && !completed}
 		<!-- Path Selection Screen -->
 		<header class="page-header">
-			<h1 class="dark:text-white">Welcome to LernenDeutsch!</h1>
+			<h1 class="dark:text-white">Welcome to LingoLearn!</h1>
 			<p class="dark:text-slate-400">Let's set up your learning experience. Choose the option that best describes you:</p>
 		</header>
 
@@ -240,14 +240,14 @@
 			<button class="path-card beginner-card dark:bg-slate-900 dark:border-emerald-900" on:click={handleBeginnerPath} disabled={isSubmittingBeginner}>
 				<span class="path-icon">🌱</span>
 				<h2 class="dark:text-white">I'm a Complete Beginner</h2>
-				<p class="dark:text-slate-400">I have zero or almost zero German knowledge. Start me from the very basics — greetings, pronouns, simple words.</p>
+				<p class="dark:text-slate-400">I have zero or almost zero language knowledge. Start me from the very basics — greetings, pronouns, simple words.</p>
 				<span class="path-badge beginner-badge">Recommended for new learners</span>
 			</button>
 
 			<button class="path-card test-card dark:bg-slate-900 dark:border-blue-900" on:click={startPlacementTest}>
 				<span class="path-icon">💬</span>
-				<h2 class="dark:text-white">I Know Some German</h2>
-				<p class="dark:text-slate-400">I have some German knowledge. Chat with our AI teacher to find my level so I don't repeat what I already know.</p>
+				<h2 class="dark:text-white">I Know Some {data.user.activeLanguage.name}</h2>
+				<p class="dark:text-slate-400">I have some language knowledge. Chat with our AI teacher to find my level so I don't repeat what I already know.</p>
 				<span class="path-badge test-badge">Takes 2-5 minutes</span>
 			</button>
 
@@ -286,6 +286,7 @@
 
 	<div class="content-layout">
 		<div class="chat-container dark:bg-slate-800 dark:border-slate-700">
+			{#if messages.length > 0 || loading || error}
 			<div class="chat-messages dark:bg-slate-900">
 				{#each messages as msg}
 					<div class="message-wrapper {msg.role === 'user' ? 'user' : 'assistant'}">
@@ -311,9 +312,10 @@
 					</div>
 				{/if}
 			</div>
+			{/if}
 
 			{#if completed}
-				<div class="completion-card dark:bg-slate-900 dark:border-emerald-900">
+				<div class="completion-card dark:bg-slate-900 dark:border-emerald-900" class:no-messages={messages.length === 0}>
 					<h2 class="dark:text-emerald-400">Onboarding Complete!</h2>
 					<div class="level-result">
 						<span class="dark:text-emerald-500">Your assessed level:</span>
@@ -324,7 +326,7 @@
 					{/if}
 					<div class="completion-actions dark:border-emerald-900">
 							{#if selectedPath === 'beginner'}
-						<p class="action-note dark:text-emerald-500">We've loaded essential starter vocabulary and grammar for you. Your lessons will begin with the very basics — no prior German knowledge needed!</p>
+						<p class="action-note dark:text-emerald-500">We've loaded essential starter vocabulary and grammar for you. Your lessons will begin with the very basics — no prior language knowledge needed!</p>
 					{:else}
 						<p class="action-note dark:text-emerald-500">Your personalized curriculum has been bulk-generated. We've marked the basics you already know as Mastered!</p>
 					{/if}
@@ -407,6 +409,9 @@
 		max-width: 1000px;
 		margin: 0 auto;
 		padding: 2rem 1rem;
+	}
+
+	.onboarding-container.chat-active {
 		height: 85vh;
 		min-height: 500px;
 	}
@@ -672,6 +677,13 @@
 		border-top: 1px solid #bbf7d0;
 	}
 
+	.completion-card.no-messages {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		border-top: none;
+	}
+
 	.completion-card h2 {
 		margin: 0 0 1rem 0;
 		color: #166534;
@@ -776,12 +788,12 @@
 	}
 
 	.beginner-card {
-		border-color: #bbf7d0;
-		background: linear-gradient(135deg, #f0fdf4 0%, var(--card-bg, #ffffff) 100%);
+		border-color: #e5e7eb;
+		background: linear-gradient(135deg, #f8fafc 0%, var(--card-bg, #ffffff) 100%);
 	}
 
 	.beginner-card:hover:not(:disabled) {
-		border-color: #16a34a;
+		border-color: #94a3b8;
 	}
 
 	.beginner-card .path-badge {

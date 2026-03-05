@@ -1,25 +1,28 @@
 export const nouns = [
 	{
-		lemma: "Mann",
+    lemma: "Mann",
 		meaning: "man, husband",
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
 		plural: "Männer",
-	},
+    isBeginner: true
+  },
 	{
-		lemma: "Frau",
+    lemma: "Frau",
 		meaning: "woman, wife",
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
 		plural: "Frauen",
-	},
+    isBeginner: true
+  },
 	{
-		lemma: "Kind",
+    lemma: "Kind",
 		meaning: "child",
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
 		plural: "Kinder",
-	},
+    isBeginner: true
+  },
 	{
 		lemma: "Vater",
 		meaning: "father",
@@ -119,12 +122,13 @@ export const nouns = [
 		plural: "Familien",
 	},
 	{
-		lemma: "Wasser",
+    lemma: "Wasser",
 		meaning: "water",
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
 		plural: "Wässer",
-	},
+    isBeginner: true
+  },
 	{
 		lemma: "Brot",
 		meaning: "bread",
@@ -284,12 +288,13 @@ export const nouns = [
 		plural: "Wochen",
 	},
 	{
-		lemma: "Tag",
+    lemma: "Tag",
 		meaning: "day",
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
 		plural: "Tage",
-	},
+    isBeginner: true
+  },
 	{
 		lemma: "Stunde",
 		meaning: "hour",
@@ -389,12 +394,13 @@ export const nouns = [
 		plural: "Sonntage",
 	},
 	{
-		lemma: "Haus",
+    lemma: "Haus",
 		meaning: "house",
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
 		plural: "Häuser",
-	},
+    isBeginner: true
+  },
 	{
 		lemma: "Wohnung",
 		meaning: "apartment",
@@ -1271,12 +1277,13 @@ export const nouns = [
 		plural: "Beginne",
 	},
 	{
-		lemma: "Name",
+    lemma: "Name",
 		meaning: "name",
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
 		plural: "Namen",
-	},
+    isBeginner: true
+  },
 	{
 		lemma: "Höhe",
 		meaning: "height, altitude",
@@ -1551,12 +1558,13 @@ export const nouns = [
 		plural: "Naturen",
 	},
 	{
-		lemma: "Buch",
+    lemma: "Buch",
 		meaning: "book",
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
 		plural: "Bücher",
-	},
+    isBeginner: true
+  },
 	{
 		lemma: "Kommission",
 		meaning: "commission, committee",
@@ -8823,6 +8831,71 @@ export const nouns = [
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
 		plural: "Niederlande",
-	}
+	},
+	{
+	  "lemma": "Computer",
+	  "meaning": "computer",
+	  "partOfSpeech": "noun",
+	  "gender": "der",
+	  "plural": "Computer",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "Hund",
+	  "meaning": "dog",
+	  "partOfSpeech": "noun",
+	  "gender": "der",
+	  "plural": "Hunde",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "Katze",
+	  "meaning": "cat",
+	  "partOfSpeech": "noun",
+	  "gender": "die",
+	  "plural": "Katzen",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "Kopf",
+	  "meaning": "head",
+	  "partOfSpeech": "noun",
+	  "gender": "der",
+	  "plural": "Köpfe",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "Hand",
+	  "meaning": "hand",
+	  "partOfSpeech": "noun",
+	  "gender": "die",
+	  "plural": "Hände",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "Auge",
+	  "meaning": "eye",
+	  "partOfSpeech": "noun",
+	  "gender": "das",
+	  "plural": "Augen",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "Welt",
+	  "meaning": "world",
+	  "partOfSpeech": "noun",
+	  "gender": "die",
+	  "plural": "Welten",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "Liebe",
+	  "meaning": "love",
+	  "partOfSpeech": "noun",
+	  "gender": "die",
+	  "plural": "Lieben",
+	  "isBeginner": true
+	},
+
 ];
 

@@ -10,25 +10,29 @@ export const adverbs = [
 		partOfSpeech: 'adverb' as const,
 	},
 	{
-		lemma: "nicht",
+    lemma: "nicht",
 		meaning: "not",
 		partOfSpeech: 'adverb' as const,
-	},
+    isBeginner: true
+  },
 	{
-		lemma: "auch",
+    lemma: "auch",
 		meaning: "also, too",
 		partOfSpeech: 'adverb' as const,
-	},
+    isBeginner: true
+  },
 	{
-		lemma: "ein",
+    lemma: "ein",
 		meaning: "a, an, one",
 		partOfSpeech: 'adverb' as const,
-	},
+    isBeginner: true
+  },
 	{
-		lemma: "wie",
+    lemma: "wie",
 		meaning: "how; as",
 		partOfSpeech: 'adverb' as const,
-	},
+    isBeginner: true
+  },
 	{
 		lemma: "nur",
 		meaning: "only; just",
@@ -65,15 +69,17 @@ export const adverbs = [
 		partOfSpeech: 'adverb' as const,
 	},
 	{
-		lemma: "sehr",
+    lemma: "sehr",
 		meaning: "very, very much",
 		partOfSpeech: 'adverb' as const,
-	},
+    isBeginner: true
+  },
 	{
-		lemma: "was",
+    lemma: "was",
 		meaning: "what",
 		partOfSpeech: 'adverb' as const,
-	},
+    isBeginner: true
+  },
 				{
 		lemma: "jedoch",
 		meaning: "however, but",
@@ -90,10 +96,11 @@ export const adverbs = [
 		partOfSpeech: 'adverb' as const,
 	},
 	{
-		lemma: "hier",
+    lemma: "hier",
 		meaning: "here",
 		partOfSpeech: 'adverb' as const,
-	},
+    isBeginner: true
+  },
 				{
 		lemma: "all",
 		meaning: "all, everyone",
@@ -205,10 +212,11 @@ export const adverbs = [
 		partOfSpeech: 'adverb' as const,
 	},
 	{
-		lemma: "der",
+    lemma: "der",
 		meaning: "whose, of which",
 		partOfSpeech: 'adverb' as const,
-	},
+    isBeginner: true
+  },
 		{
 		lemma: "oft",
 		meaning: "often",
@@ -265,10 +273,11 @@ export const adverbs = [
 		partOfSpeech: 'adverb' as const,
 	},
 	{
-		lemma: "wer",
+    lemma: "wer",
 		meaning: "who",
 		partOfSpeech: 'adverb' as const,
-	},
+    isBeginner: true
+  },
 	{
 		lemma: "paar",
 		meaning: "a few, some",
@@ -580,10 +589,11 @@ export const adverbs = [
 		partOfSpeech: 'adverb' as const,
 	},
 	{
-		lemma: "warum",
+    lemma: "warum",
 		meaning: "why",
 		partOfSpeech: 'adverb' as const,
-	},
+    isBeginner: true
+  },
 		{
 		lemma: "jederzeit",
 		meaning: "at any time, always",
@@ -765,10 +775,11 @@ export const adverbs = [
 		partOfSpeech: 'adverb' as const,
 	},
 	{
-		lemma: "nein",
+    lemma: "nein",
 		meaning: "no",
 		partOfSpeech: 'adverb' as const,
-	},
+    isBeginner: true
+  },
 		{
 		lemma: "nahezu",
 		meaning: "almost, nearly, virtually",
@@ -950,10 +961,11 @@ export const adverbs = [
 		partOfSpeech: 'adverb' as const,
 	},
 	{
-		lemma: "die",
+    lemma: "die",
 		meaning: "whose",
 		partOfSpeech: 'adverb' as const,
-	},
+    isBeginner: true
+  },
 	{
 		lemma: "dafür",
 		meaning: "for it, for that",
@@ -995,10 +1007,11 @@ export const adverbs = [
 		partOfSpeech: 'adverb' as const,
 	},
 	{
-		lemma: "eins",
+    lemma: "eins",
 		meaning: "one",
 		partOfSpeech: 'adverb' as const,
-	},
+    isBeginner: true
+  },
 	{
 		lemma: "letztlich",
 		meaning: "ultimately or in the end",
@@ -1105,10 +1118,11 @@ export const adverbs = [
 		partOfSpeech: 'adverb' as const,
 	},
 	{
-		lemma: "das",
+    lemma: "das",
 		meaning: "the; that; which",
 		partOfSpeech: 'adverb' as const,
-	},
+    isBeginner: true
+  },
 	{
 		lemma: "morgen",
 		meaning: "tomorrow",
@@ -1128,5 +1142,54 @@ export const adverbs = [
 		lemma: "nirgends",
 		meaning: "nowhere",
 		partOfSpeech: 'adverb' as const,
-	}
+	},
+	{
+	  "lemma": "hier",
+	  "meaning": "here",
+	  "partOfSpeech": "adverb",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "dort",
+	  "meaning": "there",
+	  "partOfSpeech": "adverb",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "jetzt",
+	  "meaning": "now",
+	  "partOfSpeech": "adverb",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "immer",
+	  "meaning": "always",
+	  "partOfSpeech": "adverb",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "oft",
+	  "meaning": "often",
+	  "partOfSpeech": "adverb",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "nie",
+	  "meaning": "never",
+	  "partOfSpeech": "adverb",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "sehr",
+	  "meaning": "very",
+	  "partOfSpeech": "adverb",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "auch",
+	  "meaning": "also, too",
+	  "partOfSpeech": "adverb",
+	  "isBeginner": true
+	},
+
 ];

@@ -1,14 +1,16 @@
 export const verbs = [
 	{
-		lemma: "sein",
+    lemma: "sein",
 		meaning: "to be",
 		partOfSpeech: 'verb' as const,
-	},
+    isBeginner: true
+  },
 	{
-		lemma: "haben",
+    lemma: "haben",
 		meaning: "to have",
 		partOfSpeech: 'verb' as const,
-	},
+    isBeginner: true
+  },
 	{
 		lemma: "werden",
 		meaning: "to become",
@@ -30,20 +32,22 @@ export const verbs = [
 		partOfSpeech: 'verb' as const,
 	},
 	{
-		lemma: "machen",
+    lemma: "machen",
 		meaning: "to do, to make",
 		partOfSpeech: 'verb' as const,
-	},
+    isBeginner: true
+  },
 	{
 		lemma: "geben",
 		meaning: "to give",
 		partOfSpeech: 'verb' as const,
 	},
 	{
-		lemma: "kommen",
+    lemma: "kommen",
 		meaning: "to come",
 		partOfSpeech: 'verb' as const,
-	},
+    isBeginner: true
+  },
 	{
 		lemma: "sollen",
 		meaning: "should, ought to",
@@ -55,10 +59,11 @@ export const verbs = [
 		partOfSpeech: 'verb' as const,
 	},
 	{
-		lemma: "gehen",
+    lemma: "gehen",
 		meaning: "to go",
 		partOfSpeech: 'verb' as const,
-	},
+    isBeginner: true
+  },
 	{
 		lemma: "wissen",
 		meaning: "to know",
@@ -95,10 +100,11 @@ export const verbs = [
 		partOfSpeech: 'verb' as const,
 	},
 	{
-		lemma: "heißen",
+    lemma: "heißen",
 		meaning: "to be called",
 		partOfSpeech: 'verb' as const,
-	},
+    isBeginner: true
+  },
 	{
 		lemma: "denken",
 		meaning: "to think",
@@ -150,10 +156,11 @@ export const verbs = [
 		partOfSpeech: 'verb' as const,
 	},
 	{
-		lemma: "sprechen",
+    lemma: "sprechen",
 		meaning: "to speak",
 		partOfSpeech: 'verb' as const,
-	},
+    isBeginner: true
+  },
 	{
 		lemma: "bringen",
 		meaning: "to bring",
@@ -2153,5 +2160,54 @@ export const verbs = [
 		lemma: "weinen",
 		meaning: "to cry",
 		partOfSpeech: 'verb' as const,
-	}
+	},
+	{
+	  "lemma": "arbeiten",
+	  "meaning": "to work",
+	  "partOfSpeech": "verb",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "spielen",
+	  "meaning": "to play",
+	  "partOfSpeech": "verb",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "lernen",
+	  "meaning": "to learn",
+	  "partOfSpeech": "verb",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "sein",
+	  "meaning": "to be",
+	  "partOfSpeech": "verb",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "haben",
+	  "meaning": "to have",
+	  "partOfSpeech": "verb",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "werden",
+	  "meaning": "to become",
+	  "partOfSpeech": "verb",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "können",
+	  "meaning": "can, to be able to",
+	  "partOfSpeech": "verb",
+	  "isBeginner": true
+	},
+	{
+	  "lemma": "müssen",
+	  "meaning": "must, to have to",
+	  "partOfSpeech": "verb",
+	  "isBeginner": true
+	},
+
 ];
