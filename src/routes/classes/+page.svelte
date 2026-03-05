@@ -89,38 +89,57 @@
 
 	<div class="forms-grid" in:fly={{ y: 20, duration: 400, delay: 100 }}>
 		<!-- Create Class Form -->
-		<div class="card-duo form-card">
-			<h2>Create a Class</h2>
+		<div class="card-duo form-card create-card">
+			<div class="card-header">
+				<div class="icon-wrapper create-icon">
+					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+					</svg>
+				</div>
+				<h2>Create a Class</h2>
+				<p class="card-subtitle">Start a new learning group</p>
+			</div>
 			<form on:submit|preventDefault={handleCreate} class="form-inner">
 				<div class="field">
 					<label for="name">Class Name</label>
-					<input
-						type="text"
-						id="name"
-						bind:value={createName}
-						placeholder="e.g. German 101"
-						required
-					/>
+					<div class="input-wrapper">
+						<input
+							type="text"
+							id="name"
+							bind:value={createName}
+							placeholder="e.g. German 101"
+							required
+						/>
+					</div>
 				</div>
 				<div class="field">
-					<label for="description">Description (Optional)</label>
-					<textarea
-						id="description"
-						bind:value={createDescription}
-						placeholder="What is this class about?"
-						rows="3"
-					></textarea>
+					<label for="description">Description <span class="optional">(Optional)</span></label>
+					<div class="input-wrapper">
+						<textarea
+							id="description"
+							bind:value={createDescription}
+							placeholder="What is this class about?"
+							rows="2"
+						></textarea>
+					</div>
 				</div>
 				<div class="field">
 					<label for="language">Primary Language</label>
-					<select id="language" bind:value={createLanguage}>
-						<option value="international">International</option>
-						<option value="de">German</option>
-						<option value="es">Spanish</option>
-					</select>
+					<div class="input-wrapper select-wrapper">
+						<select id="language" bind:value={createLanguage}>
+							<option value="international">🌍 International</option>
+							<option value="de">🇩🇪 German</option>
+							<option value="es">🇪🇸 Spanish</option>
+						</select>
+					</div>
 				</div>
 				{#if createError}
-					<p class="form-error">{createError}</p>
+					<div class="form-error">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+							<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+						</svg>
+						{createError}
+					</div>
 				{/if}
 				<div class="form-actions">
 					<button
@@ -135,29 +154,46 @@
 		</div>
 
 		<!-- Join Class Form -->
-		<div class="card-duo form-card">
-			<h2>Join a Class</h2>
+		<div class="card-duo form-card join-card">
+			<div class="card-header">
+				<div class="icon-wrapper join-icon">
+					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+					</svg>
+				</div>
+				<h2>Join a Class</h2>
+				<p class="card-subtitle">Enter a code from your teacher</p>
+			</div>
 			<form on:submit|preventDefault={handleJoin} class="form-inner">
 				<div class="field">
 					<label for="inviteCode">Invite Code</label>
-					<input
-						type="text"
-						id="inviteCode"
-						bind:value={joinCode}
-						placeholder="Enter 6-character code"
-						class="invite-code-input"
-						maxlength="6"
-						required
-					/>
+					<div class="code-input-container">
+						<input
+							type="text"
+							id="inviteCode"
+							bind:value={joinCode}
+							placeholder="------"
+							class="invite-code-input"
+							maxlength="6"
+							required
+							autocomplete="off"
+						/>
+						<div class="code-format-hint">6 alphanumeric characters</div>
+					</div>
 				</div>
 				{#if joinError}
-					<p class="form-error">{joinError}</p>
+					<div class="form-error">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+							<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+						</svg>
+						{joinError}
+					</div>
 				{/if}
 				<div class="form-actions">
 					<button
 						type="submit"
-						disabled={isJoining || !joinCode}
-						class="btn-duo btn-success btn-full"
+						disabled={isJoining || joinCode.length < 6}
+						class="btn-duo btn-join btn-full"
 					>
 						{isJoining ? 'Joining...' : 'Join Class'}
 					</button>
@@ -225,6 +261,36 @@
 		box-shadow: 0 2px 0 #16a34a;
 	}
 
+	:global(.btn-join) {
+		background-color: #a855f7;
+		color: white;
+		border-color: transparent;
+		box-shadow: 0 4px 0 #9333ea;
+	}
+	:global(.btn-join:hover:not(:disabled)) {
+		background-color: #c084fc;
+		transform: scale(1.02);
+	}
+	:global(.btn-join:active:not(:disabled)) {
+		transform: scale(0.98) translateY(2px);
+		box-shadow: 0 2px 0 #9333ea;
+	}
+	:global(.btn-join:disabled) {
+		background-color: #e5e7eb;
+		color: #9ca3af;
+		box-shadow: 0 4px 0 #d1d5db;
+		cursor: not-allowed;
+		transform: none;
+	}
+
+	:global(.btn-primary:disabled) {
+		background-color: #e5e7eb;
+		color: #9ca3af;
+		box-shadow: 0 4px 0 #d1d5db;
+		cursor: not-allowed;
+		transform: none;
+	}
+
 	:global(.btn-full) {
 		width: 100%;
 	}
@@ -268,14 +334,63 @@
 	.form-card {
 		display: flex;
 		flex-direction: column;
+		overflow: hidden;
+		position: relative;
+	}
+
+	.create-card {
+		border-top: 6px solid #22c55e;
+	}
+
+	.join-card {
+		border-top: 6px solid #a855f7;
+	}
+
+	.card-header {
+		text-align: center;
+		margin-bottom: 1.5rem;
+		padding-bottom: 1.5rem;
+		border-bottom: 2px dashed var(--card-border, #e2e8f0);
+	}
+
+	.icon-wrapper {
+		width: 3.5rem;
+		height: 3.5rem;
+		border-radius: 1rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin: 0 auto 1rem;
+	}
+
+	.icon-wrapper svg {
+		width: 2rem;
+		height: 2rem;
+		stroke-width: 2.5;
+	}
+
+	.create-icon {
+		background-color: #dcfce7;
+		color: #16a34a;
+	}
+
+	.join-icon {
+		background-color: #f3e8ff;
+		color: #9333ea;
 	}
 
 	.form-card h2 {
 		font-size: 1.5rem;
 		color: var(--text-color, #1e293b);
-		margin: 0 0 1.5rem;
+		margin: 0 0 0.25rem;
 		border: none;
 		padding: 0;
+	}
+
+	.card-subtitle {
+		color: #64748b;
+		font-size: 0.95rem;
+		margin: 0;
 	}
 
 	.form-inner {
@@ -286,13 +401,23 @@
 	}
 
 	.field label {
-		display: block;
+		display: flex;
+		justify-content: space-between;
 		font-size: 0.8rem;
 		font-weight: 800;
 		color: #475569;
 		margin-bottom: 0.5rem;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
+	}
+
+	.field label .optional {
+		color: #94a3b8;
+		font-weight: 600;
+	}
+
+	.input-wrapper {
+		position: relative;
 	}
 
 	.field input,
@@ -307,7 +432,7 @@
 		font-family: inherit;
 		font-size: 1rem;
 		font-weight: 700;
-		transition: border-color 0.2s;
+		transition: all 0.2s;
 		box-sizing: border-box;
 		outline: none;
 	}
@@ -315,22 +440,79 @@
 	.field input:focus,
 	.field textarea:focus,
 	.field select:focus {
+		border-color: #3b82f6;
+		box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+	}
+
+	.create-card .field input:focus,
+	.create-card .field textarea:focus,
+	.create-card .field select:focus {
 		border-color: #22c55e;
+		box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+	}
+
+	.join-card .field input:focus {
+		border-color: #a855f7;
+		box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.1);
 	}
 
 	.field textarea {
 		resize: none;
 	}
 
+	.select-wrapper::after {
+		content: "";
+		position: absolute;
+		right: 1.25rem;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 0;
+		height: 0;
+		border-left: 5px solid transparent;
+		border-right: 5px solid transparent;
+		border-top: 6px solid #64748b;
+		pointer-events: none;
+	}
+
+	.field select {
+		appearance: none;
+		padding-right: 2.5rem;
+	}
+
+	.code-input-container {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
 	.invite-code-input {
 		text-align: center;
-		font-size: 1.5rem !important;
+		font-size: 1.75rem !important;
 		font-weight: 900 !important;
-		letter-spacing: 0.2em;
+		letter-spacing: 0.3em;
 		text-transform: uppercase;
+		padding: 1rem !important;
+		color: #7e22ce !important;
+		background-color: #faf5ff !important;
+		border-color: #e9d5ff !important;
+	}
+	
+	.invite-code-input::placeholder {
+		color: #d8b4fe;
+		letter-spacing: 0.3em;
+	}
+
+	.code-format-hint {
+		text-align: center;
+		font-size: 0.8rem;
+		color: #94a3b8;
+		font-weight: 600;
 	}
 
 	.form-error {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
 		background-color: #fef2f2;
 		color: #ef4444;
 		font-weight: 700;
@@ -340,10 +522,16 @@
 		border: 2px solid #fecaca;
 		margin: 0;
 	}
+	
+	.form-error svg {
+		width: 1.25rem;
+		height: 1.25rem;
+		flex-shrink: 0;
+	}
 
 	.form-actions {
 		margin-top: auto;
-		padding-top: 0.5rem;
+		padding-top: 1rem;
 	}
 
 	.my-classes-section {
