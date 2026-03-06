@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation';
 	import { fly } from 'svelte/transition';
+	import toast from 'svelte-french-toast';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -88,10 +89,10 @@
 			if (res.ok) {
 				await invalidateAll();
 			} else {
-				alert('Failed to promote member.');
+				toast.error('Failed to promote member.');
 			}
 		} catch (e) {
-			alert('An error occurred.');
+				toast.error('An error occurred.');
 		}
 	}
 
@@ -105,10 +106,10 @@
 				await invalidateAll();
 			} else {
 				const result = await res.json();
-				alert(result.error || 'Failed to remove member.');
+				toast.error(result.error || 'Failed to remove member.');
 			}
 		} catch (e) {
-			alert('An error occurred.');
+			toast.error('An error occurred.');
 		}
 	}
 
@@ -140,6 +141,24 @@
 		setTimeout(() => { copiedAssignmentId = null; }, 2000);
 	}
 
+	async function handleDeleteAssignment(assignmentId: string) {
+		if (!confirm('Are you sure you want to delete this assignment?')) return;
+		try {
+			const res = await fetch(`/api/classes/${classDetails.id}/assignments/${assignmentId}`, {
+				method: 'DELETE'
+			});
+			if (res.ok) {
+				toast.success('Assignment deleted');
+				await invalidateAll();
+			} else {
+				const result = await res.json();
+				toast.error(result.error || 'Failed to delete assignment.');
+			}
+		} catch (e) {
+			toast.error('An error occurred.');
+		}
+	}
+
 	async function handleLeaveClass() {
 		if (!confirm('Leave this class? You will need the invite code to rejoin.')) return;
 		try {
@@ -148,10 +167,26 @@
 				window.location.href = '/classes';
 			} else {
 				const result = await res.json();
-				alert(result.error || 'Failed to leave class.');
+				toast.error(result.error || 'Failed to leave class.');
 			}
 		} catch (e) {
-			alert('An error occurred.');
+			toast.error('An error occurred.');
+		}
+	}
+
+	async function handleDeleteClass() {
+		if (!confirm('Are you sure you want to delete this class? This action cannot be undone.')) return;
+		try {
+			const res = await fetch(`/api/classes/${classDetails.id}`, { method: 'DELETE' });
+			if (res.ok) {
+				toast.success('Class deleted successfully.');
+				window.location.href = '/classes';
+			} else {
+				const result = await res.json();
+				toast.error(result.error || 'Failed to delete class.');
+			}
+		} catch (e) {
+			toast.error('An error occurred.');
 		}
 	}
 
@@ -163,22 +198,22 @@
 				await invalidateAll();
 			} else {
 				const result = await res.json();
-				alert(result.error || 'Failed to reset invite code.');
+				toast.error(result.error || 'Failed to reset invite code.');
 			}
 		} catch (e) {
-			alert('An error occurred.');
+			toast.error('An error occurred.');
 		}
 	}
 
 	function handleCopyCode() {
 		navigator.clipboard.writeText(classDetails.inviteCode);
-		alert('Invite code copied to clipboard!');
+		toast.success('Invite code copied to clipboard!');
 	}
 
 	function handleCopyLink() {
 		const url = window.location.origin + '/classes?code=' + classDetails.inviteCode;
 		navigator.clipboard.writeText(url);
-		alert('Invite link copied to clipboard!');
+		toast.success('Invite link copied to clipboard!');
 	}
 </script>
 
@@ -206,6 +241,7 @@
 						<button on:click={handleResetCode} class="invite-btn">Reset</button>
 					</div>
 				</div>
+				<button on:click={handleDeleteClass} class="btn-duo btn-delete-class">Delete Class</button>
 			{/if}
 			<button on:click={handleLeaveClass} class="btn-duo btn-leave">Leave Class</button>
 		</div>
@@ -217,7 +253,12 @@
 			<div class="section-header">
 				<h2 class="section-title">Assignments</h2>
 				{#if currentUserRole === 'TEACHER'}
-					<button class="btn-duo btn-primary btn-small" on:click={openCreateAssignmentModal}>
+					<button 
+						class="btn-duo btn-primary btn-small" 
+						on:click={openCreateAssignmentModal}
+						disabled={classDetails.assignments.length >= 30}
+						title={classDetails.assignments.length >= 30 ? 'Assignment limit reached (30)' : 'Create new assignment'}
+					>
 						+ New Assignment
 					</button>
 				{/if}
@@ -279,6 +320,14 @@
 											on:click={() => copyAssignmentLink(assignment.id)}
 										>
 											{copiedAssignmentId === assignment.id ? '✓ Copied' : '🔗 Copy Link'}
+										</button>
+										<button
+											type="button"
+											class="btn-duo btn-delete assignment-play-btn text-center"
+											aria-label="Delete assignment"
+											on:click={() => handleDeleteAssignment(assignment.id)}
+										>
+											Delete
 										</button>
 									{/if}
 								</div>
@@ -441,6 +490,7 @@
 							<option value="international">International</option>
 							<option value="de">German</option>
 							<option value="es">Spanish</option>
+							<option value="fr">French</option>
 						</select>
 					</div>
 					<div class="field field-small">
@@ -608,6 +658,25 @@
 	.btn-leave:active {
 		transform: scale(0.98) translateY(2px);
 		box-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
+	}
+
+	.btn-delete-class {
+		background: #fee2e2;
+		color: #ef4444;
+		border: 1px solid #fca5a5;
+		box-shadow: 0 4px 0 rgba(239, 68, 68, 0.2);
+		font-size: 0.8rem;
+		white-space: nowrap;
+	}
+
+	.btn-delete-class:hover {
+		background: #fecaca;
+		transform: scale(1.02);
+	}
+
+	.btn-delete-class:active {
+		transform: scale(0.98) translateY(2px);
+		box-shadow: 0 2px 0 rgba(239, 68, 68, 0.2);
 	}
 
 	/* Content Grid */
@@ -864,6 +933,23 @@
 	.btn-copy:active {
 		transform: scale(0.98) translateY(2px);
 		box-shadow: 0 2px 0 #cbd5e1;
+	}
+
+	.btn-delete {
+		background-color: #fee2e2;
+		color: #ef4444;
+		border-color: transparent;
+		box-shadow: 0 4px 0 #fca5a5;
+	}
+
+	.btn-delete:hover {
+		background-color: #fecaca;
+		transform: scale(1.02);
+	}
+
+	.btn-delete:active {
+		transform: scale(0.98) translateY(2px);
+		box-shadow: 0 2px 0 #fca5a5;
 	}
 
 	.assignment-actions-row {

@@ -32,6 +32,18 @@ import { particles as esParticles } from './spanish_vocab/particles';
 import { interjections as esInterjections } from './spanish_vocab/interjections';
 import { articles as esArticles } from './spanish_vocab/articles';
 
+import { verbs as frVerbs } from './french_vocab/verbs';
+import { nouns as frNouns } from './french_vocab/nouns';
+import { adverbs as frAdverbs } from './french_vocab/adverbs';
+import { adjectives as frAdjectives } from './french_vocab/adjectives';
+import { conjunctions as frConjunctions } from './french_vocab/conjunctions';
+import { prepositions as frPrepositions } from './french_vocab/prepositions';
+import { pronouns as frPronouns } from './french_vocab/pronouns';
+import { particles as frParticles } from './french_vocab/particles';
+import { interjections as frInterjections } from './french_vocab/interjections';
+import { articles as frArticles } from './french_vocab/articles';
+import { frenchGrammarRules } from './french_vocab/grammar';
+
 
 const germanVocabulary = [
   ...deArticles,
@@ -57,6 +69,19 @@ const spanishVocabulary = [
 	...esPronouns,
 	...esParticles,
 	...esInterjections
+];
+
+const frenchVocabulary = [
+  ...frArticles,
+	...frVerbs,
+	...frNouns,
+	...frAdverbs,
+	...frAdjectives,
+	...frConjunctions,
+	...frPrepositions,
+	...frPronouns,
+	...frParticles,
+	...frInterjections
 ];
 
 const basicGrammarRules = [
@@ -934,6 +959,12 @@ export async function runSeed(client: PrismaClient = prisma, override: boolean =
     create: { code: 'es', name: 'Spanish', flag: '🇪🇸' },
   });
 
+  const french = await client.language.upsert({
+    where: { code: 'fr' },
+    update: {},
+    create: { code: 'fr', name: 'French', flag: '🇫🇷' },
+  });
+
   // 2. Insert Vocabulary
   console.log('Seeding vocabulary...');
   for (const vocab of germanVocabulary) {
@@ -973,6 +1004,35 @@ export async function runSeed(client: PrismaClient = prisma, override: boolean =
     }
   }
   console.log(`Seeded ${spanishVocabulary.length} vocabulary words for Spanish.`);
+
+  console.log('Seeding French vocabulary...');
+  for (const vocab of frenchVocabulary) {
+    let gender: any = (vocab as any).gender;
+
+    const existing = await client.vocabulary.findFirst({ where: { lemma: (vocab as any).word, languageId: french.id } });
+    if (existing) {
+      await client.vocabulary.update({
+        where: { id: existing.id },
+        data: {
+          lemma: (vocab as any).word,
+          meaning: (vocab as any).translation,
+          isBeginner: (vocab as any).isBeginner,
+          gender
+        }
+      });
+    } else {
+      await client.vocabulary.create({
+        data: {
+          lemma: (vocab as any).word,
+          meaning: (vocab as any).translation,
+          isBeginner: (vocab as any).isBeginner,
+          gender,
+          languageId: french.id
+        }
+      });
+    }
+  }
+  console.log(`Seeded ${frenchVocabulary.length} vocabulary words for French.`);
 
   // 3. Insert Grammar Rules (First Pass: Create without dependencies)
   console.log('Seeding grammar rules (First Pass)...');
@@ -1016,7 +1076,27 @@ export async function runSeed(client: PrismaClient = prisma, override: boolean =
     }
   }
 
-  console.log(`Seeded ${basicGrammarRules.length} German grammar rules and ${spanishGrammarRules.length} Spanish grammar rules.`);
+  for (const rule of frenchGrammarRules) {
+    const existing = await client.grammarRule.findFirst({ where: { title: rule.name, languageId: french.id } });
+    if (existing) {
+      await client.grammarRule.update({
+        where: { id: existing.id },
+        data: { description: rule.description, guide: rule.description, level: rule.difficulty.toString() }
+      });
+    } else {
+      await client.grammarRule.create({
+        data: {
+          title: rule.name,
+          description: rule.description,
+          guide: rule.description,
+          level: rule.difficulty.toString(),
+          languageId: french.id
+        },
+      });
+    }
+  }
+
+  console.log(`Seeded ${basicGrammarRules.length} German grammar rules, ${spanishGrammarRules.length} Spanish grammar rules, and ${frenchGrammarRules.length} French grammar rules.`);
 
   // 4. Update Grammar Rules (Second Pass: Connect dependencies)
   console.log('Connecting grammar rule dependencies (Second Pass)...');
@@ -1051,6 +1131,29 @@ export async function runSeed(client: PrismaClient = prisma, override: boolean =
       
       const currentRule = await client.grammarRule.findFirst({
         where: { title: rule.title, languageId: spanish.id }
+      });
+
+      if (parentRules.length > 0 && currentRule) {
+        await client.grammarRule.update({
+          where: { id: currentRule.id },
+          data: {
+            dependencies: {
+              connect: parentRules.map((parent) => ({ id: parent.id })),
+            },
+          },
+        });
+      }
+    }
+  }
+
+  for (const rule of frenchGrammarRules) {
+    if (rule.dependencies && rule.dependencies.length > 0) {
+      const parentRules = await client.grammarRule.findMany({
+        where: { title: { in: rule.dependencies }, languageId: french.id },
+      });
+      
+      const currentRule = await client.grammarRule.findFirst({
+        where: { title: rule.name, languageId: french.id }
       });
 
       if (parentRules.length > 0 && currentRule) {

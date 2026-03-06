@@ -29,6 +29,12 @@ async function migrate() {
     create: { code: 'es', name: 'Spanish', flag: '🇪🇸' },
   });
 
+  const french = await prisma.language.upsert({
+    where: { code: 'fr' },
+    update: {},
+    create: { code: 'fr', name: 'French', flag: '🇫🇷' },
+  });
+
   // 2. Update Vocabulary
   console.log('Updating vocabulary...');
   // Note: Since we reset the database, there might not be records if we haven't seeded yet.
@@ -61,8 +67,8 @@ async function migrate() {
       create: {
         userId: user.id,
         languageId: german.id,
-        cefrLevel: user.cefrLevel || 'A1',
-        hasOnboarded: user.hasOnboarded || false,
+        cefrLevel: 'A1',
+        hasOnboarded: false,
       }
     });
 
@@ -73,6 +79,18 @@ async function migrate() {
       create: {
         userId: user.id,
         languageId: spanish.id,
+        cefrLevel: 'A1',
+        hasOnboarded: false,
+      }
+    });
+
+    // French progress (default)
+    await prisma.userProgress.upsert({
+      where: { userId_languageId: { userId: user.id, languageId: french.id } },
+      update: {},
+      create: {
+        userId: user.id,
+        languageId: french.id,
         cefrLevel: 'A1',
         hasOnboarded: false,
       }

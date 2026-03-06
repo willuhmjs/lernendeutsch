@@ -130,6 +130,7 @@
 							<option value="international">🌍 International</option>
 							<option value="de">🇩🇪 German</option>
 							<option value="es">🇪🇸 Spanish</option>
+							<option value="fr">🇫🇷 French</option>
 						</select>
 					</div>
 				</div>

@@ -544,44 +544,68 @@ ${jsonFormatBlock}`;
 							candidates.add(lower.charAt(0).toUpperCase() + lower.slice(1));
 
 							if (activeLangName === 'German') {
-							// Basic ${activeLangName} stemming: strip inflectional suffixes
-														const suffixes = ['ung', 'te', 'ten', 'tet', 'test', 'en', 'er', 'es', 'em', 'et', 'st', 'e', 't', 'n', 's'];
-														for (const suffix of suffixes) {
-															if (lower.length > suffix.length + 2 && lower.endsWith(suffix)) {
-																const stem = lower.slice(0, -suffix.length);
-																candidates.add(stem);
-																candidates.add(stem.charAt(0).toUpperCase() + stem.slice(1));
-																if (suffix !== 'en') {
-																	candidates.add(stem + 'en');
-																	candidates.add((stem + 'en').charAt(0).toUpperCase() + (stem + 'en').slice(1));
-																}
-															}
-														}
-							
-														// Past participle: ge-...-t or ge-...-en
-														if (lower.startsWith('ge') && lower.length > 4) {
-															const rest = lower.slice(2);
-															candidates.add(rest);
-															candidates.add(rest.charAt(0).toUpperCase() + rest.slice(1));
-															if (rest.endsWith('t') && rest.length > 2) {
-																const pStem = rest.slice(0, -1);
-																candidates.add(pStem + 'en');
-																candidates.add((pStem + 'en').charAt(0).toUpperCase() + (pStem + 'en').slice(1));
-															}
-															if (rest.endsWith('en') && rest.length > 3) {
-																candidates.add(rest);
-																candidates.add(rest.charAt(0).toUpperCase() + rest.slice(1));
-															}
-														}
-							
-														// zu-infinitive: aufzugeben → aufgeben
-														const zuMatch = lower.match(/^(.+?)zu(.+)$/);
-														if (zuMatch && zuMatch[1].length >= 2 && zuMatch[2].length >= 2) {
-															const combined = zuMatch[1] + zuMatch[2];
-															candidates.add(combined);
-															candidates.add(combined.charAt(0).toUpperCase() + combined.slice(1));
-														}
-													}
+								// Basic German stemming: strip inflectional suffixes
+								const suffixes = ['ung', 'te', 'ten', 'tet', 'test', 'en', 'er', 'es', 'em', 'et', 'st', 'e', 't', 'n', 's'];
+								for (const suffix of suffixes) {
+									if (lower.length > suffix.length + 2 && lower.endsWith(suffix)) {
+										const stem = lower.slice(0, -suffix.length);
+										candidates.add(stem);
+										candidates.add(stem.charAt(0).toUpperCase() + stem.slice(1));
+										if (suffix !== 'en') {
+											candidates.add(stem + 'en');
+											candidates.add((stem + 'en').charAt(0).toUpperCase() + (stem + 'en').slice(1));
+										}
+									}
+								}
+	
+								// Past participle: ge-...-t or ge-...-en
+								if (lower.startsWith('ge') && lower.length > 4) {
+									const rest = lower.slice(2);
+									candidates.add(rest);
+									candidates.add(rest.charAt(0).toUpperCase() + rest.slice(1));
+									if (rest.endsWith('t') && rest.length > 2) {
+										const pStem = rest.slice(0, -1);
+										candidates.add(pStem + 'en');
+										candidates.add((pStem + 'en').charAt(0).toUpperCase() + (pStem + 'en').slice(1));
+									}
+									if (rest.endsWith('en') && rest.length > 3) {
+										candidates.add(rest);
+										candidates.add(rest.charAt(0).toUpperCase() + rest.slice(1));
+									}
+								}
+	
+								// zu-infinitive: aufzugeben → aufgeben
+								const zuMatch = lower.match(/^(.+?)zu(.+)$/);
+								if (zuMatch && zuMatch[1].length >= 2 && zuMatch[2].length >= 2) {
+									const combined = zuMatch[1] + zuMatch[2];
+									candidates.add(combined);
+									candidates.add(combined.charAt(0).toUpperCase() + combined.slice(1));
+								}
+							} else if (activeLangName === 'French') {
+								// Basic French stemming
+								const suffixes = ['es', 's', 'ent', 'ons', 'ez', 'ais', 'ait', 'ions', 'iez', 'aient', 'er', 'ir', 're', 'ée', 'ées', 'és'];
+								for (const suffix of suffixes) {
+									if (lower.length > suffix.length + 2 && lower.endsWith(suffix)) {
+										const stem = lower.slice(0, -suffix.length);
+										candidates.add(stem);
+										candidates.add(stem + 'er');
+										candidates.add(stem + 'ir');
+										candidates.add(stem + 're');
+									}
+								}
+							} else if (activeLangName === 'Spanish') {
+								// Basic Spanish stemming
+								const suffixes = ['as', 'a', 'amos', 'áis', 'an', 'es', 'e', 'emos', 'éis', 'en', 'is', 'imos', 'ís', 'aba', 'abas', 'ábamos', 'abais', 'aban', 'ía', 'ías', 'íamos', 'íais', 'ían', 'ar', 'er', 'ir', 'ado', 'ido', 'ados', 'idos', 'ada', 'ida', 'adas', 'idas', 's', 'es'];
+								for (const suffix of suffixes) {
+									if (lower.length > suffix.length + 2 && lower.endsWith(suffix)) {
+										const stem = lower.slice(0, -suffix.length);
+										candidates.add(stem);
+										candidates.add(stem + 'ar');
+										candidates.add(stem + 'er');
+										candidates.add(stem + 'ir');
+									}
+								}
+							}
 						}
 						let enrichmentVocab: any[] = [];
 						if (candidates.size > 0) {
@@ -622,6 +646,15 @@ ${jsonFormatBlock}`;
 							'in','an','auf','für','mit','von','zu','bei','nach','aus','über','unter',
 							'vor','hinter','neben','zwischen','durch','um','gegen','ohne','bis',
 							'am','im','ins','zum','zur','vom','beim','ans','aufs','fürs',
+							// French articles
+							'le','la','les','l\'','un','une','des',
+							// French pronouns
+							'je','tu','il','elle','on','nous','vous','ils','elles',
+							'me','te','se','lui','leur','y','en',
+							// French prepositions/conjunctions
+							'à','de','dans','sur','sous','avec','pour','sans','par','vers',
+							'et','ou','mais','donc','car','ni','que','qui','quoi','dont','où',
+							'ne','pas','plus','jamais','très','trop','bien','mal',
 							// English function words
 							'a','an','the','of','in','is','it','to','he','she','we','they','i','you',
 							'this','that','and','or','but','at','as','be','by','do','for','if','me',

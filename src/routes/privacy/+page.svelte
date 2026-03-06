@@ -36,7 +36,7 @@
 			<h3 class="dark:text-slate-200">Learning Data</h3>
 			<p class="dark:text-slate-300">As you use LingoLearn, we collect and store:</p>
 			<ul class="dark:text-slate-300">
-				<li><strong>Language preferences</strong> — which languages you are learning (e.g., German, Spanish).</li>
+				<li><strong>Language preferences</strong> — which languages you are learning (e.g., German, Spanish, French).</li>
 				<li><strong>CEFR proficiency level</strong> — your assessed language level (A1–C2).</li>
 				<li><strong>Vocabulary progress</strong> — words you have studied, your spaced repetition state (Unseen, Learning, Known, Mastered), accuracy, and review history.</li>
 				<li><strong>Grammar progress</strong> — grammar rules you have studied and your mastery level.</li>

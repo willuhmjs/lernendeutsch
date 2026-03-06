@@ -23,7 +23,7 @@ export async function PUT({ params, request, locals }: RequestEvent) {
 			return json({ error: 'You cannot remove your own admin role.' }, { status: 400 });
 		}
 
-		const updateData: Record<string, string> = {};
+		const updateData: Record<string, string | boolean> = {};
 		if (username !== undefined) updateData.username = username;
 		if (email !== undefined) updateData.email = email;
 		if (role !== undefined) updateData.role = role;
@@ -31,7 +31,7 @@ export async function PUT({ params, request, locals }: RequestEvent) {
 		// Run in a transaction if we are updating user progress
 		const [user] = await prisma.$transaction(async (tx) => {
 			const u = await tx.user.update({
-				where: { id },
+				where: { id: id! },
 				data: updateData,
 				select: {
 					id: true,
@@ -48,19 +48,19 @@ export async function PUT({ params, request, locals }: RequestEvent) {
 						await tx.userProgress.upsert({
 							where: {
 								userId_languageId: {
-									userId: id,
+									userId: id!,
 									languageId: p.languageId
 								}
 							},
 							update: {
 								cefrLevel: p.cefrLevel,
-								hasOnboarded: p.hasOnboarded ?? false
+								hasOnboarded: Boolean(p.hasOnboarded ?? false)
 							},
 							create: {
-								userId: id,
+								userId: id!,
 								languageId: p.languageId,
 								cefrLevel: p.cefrLevel,
-								hasOnboarded: p.hasOnboarded ?? true
+								hasOnboarded: Boolean(p.hasOnboarded ?? true)
 							}
 						});
 					}

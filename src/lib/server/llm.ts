@@ -36,7 +36,7 @@ export async function generateChatCompletion({
 	// 1. Fetch user credentials from database
 	const user = await prisma.user.findUnique({
 		where: { id: userId },
-		select: { llmBaseUrl: true, llmApiKey: true }
+		select: { llmBaseUrl: true, llmApiKey: true, activeLanguage: true }
 	});
 
 	// 2. Resolve Base URL and API Key (User custom OR fallback to environment variables)
@@ -54,12 +54,21 @@ export async function generateChatCompletion({
 
 	// 3. Prepare messages payload
 	const payloadMessages = [...messages];
-	const germanConstraintPrompt = "Agieren Sie als erfahrener deutscher Lektor. Schreiben Sie den Text in fehlerfreiem Hochdeutsch (Duden-Konform) und vermeiden Sie Anglizismen oder englische Schreibweisen bei verwandten Begriffen. Achten Sie besonders darauf, keine englischen Schreibweisen für deutsche Wörter zu verwenden (z.B. 'oft' statt 'often', 'kollektiv' statt 'collective').";
+	const languageName = user?.activeLanguage?.name || 'German';
+
+	let constraintPrompt = '';
+	if (languageName === 'German') {
+		constraintPrompt = "Agieren Sie als erfahrener deutscher Lektor. Schreiben Sie den Text in fehlerfreiem Hochdeutsch (Duden-Konform) und vermeiden Sie Anglizismen oder englische Schreibweisen bei verwandten Begriffen. Achten Sie besonders darauf, keine englischen Schreibweisen für deutsche Wörter zu verwenden (z.B. 'oft' statt 'often', 'kollektiv' statt 'collective').";
+	} else if (languageName === 'French') {
+		constraintPrompt = "Agissez en tant que relecteur français expérimenté. Écrivez le texte dans un français impeccable (conforme à l'Académie française) et évitez les anglicismes ou les orthographes anglaises pour les termes apparentés. Veillez particulièrement à ne pas utiliser l'orthographe anglaise pour les mots français.";
+	} else if (languageName === 'Spanish') {
+		constraintPrompt = "Actúe como un revisor de español experimentado. Escriba el texto en un español impecable (conforme a la RAE) y evite los anglicismos o la ortografía inglesa para términos relacionados. Tenga especial cuidado en no utilizar la ortografía inglesa para palabras españolas.";
+	}
 	
 	if (systemPrompt) {
-		payloadMessages.unshift({ role: 'system', content: `${systemPrompt}\n\n${germanConstraintPrompt}` });
-	} else {
-		payloadMessages.unshift({ role: 'system', content: germanConstraintPrompt });
+		payloadMessages.unshift({ role: 'system', content: `${systemPrompt}\n\n${constraintPrompt}` });
+	} else if (constraintPrompt) {
+		payloadMessages.unshift({ role: 'system', content: constraintPrompt });
 	}
 
 	// 4. Construct request payload
@@ -120,7 +129,7 @@ export async function generateChatCompletion({
  * Normalizes an array of words to their absolute dictionary form (lemma) based on the user's active language.
  * E.g., infinitives for verbs, nominative singular for nouns, base form for adjectives.
  */
-export async function normalizeGermanWords(userId: string, words: string[]): Promise<string[]> {
+export async function normalizeWords(userId: string, words: string[]): Promise<string[]> {
 	if (!words || words.length === 0) return [];
 
 	const user = await prisma.user.findUnique({

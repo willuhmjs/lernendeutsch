@@ -29,13 +29,13 @@ export const POST: RequestHandler = async ({ request, params, locals }) => {
 			return json({ error: 'Forbidden' }, { status: 403 });
 		}
 
-		// Enforce assignment limit (100)
+		// Enforce assignment limit (30)
 		const assignmentCount = await prisma.assignment.count({
 			where: { classId }
 		});
 
-		if (assignmentCount >= 100) {
-			return json({ error: 'Maximum assignment limit reached for this class (100)' }, { status: 403 });
+		if (assignmentCount >= 30) {
+			return json({ error: 'Maximum assignment limit reached for this class (30)' }, { status: 403 });
 		}
 
 		// Create the assignment

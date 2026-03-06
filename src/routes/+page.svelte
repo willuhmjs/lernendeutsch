@@ -30,7 +30,7 @@
 
 <svelte:head>
 	<title>LingoLearn - Master Languages with AI</title>
-	<meta name="description" content="AI-powered language learning platform. Learn German, Spanish, and more." />
+	<meta name="description" content="AI-powered language learning platform. Learn German, Spanish, French, and more." />
 </svelte:head>
 
 <section class="hero dark:text-slate-200">
@@ -49,7 +49,7 @@
 	</div>
 	<p class="subtitle dark:text-slate-400">
 		Your AI-powered platform to master new languages. Start with
-		<strong>German</strong> or <strong>Spanish</strong> — personalized lessons, instant feedback, and progress tracking.
+		<strong>German</strong>, <strong>Spanish</strong>, or <strong>French</strong> — personalized lessons, instant feedback, and progress tracking.
 	</p>
 	<div class="actions">
 		<a href="/signup" class="btn btn-primary">Start Learning</a>
@@ -61,6 +61,7 @@
 		<div class="lang-badges">
 			<span class="lang-badge">🇩🇪 German</span>
 			<span class="lang-badge">🇪🇸 Spanish</span>
+			<span class="lang-badge">🇫🇷 French</span>
 		</div>
 	</div>
 </section>
@@ -72,7 +73,7 @@
 	</div>
 	<div class="feature-card dark:bg-slate-800 dark:border-slate-700">
 		<h3 class="dark:text-white">🌍 Multiple Languages</h3>
-		<p class="dark:text-slate-400">Learn German and Spanish with dedicated vocabulary, grammar, and exercises for each.</p>
+		<p class="dark:text-slate-400">Learn German, Spanish, and French with dedicated vocabulary, grammar, and exercises for each.</p>
 	</div>
 	<div class="feature-card dark:bg-slate-800 dark:border-slate-700">
 		<h3 class="dark:text-white">⚡ Instant Feedback</h3>
@@ -91,7 +92,7 @@
 			<div class="step-number">1</div>
 			<div class="step-content">
 				<h4 class="dark:text-white">Choose Your Language</h4>
-				<p class="dark:text-slate-400">Select German or Spanish to start your journey. We'll assess your current level to personalize your path.</p>
+				<p class="dark:text-slate-400">Select German, Spanish, or French to start your journey. We'll assess your current level to personalize your path.</p>
 			</div>
 		</div>
 		<div class="step-item">

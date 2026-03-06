@@ -122,23 +122,16 @@ r<script lang="ts">
 			'\'Madrugada\' refers to the wee hours between midnight and dawn — a single word English lacks.',
 		],
 		'French': [
-			'French is spoken on all 5 continents and is an official language in 29 countries.',
-			'About 45% of modern English vocabulary comes from French or Norman French.',
-			'In French, adjectives usually agree in gender and number with the noun they describe.',
-			'The French \'r\' is pronounced in the back of the throat — quite different from the English \'r.\'',
-			'French has a formal \'vous\' and informal \'tu\' — using the wrong one can be a social faux pas.',
-			'\'Dépaysement\' describes the disorienting feeling of being in a foreign country.',
-			'French liaisons connect words together: \'les amis\' is pronounced \'lez-ami.\'',
-			'The Académie française has regulated the French language since 1635.',
-			'In French, the number 80 is \'quatre-vingts\' — literally \'four twenties.\'',
-			'\'L\'esprit de l\'escalier\' means thinking of the perfect comeback too late — on the staircase leaving.',
-			'French has 16 vowel sounds compared to English\'s ~12, making pronunciation tricky.',
-			'Most final consonants in French are silent: \'petit\' is pronounced \'puh-TEE.\'',
-			'The passé composé vs. imparfait distinction is one of the trickiest parts of French grammar.',
-			'\'Flâner\' means to stroll without purpose, soaking in your surroundings — a very Parisian concept.',
-			'French nasal vowels (on, an, in, un) don\'t exist in English and take practice to master.',
-			'Ne...pas wraps around the verb to make it negative: \'Je ne sais pas\' (I don\'t know).',
-			'The word \'croissant\' literally means \'crescent\' in French, referring to its shape.',
+			'French has two genders for nouns: masculine and feminine.',
+			'Adjectives in French usually come after the noun they describe.',
+			'The letter "h" is usually silent in French.',
+			'French is an official language in 29 countries across multiple continents.',
+			'The cedilla (ç) changes the "c" sound from a hard "k" to a soft "s" before a, o, or u.',
+			'Liaisons connect the final consonant of one word to the initial vowel of the next.',
+			'Many English words end in -tion because they were borrowed directly from French.',
+			'The word "voilà" means "there it is" or "here you go" and is widely used.',
+			'French has distinct formal (vous) and informal (tu) pronouns for "you".',
+			'Numbers from 70 to 99 are counted in a unique way in French (e.g., 80 is quatre-vingts, or four twenties).',
 		]
 	};
 
@@ -359,14 +352,166 @@ r<script lang="ts">
 		'vors': { lemma: 'vor', note: 'vors = vor + das (in front of the)' },
 	};
 
-	// Maps Prisma Gender enum values to German article strings
-	function genderToArticle(gender: string | null | undefined): string | null {
+	// Map of common French inflected/contracted forms
+	const FRENCH_INFLECTION_MAP: Record<string, { lemma: string; note: string }> = {
+		// être (to be)
+		'suis': { lemma: 'être', note: 'je suis (I am)' },
+		'es': { lemma: 'être', note: 'tu es (you are)' },
+		'est': { lemma: 'être', note: 'il/elle/on est (he/she/it is)' },
+		'sommes': { lemma: 'être', note: 'nous sommes (we are)' },
+		'êtes': { lemma: 'être', note: 'vous êtes (you all are)' },
+		'sont': { lemma: 'être', note: 'ils/elles sont (they are)' },
+		'étais': { lemma: 'être', note: 'j\'/tu étais (I/you was/were)' },
+		'était': { lemma: 'être', note: 'il/elle était (was)' },
+		'étions': { lemma: 'être', note: 'nous étions (we were)' },
+		'étiez': { lemma: 'être', note: 'vous étiez (you all were)' },
+		'étaient': { lemma: 'être', note: 'ils/elles étaient (they were)' },
+		'serai': { lemma: 'être', note: 'je serai (I will be)' },
+		'seras': { lemma: 'être', note: 'tu seras (you will be)' },
+		'sera': { lemma: 'être', note: 'il/elle sera (will be)' },
+		'serons': { lemma: 'être', note: 'nous serons (we will be)' },
+		'serez': { lemma: 'être', note: 'vous serez (you all will be)' },
+		'seront': { lemma: 'être', note: 'ils/elles seront (they will be)' },
+		'sois': { lemma: 'être', note: 'je/tu sois (subjunctive)' },
+		'soit': { lemma: 'être', note: 'il/elle soit (subjunctive)' },
+		'soyons': { lemma: 'être', note: 'nous soyons (subjunctive)' },
+		'soyez': { lemma: 'être', note: 'vous soyez (subjunctive)' },
+		'soient': { lemma: 'être', note: 'ils/elles soient (subjunctive)' },
+		'été': { lemma: 'être', note: 'past participle of être' },
+
+		// avoir (to have)
+		'ai': { lemma: 'avoir', note: 'j\'ai (I have)' },
+		'as': { lemma: 'avoir', note: 'tu as (you have)' },
+		'a': { lemma: 'avoir', note: 'il/elle a (he/she/it has)' },
+		'avons': { lemma: 'avoir', note: 'nous avons (we have)' },
+		'avez': { lemma: 'avoir', note: 'vous avez (you all have)' },
+		'ont': { lemma: 'avoir', note: 'ils/elles ont (they have)' },
+		'avais': { lemma: 'avoir', note: 'j\'/tu avais (I/you had)' },
+		'avait': { lemma: 'avoir', note: 'il/elle avait (had)' },
+		'avions': { lemma: 'avoir', note: 'nous avions (we had)' },
+		'aviez': { lemma: 'avoir', note: 'vous aviez (you all had)' },
+		'avaient': { lemma: 'avoir', note: 'ils/elles avaient (they had)' },
+		'aurai': { lemma: 'avoir', note: 'j\'aurai (I will have)' },
+		'auras': { lemma: 'avoir', note: 'tu auras (you will have)' },
+		'aura': { lemma: 'avoir', note: 'il/elle aura (will have)' },
+		'aurons': { lemma: 'avoir', note: 'nous aurons (we will have)' },
+		'aurez': { lemma: 'avoir', note: 'vous aurez (you all will have)' },
+		'auront': { lemma: 'avoir', note: 'ils/elles auront (they will have)' },
+		'aie': { lemma: 'avoir', note: 'j\'/tu aie (subjunctive)' },
+		'ait': { lemma: 'avoir', note: 'il/elle ait (subjunctive)' },
+		'ayons': { lemma: 'avoir', note: 'nous ayons (subjunctive)' },
+		'ayez': { lemma: 'avoir', note: 'vous ayez (subjunctive)' },
+		'aient': { lemma: 'avoir', note: 'ils/elles aient (subjunctive)' },
+		'eu': { lemma: 'avoir', note: 'past participle of avoir' },
+
+		// aller (to go)
+		'vais': { lemma: 'aller', note: 'je vais (I go/am going)' },
+		'vas': { lemma: 'aller', note: 'tu vas (you go)' },
+		'va': { lemma: 'aller', note: 'il/elle va (goes)' },
+		'allons': { lemma: 'aller', note: 'nous allons (we go)' },
+		'allez': { lemma: 'aller', note: 'vous allez (you all go)' },
+		'vont': { lemma: 'aller', note: 'ils/elles vont (they go)' },
+		'allais': { lemma: 'aller', note: 'j\'/tu allais (went/was going)' },
+		'allait': { lemma: 'aller', note: 'il/elle allait (went/was going)' },
+		'allions': { lemma: 'aller', note: 'nous allions (went/were going)' },
+		'alliez': { lemma: 'aller', note: 'vous alliez (went/were going)' },
+		'allaient': { lemma: 'aller', note: 'ils/elles allaient (went/were going)' },
+		'irai': { lemma: 'aller', note: 'j\'irai (I will go)' },
+		'iras': { lemma: 'aller', note: 'tu iras (you will go)' },
+		'ira': { lemma: 'aller', note: 'il/elle ira (will go)' },
+		'irons': { lemma: 'aller', note: 'nous irons (we will go)' },
+		'irez': { lemma: 'aller', note: 'vous irez (you all will go)' },
+		'iront': { lemma: 'aller', note: 'ils/elles iront (they will go)' },
+		'allé': { lemma: 'aller', note: 'past participle of aller' },
+
+		// faire (to do/make)
+		'fais': { lemma: 'faire', note: 'je/tu fais (do/make)' },
+		'fait': { lemma: 'faire', note: 'il/elle fait (does/makes)' },
+		'faisons': { lemma: 'faire', note: 'nous faisons (we do/make)' },
+		'faites': { lemma: 'faire', note: 'vous faites (you all do/make)' },
+		'font': { lemma: 'faire', note: 'ils/elles font (they do/make)' },
+		'faisais': { lemma: 'faire', note: 'je/tu faisais (did/was doing)' },
+		'faisait': { lemma: 'faire', note: 'il/elle faisait (did/was doing)' },
+		'faisions': { lemma: 'faire', note: 'nous faisions (did/were doing)' },
+		'faisiez': { lemma: 'faire', note: 'vous faisiez (did/were doing)' },
+		'faisaient': { lemma: 'faire', note: 'ils/elles faisaient (did/were doing)' },
+		'ferai': { lemma: 'faire', note: 'je ferai (I will do)' },
+		'feras': { lemma: 'faire', note: 'tu feras (you will do)' },
+		'fera': { lemma: 'faire', note: 'il/elle fera (will do)' },
+		'ferons': { lemma: 'faire', note: 'nous ferons (we will do)' },
+		'ferez': { lemma: 'faire', note: 'vous ferez (you all will do)' },
+		'feront': { lemma: 'faire', note: 'ils/elles feront (they will do)' },
+		'faite': { lemma: 'faire', note: 'past participle of faire (feminine)' },
+
+		// pouvoir (can/be able to)
+		'peux': { lemma: 'pouvoir', note: 'je/tu peux (can)' },
+		'peut': { lemma: 'pouvoir', note: 'il/elle peut (can)' },
+		'pouvons': { lemma: 'pouvoir', note: 'nous pouvons (we can)' },
+		'pouvez': { lemma: 'pouvoir', note: 'vous pouvez (you all can)' },
+		'peuvent': { lemma: 'pouvoir', note: 'ils/elles peuvent (they can)' },
+		'pouvais': { lemma: 'pouvoir', note: 'je/tu pouvais (could/was able)' },
+		'pouvait': { lemma: 'pouvoir', note: 'il/elle pouvait (could/was able)' },
+		'pouvions': { lemma: 'pouvoir', note: 'nous pouvions (could/were able)' },
+		'pouviez': { lemma: 'pouvoir', note: 'vous pouviez (could/were able)' },
+		'pouvaient': { lemma: 'pouvoir', note: 'ils/elles pouvaient (could/were able)' },
+		'pourrai': { lemma: 'pouvoir', note: 'je pourrai (I will be able)' },
+		'pourras': { lemma: 'pouvoir', note: 'tu pourras (you will be able)' },
+		'pourra': { lemma: 'pouvoir', note: 'il/elle pourra (will be able)' },
+		'pourrons': { lemma: 'pouvoir', note: 'nous pourrons (we will be able)' },
+		'pourrez': { lemma: 'pouvoir', note: 'vous pourrez (you all will be able)' },
+		'pourront': { lemma: 'pouvoir', note: 'ils/elles pourront (they will be able)' },
+		'pu': { lemma: 'pouvoir', note: 'past participle of pouvoir' },
+
+		// vouloir (to want)
+		'veux': { lemma: 'vouloir', note: 'je/tu veux (want)' },
+		'veut': { lemma: 'vouloir', note: 'il/elle veut (wants)' },
+		'voulons': { lemma: 'vouloir', note: 'nous voulons (we want)' },
+		'voulez': { lemma: 'vouloir', note: 'vous voulez (you all want)' },
+		'veulent': { lemma: 'vouloir', note: 'ils/elles veulent (they want)' },
+		'voulais': { lemma: 'vouloir', note: 'je/tu voulais (wanted/was wanting)' },
+		'voulait': { lemma: 'vouloir', note: 'il/elle voulait (wanted/was wanting)' },
+		'voulions': { lemma: 'vouloir', note: 'nous voulions (wanted/were wanting)' },
+		'vouliez': { lemma: 'vouloir', note: 'vous vouliez (wanted/were wanting)' },
+		'voulaient': { lemma: 'vouloir', note: 'ils/elles voulaient (wanted/were wanting)' },
+		'voudrai': { lemma: 'vouloir', note: 'je voudrai (I will want)' },
+		'voudras': { lemma: 'vouloir', note: 'tu voudras (you will want)' },
+		'voudra': { lemma: 'vouloir', note: 'il/elle voudra (will want)' },
+		'voudrons': { lemma: 'vouloir', note: 'nous voudrons (we will want)' },
+		'voudrez': { lemma: 'vouloir', note: 'vous voudrez (you all will want)' },
+		'voudront': { lemma: 'vouloir', note: 'ils/elles voudront (they will want)' },
+		'voulu': { lemma: 'vouloir', note: 'past participle of vouloir' },
+
+		// Contractions
+		'au': { lemma: 'à', note: 'au = à + le (to the / at the)' },
+		'aux': { lemma: 'à', note: 'aux = à + les (to the / at the, plural)' },
+		'du': { lemma: 'de', note: 'du = de + le (of the / from the)' },
+		'des': { lemma: 'de', note: 'des = de + les (of the / from the, plural)' }
+	};
+
+	// Map of common French article forms
+	const FRENCH_ARTICLE_MAP: Record<string, { definite: boolean; forms: ArticleForm[] }> = {
+		'le':  { definite: true,  forms: [{ caseLabel: 'Masc. Sing.', nomArticle: 'le' }] },
+		'la':  { definite: true,  forms: [{ caseLabel: 'Fem. Sing.', nomArticle: 'la' }] },
+		'les': { definite: true,  forms: [{ caseLabel: 'Plural', nomArticle: 'les' }] },
+		'un':  { definite: false, forms: [{ caseLabel: 'Masc. Sing.', nomArticle: 'un' }] },
+		'une': { definite: false, forms: [{ caseLabel: 'Fem. Sing.', nomArticle: 'une' }] },
+		'des': { definite: false, forms: [{ caseLabel: 'Plural', nomArticle: 'des' }] },
+	};
+
+	// Maps Prisma Gender enum values to German/French article strings
+	function genderToArticle(gender: string | null | undefined, lang: string = 'German'): string | null {
 		if (!gender) return null;
 		const g = gender.toUpperCase();
-		if (g === 'MASCULINE' || g === 'DER') return 'der';
-		if (g === 'FEMININE'  || g === 'DIE') return 'die';
-		if (g === 'NEUTER'    || g === 'DAS') return 'das';
-		return null;
+		if (lang === 'French') {
+			if (g === 'MASCULINE' || g === 'LE') return 'le';
+			if (g === 'FEMININE'  || g === 'LA') return 'la';
+			return null;
+		} else { // default to German logic
+			if (g === 'MASCULINE' || g === 'DER') return 'der';
+			if (g === 'FEMININE'  || g === 'DIE') return 'die';
+			if (g === 'NEUTER'    || g === 'DAS') return 'das';
+			return null;
+		}
 	}
 
 	// German article forms → case + gender info for building smart tooltips
@@ -401,7 +546,9 @@ r<script lang="ts">
 		const lemmaDisplay = isNoun
 			? vocab.lemma.charAt(0).toUpperCase() + vocab.lemma.slice(1)
 			: vocab.lemma;
-		const genderDisplay = genderToArticle(vocab.gender);
+		
+		const activeLanguageName = data.language?.name || 'German';
+		const genderDisplay = genderToArticle(vocab.gender, activeLanguageName);
 		const isAiGenerated = typeof vocab.id === 'string' && vocab.id.startsWith('ai_');
 		let html = `<span class="word-tooltip">`;
 		html += `<span class="word-tooltip-header">${overrideArticle ?? lemmaDisplay}${isAiGenerated ? '<span class="word-tooltip-ai-badge">AI</span>' : ''}</span>`;
@@ -555,7 +702,10 @@ r<script lang="ts">
 
 			// Check the inflection map for conjugations/contractions
 			if (!isEnToDe) {
-				const inflection = GERMAN_INFLECTION_MAP[cleanWord];
+				const activeLanguageName = data.language?.name || 'German';
+				const mapToUse = activeLanguageName === 'French' ? FRENCH_INFLECTION_MAP : GERMAN_INFLECTION_MAP;
+				
+				const inflection = mapToUse[cleanWord];
 				if (inflection) {
 					vocab = vocabMap.get(inflection.lemma.toLowerCase());
 					if (vocab) return { vocab, inflectionNote: inflection.note };
@@ -639,38 +789,62 @@ r<script lang="ts">
 				// Get only non-whitespace tokens ahead
 				const upcomingWords = tokens.slice(i + 1).filter((t: string) => !/^\s+$/.test(t));
 				const nounVocab = findNextNoun(upcomingWords, 0);
+				const activeLanguageName = data.language?.name || 'German';
+
 				if (nounVocab) {
 					const isPlural = upcomingWords.length > 0 && isLikelyPlural(
 						upcomingWords[0].replace(/[.,!?;:'"|()\[\]{}\-\u2014\u2013]/g, '').toLowerCase()
 					);
 					let article: string;
-					if (cleanWord === 'the') {
-						const nomArt = genderToArticle(nounVocab.gender);
-						article = isPlural ? 'die' : (nomArt || 'der/die/das');
+					
+					if (activeLanguageName === 'French') {
+						if (cleanWord === 'the') {
+							const nomArt = genderToArticle(nounVocab.gender, activeLanguageName);
+							article = isPlural ? 'les' : (nomArt || 'le/la');
+						} else {
+							// "a" / "an" — indefinite
+							const genderMap: Record<string, string> = { 'le': 'un', 'la': 'une' };
+							const nomArt = genderToArticle(nounVocab.gender, activeLanguageName);
+							article = nomArt ? (genderMap[nomArt] || 'un/une') : 'un/une';
+						}
 					} else {
-						// "a" / "an" — indefinite
-						const genderMap: Record<string, string> = { 'der': 'ein', 'die': 'eine', 'das': 'ein' };
-						const nomArt = genderToArticle(nounVocab.gender);
-						article = nomArt ? (genderMap[nomArt] || 'ein/eine') : 'ein/eine';
+						if (cleanWord === 'the') {
+							const nomArt = genderToArticle(nounVocab.gender, activeLanguageName);
+							article = isPlural ? 'die' : (nomArt || 'der/die/das');
+						} else {
+							// "a" / "an" — indefinite
+							const genderMap: Record<string, string> = { 'der': 'ein', 'die': 'eine', 'das': 'ein' };
+							const nomArt = genderToArticle(nounVocab.gender, activeLanguageName);
+							article = nomArt ? (genderMap[nomArt] || 'ein/eine') : 'ein/eine';
+						}
 					}
+					
 					const tooltip = buildTooltipHtml(nounVocab, article);
 					result.push(`<span class="word-hover has-info tooltip-trigger">${token}${tooltip}</span>`);
 					continue;
 				}
 				// Fallback: show generic article tooltip even when noun not found
-				const genericArticle = cleanWord === 'the' ? 'der/die/das' : 'ein/eine';
+				let genericArticle = '';
+				if (activeLanguageName === 'French') {
+					genericArticle = cleanWord === 'the' ? 'le/la/les' : 'un/une/des';
+				} else {
+					genericArticle = cleanWord === 'the' ? 'der/die/das' : 'ein/eine';
+				}
 				const genericTooltip = `<span class="word-tooltip"><span class="word-tooltip-header">${genericArticle}</span><span class="word-tooltip-body"><span class="word-tooltip-row"><strong>Article:</strong> ${cleanWord === 'the' ? 'definite' : 'indefinite'}</span></span></span>`;
 				result.push(`<span class="word-hover has-info tooltip-trigger">${token}${genericTooltip}</span>`);
 				continue;
 			}
 
-			// Handle German article forms — show case + gender tooltip
+			// Handle German/French article forms — show case + gender tooltip
 			if (isGermanText) {
-				const artEntry = GERMAN_ARTICLE_MAP[cleanWord];
+				const activeLanguageName = data.language?.name || 'German';
+				const artMap = activeLanguageName === 'French' ? FRENCH_ARTICLE_MAP : GERMAN_ARTICLE_MAP;
+				
+				const artEntry = artMap[cleanWord];
 				if (artEntry) {
 					const upcomingGerman = tokens.slice(i + 1).filter((t: string) => !/^\s+$/.test(t));
 					const nounVocab = findNextNoun(upcomingGerman, 0);
-					const nomArt = nounVocab ? genderToArticle(nounVocab.gender) : null;
+					const nomArt = nounVocab ? genderToArticle(nounVocab.gender, activeLanguageName) : null;
 					// Narrow down possible case forms using the noun's gender
 					const matchedForms = nomArt
 						? artEntry.forms.filter(f => f.nomArticle === nomArt)
@@ -685,7 +859,7 @@ r<script lang="ts">
 					ttHtml += `<span class="word-tooltip-row"><strong>Form:</strong> ${caseLabel}</span>`;
 					if (nounVocab) {
 						const nDisplay = nounVocab.lemma.charAt(0).toUpperCase() + nounVocab.lemma.slice(1);
-						const nGender = genderToArticle(nounVocab.gender);
+						const nGender = genderToArticle(nounVocab.gender, activeLanguageName);
 						ttHtml += `<span class="word-tooltip-row"><strong>Noun:</strong> ${nDisplay}</span>`;
 						if (nGender) ttHtml += `<span class="word-tooltip-row"><strong>Gender:</strong> ${nGender}</span>`;
 						if (nounVocab.meaning) ttHtml += `<span class="word-tooltip-row"><strong>Meaning:</strong> ${nounVocab.meaning}</span>`;

@@ -60,13 +60,19 @@ Return the dictionary entry in the following JSON format:
   "plural": "plural form" | null
 }`;
 
+		const controller = new AbortController();
+		const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s timeout
+
 		const response = await generateChatCompletion({
 			userId: locals.user.id,
 			messages: [{ role: 'user', content: word }],
 			systemPrompt,
 			jsonMode: true,
-			temperature: 0.1
+			temperature: 0.1,
+			signal: controller.signal
 		});
+
+		clearTimeout(timeoutId);
 
 		const content = response.choices?.[0]?.message?.content;
 		if (!content) {
@@ -75,7 +81,9 @@ Return the dictionary entry in the following JSON format:
 
 		let llmResult;
 		try {
-			llmResult = JSON.parse(content);
+			// Strip markdown code block wrapping if present
+			const cleanedContent = content.replace(/```(?:json)?\n?/gi, '').trim();
+			llmResult = JSON.parse(cleanedContent);
 		} catch {
 			console.error('Failed to parse LLM dictionary response:', content);
 			return json({ success: false, error: 'Invalid response from language model' }, { status: 500 });
@@ -118,7 +126,7 @@ Return the dictionary entry in the following JSON format:
 				lemma: llmResult.lemma,
 				meaning: llmResult.meaning || null,
 				partOfSpeech: llmResult.partOfSpeech || null,
-				gender: ['MASCULINE', 'FEMININE', 'NEUTER'].includes(llmResult.gender) ? llmResult.gender : null,
+				gender: llmResult.gender && ['MASCULINE', 'FEMININE', 'NEUTER'].includes(llmResult.gender.toUpperCase()) ? llmResult.gender.toUpperCase() : null,
 				plural: llmResult.plural || null,
 				isBeginner: false
 			}

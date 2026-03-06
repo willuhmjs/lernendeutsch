@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { generateChatCompletion, normalizeGermanWords } from '$lib/server/llm';
+import { generateChatCompletion, normalizeWords } from '$lib/server/llm';
 import { prisma } from '$lib/server/prisma';
 
 import type { RequestEvent } from './$types';
@@ -68,8 +68,16 @@ export async function POST({ request, locals }: RequestEvent) {
 		const activeLangName = user.activeLanguage?.name || 'German';
 
 		if (messages.length === 0) {
-			const greeting = activeLangName === 'German' ? 'Hallo' : 'Hola';
-			const question = activeLangName === 'German' ? 'Wie heißt du?' : '¿Cómo te llamas?';
+			let greeting = 'Hallo';
+			let question = 'Wie heißt du?';
+			
+			if (activeLangName === 'Spanish') {
+				greeting = 'Hola';
+				question = '¿Cómo te llamas?';
+			} else if (activeLangName === 'French') {
+				greeting = 'Bonjour';
+				question = "Comment t'appelles-tu ?";
+			}
 			
 			return json({
 				message:
@@ -128,7 +136,7 @@ export async function POST({ request, locals }: RequestEvent) {
 		const processWords = async (words: string[], state: 'MASTERED' | 'KNOWN' | 'LEARNING', userLevel: string) => {
 			if (!Array.isArray(words) || words.length === 0) return;
 			try {
-				const normalizedWords = (await normalizeGermanWords(userId, words)).map(w => w.replace(/^[.,!?;:'"()[\\]{}-]+|[.,!?;:'"()[\\]{}-]+$/g, ''));
+				const normalizedWords = (await normalizeWords(userId, words)).map((w: string) => w.replace(/^[.,!?;:'"()[\\]{}-]+|[.,!?;:'"()[\\]{}-]+$/g, ''));
 				
 				// Map the level to base Elo
 				const levels: Record<string, number> = {
