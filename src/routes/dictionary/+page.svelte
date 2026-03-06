@@ -39,6 +39,17 @@
 	}
 
 	function handleInput() {
+		if (currentLanguage === 'German') {
+			query = query
+				.replace(/ae/g, 'ä')
+				.replace(/oe/g, 'ö')
+				.replace(/ue/g, 'ü')
+				.replace(/ss/g, 'ß')
+				.replace(/Ae/g, 'Ä')
+				.replace(/Oe/g, 'Ö')
+				.replace(/Ue/g, 'Ü');
+		}
+
 		clearTimeout(debounceTimer);
 		debounceTimer = setTimeout(() => {
 			performSearch(query);

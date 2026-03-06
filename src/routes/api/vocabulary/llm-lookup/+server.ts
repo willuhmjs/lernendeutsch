@@ -41,6 +41,8 @@ If the input is an English word or phrase (like "Apple Juice"), you must accurat
 However, you MUST be extremely strict about safety: only allow inputs that are "classroom safe" (e.g., everyday vocabulary, academic, or polite words). If the input is slang, inappropriate, or unsafe for a school environment, reject it.
 If the input is already in ${language.name}, verify it is a real, valid word or common phrase in ${language.name}.
 
+CRITICAL INSTRUCTION FOR GERMAN: If the language is German, you MUST return the word with actual umlauts (ä, ö, ü, ß) instead of their multi-letter equivalents (ae, oe, ue, ss). For example, return "Käse" instead of "Kaese", "groß" instead of "gross".
+
 If the input is gibberish, highly inappropriate, unsafe, or not a real word/phrase in either language, respond with:
 { "valid": false }
 
