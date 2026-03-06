@@ -643,24 +643,32 @@ r<script lang="ts">
 		return stems;
 	}
 
-	function buildVocabMap(): Map<string, any> {
-		const map = new Map();
+	function buildVocabMap(): Map<string, any[]> {
+		const map = new Map<string, any[]>();
 		const isEnToDe = challenge?.gameMode === 'native-to-target';
+		
+		const add = (key: string, v: any) => {
+			if (!key) return;
+			if (!map.has(key)) map.set(key, []);
+			// Avoid duplicate entries
+			if (!map.get(key)!.some(existing => existing.id === v.id)) {
+				map.get(key)!.push(v);
+			}
+		};
+
 		for (const v of challenge?.allVocabulary || []) {
-			map.set(v.lemma.toLowerCase(), v);
+			add(v.lemma.toLowerCase(), v);
 			if (isEnToDe && v.meaning) {
 				for (const m of v.meaning.split(',')) {
-					const key = m.trim().toLowerCase();
-					if (key) map.set(key, v);
+					add(m.trim().toLowerCase(), v);
 				}
 			}
 		}
 		for (const v of challenge?.targetedVocabulary || []) {
-			map.set(v.lemma.toLowerCase(), v);
+			add(v.lemma.toLowerCase(), v);
 			if (isEnToDe && v.meaning) {
 				for (const m of v.meaning.split(',')) {
-					const key = m.trim().toLowerCase();
-					if (key) map.set(key, v);
+					add(m.trim().toLowerCase(), v);
 				}
 			}
 		}
@@ -696,8 +704,33 @@ r<script lang="ts">
 
 		// Helper: find vocab entry for a cleaned word
 		// Returns { vocab, inflectionNote? } or null
-		function findVocab(cleanWord: string): { vocab: any; inflectionNote?: string } | null {
-			let vocab = vocabMap.get(cleanWord);
+		function findVocab(cleanWord: string, originalToken: string = ''): { vocab: any; inflectionNote?: string } | null {
+			const pickBest = (list: any[] | undefined) => {
+				if (!list || list.length === 0) return null;
+				if (list.length === 1) return list[0];
+				
+				// In German, nouns are always capitalized. 
+				// For other languages (or English), we shouldn't use capitalization to heavily bias towards nouns,
+				// except maybe to deprioritize nouns if lowercase (but wait, in French/Spanish, nouns are lowercase!).
+				// So ONLY apply this capitalization logic if the text we are parsing is German.
+				const activeLanguageName = data.language?.name || 'German';
+				const parsingGerman = isGermanText && activeLanguageName === 'German';
+
+				if (parsingGerman) {
+					const isCapitalized = /^[A-ZÄÖÜ]/.test(originalToken.replace(/^[¿¡"'({\[]+/, ''));
+					if (isCapitalized) {
+						const noun = list.find(v => v.partOfSpeech?.toLowerCase() === 'noun');
+						if (noun) return noun;
+					} else {
+						const nonNoun = list.find(v => v.partOfSpeech?.toLowerCase() !== 'noun');
+						if (nonNoun) return nonNoun;
+					}
+				}
+				
+				return list[0]; // fallback
+			};
+
+			let vocab = pickBest(vocabMap.get(cleanWord));
 			if (vocab) return { vocab };
 
 			// Check the inflection map for conjugations/contractions
@@ -707,7 +740,7 @@ r<script lang="ts">
 				
 				const inflection = mapToUse[cleanWord];
 				if (inflection) {
-					vocab = vocabMap.get(inflection.lemma.toLowerCase());
+					vocab = pickBest(vocabMap.get(inflection.lemma.toLowerCase()));
 					if (vocab) return { vocab, inflectionNote: inflection.note };
 					// Even if the lemma isn't in our vocabulary, create a synthetic entry
 					return {
@@ -719,7 +752,7 @@ r<script lang="ts">
 
 			const stems = isEnToDe ? getBasicEnglishStems(cleanWord) : getBasicStems(cleanWord);
 			for (const stem of stems) {
-				vocab = vocabMap.get(stem);
+				vocab = pickBest(vocabMap.get(stem));
 				if (vocab) return { vocab };
 			}
 			return null;
@@ -733,7 +766,7 @@ r<script lang="ts">
 				if (w.match(/\x00VOCAB_\d+\x00/)) continue;
 				const clean = w.replace(/[.,!?;:'"|()\[\]{}\-\u2014\u2013]/g, '').toLowerCase();
 				if (!clean || englishArticles.has(clean)) continue;
-				const result = findVocab(clean);
+				const result = findVocab(clean, w);
 				const v = result?.vocab;
 				if (v && v.partOfSpeech?.toLowerCase() === 'noun') return v;
 				// Skip adjectives/adverbs that can appear between article and noun
@@ -750,13 +783,13 @@ r<script lang="ts">
 		function isLikelyPlural(cleanWord: string): boolean {
 			if (cleanWord.endsWith('s') && !cleanWord.endsWith('ss')) {
 				const singular = cleanWord.slice(0, -1);
-				const v = vocabMap.get(singular);
-				if (v && v.partOfSpeech?.toLowerCase() === 'noun') return true;
+				const list = vocabMap.get(singular);
+				if (list && list.some(v => v.partOfSpeech?.toLowerCase() === 'noun')) return true;
 			}
 			if (cleanWord.endsWith('ies') && cleanWord.length > 4) {
 				const singular = cleanWord.slice(0, -3) + 'y';
-				const v = vocabMap.get(singular);
-				if (v && v.partOfSpeech?.toLowerCase() === 'noun') return true;
+				const list = vocabMap.get(singular);
+				if (list && list.some(v => v.partOfSpeech?.toLowerCase() === 'noun')) return true;
 			}
 			return false;
 		}
@@ -886,9 +919,9 @@ r<script lang="ts">
 					const phrase = wordIndices
 						.map(idx => tokens[idx].replace(/[.,!?;:'"|()\[\]{}\-\u2014\u2013]/g, '').toLowerCase())
 						.join(' ');
-					const v = vocabMap.get(phrase);
-					if (v) {
-						multiWordVocab = v;
+					const vList = vocabMap.get(phrase);
+					if (vList && vList.length > 0) {
+						multiWordVocab = vList[0];
 						multiWordEnd = wordIndices[len - 1];
 					}
 				}
@@ -900,7 +933,7 @@ r<script lang="ts">
 				}
 			}
 
-			const vocabResult = findVocab(cleanWord);
+			const vocabResult = findVocab(cleanWord, token);
 			if (vocabResult) {
 				result.push(`<span class="word-hover has-info tooltip-trigger">${token}${buildTooltipHtml(vocabResult.vocab, undefined, vocabResult.inflectionNote)}</span>`);
 			} else if (stillStreaming) {
