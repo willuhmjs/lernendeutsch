@@ -1,8901 +1,8899 @@
 export const nouns = [
 	{
-    lemma: "Mann",
-		meaning: "man, husband",
+		lemma: 'Mann',
+		meaning: 'man, husband',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Männer",
-    isBeginner: true
-  },
+		plural: 'Männer',
+		isBeginner: true
+	},
 	{
-    lemma: "Frau",
-		meaning: "woman, wife",
+		lemma: 'Frau',
+		meaning: 'woman, wife',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Frauen",
-    isBeginner: true
-  },
-	{
-    lemma: "Kind",
-		meaning: "child",
-		partOfSpeech: 'noun' as const,
-		gender: 'das' as const,
-		plural: "Kinder",
-    isBeginner: true
-  },
-	{
-		lemma: "Vater",
-		meaning: "father",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Väter",
+		plural: 'Frauen',
+		isBeginner: true
 	},
 	{
-		lemma: "Mutter",
-		meaning: "mother",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Mütter",
-	},
-	{
-		lemma: "Eltern",
-		meaning: "parents",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Eltern",
-	},
-	{
-		lemma: "Sohn",
-		meaning: "son",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Söhne",
-	},
-	{
-		lemma: "Tochter",
-		meaning: "daughter",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Töchter",
-	},
-	{
-		lemma: "Bruder",
-		meaning: "brother",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Brüder",
-	},
-	{
-		lemma: "Schwester",
-		meaning: "sister",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Schwestern",
-	},
-	{
-		lemma: "Freund",
-		meaning: "friend (male)",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Freunde",
-	},
-	{
-		lemma: "Freundin",
-		meaning: "friend (female)",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Freundinnen",
-	},
-	{
-		lemma: "Junge",
-		meaning: "boy",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Jungen",
-	},
-	{
-		lemma: "Mädchen",
-		meaning: "girl",
+		lemma: 'Kind',
+		meaning: 'child',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Mädchen",
+		plural: 'Kinder',
+		isBeginner: true
 	},
 	{
-		lemma: "Mensch",
-		meaning: "human, person",
+		lemma: 'Vater',
+		meaning: 'father',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Menschen",
+		plural: 'Väter'
 	},
 	{
-		lemma: "Leute",
-		meaning: "people",
+		lemma: 'Mutter',
+		meaning: 'mother',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Leute",
+		plural: 'Mütter'
 	},
 	{
-		lemma: "Familie",
-		meaning: "family",
+		lemma: 'Eltern',
+		meaning: 'parents',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Familien",
+		plural: 'Eltern'
 	},
 	{
-    lemma: "Wasser",
-		meaning: "water",
-		partOfSpeech: 'noun' as const,
-		gender: 'das' as const,
-		plural: "Wässer",
-    isBeginner: true
-  },
-	{
-		lemma: "Brot",
-		meaning: "bread",
-		partOfSpeech: 'noun' as const,
-		gender: 'das' as const,
-		plural: "Brote",
-	},
-	{
-		lemma: "Kaffee",
-		meaning: "coffee",
+		lemma: 'Sohn',
+		meaning: 'son',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Kaffees",
+		plural: 'Söhne'
 	},
 	{
-		lemma: "Tee",
-		meaning: "tea",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Tees",
-	},
-	{
-		lemma: "Fleisch",
-		meaning: "meat",
-		partOfSpeech: 'noun' as const,
-		gender: 'das' as const,
-	},
-	{
-		lemma: "Fisch",
-		meaning: "fish",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Fische",
-	},
-	{
-		lemma: "Apfel",
-		meaning: "apple",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Äpfel",
-	},
-	{
-		lemma: "Banane",
-		meaning: "banana",
+		lemma: 'Tochter',
+		meaning: 'daughter',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Bananen",
+		plural: 'Töchter'
 	},
 	{
-		lemma: "Orange",
-		meaning: "orange",
+		lemma: 'Bruder',
+		meaning: 'brother',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Brüder'
+	},
+	{
+		lemma: 'Schwester',
+		meaning: 'sister',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Orangen",
+		plural: 'Schwestern'
 	},
 	{
-		lemma: "Ei",
-		meaning: "egg",
+		lemma: 'Freund',
+		meaning: 'friend (male)',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Freunde'
+	},
+	{
+		lemma: 'Freundin',
+		meaning: 'friend (female)',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Freundinnen'
+	},
+	{
+		lemma: 'Junge',
+		meaning: 'boy',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Jungen'
+	},
+	{
+		lemma: 'Mädchen',
+		meaning: 'girl',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Eier",
+		plural: 'Mädchen'
 	},
 	{
-		lemma: "Milch",
-		meaning: "milk",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-	},
-	{
-		lemma: "Käse",
-		meaning: "cheese",
+		lemma: 'Mensch',
+		meaning: 'human, person',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Käse",
+		plural: 'Menschen'
 	},
 	{
-		lemma: "Gemüse",
-		meaning: "vegetables",
+		lemma: 'Leute',
+		meaning: 'people',
 		partOfSpeech: 'noun' as const,
-		gender: 'das' as const,
-		plural: "Gemüse",
+		gender: 'die' as const,
+		plural: 'Leute'
 	},
 	{
-		lemma: "Obst",
-		meaning: "fruit",
+		lemma: 'Familie',
+		meaning: 'family',
 		partOfSpeech: 'noun' as const,
-		gender: 'das' as const,
+		gender: 'die' as const,
+		plural: 'Familien'
 	},
 	{
-		lemma: "Essen",
-		meaning: "food, meal",
+		lemma: 'Wasser',
+		meaning: 'water',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Essen",
+		plural: 'Wässer',
+		isBeginner: true
 	},
 	{
-		lemma: "Frühstück",
-		meaning: "breakfast",
+		lemma: 'Brot',
+		meaning: 'bread',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Frühstücke",
+		plural: 'Brote'
 	},
 	{
-		lemma: "Mittagessen",
-		meaning: "lunch",
+		lemma: 'Kaffee',
+		meaning: 'coffee',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Kaffees'
+	},
+	{
+		lemma: 'Tee',
+		meaning: 'tea',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Tees'
+	},
+	{
+		lemma: 'Fleisch',
+		meaning: 'meat',
+		partOfSpeech: 'noun' as const,
+		gender: 'das' as const
+	},
+	{
+		lemma: 'Fisch',
+		meaning: 'fish',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Fische'
+	},
+	{
+		lemma: 'Apfel',
+		meaning: 'apple',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Äpfel'
+	},
+	{
+		lemma: 'Banane',
+		meaning: 'banana',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Bananen'
+	},
+	{
+		lemma: 'Orange',
+		meaning: 'orange',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Orangen'
+	},
+	{
+		lemma: 'Ei',
+		meaning: 'egg',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Mittagessen",
+		plural: 'Eier'
 	},
 	{
-		lemma: "Abendessen",
-		meaning: "dinner",
+		lemma: 'Milch',
+		meaning: 'milk',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const
+	},
+	{
+		lemma: 'Käse',
+		meaning: 'cheese',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Käse'
+	},
+	{
+		lemma: 'Gemüse',
+		meaning: 'vegetables',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Abendessen",
+		plural: 'Gemüse'
 	},
 	{
-		lemma: "Kartoffel",
-		meaning: "potato",
+		lemma: 'Obst',
+		meaning: 'fruit',
 		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Kartoffeln",
+		gender: 'das' as const
 	},
 	{
-		lemma: "Suppe",
-		meaning: "soup",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Suppen",
-	},
-	{
-		lemma: "Zeit",
-		meaning: "time",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Zeiten",
-	},
-	{
-		lemma: "Jahr",
-		meaning: "year",
+		lemma: 'Essen',
+		meaning: 'food, meal',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Jahre",
+		plural: 'Essen'
 	},
 	{
-		lemma: "Monat",
-		meaning: "month",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Monate",
-	},
-	{
-		lemma: "Woche",
-		meaning: "week",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Wochen",
-	},
-	{
-    lemma: "Tag",
-		meaning: "day",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Tage",
-    isBeginner: true
-  },
-	{
-		lemma: "Stunde",
-		meaning: "hour",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Stunden",
-	},
-	{
-		lemma: "Minute",
-		meaning: "minute",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Minuten",
-	},
-	{
-		lemma: "Sekunde",
-		meaning: "second",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Sekunden",
-	},
-	{
-		lemma: "Morgen",
-		meaning: "morning",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Morgen",
-	},
-	{
-		lemma: "Mittag",
-		meaning: "noon",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Mittage",
-	},
-	{
-		lemma: "Abend",
-		meaning: "evening",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Abende",
-	},
-	{
-		lemma: "Nacht",
-		meaning: "night",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Nächte",
-	},
-	{
-		lemma: "Montag",
-		meaning: "Monday",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Montage",
-	},
-	{
-		lemma: "Dienstag",
-		meaning: "Tuesday",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Dienstage",
-	},
-	{
-		lemma: "Mittwoch",
-		meaning: "Wednesday",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Mittwoche",
-	},
-	{
-		lemma: "Donnerstag",
-		meaning: "Thursday",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Donnerstage",
-	},
-	{
-		lemma: "Freitag",
-		meaning: "Friday",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Freitage",
-	},
-	{
-		lemma: "Samstag",
-		meaning: "Saturday",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Samstage",
-	},
-	{
-		lemma: "Sonntag",
-		meaning: "Sunday",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Sonntage",
-	},
-	{
-    lemma: "Haus",
-		meaning: "house",
+		lemma: 'Frühstück',
+		meaning: 'breakfast',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Häuser",
-    isBeginner: true
-  },
-	{
-		lemma: "Wohnung",
-		meaning: "apartment",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Wohnungen",
+		plural: 'Frühstücke'
 	},
 	{
-		lemma: "Zimmer",
-		meaning: "room",
+		lemma: 'Mittagessen',
+		meaning: 'lunch',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Zimmer",
+		plural: 'Mittagessen'
 	},
 	{
-		lemma: "Tür",
-		meaning: "door",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Türen",
-	},
-	{
-		lemma: "Fenster",
-		meaning: "window",
+		lemma: 'Abendessen',
+		meaning: 'dinner',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Fenster",
+		plural: 'Abendessen'
 	},
 	{
-		lemma: "Tisch",
-		meaning: "table",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Tische",
-	},
-	{
-		lemma: "Stuhl",
-		meaning: "chair",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Stühle",
-	},
-	{
-		lemma: "Bett",
-		meaning: "bed",
-		partOfSpeech: 'noun' as const,
-		gender: 'das' as const,
-		plural: "Betten",
-	},
-	{
-		lemma: "Stadt",
-		meaning: "city",
+		lemma: 'Kartoffel',
+		meaning: 'potato',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Städte",
+		plural: 'Kartoffeln'
 	},
 	{
-		lemma: "Dorf",
-		meaning: "village",
+		lemma: 'Suppe',
+		meaning: 'soup',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Suppen'
+	},
+	{
+		lemma: 'Zeit',
+		meaning: 'time',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Zeiten'
+	},
+	{
+		lemma: 'Jahr',
+		meaning: 'year',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Dörfer",
+		plural: 'Jahre'
 	},
 	{
-		lemma: "Straße",
-		meaning: "street",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Straßen",
-	},
-	{
-		lemma: "Platz",
-		meaning: "square, place",
+		lemma: 'Monat',
+		meaning: 'month',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Plätze",
+		plural: 'Monate'
 	},
 	{
-		lemma: "Auto",
-		meaning: "car",
+		lemma: 'Woche',
+		meaning: 'week',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Wochen'
+	},
+	{
+		lemma: 'Tag',
+		meaning: 'day',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Tage',
+		isBeginner: true
+	},
+	{
+		lemma: 'Stunde',
+		meaning: 'hour',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Stunden'
+	},
+	{
+		lemma: 'Minute',
+		meaning: 'minute',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Minuten'
+	},
+	{
+		lemma: 'Sekunde',
+		meaning: 'second',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Sekunden'
+	},
+	{
+		lemma: 'Morgen',
+		meaning: 'morning',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Morgen'
+	},
+	{
+		lemma: 'Mittag',
+		meaning: 'noon',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Mittage'
+	},
+	{
+		lemma: 'Abend',
+		meaning: 'evening',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Abende'
+	},
+	{
+		lemma: 'Nacht',
+		meaning: 'night',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Nächte'
+	},
+	{
+		lemma: 'Montag',
+		meaning: 'Monday',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Montage'
+	},
+	{
+		lemma: 'Dienstag',
+		meaning: 'Tuesday',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Dienstage'
+	},
+	{
+		lemma: 'Mittwoch',
+		meaning: 'Wednesday',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Mittwoche'
+	},
+	{
+		lemma: 'Donnerstag',
+		meaning: 'Thursday',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Donnerstage'
+	},
+	{
+		lemma: 'Freitag',
+		meaning: 'Friday',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Freitage'
+	},
+	{
+		lemma: 'Samstag',
+		meaning: 'Saturday',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Samstage'
+	},
+	{
+		lemma: 'Sonntag',
+		meaning: 'Sunday',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Sonntage'
+	},
+	{
+		lemma: 'Haus',
+		meaning: 'house',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Autos",
+		plural: 'Häuser',
+		isBeginner: true
 	},
 	{
-		lemma: "Zug",
-		meaning: "train",
+		lemma: 'Wohnung',
+		meaning: 'apartment',
 		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Züge",
+		gender: 'die' as const,
+		plural: 'Wohnungen'
 	},
 	{
-		lemma: "Bus",
-		meaning: "bus",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Busse",
-	},
-	{
-		lemma: "Bahnhof",
-		meaning: "train station",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Bahnhöfe",
-	},
-	{
-		lemma: "Flughafen",
-		meaning: "airport",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Flughäfen",
-	},
-	{
-		lemma: "Geld",
-		meaning: "money",
+		lemma: 'Zimmer',
+		meaning: 'room',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Gelder",
+		plural: 'Zimmer'
 	},
 	{
-		lemma: "Arbeit",
-		meaning: "work",
+		lemma: 'Tür',
+		meaning: 'door',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Arbeiten",
+		plural: 'Türen'
 	},
 	{
-		lemma: "Job",
-		meaning: "job",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Jobs",
-	},
-	{
-		lemma: "Handy",
-		meaning: "mobile phone",
+		lemma: 'Fenster',
+		meaning: 'window',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Handys",
+		plural: 'Fenster'
 	},
 	{
-		lemma: "Computer",
-		meaning: "computer",
+		lemma: 'Tisch',
+		meaning: 'table',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Computer",
+		plural: 'Tische'
 	},
 	{
-		lemma: "Hilfe",
-		meaning: "help",
+		lemma: 'Stuhl',
+		meaning: 'chair',
 		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Hilfen",
+		gender: 'der' as const,
+		plural: 'Stühle'
 	},
 	{
-		lemma: "Frage",
-		meaning: "question",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Fragen",
-	},
-	{
-		lemma: "Antwort",
-		meaning: "answer",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Antworten",
-	},
-	{
-		lemma: "Beispiel",
-		meaning: "example",
+		lemma: 'Bett',
+		meaning: 'bed',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Beispiele",
+		plural: 'Betten'
 	},
-		{
-		lemma: "Unternehmen",
-		meaning: "company, enterprise, undertaking",
+	{
+		lemma: 'Stadt',
+		meaning: 'city',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Städte'
+	},
+	{
+		lemma: 'Dorf',
+		meaning: 'village',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Unternehmen",
+		plural: 'Dörfer'
 	},
 	{
-		lemma: "Euro",
-		meaning: "Euro",
+		lemma: 'Straße',
+		meaning: 'street',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Straßen'
+	},
+	{
+		lemma: 'Platz',
+		meaning: 'square, place',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Euro",
+		plural: 'Plätze'
 	},
 	{
-		lemma: "Schweizer",
-		meaning: "Swiss person",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Schweizer",
-	},
-	{
-		lemma: "Ende",
-		meaning: "end, finish",
+		lemma: 'Auto',
+		meaning: 'car',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Enden",
+		plural: 'Autos'
 	},
-						{
-		lemma: "Thema",
-		meaning: "topic, subject, theme",
+	{
+		lemma: 'Zug',
+		meaning: 'train',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Züge'
+	},
+	{
+		lemma: 'Bus',
+		meaning: 'bus',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Busse'
+	},
+	{
+		lemma: 'Bahnhof',
+		meaning: 'train station',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Bahnhöfe'
+	},
+	{
+		lemma: 'Flughafen',
+		meaning: 'airport',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Flughäfen'
+	},
+	{
+		lemma: 'Geld',
+		meaning: 'money',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Themen",
-	},
-									{
-		lemma: "Teil",
-		meaning: "part, piece, section",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Teile",
+		plural: 'Gelder'
 	},
 	{
-		lemma: "Jahrhundert",
-		meaning: "century",
+		lemma: 'Arbeit',
+		meaning: 'work',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Arbeiten'
+	},
+	{
+		lemma: 'Job',
+		meaning: 'job',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Jobs'
+	},
+	{
+		lemma: 'Handy',
+		meaning: 'mobile phone',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Jahrhunderte",
-	},
-				{
-		lemma: "Seite",
-		meaning: "page, side, site",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Seiten",
+		plural: 'Handys'
 	},
 	{
-		lemma: "Suche",
-		meaning: "search, quest",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Suchen",
-	},
-	{
-		lemma: "Lust",
-		meaning: "desire / pleasure / mood",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Lüste",
-	},
-	{
-		lemma: "Ort",
-		meaning: "place / location",
+		lemma: 'Computer',
+		meaning: 'computer',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Orte",
+		plural: 'Computer'
 	},
-		{
-		lemma: "Band",
-		meaning: "ribbon, bond, volume",
+	{
+		lemma: 'Hilfe',
+		meaning: 'help',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Hilfen'
+	},
+	{
+		lemma: 'Frage',
+		meaning: 'question',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Fragen'
+	},
+	{
+		lemma: 'Antwort',
+		meaning: 'answer',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Antworten'
+	},
+	{
+		lemma: 'Beispiel',
+		meaning: 'example',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Bänder",
-	},
-				{
-		lemma: "Dezember",
-		meaning: "December",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Dezember",
+		plural: 'Beispiele'
 	},
 	{
-		lemma: "September",
-		meaning: "September",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "September",
-	},
-	{
-		lemma: "März",
-		meaning: "March",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Märze",
-	},
-	{
-		lemma: "Rahmen",
-		meaning: "frame, framework, context",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Rahmen",
-	},
-	{
-		lemma: "November",
-		meaning: "November",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "November",
-	},
-	{
-		lemma: "Geschichte",
-		meaning: "story, history",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Geschichten",
-	},
-			{
-		lemma: "Möglichkeit",
-		meaning: "possibility",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Möglichkeiten",
-	},
-						{
-		lemma: "Franken",
-		meaning: "franc (currency)",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Franken",
-	},
-	{
-		lemma: "Fall",
-		meaning: "case, fall, instance",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Fälle",
-	},
-			{
-		lemma: "Kanton",
-		meaning: "canton",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Kantone",
-	},
-		{
-		lemma: "Bereich",
-		meaning: "area, field, sector, range",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Bereiche",
-	},
-	{
-		lemma: "Juli",
-		meaning: "July",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Julis",
-	},
-	{
-		lemma: "Kunde",
-		meaning: "customer, client",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Kunden",
-	},
-		{
-		lemma: "April",
-		meaning: "April",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Aprile",
-	},
-	{
-		lemma: "Juni",
-		meaning: "June",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Junis",
-	},
-			{
-		lemma: "Mitte",
-		meaning: "middle / center",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Mitten",
-	},
-	{
-		lemma: "Mitarbeiter",
-		meaning: "employee / coworker",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Mitarbeiter",
-	},
-						{
-		lemma: "Art",
-		meaning: "type, kind, way",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Arten",
-	},
-	{
-		lemma: "Welt",
-		meaning: "world",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Welten",
-	},
-						{
-		lemma: "Person",
-		meaning: "people, persons",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Personen",
-	},
-		{
-		lemma: "Kleinanzeige",
-		meaning: "classified ads",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Kleinanzeigen",
-	},
-	{
-		lemma: "Verfügung",
-		meaning: "disposal, availability",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Verfügungen",
-	},
-	{
-		lemma: "Entwicklung",
-		meaning: "development",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Entwicklungen",
-	},
-								{
-		lemma: "Meter",
-		meaning: "meter",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Meter",
-	},
-	{
-		lemma: "Schule",
-		meaning: "school",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Schulen",
-	},
-				{
-		lemma: "Ziel",
-		meaning: "goal, target, destination",
+		lemma: 'Unternehmen',
+		meaning: 'company, enterprise, undertaking',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Ziele",
+		plural: 'Unternehmen'
 	},
 	{
-		lemma: "Massage",
-		meaning: "massage",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Massagen",
-	},
-	{
-		lemma: "Tod",
-		meaning: "death",
+		lemma: 'Euro',
+		meaning: 'Euro',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Tode",
+		plural: 'Euro'
 	},
 	{
-		lemma: "Film",
-		meaning: "film, movie",
+		lemma: 'Schweizer',
+		meaning: 'Swiss person',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Filme",
+		plural: 'Schweizer'
 	},
 	{
-		lemma: "Angebot",
-		meaning: "offer",
+		lemma: 'Ende',
+		meaning: 'end, finish',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Angebote",
+		plural: 'Enden'
 	},
 	{
-		lemma: "Fetisch",
-		meaning: "fetish",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Fetische",
-	},
-	{
-		lemma: "Anfang",
-		meaning: "beginning, start",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Anfänge",
-	},
-		{
-		lemma: "Einwohner",
-		meaning: "inhabitant, resident",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Einwohner",
-	},
-	{
-		lemma: "Gebäude",
-		meaning: "building",
+		lemma: 'Thema',
+		meaning: 'topic, subject, theme',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Gebäude",
-	},
-		{
-		lemma: "Weg",
-		meaning: "way, path, road",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Wege",
-	},
-			{
-		lemma: "Übersetzer",
-		meaning: "translator",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Übersetzer",
+		plural: 'Themen'
 	},
 	{
-		lemma: "Internet",
-		meaning: "internet",
+		lemma: 'Teil',
+		meaning: 'part, piece, section',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Teile'
+	},
+	{
+		lemma: 'Jahrhundert',
+		meaning: 'century',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Internets",
+		plural: 'Jahrhunderte'
 	},
 	{
-		lemma: "Raum",
-		meaning: "room, space",
+		lemma: 'Seite',
+		meaning: 'page, side, site',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Seiten'
+	},
+	{
+		lemma: 'Suche',
+		meaning: 'search, quest',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Suchen'
+	},
+	{
+		lemma: 'Lust',
+		meaning: 'desire / pleasure / mood',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Lüste'
+	},
+	{
+		lemma: 'Ort',
+		meaning: 'place / location',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Räume",
+		plural: 'Orte'
 	},
 	{
-		lemma: "Übersetzung",
-		meaning: "translation",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Übersetzungen",
-	},
-	{
-		lemma: "Schülerin",
-		meaning: "female students",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Schülerinnen",
-	},
-	{
-		lemma: "Bitte",
-		meaning: "request, plea",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Bitten",
-	},
-	{
-		lemma: "Titel",
-		meaning: "title",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Titel",
-	},
-	{
-		lemma: "Projekt",
-		meaning: "project",
+		lemma: 'Band',
+		meaning: 'ribbon, bond, volume',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Projekte",
+		plural: 'Bänder'
 	},
 	{
-		lemma: "Artikel",
-		meaning: "article, item",
+		lemma: 'Dezember',
+		meaning: 'December',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Artikel",
+		plural: 'Dezember'
 	},
 	{
-		lemma: "Million",
-		meaning: "million",
+		lemma: 'September',
+		meaning: 'September',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'September'
+	},
+	{
+		lemma: 'März',
+		meaning: 'March',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Märze'
+	},
+	{
+		lemma: 'Rahmen',
+		meaning: 'frame, framework, context',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Rahmen'
+	},
+	{
+		lemma: 'November',
+		meaning: 'November',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'November'
+	},
+	{
+		lemma: 'Geschichte',
+		meaning: 'story, history',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Millionen",
+		plural: 'Geschichten'
 	},
 	{
-		lemma: "Zukunft",
-		meaning: "future",
+		lemma: 'Möglichkeit',
+		meaning: 'possibility',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Zukünfte",
+		plural: 'Möglichkeiten'
 	},
 	{
-		lemma: "Land",
-		meaning: "country, land, state",
+		lemma: 'Franken',
+		meaning: 'franc (currency)',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Franken'
+	},
+	{
+		lemma: 'Fall',
+		meaning: 'case, fall, instance',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Fälle'
+	},
+	{
+		lemma: 'Kanton',
+		meaning: 'canton',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Kantone'
+	},
+	{
+		lemma: 'Bereich',
+		meaning: 'area, field, sector, range',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Bereiche'
+	},
+	{
+		lemma: 'Juli',
+		meaning: 'July',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Julis'
+	},
+	{
+		lemma: 'Kunde',
+		meaning: 'customer, client',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Kunden'
+	},
+	{
+		lemma: 'April',
+		meaning: 'April',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Aprile'
+	},
+	{
+		lemma: 'Juni',
+		meaning: 'June',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Junis'
+	},
+	{
+		lemma: 'Mitte',
+		meaning: 'middle / center',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Mitten'
+	},
+	{
+		lemma: 'Mitarbeiter',
+		meaning: 'employee / coworker',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Mitarbeiter'
+	},
+	{
+		lemma: 'Art',
+		meaning: 'type, kind, way',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Arten'
+	},
+	{
+		lemma: 'Welt',
+		meaning: 'world',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Welten'
+	},
+	{
+		lemma: 'Person',
+		meaning: 'people, persons',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Personen'
+	},
+	{
+		lemma: 'Kleinanzeige',
+		meaning: 'classified ads',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Kleinanzeigen'
+	},
+	{
+		lemma: 'Verfügung',
+		meaning: 'disposal, availability',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Verfügungen'
+	},
+	{
+		lemma: 'Entwicklung',
+		meaning: 'development',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Entwicklungen'
+	},
+	{
+		lemma: 'Meter',
+		meaning: 'meter',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Meter'
+	},
+	{
+		lemma: 'Schule',
+		meaning: 'school',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Schulen'
+	},
+	{
+		lemma: 'Ziel',
+		meaning: 'goal, target, destination',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Länder",
+		plural: 'Ziele'
 	},
 	{
-		lemma: "Mitglied",
-		meaning: "member",
+		lemma: 'Massage',
+		meaning: 'massage',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Massagen'
+	},
+	{
+		lemma: 'Tod',
+		meaning: 'death',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Tode'
+	},
+	{
+		lemma: 'Film',
+		meaning: 'film, movie',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Filme'
+	},
+	{
+		lemma: 'Angebot',
+		meaning: 'offer',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Mitglieder",
+		plural: 'Angebote'
 	},
 	{
-		lemma: "Verein",
-		meaning: "club, association",
+		lemma: 'Fetisch',
+		meaning: 'fetish',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Vereine",
-	},
-		{
-		lemma: "Zusammenarbeit",
-		meaning: "cooperation, collaboration",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Zusammenarbeiten",
+		plural: 'Fetische'
 	},
 	{
-		lemma: "Spiel",
-		meaning: "game, match",
+		lemma: 'Anfang',
+		meaning: 'beginning, start',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Anfänge'
+	},
+	{
+		lemma: 'Einwohner',
+		meaning: 'inhabitant, resident',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Einwohner'
+	},
+	{
+		lemma: 'Gebäude',
+		meaning: 'building',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Spiele",
-	},
-		{
-		lemma: "Musik",
-		meaning: "music",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Musiken",
+		plural: 'Gebäude'
 	},
 	{
-		lemma: "Bild",
-		meaning: "pictures, images",
+		lemma: 'Weg',
+		meaning: 'way, path, road',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Wege'
+	},
+	{
+		lemma: 'Übersetzer',
+		meaning: 'translator',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Übersetzer'
+	},
+	{
+		lemma: 'Internet',
+		meaning: 'internet',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Bilder",
+		plural: 'Internets'
 	},
 	{
-		lemma: "Hand",
-		meaning: "hand",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Hände",
-	},
-	{
-		lemma: "Kontaktanzeige",
-		meaning: "personal ads",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Kontaktanzeigen",
-	},
-	{
-		lemma: "Verlag",
-		meaning: "publishing house",
+		lemma: 'Raum',
+		meaning: 'room, space',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Verlage",
+		plural: 'Räume'
 	},
 	{
-		lemma: "Polizei",
-		meaning: "police",
+		lemma: 'Übersetzung',
+		meaning: 'translation',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Polizeien",
+		plural: 'Übersetzungen'
 	},
 	{
-		lemma: "Gruppe",
-		meaning: "group",
+		lemma: 'Schülerin',
+		meaning: 'female students',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Gruppen",
+		plural: 'Schülerinnen'
 	},
 	{
-		lemma: "Einsatz",
-		meaning: "deployment or use",
+		lemma: 'Bitte',
+		meaning: 'request, plea',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Bitten'
+	},
+	{
+		lemma: 'Titel',
+		meaning: 'title',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Einsätze",
+		plural: 'Titel'
 	},
 	{
-		lemma: "Forum",
-		meaning: "forum",
+		lemma: 'Projekt',
+		meaning: 'project',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Foren",
+		plural: 'Projekte'
 	},
-					{
-		lemma: "Gebiet",
-		meaning: "area, region, field",
+	{
+		lemma: 'Artikel',
+		meaning: 'article, item',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Artikel'
+	},
+	{
+		lemma: 'Million',
+		meaning: 'million',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Millionen'
+	},
+	{
+		lemma: 'Zukunft',
+		meaning: 'future',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Zukünfte'
+	},
+	{
+		lemma: 'Land',
+		meaning: 'country, land, state',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Gebiete",
-	},
-				{
-		lemma: "Rolle",
-		meaning: "role, roll",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Rollen",
+		plural: 'Länder'
 	},
 	{
-		lemma: "Interesse",
-		meaning: "interest",
+		lemma: 'Mitglied',
+		meaning: 'member',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Interessen",
+		plural: 'Mitglieder'
 	},
 	{
-		lemma: "Universität",
-		meaning: "university",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Universitäten",
-	},
-	{
-		lemma: "Patient",
-		meaning: "patient",
+		lemma: 'Verein',
+		meaning: 'club, association',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Patienten",
+		plural: 'Vereine'
 	},
 	{
-		lemma: "Qualität",
-		meaning: "quality",
+		lemma: 'Zusammenarbeit',
+		meaning: 'cooperation, collaboration',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Qualitäten",
+		plural: 'Zusammenarbeiten'
 	},
 	{
-		lemma: "Region",
-		meaning: "region",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Regionen",
-	},
-	{
-		lemma: "Folge",
-		meaning: "episode, consequence, or sequence",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Folgen",
-	},
-	{
-		lemma: "Bau",
-		meaning: "construction or building",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Bauten",
-	},
-	{
-		lemma: "Ausbildung",
-		meaning: "apprenticeship or training",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Ausbildungen",
-	},
-	{
-		lemma: "Spieler",
-		meaning: "player",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Spieler",
-	},
-	{
-		lemma: "Maßnahme",
-		meaning: "measure",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Maßnahmen",
-	},
-	{
-		lemma: "Bildung",
-		meaning: "education",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Bildungen",
-	},
-													{
-		lemma: "Alter",
-		meaning: "age",
+		lemma: 'Spiel',
+		meaning: 'game, match',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Alter",
+		plural: 'Spiele'
 	},
-			{
-		lemma: "Album",
-		meaning: "album",
+	{
+		lemma: 'Musik',
+		meaning: 'music',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Musiken'
+	},
+	{
+		lemma: 'Bild',
+		meaning: 'pictures, images',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Alben",
+		plural: 'Bilder'
 	},
-		{
-		lemma: "Video",
-		meaning: "video",
+	{
+		lemma: 'Hand',
+		meaning: 'hand',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Hände'
+	},
+	{
+		lemma: 'Kontaktanzeige',
+		meaning: 'personal ads',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Kontaktanzeigen'
+	},
+	{
+		lemma: 'Verlag',
+		meaning: 'publishing house',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Verlage'
+	},
+	{
+		lemma: 'Polizei',
+		meaning: 'police',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Polizeien'
+	},
+	{
+		lemma: 'Gruppe',
+		meaning: 'group',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Gruppen'
+	},
+	{
+		lemma: 'Einsatz',
+		meaning: 'deployment or use',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Einsätze'
+	},
+	{
+		lemma: 'Forum',
+		meaning: 'forum',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Videos",
+		plural: 'Foren'
 	},
 	{
-		lemma: "Auge",
-		meaning: "eye",
+		lemma: 'Gebiet',
+		meaning: 'area, region, field',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Augen",
+		plural: 'Gebiete'
 	},
 	{
-		lemma: "Regierung",
-		meaning: "government",
+		lemma: 'Rolle',
+		meaning: 'role, roll',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Regierungen",
+		plural: 'Rollen'
 	},
 	{
-		lemma: "Sicherheit",
-		meaning: "security, safety",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Sicherheiten",
-	},
-	{
-		lemma: "Nutzung",
-		meaning: "use, usage",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Nutzungen",
-	},
-		{
-		lemma: "Kino",
-		meaning: "cinema, movie theater",
+		lemma: 'Interesse',
+		meaning: 'interest',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Kinos",
+		plural: 'Interessen'
 	},
-			{
-		lemma: "Ergebnis",
-		meaning: "results",
+	{
+		lemma: 'Universität',
+		meaning: 'university',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Universitäten'
+	},
+	{
+		lemma: 'Patient',
+		meaning: 'patient',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Patienten'
+	},
+	{
+		lemma: 'Qualität',
+		meaning: 'quality',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Qualitäten'
+	},
+	{
+		lemma: 'Region',
+		meaning: 'region',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Regionen'
+	},
+	{
+		lemma: 'Folge',
+		meaning: 'episode, consequence, or sequence',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Folgen'
+	},
+	{
+		lemma: 'Bau',
+		meaning: 'construction or building',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Bauten'
+	},
+	{
+		lemma: 'Ausbildung',
+		meaning: 'apprenticeship or training',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Ausbildungen'
+	},
+	{
+		lemma: 'Spieler',
+		meaning: 'player',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Spieler'
+	},
+	{
+		lemma: 'Maßnahme',
+		meaning: 'measure',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Maßnahmen'
+	},
+	{
+		lemma: 'Bildung',
+		meaning: 'education',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Bildungen'
+	},
+	{
+		lemma: 'Alter',
+		meaning: 'age',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Ergebnisse",
+		plural: 'Alter'
 	},
 	{
-		lemma: "Unterstützung",
-		meaning: "support, assistance",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Unterstützungen",
-	},
-	{
-		lemma: "Schwanz",
-		meaning: "tail",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Schwänze",
-	},
-	{
-		lemma: "Bedeutung",
-		meaning: "meaning, significance",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Bedeutungen",
-	},
-	{
-		lemma: "Kontakt",
-		meaning: "contact",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Kontakte",
-	},
-	{
-		lemma: "Regel",
-		meaning: "rule",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Regeln",
-	},
-	{
-		lemma: "Beginn",
-		meaning: "beginning, start",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Beginne",
-	},
-	{
-    lemma: "Name",
-		meaning: "name",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Namen",
-    isBeginner: true
-  },
-	{
-		lemma: "Höhe",
-		meaning: "height, altitude",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Höhen",
-	},
-		{
-		lemma: "Länge",
-		meaning: "length",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Längen",
-	},
-		{
-		lemma: "Medium",
-		meaning: "media",
+		lemma: 'Album',
+		meaning: 'album',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Medien",
+		plural: 'Alben'
 	},
 	{
-		lemma: "Dollar",
-		meaning: "dollar",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Dollar",
-	},
-	{
-		lemma: "Strecke",
-		meaning: "distance, route, or stretch",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Strecken",
-	},
-	{
-		lemma: "Förderung",
-		meaning: "promotion, support, or funding",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Förderungen",
-	},
-	{
-		lemma: "Sommer",
-		meaning: "summer",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Sommer",
-	},
-		{
-		lemma: "Programm",
-		meaning: "program, schedule",
+		lemma: 'Video',
+		meaning: 'video',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Programme",
+		plural: 'Videos'
 	},
 	{
-		lemma: "Gesellschaft",
-		meaning: "society, company",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Gesellschaften",
-	},
-	{
-		lemma: "Amt",
-		meaning: "office, department, agency",
+		lemma: 'Auge',
+		meaning: 'eye',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Ämter",
-	},
-		{
-		lemma: "Penis",
-		meaning: "penis",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Penisse",
-	},
-		{
-		lemma: "Hälfte",
-		meaning: "half",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Hälften",
+		plural: 'Augen'
 	},
 	{
-		lemma: "Sauna",
-		meaning: "sauna",
+		lemma: 'Regierung',
+		meaning: 'government',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Saunen",
+		plural: 'Regierungen'
 	},
 	{
-		lemma: "Veranstaltung",
-		meaning: "event, performance, meeting",
+		lemma: 'Sicherheit',
+		meaning: 'security, safety',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Veranstaltungen",
+		plural: 'Sicherheiten'
 	},
 	{
-		lemma: "Besucher",
-		meaning: "visitor, guest",
+		lemma: 'Nutzung',
+		meaning: 'use, usage',
 		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Besucher",
+		gender: 'die' as const,
+		plural: 'Nutzungen'
 	},
 	{
-		lemma: "Reihe",
-		meaning: "row, series, line",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Reihen",
-	},
-	{
-		lemma: "Anzeige",
-		meaning: "advertisement, display, report",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Anzeigen",
-	},
-	{
-		lemma: "Haut",
-		meaning: "skin",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Häute",
-	},
-	{
-		lemma: "Zahl",
-		meaning: "number",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Zahlen",
-	},
-					{
-		lemma: "Mannschaft",
-		meaning: "team or crew",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Mannschaften",
-	},
-	{
-		lemma: "Aufgabe",
-		meaning: "tasks or assignments",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Aufgaben",
-	},
-	{
-		lemma: "Dame",
-		meaning: "ladies",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Damen",
-	},
-	{
-		lemma: "Grund",
-		meaning: "reason or ground",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Gründe",
-	},
-		{
-		lemma: "Bevölkerung",
-		meaning: "population",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Bevölkerungen",
-	},
-	{
-		lemma: "Kunst",
-		meaning: "art",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Künste",
-	},
-	{
-		lemma: "Betrieb",
-		meaning: "business, operation, company",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Betriebe",
-	},
-	{
-		lemma: "Liebe",
-		meaning: "love",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Lieben",
-	},
-		{
-		lemma: "Lösung",
-		meaning: "solution",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Lösungen",
-	},
-	{
-		lemma: "Leistung",
-		meaning: "performance / achievement / service",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Leistungen",
-	},
-	{
-		lemma: "Bezeichnung",
-		meaning: "designation / term / name",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Bezeichnungen",
-	},
-		{
-		lemma: "Werk",
-		meaning: "work, factory, or opus",
+		lemma: 'Kino',
+		meaning: 'cinema, movie theater',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Werke",
-	},
-			{
-		lemma: "Körper",
-		meaning: "body",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Körper",
+		plural: 'Kinos'
 	},
 	{
-		lemma: "Erfahrung",
-		meaning: "experience",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Erfahrungen",
-	},
-	{
-		lemma: "Problem",
-		meaning: "problem",
+		lemma: 'Ergebnis',
+		meaning: 'results',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Probleme",
+		plural: 'Ergebnisse'
 	},
 	{
-		lemma: "Hotel",
-		meaning: "hotel",
+		lemma: 'Unterstützung',
+		meaning: 'support, assistance',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Unterstützungen'
+	},
+	{
+		lemma: 'Schwanz',
+		meaning: 'tail',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Schwänze'
+	},
+	{
+		lemma: 'Bedeutung',
+		meaning: 'meaning, significance',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Bedeutungen'
+	},
+	{
+		lemma: 'Kontakt',
+		meaning: 'contact',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Kontakte'
+	},
+	{
+		lemma: 'Regel',
+		meaning: 'rule',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Regeln'
+	},
+	{
+		lemma: 'Beginn',
+		meaning: 'beginning, start',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Beginne'
+	},
+	{
+		lemma: 'Name',
+		meaning: 'name',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Namen',
+		isBeginner: true
+	},
+	{
+		lemma: 'Höhe',
+		meaning: 'height, altitude',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Höhen'
+	},
+	{
+		lemma: 'Länge',
+		meaning: 'length',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Längen'
+	},
+	{
+		lemma: 'Medium',
+		meaning: 'media',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Hotels",
+		plural: 'Medien'
 	},
 	{
-		lemma: "Beitrag",
-		meaning: "contributions, articles, posts",
+		lemma: 'Dollar',
+		meaning: 'dollar',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Beiträge",
+		plural: 'Dollar'
 	},
 	{
-		lemma: "Umsetzung",
-		meaning: "implementation, realization, conversion",
+		lemma: 'Strecke',
+		meaning: 'distance, route, or stretch',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Umsetzungen",
+		plural: 'Strecken'
 	},
 	{
-		lemma: "Praxis",
-		meaning: "practice, experience, surgery",
+		lemma: 'Förderung',
+		meaning: 'promotion, support, or funding',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Praxen",
-	},
-				{
-		lemma: "Natur",
-		meaning: "nature",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Naturen",
+		plural: 'Förderungen'
 	},
 	{
-    lemma: "Buch",
-		meaning: "book",
+		lemma: 'Sommer',
+		meaning: 'summer',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Sommer'
+	},
+	{
+		lemma: 'Programm',
+		meaning: 'program, schedule',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Bücher",
-    isBeginner: true
-  },
-	{
-		lemma: "Kommission",
-		meaning: "commission, committee",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Kommissionen",
-	},
-						{
-		lemma: "Richtung",
-		meaning: "direction",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Richtungen",
-	},
-				{
-		lemma: "Gast",
-		meaning: "guests",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Gäste",
+		plural: 'Programme'
 	},
 	{
-		lemma: "Erfolg",
-		meaning: "success",
+		lemma: 'Gesellschaft',
+		meaning: 'society, company',
 		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Erfolge",
+		gender: 'die' as const,
+		plural: 'Gesellschaften'
 	},
 	{
-		lemma: "Stelle",
-		meaning: "place, position, job",
+		lemma: 'Amt',
+		meaning: 'office, department, agency',
 		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Stellen",
+		gender: 'das' as const,
+		plural: 'Ämter'
 	},
-		{
-		lemma: "Wirtschaft",
-		meaning: "economy, industry, pub",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Wirtschaften",
-	},
-		{
-		lemma: "Norden",
-		meaning: "north",
+	{
+		lemma: 'Penis',
+		meaning: 'penis',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Norden",
+		plural: 'Penisse'
 	},
-			{
-		lemma: "Jugendliche",
-		meaning: "young people or teenagers",
+	{
+		lemma: 'Hälfte',
+		meaning: 'half',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Hälften'
+	},
+	{
+		lemma: 'Sauna',
+		meaning: 'sauna',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Saunen'
+	},
+	{
+		lemma: 'Veranstaltung',
+		meaning: 'event, performance, meeting',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Veranstaltungen'
+	},
+	{
+		lemma: 'Besucher',
+		meaning: 'visitor, guest',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Besucher'
+	},
+	{
+		lemma: 'Reihe',
+		meaning: 'row, series, line',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Reihen'
+	},
+	{
+		lemma: 'Anzeige',
+		meaning: 'advertisement, display, report',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Anzeigen'
+	},
+	{
+		lemma: 'Haut',
+		meaning: 'skin',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Häute'
+	},
+	{
+		lemma: 'Zahl',
+		meaning: 'number',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Zahlen'
+	},
+	{
+		lemma: 'Mannschaft',
+		meaning: 'team or crew',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Mannschaften'
+	},
+	{
+		lemma: 'Aufgabe',
+		meaning: 'tasks or assignments',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Aufgaben'
+	},
+	{
+		lemma: 'Dame',
+		meaning: 'ladies',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Damen'
+	},
+	{
+		lemma: 'Grund',
+		meaning: 'reason or ground',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Gründe'
+	},
+	{
+		lemma: 'Bevölkerung',
+		meaning: 'population',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Bevölkerungen'
+	},
+	{
+		lemma: 'Kunst',
+		meaning: 'art',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Künste'
+	},
+	{
+		lemma: 'Betrieb',
+		meaning: 'business, operation, company',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Betriebe'
+	},
+	{
+		lemma: 'Liebe',
+		meaning: 'love',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Lieben'
+	},
+	{
+		lemma: 'Lösung',
+		meaning: 'solution',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Lösungen'
+	},
+	{
+		lemma: 'Leistung',
+		meaning: 'performance / achievement / service',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Leistungen'
+	},
+	{
+		lemma: 'Bezeichnung',
+		meaning: 'designation / term / name',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Bezeichnungen'
+	},
+	{
+		lemma: 'Werk',
+		meaning: 'work, factory, or opus',
+		partOfSpeech: 'noun' as const,
+		gender: 'das' as const,
+		plural: 'Werke'
+	},
+	{
+		lemma: 'Körper',
+		meaning: 'body',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Körper'
+	},
+	{
+		lemma: 'Erfahrung',
+		meaning: 'experience',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Erfahrungen'
+	},
+	{
+		lemma: 'Problem',
+		meaning: 'problem',
+		partOfSpeech: 'noun' as const,
+		gender: 'das' as const,
+		plural: 'Probleme'
+	},
+	{
+		lemma: 'Hotel',
+		meaning: 'hotel',
+		partOfSpeech: 'noun' as const,
+		gender: 'das' as const,
+		plural: 'Hotels'
+	},
+	{
+		lemma: 'Beitrag',
+		meaning: 'contributions, articles, posts',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Beiträge'
+	},
+	{
+		lemma: 'Umsetzung',
+		meaning: 'implementation, realization, conversion',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Umsetzungen'
+	},
+	{
+		lemma: 'Praxis',
+		meaning: 'practice, experience, surgery',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Praxen'
+	},
+	{
+		lemma: 'Natur',
+		meaning: 'nature',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Naturen'
+	},
+	{
+		lemma: 'Buch',
+		meaning: 'book',
+		partOfSpeech: 'noun' as const,
+		gender: 'das' as const,
+		plural: 'Bücher',
+		isBeginner: true
+	},
+	{
+		lemma: 'Kommission',
+		meaning: 'commission, committee',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Kommissionen'
+	},
+	{
+		lemma: 'Richtung',
+		meaning: 'direction',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Richtungen'
+	},
+	{
+		lemma: 'Gast',
+		meaning: 'guests',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Gäste'
+	},
+	{
+		lemma: 'Erfolg',
+		meaning: 'success',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Erfolge'
+	},
+	{
+		lemma: 'Stelle',
+		meaning: 'place, position, job',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Stellen'
+	},
+	{
+		lemma: 'Wirtschaft',
+		meaning: 'economy, industry, pub',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Wirtschaften'
+	},
+	{
+		lemma: 'Norden',
+		meaning: 'north',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Norden'
+	},
+	{
+		lemma: 'Jugendliche',
+		meaning: 'young people or teenagers',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: "die Jugendlichen",
+		plural: 'die Jugendlichen'
 	},
-		{
-		lemma: "Nähe",
-		meaning: "proximity or closeness",
+	{
+		lemma: 'Nähe',
+		meaning: 'proximity or closeness',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "-",
+		plural: '-'
 	},
-		{
-		lemma: "Gemeinde",
-		meaning: "community, municipality",
+	{
+		lemma: 'Gemeinde',
+		meaning: 'community, municipality',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Gemeinden",
+		plural: 'Gemeinden'
 	},
-		{
-		lemma: "Firma",
-		meaning: "company, firm",
+	{
+		lemma: 'Firma',
+		meaning: 'company, firm',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Firmen",
+		plural: 'Firmen'
 	},
-						{
-		lemma: "Sperma",
-		meaning: "semen, sperm",
+	{
+		lemma: 'Sperma',
+		meaning: 'semen, sperm',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Spermen",
+		plural: 'Spermen'
 	},
-						{
-		lemma: "Staat",
-		meaning: "states or countries",
+	{
+		lemma: 'Staat',
+		meaning: 'states or countries',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Staaten",
+		plural: 'Staaten'
 	},
-		{
-		lemma: "Wert",
-		meaning: "value, worth, merit",
+	{
+		lemma: 'Wert',
+		meaning: 'value, worth, merit',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Werte",
+		plural: 'Werte'
 	},
-		{
-		lemma: "Mitarbeitende",
-		meaning: "employees, staff, coworkers",
+	{
+		lemma: 'Mitarbeitende',
+		meaning: 'employees, staff, coworkers',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Mitarbeitenden",
+		plural: 'Mitarbeitenden'
 	},
 	{
-		lemma: "Umgang",
-		meaning: "handling, contact, dealings",
+		lemma: 'Umgang',
+		meaning: 'handling, contact, dealings',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Umgänge",
+		plural: 'Umgänge'
 	},
-		{
-		lemma: "Krieg",
-		meaning: "war",
+	{
+		lemma: 'Krieg',
+		meaning: 'war',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Kriege",
+		plural: 'Kriege'
 	},
 	{
-		lemma: "Vergleich",
-		meaning: "comparison",
+		lemma: 'Vergleich',
+		meaning: 'comparison',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Vergleiche",
+		plural: 'Vergleiche'
 	},
 	{
-		lemma: "Auswahl",
-		meaning: "selection, choice",
+		lemma: 'Auswahl',
+		meaning: 'selection, choice',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Auswahlen",
+		plural: 'Auswahlen'
 	},
 	{
-		lemma: "Fläche",
-		meaning: "area, surface",
+		lemma: 'Fläche',
+		meaning: 'area, surface',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Flächen",
+		plural: 'Flächen'
 	},
 	{
-		lemma: "Energie",
-		meaning: "energy",
+		lemma: 'Energie',
+		meaning: 'energy',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Energien",
+		plural: 'Energien'
 	},
-				{
-		lemma: "Karriere",
-		meaning: "career",
+	{
+		lemma: 'Karriere',
+		meaning: 'career',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Karrieren",
+		plural: 'Karrieren'
 	},
-		{
-		lemma: "Schritt",
-		meaning: "step, pace",
+	{
+		lemma: 'Schritt',
+		meaning: 'step, pace',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Schritte",
+		plural: 'Schritte'
 	},
 	{
-		lemma: "Bad",
-		meaning: "bath, bathroom",
+		lemma: 'Bad',
+		meaning: 'bath, bathroom',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Bäder",
-	},
-		{
-		lemma: "Spaß",
-		meaning: "fun or pleasure",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Späße",
+		plural: 'Bäder'
 	},
 	{
-		lemma: "Zeitpunkt",
-		meaning: "point in time",
+		lemma: 'Spaß',
+		meaning: 'fun or pleasure',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Zeitpunkte",
+		plural: 'Späße'
 	},
 	{
-		lemma: "Punkt",
-		meaning: "points or dots",
+		lemma: 'Zeitpunkt',
+		meaning: 'point in time',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Punkte",
+		plural: 'Zeitpunkte'
 	},
 	{
-		lemma: "Anforderung",
-		meaning: "requirements or demands",
+		lemma: 'Punkt',
+		meaning: 'points or dots',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Punkte'
+	},
+	{
+		lemma: 'Anforderung',
+		meaning: 'requirements or demands',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Anforderungen",
+		plural: 'Anforderungen'
 	},
-		{
-		lemma: "Burg",
-		meaning: "castle, fortress",
+	{
+		lemma: 'Burg',
+		meaning: 'castle, fortress',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Burgen",
+		plural: 'Burgen'
 	},
-			{
-		lemma: "Verfahren",
-		meaning: "procedure, process, method",
+	{
+		lemma: 'Verfahren',
+		meaning: 'procedure, process, method',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Verfahren",
+		plural: 'Verfahren'
 	},
-		{
-		lemma: "Hochschule",
-		meaning: "university, college",
+	{
+		lemma: 'Hochschule',
+		meaning: 'university, college',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Hochschulen",
+		plural: 'Hochschulen'
 	},
-			{
-		lemma: "Stück",
-		meaning: "piece",
+	{
+		lemma: 'Stück',
+		meaning: 'piece',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Stücke",
+		plural: 'Stücke'
 	},
 	{
-		lemma: "Parlament",
-		meaning: "parliament",
+		lemma: 'Parlament',
+		meaning: 'parliament',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Parlamente",
+		plural: 'Parlamente'
 	},
 	{
-		lemma: "Grundlage",
-		meaning: "basis or foundation",
+		lemma: 'Grundlage',
+		meaning: 'basis or foundation',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Grundlagen",
+		plural: 'Grundlagen'
 	},
 	{
-		lemma: "Museum",
-		meaning: "museum",
+		lemma: 'Museum',
+		meaning: 'museum',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Museen",
+		plural: 'Museen'
 	},
 	{
-		lemma: "Webseite",
-		meaning: "website",
+		lemma: 'Webseite',
+		meaning: 'website',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Webseiten",
+		plural: 'Webseiten'
 	},
 	{
-		lemma: "Situation",
-		meaning: "situation",
+		lemma: 'Situation',
+		meaning: 'situation',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Situationen",
+		plural: 'Situationen'
 	},
 	{
-		lemma: "Lage",
-		meaning: "location, situation, position",
+		lemma: 'Lage',
+		meaning: 'location, situation, position',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Lagen",
+		plural: 'Lagen'
 	},
 	{
-		lemma: "Tipp",
-		meaning: "tip, hint",
+		lemma: 'Tipp',
+		meaning: 'tip, hint',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Tipps",
+		plural: 'Tipps'
 	},
 	{
-		lemma: "Union",
-		meaning: "union",
+		lemma: 'Union',
+		meaning: 'union',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Unionen",
+		plural: 'Unionen'
 	},
 	{
-		lemma: "Serie",
-		meaning: "series",
+		lemma: 'Serie',
+		meaning: 'series',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Serien",
+		plural: 'Serien'
 	},
 	{
-		lemma: "Kopf",
-		meaning: "head",
+		lemma: 'Kopf',
+		meaning: 'head',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Köpfe",
-	},
-		{
-		lemma: "Freude",
-		meaning: "joy or pleasure",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Freuden",
-	},
-		{
-		lemma: "Ehe",
-		meaning: "marriage",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Ehen",
+		plural: 'Köpfe'
 	},
 	{
-		lemma: "Anzahl",
-		meaning: "number, quantity",
+		lemma: 'Freude',
+		meaning: 'joy or pleasure',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Anzahlen",
+		plural: 'Freuden'
 	},
 	{
-		lemma: "Insel",
-		meaning: "island",
+		lemma: 'Ehe',
+		meaning: 'marriage',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Inseln",
+		plural: 'Ehen'
 	},
 	{
-		lemma: "Behandlung",
-		meaning: "treatment",
+		lemma: 'Anzahl',
+		meaning: 'number, quantity',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Behandlungen",
+		plural: 'Anzahlen'
 	},
 	{
-		lemma: "Beratung",
-		meaning: "advice, consultation",
+		lemma: 'Insel',
+		meaning: 'island',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Beratungen",
-	},
-		{
-		lemma: "Ausstellung",
-		meaning: "exhibition, display",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Ausstellungen",
+		plural: 'Inseln'
 	},
 	{
-		lemma: "Wahl",
-		meaning: "choice, election",
+		lemma: 'Behandlung',
+		meaning: 'treatment',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Wahlen",
+		plural: 'Behandlungen'
 	},
 	{
-		lemma: "Inhalt",
-		meaning: "contents, content",
+		lemma: 'Beratung',
+		meaning: 'advice, consultation',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Beratungen'
+	},
+	{
+		lemma: 'Ausstellung',
+		meaning: 'exhibition, display',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Ausstellungen'
+	},
+	{
+		lemma: 'Wahl',
+		meaning: 'choice, election',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Wahlen'
+	},
+	{
+		lemma: 'Inhalt',
+		meaning: 'contents, content',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Inhalte",
+		plural: 'Inhalte'
 	},
 	{
-		lemma: "Entscheidung",
-		meaning: "decision",
+		lemma: 'Entscheidung',
+		meaning: 'decision',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Entscheidungen",
+		plural: 'Entscheidungen'
 	},
 	{
-		lemma: "Forschung",
-		meaning: "research",
+		lemma: 'Forschung',
+		meaning: 'research',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Forschungen",
+		plural: 'Forschungen'
 	},
 	{
-		lemma: "Küche",
-		meaning: "kitchen",
+		lemma: 'Küche',
+		meaning: 'kitchen',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Küchen",
+		plural: 'Küchen'
 	},
 	{
-		lemma: "Linie",
-		meaning: "line",
+		lemma: 'Linie',
+		meaning: 'line',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Linien",
+		plural: 'Linien'
 	},
 	{
-		lemma: "Süden",
-		meaning: "south",
+		lemma: 'Süden',
+		meaning: 'south',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "-",
+		plural: '-'
 	},
 	{
-		lemma: "Parkplatz",
-		meaning: "parking lot",
+		lemma: 'Parkplatz',
+		meaning: 'parking lot',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Parkplätze",
+		plural: 'Parkplätze'
 	},
 	{
-		lemma: "Sprache",
-		meaning: "language",
+		lemma: 'Sprache',
+		meaning: 'language',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Sprachen",
+		plural: 'Sprachen'
 	},
 	{
-		lemma: "Anwendung",
-		meaning: "application or use",
+		lemma: 'Anwendung',
+		meaning: 'application or use',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Anwendungen",
-	},
-		{
-		lemma: "Studie",
-		meaning: "study, research paper",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Studien",
+		plural: 'Anwendungen'
 	},
 	{
-		lemma: "Material",
-		meaning: "material, equipment",
+		lemma: 'Studie',
+		meaning: 'study, research paper',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Studien'
+	},
+	{
+		lemma: 'Material',
+		meaning: 'material, equipment',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Materialien",
+		plural: 'Materialien'
 	},
 	{
-		lemma: "Osten",
-		meaning: "east",
+		lemma: 'Osten',
+		meaning: 'east',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "-",
+		plural: '-'
 	},
 	{
-		lemma: "Produkt",
-		meaning: "product",
+		lemma: 'Produkt',
+		meaning: 'product',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Produkte",
+		plural: 'Produkte'
 	},
 	{
-		lemma: "Anlage",
-		meaning: "facility, attachment, investment",
+		lemma: 'Anlage',
+		meaning: 'facility, attachment, investment',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Anlagen",
+		plural: 'Anlagen'
 	},
 	{
-		lemma: "Bar",
-		meaning: "bar, pub",
+		lemma: 'Bar',
+		meaning: 'bar, pub',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Bars",
+		plural: 'Bars'
 	},
 	{
-		lemma: "Kultur",
-		meaning: "culture",
+		lemma: 'Kultur',
+		meaning: 'culture',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Kulturen",
+		plural: 'Kulturen'
 	},
 	{
-		lemma: "Partei",
-		meaning: "political party",
+		lemma: 'Partei',
+		meaning: 'political party',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Parteien",
+		plural: 'Parteien'
 	},
 	{
-		lemma: "Sklavin",
-		meaning: "female slave",
+		lemma: 'Sklavin',
+		meaning: 'female slave',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Sklavinnen",
+		plural: 'Sklavinnen'
 	},
 	{
-		lemma: "Alltag",
-		meaning: "everyday life, daily routine",
+		lemma: 'Alltag',
+		meaning: 'everyday life, daily routine',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Alltage",
+		plural: 'Alltage'
 	},
 	{
-		lemma: "Zentrum",
-		meaning: "center, downtown",
+		lemma: 'Zentrum',
+		meaning: 'center, downtown',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Zentren",
+		plural: 'Zentren'
 	},
 	{
-		lemma: "Arsch",
-		meaning: "ass, butt, arse",
+		lemma: 'Arsch',
+		meaning: 'ass, butt, arse',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Ärsche",
+		plural: 'Ärsche'
 	},
 	{
-		lemma: "Foto",
-		meaning: "photos, pictures",
+		lemma: 'Foto',
+		meaning: 'photos, pictures',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Fotos",
+		plural: 'Fotos'
 	},
 	{
-		lemma: "Schutz",
-		meaning: "protection, shelter, guard",
+		lemma: 'Schutz',
+		meaning: 'protection, shelter, guard',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Schutz",
+		plural: 'Schutz'
 	},
 	{
-		lemma: "Gesicht",
-		meaning: "face, sight, vision",
+		lemma: 'Gesicht',
+		meaning: 'face, sight, vision',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Gesichter",
+		plural: 'Gesichter'
 	},
 	{
-		lemma: "Mund",
-		meaning: "mouth",
+		lemma: 'Mund',
+		meaning: 'mouth',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Münder",
+		plural: 'Münder'
 	},
 	{
-		lemma: "System",
-		meaning: "system",
+		lemma: 'System',
+		meaning: 'system',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Systeme",
+		plural: 'Systeme'
 	},
 	{
-		lemma: "Angabe",
-		meaning: "information, details, data",
+		lemma: 'Angabe',
+		meaning: 'information, details, data',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Angaben",
+		plural: 'Angaben'
 	},
 	{
-		lemma: "Gegensatz",
-		meaning: "contrast, opposite",
+		lemma: 'Gegensatz',
+		meaning: 'contrast, opposite',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Gegensätze",
+		plural: 'Gegensätze'
 	},
 	{
-		lemma: "Verbindung",
-		meaning: "connection, link, association",
+		lemma: 'Verbindung',
+		meaning: 'connection, link, association',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Verbindungen",
+		plural: 'Verbindungen'
 	},
 	{
-		lemma: "Soldat",
-		meaning: "soldiers",
+		lemma: 'Soldat',
+		meaning: 'soldiers',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Soldaten",
+		plural: 'Soldaten'
 	},
 	{
-		lemma: "Umgebung",
-		meaning: "surroundings, environment, vicinity",
+		lemma: 'Umgebung',
+		meaning: 'surroundings, environment, vicinity',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Umgebungen",
+		plural: 'Umgebungen'
 	},
 	{
-		lemma: "Kraft",
-		meaning: "strength, power, force",
+		lemma: 'Kraft',
+		meaning: 'strength, power, force',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Kräfte",
-	},
-					{
-		lemma: "Abschluss",
-		meaning: "conclusion, degree, graduation",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Abschlüsse",
+		plural: 'Kräfte'
 	},
 	{
-		lemma: "Jänner",
-		meaning: "January",
+		lemma: 'Abschluss',
+		meaning: 'conclusion, degree, graduation',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Jänner",
+		plural: 'Abschlüsse'
 	},
 	{
-		lemma: "Sinn",
-		meaning: "sense, mind, meaning",
+		lemma: 'Jänner',
+		meaning: 'January',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Sinne",
+		plural: 'Jänner'
 	},
-		{
-		lemma: "Basis",
-		meaning: "basis, base, foundation",
+	{
+		lemma: 'Sinn',
+		meaning: 'sense, mind, meaning',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Sinne'
+	},
+	{
+		lemma: 'Basis',
+		meaning: 'basis, base, foundation',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Basen",
+		plural: 'Basen'
 	},
-			{
-		lemma: "Engagement",
-		meaning: "commitment, involvement",
+	{
+		lemma: 'Engagement',
+		meaning: 'commitment, involvement',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Engagements",
+		plural: 'Engagements'
 	},
 	{
-		lemma: "Sicht",
-		meaning: "view, sight, perspective",
+		lemma: 'Sicht',
+		meaning: 'view, sight, perspective',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Sichten",
+		plural: 'Sichten'
 	},
 	{
-		lemma: "Produktion",
-		meaning: "production",
+		lemma: 'Produktion',
+		meaning: 'production',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Produktionen",
+		plural: 'Produktionen'
 	},
 	{
-		lemma: "Antrag",
-		meaning: "application, request, proposal",
+		lemma: 'Antrag',
+		meaning: 'application, request, proposal',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Anträge",
+		plural: 'Anträge'
 	},
 	{
-		lemma: "Klasse",
-		meaning: "class, grade",
+		lemma: 'Klasse',
+		meaning: 'class, grade',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Klassen",
-	},
-				{
-		lemma: "Stiftung",
-		meaning: "foundation, endowment",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Stiftungen",
+		plural: 'Klassen'
 	},
 	{
-		lemma: "Gefühl",
-		meaning: "feeling, emotion",
+		lemma: 'Stiftung',
+		meaning: 'foundation, endowment',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Stiftungen'
+	},
+	{
+		lemma: 'Gefühl',
+		meaning: 'feeling, emotion',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Gefühle",
+		plural: 'Gefühle'
 	},
-					{
-		lemma: "Schiff",
-		meaning: "ship, boat",
+	{
+		lemma: 'Schiff',
+		meaning: 'ship, boat',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Schiffe",
+		plural: 'Schiffe'
 	},
 	{
-		lemma: "Ausland",
-		meaning: "foreign country, abroad",
+		lemma: 'Ausland',
+		meaning: 'foreign country, abroad',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Ausland",
+		plural: 'Ausland'
 	},
-		{
-		lemma: "Zeitschrift",
-		meaning: "magazine, periodical",
+	{
+		lemma: 'Zeitschrift',
+		meaning: 'magazine, periodical',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Zeitschriften",
+		plural: 'Zeitschriften'
 	},
-									{
-		lemma: "Zusammenhang",
-		meaning: "context, connection, correlation",
+	{
+		lemma: 'Zusammenhang',
+		meaning: 'context, connection, correlation',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Zusammenhänge",
+		plural: 'Zusammenhänge'
 	},
 	{
-		lemma: "Dreier",
-		meaning: "group of three, three-pointer",
+		lemma: 'Dreier',
+		meaning: 'group of three, three-pointer',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Dreier",
+		plural: 'Dreier'
 	},
 	{
-		lemma: "Farbe",
-		meaning: "colors, paints",
+		lemma: 'Farbe',
+		meaning: 'colors, paints',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Farben",
-	},
-		{
-		lemma: "Kategorie",
-		meaning: "category",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Kategorien",
+		plural: 'Farben'
 	},
 	{
-		lemma: "Vibrator",
-		meaning: "vibrator",
+		lemma: 'Kategorie',
+		meaning: 'category',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Kategorien'
+	},
+	{
+		lemma: 'Vibrator',
+		meaning: 'vibrator',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Vibratoren",
+		plural: 'Vibratoren'
 	},
 	{
-		lemma: "Vertrag",
-		meaning: "contract or agreement",
+		lemma: 'Vertrag',
+		meaning: 'contract or agreement',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Verträge",
+		plural: 'Verträge'
 	},
 	{
-		lemma: "Nachricht",
-		meaning: "news, messages",
+		lemma: 'Nachricht',
+		meaning: 'news, messages',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Nachrichten",
+		plural: 'Nachrichten'
 	},
 	{
-		lemma: "Reise",
-		meaning: "journey, trip, travel",
+		lemma: 'Reise',
+		meaning: 'journey, trip, travel',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Reisen",
+		plural: 'Reisen'
 	},
 	{
-		lemma: "Truppe",
-		meaning: "troops, forces",
+		lemma: 'Truppe',
+		meaning: 'troops, forces',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Truppen",
+		plural: 'Truppen'
 	},
 	{
-		lemma: "Landkreis",
-		meaning: "administrative district, county",
+		lemma: 'Landkreis',
+		meaning: 'administrative district, county',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Landkreise",
+		plural: 'Landkreise'
 	},
-										{
-		lemma: "Verwendung",
-		meaning: "use, application, usage",
+	{
+		lemma: 'Verwendung',
+		meaning: 'use, application, usage',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Verwendungen",
+		plural: 'Verwendungen'
 	},
-										{
-		lemma: "Unterricht",
-		meaning: "instruction, lessons",
+	{
+		lemma: 'Unterricht',
+		meaning: 'instruction, lessons',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Unterrichte",
+		plural: 'Unterrichte'
 	},
-						{
-		lemma: "Leitung",
-		meaning: "leadership / management / pipe",
+	{
+		lemma: 'Leitung',
+		meaning: 'leadership / management / pipe',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Leitungen",
+		plural: 'Leitungen'
 	},
-			{
-		lemma: "Ding",
-		meaning: "thing, object",
+	{
+		lemma: 'Ding',
+		meaning: 'thing, object',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Dinge",
+		plural: 'Dinge'
 	},
-					{
-		lemma: "Studierende",
-		meaning: "students",
+	{
+		lemma: 'Studierende',
+		meaning: 'students',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: "Studierenden",
+		plural: 'Studierenden'
 	},
-				{
-		lemma: "Angst",
-		meaning: "fear or anxiety",
+	{
+		lemma: 'Angst',
+		meaning: 'fear or anxiety',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Ängste",
+		plural: 'Ängste'
 	},
-		{
-		lemma: "Rang",
-		meaning: "rank, position, row",
+	{
+		lemma: 'Rang',
+		meaning: 'rank, position, row',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Ränge",
+		plural: 'Ränge'
 	},
-						{
-		lemma: "Gott",
-		meaning: "god",
+	{
+		lemma: 'Gott',
+		meaning: 'god',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Götter",
-	},
-				{
-		lemma: "Idee",
-		meaning: "idea",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Ideen",
+		plural: 'Götter'
 	},
 	{
-		lemma: "Lauf",
-		meaning: "course, run",
+		lemma: 'Idee',
+		meaning: 'idea',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Ideen'
+	},
+	{
+		lemma: 'Lauf',
+		meaning: 'course, run',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Läufe",
+		plural: 'Läufe'
 	},
 	{
-		lemma: "Version",
-		meaning: "version",
+		lemma: 'Version',
+		meaning: 'version',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Versionen",
+		plural: 'Versionen'
 	},
 	{
-		lemma: "Wagen",
-		meaning: "car, vehicle, wagon",
+		lemma: 'Wagen',
+		meaning: 'car, vehicle, wagon',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Wagen",
-	},
-				{
-		lemma: "Meinung",
-		meaning: "opinion",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Meinungen",
+		plural: 'Wagen'
 	},
 	{
-		lemma: "Experte",
-		meaning: "experts",
+		lemma: 'Meinung',
+		meaning: 'opinion',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Meinungen'
+	},
+	{
+		lemma: 'Experte',
+		meaning: 'experts',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Experten",
+		plural: 'Experten'
 	},
 	{
-		lemma: "Einrichtung",
-		meaning: "facilities, institutions",
+		lemma: 'Einrichtung',
+		meaning: 'facilities, institutions',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Einrichtungen",
+		plural: 'Einrichtungen'
 	},
-			{
-		lemma: "Bezirk",
-		meaning: "district or borough",
+	{
+		lemma: 'Bezirk',
+		meaning: 'district or borough',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Bezirke",
+		plural: 'Bezirke'
 	},
 	{
-		lemma: "Darstellung",
-		meaning: "representation or depiction",
+		lemma: 'Darstellung',
+		meaning: 'representation or depiction',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Darstellungen",
+		plural: 'Darstellungen'
 	},
 	{
-		lemma: "Position",
-		meaning: "position or location",
+		lemma: 'Position',
+		meaning: 'position or location',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Positionen",
+		plural: 'Positionen'
 	},
 	{
-		lemma: "Grenze",
-		meaning: "borders or limits",
+		lemma: 'Grenze',
+		meaning: 'borders or limits',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Grenzen",
+		plural: 'Grenzen'
 	},
 	{
-		lemma: "Teilnahme",
-		meaning: "participation or attendance",
+		lemma: 'Teilnahme',
+		meaning: 'participation or attendance',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Teilnahmen",
+		plural: 'Teilnahmen'
 	},
 	{
-		lemma: "Rennen",
-		meaning: "race or run",
+		lemma: 'Rennen',
+		meaning: 'race or run',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Rennen",
+		plural: 'Rennen'
 	},
-			{
-		lemma: "Hund",
-		meaning: "dog",
+	{
+		lemma: 'Hund',
+		meaning: 'dog',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Hunde",
-	},
-		{
-		lemma: "Herausforderung",
-		meaning: "challenge",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Herausforderungen",
+		plural: 'Hunde'
 	},
 	{
-		lemma: "Bürger",
-		meaning: "citizen",
+		lemma: 'Herausforderung',
+		meaning: 'challenge',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Herausforderungen'
+	},
+	{
+		lemma: 'Bürger',
+		meaning: 'citizen',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Bürger",
+		plural: 'Bürger'
 	},
 	{
-		lemma: "Urlaub",
-		meaning: "vacation, holiday",
+		lemma: 'Urlaub',
+		meaning: 'vacation, holiday',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Urlaube",
+		plural: 'Urlaube'
 	},
 	{
-		lemma: "Bewegung",
-		meaning: "movement, motion",
+		lemma: 'Bewegung',
+		meaning: 'movement, motion',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Bewegungen",
+		plural: 'Bewegungen'
 	},
 	{
-		lemma: "Gründung",
-		meaning: "foundation, establishment",
+		lemma: 'Gründung',
+		meaning: 'foundation, establishment',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Gründungen",
+		plural: 'Gründungen'
 	},
 	{
-		lemma: "Begriff",
-		meaning: "term, concept, notion",
+		lemma: 'Begriff',
+		meaning: 'term, concept, notion',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Begriffe",
+		plural: 'Begriffe'
 	},
 	{
-		lemma: "Turm",
-		meaning: "tower",
+		lemma: 'Turm',
+		meaning: 'tower',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Türme",
+		plural: 'Türme'
 	},
 	{
-		lemma: "Organisation",
-		meaning: "organization",
+		lemma: 'Organisation',
+		meaning: 'organization',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Organisationen",
-	},
-				{
-		lemma: "Kooperation",
-		meaning: "cooperation",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Kooperationen",
+		plural: 'Organisationen'
 	},
 	{
-		lemma: "Publikum",
-		meaning: "audience, public",
+		lemma: 'Kooperation',
+		meaning: 'cooperation',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Kooperationen'
+	},
+	{
+		lemma: 'Publikum',
+		meaning: 'audience, public',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Publika",
+		plural: 'Publika'
 	},
-						{
-		lemma: "Herr",
-		meaning: "gentleman, Mr., lord",
+	{
+		lemma: 'Herr',
+		meaning: 'gentleman, Mr., lord',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Herren",
+		plural: 'Herren'
 	},
 	{
-		lemma: "Lesbe",
-		meaning: "lesbian",
+		lemma: 'Lesbe',
+		meaning: 'lesbian',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Lesben",
+		plural: 'Lesben'
 	},
 	{
-		lemma: "Liga",
-		meaning: "league",
+		lemma: 'Liga',
+		meaning: 'league',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Ligen",
+		plural: 'Ligen'
 	},
 	{
-		lemma: "Sport",
-		meaning: "sport",
+		lemma: 'Sport',
+		meaning: 'sport',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Sporte",
+		plural: 'Sporte'
 	},
 	{
-		lemma: "Club",
-		meaning: "club",
+		lemma: 'Club',
+		meaning: 'club',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Clubs",
+		plural: 'Clubs'
 	},
 	{
-		lemma: "Boden",
-		meaning: "floor, ground, soil",
+		lemma: 'Boden',
+		meaning: 'floor, ground, soil',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Böden",
-	},
-		{
-		lemma: "Funktion",
-		meaning: "function",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Funktionen",
+		plural: 'Böden'
 	},
 	{
-		lemma: "Digitalisierung",
-		meaning: "digitalization",
+		lemma: 'Funktion',
+		meaning: 'function',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Digitalisierungen",
+		plural: 'Funktionen'
 	},
 	{
-		lemma: "Menge",
-		meaning: "amount or quantity",
+		lemma: 'Digitalisierung',
+		meaning: 'digitalization',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Mengen",
+		plural: 'Digitalisierungen'
 	},
 	{
-		lemma: "Kommunikation",
-		meaning: "communication",
+		lemma: 'Menge',
+		meaning: 'amount or quantity',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Kommunikationen",
-	},
-		{
-		lemma: "Quelle",
-		meaning: "source, spring",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Quellen",
-	},
-		{
-		lemma: "Voraussetzung",
-		meaning: "requirement, condition, prerequisite",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Voraussetzungen",
+		plural: 'Mengen'
 	},
 	{
-		lemma: "Gedanke",
-		meaning: "thought",
+		lemma: 'Kommunikation',
+		meaning: 'communication',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Kommunikationen'
+	},
+	{
+		lemma: 'Quelle',
+		meaning: 'source, spring',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Quellen'
+	},
+	{
+		lemma: 'Voraussetzung',
+		meaning: 'requirement, condition, prerequisite',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Voraussetzungen'
+	},
+	{
+		lemma: 'Gedanke',
+		meaning: 'thought',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Gedanken",
-	},
-				{
-		lemma: "Pornofilm",
-		meaning: "pornographic films",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Pornofilme",
+		plural: 'Gedanken'
 	},
 	{
-		lemma: "Einfluss",
-		meaning: "influence",
+		lemma: 'Pornofilm',
+		meaning: 'pornographic films',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Einflüsse",
+		plural: 'Pornofilme'
 	},
 	{
-		lemma: "Sache",
-		meaning: "thing, matter",
+		lemma: 'Einfluss',
+		meaning: 'influence',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Einflüsse'
+	},
+	{
+		lemma: 'Sache',
+		meaning: 'thing, matter',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Sachen",
+		plural: 'Sachen'
 	},
 	{
-		lemma: "Verwaltung",
-		meaning: "administration, management",
+		lemma: 'Verwaltung',
+		meaning: 'administration, management',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Verwaltungen",
+		plural: 'Verwaltungen'
 	},
 	{
-		lemma: "Armee",
-		meaning: "army",
+		lemma: 'Armee',
+		meaning: 'army',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Armeen",
+		plural: 'Armeen'
 	},
-		{
-		lemma: "Dienstleistung",
-		meaning: "services",
+	{
+		lemma: 'Dienstleistung',
+		meaning: 'services',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Dienstleistungen",
+		plural: 'Dienstleistungen'
 	},
 	{
-		lemma: "Künstler",
-		meaning: "artist",
+		lemma: 'Künstler',
+		meaning: 'artist',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Künstler",
-	},
-		{
-		lemma: "Winter",
-		meaning: "winter",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Winter",
-	},
-					{
-		lemma: "Kurs",
-		meaning: "course, class, exchange rate",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Kurse",
+		plural: 'Künstler'
 	},
 	{
-		lemma: "Bezug",
-		meaning: "reference, cover, relationship",
+		lemma: 'Winter',
+		meaning: 'winter',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Bezüge",
+		plural: 'Winter'
 	},
 	{
-		lemma: "Aktivität",
-		meaning: "activity",
+		lemma: 'Kurs',
+		meaning: 'course, class, exchange rate',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Kurse'
+	},
+	{
+		lemma: 'Bezug',
+		meaning: 'reference, cover, relationship',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Bezüge'
+	},
+	{
+		lemma: 'Aktivität',
+		meaning: 'activity',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Aktivitäten",
+		plural: 'Aktivitäten'
 	},
 	{
-		lemma: "Werbung",
-		meaning: "advertising, advertisement",
+		lemma: 'Werbung',
+		meaning: 'advertising, advertisement',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Werbungen",
+		plural: 'Werbungen'
 	},
 	{
-		lemma: "Herbst",
-		meaning: "autumn, fall",
+		lemma: 'Herbst',
+		meaning: 'autumn, fall',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Herbste",
+		plural: 'Herbste'
 	},
-		{
-		lemma: "Bedürfnis",
-		meaning: "needs, requirements",
+	{
+		lemma: 'Bedürfnis',
+		meaning: 'needs, requirements',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Bedürfnisse",
+		plural: 'Bedürfnisse'
 	},
 	{
-		lemma: "Vielfalt",
-		meaning: "diversity, variety",
+		lemma: 'Vielfalt',
+		meaning: 'diversity, variety',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Vielfalten",
+		plural: 'Vielfalten'
 	},
 	{
-		lemma: "Größe",
-		meaning: "size, height, greatness",
+		lemma: 'Größe',
+		meaning: 'size, height, greatness',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Größen",
+		plural: 'Größen'
 	},
 	{
-		lemma: "Staffel",
-		meaning: "season, relay, squadron",
+		lemma: 'Staffel',
+		meaning: 'season, relay, squadron',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Staffeln",
+		plural: 'Staffeln'
 	},
 	{
-		lemma: "Zugang",
-		meaning: "access, entrance",
+		lemma: 'Zugang',
+		meaning: 'access, entrance',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Zugänge",
+		plural: 'Zugänge'
 	},
 	{
-		lemma: "Milliarde",
-		meaning: "billions",
+		lemma: 'Milliarde',
+		meaning: 'billions',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Milliarden",
+		plural: 'Milliarden'
 	},
 	{
-		lemma: "Garten",
-		meaning: "garden",
+		lemma: 'Garten',
+		meaning: 'garden',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Gärten",
+		plural: 'Gärten'
 	},
-		{
-		lemma: "Hersteller",
-		meaning: "manufacturer, producer",
+	{
+		lemma: 'Hersteller',
+		meaning: 'manufacturer, producer',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Hersteller",
+		plural: 'Hersteller'
 	},
-		{
-		lemma: "Licht",
-		meaning: "light",
+	{
+		lemma: 'Licht',
+		meaning: 'light',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Lichter",
+		plural: 'Lichter'
 	},
 	{
-		lemma: "Wirkung",
-		meaning: "effect, impact",
+		lemma: 'Wirkung',
+		meaning: 'effect, impact',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Wirkungen",
+		plural: 'Wirkungen'
 	},
 	{
-		lemma: "Kollege",
-		meaning: "colleagues",
+		lemma: 'Kollege',
+		meaning: 'colleagues',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Kollegen",
+		plural: 'Kollegen'
 	},
 	{
-		lemma: "Handel",
-		meaning: "trade, commerce",
+		lemma: 'Handel',
+		meaning: 'trade, commerce',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Händel",
+		plural: 'Händel'
 	},
 	{
-		lemma: "Gespräch",
-		meaning: "conversation, talk",
+		lemma: 'Gespräch',
+		meaning: 'conversation, talk',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Gespräche",
+		plural: 'Gespräche'
 	},
 	{
-		lemma: "Institut",
-		meaning: "institute, institution",
+		lemma: 'Institut',
+		meaning: 'institute, institution',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Institute",
+		plural: 'Institute'
 	},
 	{
-		lemma: "Gelände",
-		meaning: "terrain, grounds, site",
+		lemma: 'Gelände',
+		meaning: 'terrain, grounds, site',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Gelände",
+		plural: 'Gelände'
 	},
-		{
-		lemma: "Austausch",
-		meaning: "exchange",
+	{
+		lemma: 'Austausch',
+		meaning: 'exchange',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Austausche",
+		plural: 'Austausche'
 	},
 	{
-		lemma: "Weiterbildung",
-		meaning: "further education",
+		lemma: 'Weiterbildung',
+		meaning: 'further education',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Weiterbildungen",
+		plural: 'Weiterbildungen'
 	},
 	{
-		lemma: "Bedarf",
-		meaning: "need, demand",
+		lemma: 'Bedarf',
+		meaning: 'need, demand',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Bedarfe",
-	},
-								{
-		lemma: "Verantwortung",
-		meaning: "responsibility",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Verantwortungen",
+		plural: 'Bedarfe'
 	},
 	{
-		lemma: "Bericht",
-		meaning: "report, account",
+		lemma: 'Verantwortung',
+		meaning: 'responsibility',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Verantwortungen'
+	},
+	{
+		lemma: 'Bericht',
+		meaning: 'report, account',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Berichte",
+		plural: 'Berichte'
 	},
 	{
-		lemma: "Chance",
-		meaning: "chance, opportunity",
+		lemma: 'Chance',
+		meaning: 'chance, opportunity',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Chancen",
+		plural: 'Chancen'
 	},
-		{
-		lemma: "Kampf",
-		meaning: "fight, struggle, battle",
+	{
+		lemma: 'Kampf',
+		meaning: 'fight, struggle, battle',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Kämpfe",
-	},
-		{
-		lemma: "Herrschaft",
-		meaning: "rule, reign, dominion",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Herrschaften",
+		plural: 'Kämpfe'
 	},
 	{
-		lemma: "Gerät",
-		meaning: "device, appliance, equipment",
+		lemma: 'Herrschaft',
+		meaning: 'rule, reign, dominion',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Herrschaften'
+	},
+	{
+		lemma: 'Gerät',
+		meaning: 'device, appliance, equipment',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Geräte",
+		plural: 'Geräte'
 	},
 	{
-		lemma: "Arbeitgeber",
-		meaning: "employer",
+		lemma: 'Arbeitgeber',
+		meaning: 'employer',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Arbeitgeber",
+		plural: 'Arbeitgeber'
 	},
 	{
-		lemma: "Integration",
-		meaning: "integration",
+		lemma: 'Integration',
+		meaning: 'integration',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Integrationen",
+		plural: 'Integrationen'
 	},
 	{
-		lemma: "Führung",
-		meaning: "leadership; guidance; tour",
+		lemma: 'Führung',
+		meaning: 'leadership; guidance; tour',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Führungen",
+		plural: 'Führungen'
 	},
 	{
-		lemma: "Wald",
-		meaning: "forest; woods",
+		lemma: 'Wald',
+		meaning: 'forest; woods',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Wälder",
+		plural: 'Wälder'
 	},
 	{
-		lemma: "Umwelt",
-		meaning: "environment",
+		lemma: 'Umwelt',
+		meaning: 'environment',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Umwelten",
+		plural: 'Umwelten'
 	},
 	{
-		lemma: "Sitz",
-		meaning: "seat, headquarters",
+		lemma: 'Sitz',
+		meaning: 'seat, headquarters',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Sitze",
+		plural: 'Sitze'
 	},
 	{
-		lemma: "Runde",
-		meaning: "round, lap",
+		lemma: 'Runde',
+		meaning: 'round, lap',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Runden",
+		plural: 'Runden'
 	},
 	{
-		lemma: "Aktie",
-		meaning: "share, stock",
+		lemma: 'Aktie',
+		meaning: 'share, stock',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Aktien",
+		plural: 'Aktien'
 	},
 	{
-		lemma: "Anmeldung",
-		meaning: "registration, login",
+		lemma: 'Anmeldung',
+		meaning: 'registration, login',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Anmeldungen",
-	},
-				{
-		lemma: "Vorsitzender",
-		meaning: "chairman, chairperson",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Vorsitzenden",
+		plural: 'Anmeldungen'
 	},
 	{
-		lemma: "Arzt",
-		meaning: "doctor, physician",
+		lemma: 'Vorsitzender',
+		meaning: 'chairman, chairperson',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Ärzte",
+		plural: 'Vorsitzenden'
 	},
 	{
-		lemma: "Wunsch",
-		meaning: "wish, desire",
+		lemma: 'Arzt',
+		meaning: 'doctor, physician',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Wünsche",
+		plural: 'Ärzte'
 	},
 	{
-		lemma: "Glück",
-		meaning: "luck, happiness",
+		lemma: 'Wunsch',
+		meaning: 'wish, desire',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Wünsche'
+	},
+	{
+		lemma: 'Glück',
+		meaning: 'luck, happiness',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "-",
+		plural: '-'
 	},
-					{
-		lemma: "Anteil",
-		meaning: "share, portion, proportion",
+	{
+		lemma: 'Anteil',
+		meaning: 'share, portion, proportion',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Anteile",
+		plural: 'Anteile'
 	},
-		{
-		lemma: "Zeitung",
-		meaning: "newspaper",
+	{
+		lemma: 'Zeitung',
+		meaning: 'newspaper',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Zeitungen",
+		plural: 'Zeitungen'
 	},
-			{
-		lemma: "Gemeinderat",
-		meaning: "local council, municipal council",
+	{
+		lemma: 'Gemeinderat',
+		meaning: 'local council, municipal council',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Gemeinderäte",
+		plural: 'Gemeinderäte'
 	},
-				{
-		lemma: "Motto",
-		meaning: "motto, slogan, theme",
+	{
+		lemma: 'Motto',
+		meaning: 'motto, slogan, theme',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Mottos",
+		plural: 'Mottos'
 	},
 	{
-		lemma: "Stil",
-		meaning: "style, manner",
+		lemma: 'Stil',
+		meaning: 'style, manner',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Stile",
+		plural: 'Stile'
 	},
 	{
-		lemma: "Auftrag",
-		meaning: "order, assignment, mission",
+		lemma: 'Auftrag',
+		meaning: 'order, assignment, mission',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Aufträge",
+		plural: 'Aufträge'
 	},
 	{
-		lemma: "Konzept",
-		meaning: "concept, draft, plan",
+		lemma: 'Konzept',
+		meaning: 'concept, draft, plan',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Konzepte",
+		plural: 'Konzepte'
 	},
 	{
-		lemma: "Schluss",
-		meaning: "end, conclusion, finish",
+		lemma: 'Schluss',
+		meaning: 'end, conclusion, finish',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Schlüsse",
+		plural: 'Schlüsse'
 	},
 	{
-		lemma: "Überblick",
-		meaning: "overview, survey, summary",
+		lemma: 'Überblick',
+		meaning: 'overview, survey, summary',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Überblicke",
+		plural: 'Überblicke'
 	},
-		{
-		lemma: "Casino",
-		meaning: "casino",
+	{
+		lemma: 'Casino',
+		meaning: 'casino',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Casinos",
+		plural: 'Casinos'
 	},
 	{
-		lemma: "Moment",
-		meaning: "moment",
+		lemma: 'Moment',
+		meaning: 'moment',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Momente",
+		plural: 'Momente'
 	},
 	{
-		lemma: "Wissenschaft",
-		meaning: "science, scholarship",
+		lemma: 'Wissenschaft',
+		meaning: 'science, scholarship',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Wissenschaften",
+		plural: 'Wissenschaften'
 	},
 	{
-		lemma: "Beruf",
-		meaning: "profession, job, occupation",
+		lemma: 'Beruf',
+		meaning: 'profession, job, occupation',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Berufe",
+		plural: 'Berufe'
 	},
 	{
-		lemma: "Schüler",
-		meaning: "students, pupils",
+		lemma: 'Schüler',
+		meaning: 'students, pupils',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Schüler",
+		plural: 'Schüler'
 	},
 	{
-		lemma: "Betreuung",
-		meaning: "care, support, supervision",
+		lemma: 'Betreuung',
+		meaning: 'care, support, supervision',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Betreuungen",
+		plural: 'Betreuungen'
 	},
-							{
-		lemma: "Pflege",
-		meaning: "care, nursing, maintenance",
+	{
+		lemma: 'Pflege',
+		meaning: 'care, nursing, maintenance',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Pflegen",
+		plural: 'Pflegen'
 	},
 	{
-		lemma: "Fahrzeug",
-		meaning: "vehicle",
+		lemma: 'Fahrzeug',
+		meaning: 'vehicle',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Fahrzeuge",
+		plural: 'Fahrzeuge'
 	},
 	{
-		lemma: "Bürgermeister",
-		meaning: "mayor",
+		lemma: 'Bürgermeister',
+		meaning: 'mayor',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Bürgermeister",
+		plural: 'Bürgermeister'
 	},
 	{
-		lemma: "Abenteuer",
-		meaning: "adventure",
+		lemma: 'Abenteuer',
+		meaning: 'adventure',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Abenteuer",
+		plural: 'Abenteuer'
 	},
 	{
-		lemma: "Planung",
-		meaning: "planning",
+		lemma: 'Planung',
+		meaning: 'planning',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Planungen",
+		plural: 'Planungen'
 	},
 	{
-		lemma: "Sexspielzeug",
-		meaning: "sex toy",
+		lemma: 'Sexspielzeug',
+		meaning: 'sex toy',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Sexspielzeuge",
+		plural: 'Sexspielzeuge'
 	},
 	{
-		lemma: "Schwerpunkt",
-		meaning: "focus, emphasis",
+		lemma: 'Schwerpunkt',
+		meaning: 'focus, emphasis',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Schwerpunkte",
+		plural: 'Schwerpunkte'
 	},
 	{
-		lemma: "Anschluss",
-		meaning: "connection, link",
+		lemma: 'Anschluss',
+		meaning: 'connection, link',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Anschlüsse",
+		plural: 'Anschlüsse'
 	},
 	{
-		lemma: "Leiter",
-		meaning: "leader, manager, or ladder",
+		lemma: 'Leiter',
+		meaning: 'leader, manager, or ladder',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: "die Leiter/Leitern",
+		plural: 'die Leiter/Leitern'
 	},
 	{
-		lemma: "Meister",
-		meaning: "master or champion",
+		lemma: 'Meister',
+		meaning: 'master or champion',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "die Meister",
+		plural: 'die Meister'
 	},
 	{
-		lemma: "Abschnitt",
-		meaning: "section, segment, or paragraph",
+		lemma: 'Abschnitt',
+		meaning: 'section, segment, or paragraph',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "die Abschnitte",
+		plural: 'die Abschnitte'
 	},
 	{
-		lemma: "Bank",
-		meaning: "bank or bench",
+		lemma: 'Bank',
+		meaning: 'bank or bench',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "die Banken/Bänke",
+		plural: 'die Banken/Bänke'
 	},
 	{
-		lemma: "Druck",
-		meaning: "pressure or print",
+		lemma: 'Druck',
+		meaning: 'pressure or print',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "die Drücke/Drucke",
+		plural: 'die Drücke/Drucke'
 	},
 	{
-		lemma: "Selbstbefriedigung",
-		meaning: "masturbation",
+		lemma: 'Selbstbefriedigung',
+		meaning: 'masturbation',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "die Selbstbefriedigungen",
+		plural: 'die Selbstbefriedigungen'
 	},
-			{
-		lemma: "Dienst",
-		meaning: "service, duty, shift",
+	{
+		lemma: 'Dienst',
+		meaning: 'service, duty, shift',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Dienste",
+		plural: 'Dienste'
 	},
 	{
-		lemma: "Hof",
-		meaning: "courtyard, yard, or farm",
+		lemma: 'Hof',
+		meaning: 'courtyard, yard, or farm',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Höfe",
-	},
-		{
-		lemma: "Stundenhotel",
-		meaning: "hourly hotel",
-		partOfSpeech: 'noun' as const,
-		gender: 'das' as const,
-		plural: "Stundenhotels",
-	},
-							{
-		lemma: "Ausgabe",
-		meaning: "edition, issue, expense",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Ausgaben",
+		plural: 'Höfe'
 	},
 	{
-		lemma: "Brücke",
-		meaning: "bridge",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Brücken",
-	},
-	{
-		lemma: "Englisch",
-		meaning: "English language",
+		lemma: 'Stundenhotel',
+		meaning: 'hourly hotel',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "-",
+		plural: 'Stundenhotels'
 	},
 	{
-		lemma: "Kommune",
-		meaning: "municipalities, local authorities",
+		lemma: 'Ausgabe',
+		meaning: 'edition, issue, expense',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Kommunen",
+		plural: 'Ausgaben'
 	},
 	{
-		lemma: "Versorgung",
-		meaning: "supply, provision, care",
+		lemma: 'Brücke',
+		meaning: 'bridge',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Versorgungen",
+		plural: 'Brücken'
 	},
 	{
-		lemma: "Öffentlichkeit",
-		meaning: "public, general public",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Öffentlichkeiten",
-	},
-		{
-		lemma: "Lehrer",
-		meaning: "teacher",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Lehrer",
-	},
-		{
-		lemma: "Kombination",
-		meaning: "combination",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Kombinationen",
-	},
-	{
-		lemma: "Mitgliedstaat",
-		meaning: "member states",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Mitgliedstaaten",
-	},
-	{
-		lemma: "Kapelle",
-		meaning: "chapel, band",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Kapellen",
-	},
-	{
-		lemma: "Liste",
-		meaning: "list",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Listen",
-	},
-	{
-		lemma: "Satz",
-		meaning: "sentence, set",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Sätze",
-	},
-	{
-		lemma: "Prüfung",
-		meaning: "exam, test, examination",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Prüfungen",
-	},
-	{
-		lemma: "Auflage",
-		meaning: "edition, requirement, circulation",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Auflagen",
-	},
-	{
-		lemma: "Bühne",
-		meaning: "stage, platform",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Bühnen",
-	},
-	{
-		lemma: "Mittel",
-		meaning: "means, remedy, average",
+		lemma: 'Englisch',
+		meaning: 'English language',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Mittel",
+		plural: '-'
 	},
-					{
-		lemma: "Wort",
-		meaning: "word",
+	{
+		lemma: 'Kommune',
+		meaning: 'municipalities, local authorities',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Kommunen'
+	},
+	{
+		lemma: 'Versorgung',
+		meaning: 'supply, provision, care',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Versorgungen'
+	},
+	{
+		lemma: 'Öffentlichkeit',
+		meaning: 'public, general public',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Öffentlichkeiten'
+	},
+	{
+		lemma: 'Lehrer',
+		meaning: 'teacher',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Lehrer'
+	},
+	{
+		lemma: 'Kombination',
+		meaning: 'combination',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Kombinationen'
+	},
+	{
+		lemma: 'Mitgliedstaat',
+		meaning: 'member states',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Mitgliedstaaten'
+	},
+	{
+		lemma: 'Kapelle',
+		meaning: 'chapel, band',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Kapellen'
+	},
+	{
+		lemma: 'Liste',
+		meaning: 'list',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Listen'
+	},
+	{
+		lemma: 'Satz',
+		meaning: 'sentence, set',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Sätze'
+	},
+	{
+		lemma: 'Prüfung',
+		meaning: 'exam, test, examination',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Prüfungen'
+	},
+	{
+		lemma: 'Auflage',
+		meaning: 'edition, requirement, circulation',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Auflagen'
+	},
+	{
+		lemma: 'Bühne',
+		meaning: 'stage, platform',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Bühnen'
+	},
+	{
+		lemma: 'Mittel',
+		meaning: 'means, remedy, average',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Wörter",
+		plural: 'Mittel'
 	},
 	{
-		lemma: "Verlauf",
-		meaning: "course, process, progress",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Verläufe",
-	},
-	{
-		lemma: "Fokus",
-		meaning: "focus",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Fokusse",
-	},
-	{
-		lemma: "Holz",
-		meaning: "wood",
+		lemma: 'Wort',
+		meaning: 'word',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Hölzer",
+		plural: 'Wörter'
 	},
 	{
-		lemma: "Stimme",
-		meaning: "voice, vote",
+		lemma: 'Verlauf',
+		meaning: 'course, process, progress',
 		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Stimmen",
+		gender: 'der' as const,
+		plural: 'Verläufe'
 	},
 	{
-		lemma: "Umfeld",
-		meaning: "environment, surroundings",
+		lemma: 'Fokus',
+		meaning: 'focus',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Fokusse'
+	},
+	{
+		lemma: 'Holz',
+		meaning: 'wood',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Umfelder",
-	},
-			{
-		lemma: "Kritik",
-		meaning: "criticism, review",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Kritiken",
-	},
-			{
-		lemma: "Standort",
-		meaning: "location, site, position",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Standorte",
+		plural: 'Hölzer'
 	},
 	{
-		lemma: "Anliegen",
-		meaning: "concern, request, matter",
+		lemma: 'Stimme',
+		meaning: 'voice, vote',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Stimmen'
+	},
+	{
+		lemma: 'Umfeld',
+		meaning: 'environment, surroundings',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Anliegen",
+		plural: 'Umfelder'
 	},
-					{
-		lemma: "Modell",
-		meaning: "model, pattern",
+	{
+		lemma: 'Kritik',
+		meaning: 'criticism, review',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Kritiken'
+	},
+	{
+		lemma: 'Standort',
+		meaning: 'location, site, position',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Standorte'
+	},
+	{
+		lemma: 'Anliegen',
+		meaning: 'concern, request, matter',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Modelle",
+		plural: 'Anliegen'
 	},
 	{
-		lemma: "Rechnung",
-		meaning: "bill, invoice, calculation",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Rechnungen",
-	},
-	{
-		lemma: "Weibchen",
-		meaning: "female (animal)",
+		lemma: 'Modell',
+		meaning: 'model, pattern',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Weibchen",
+		plural: 'Modelle'
 	},
-		{
-		lemma: "Detail",
-		meaning: "detail",
+	{
+		lemma: 'Rechnung',
+		meaning: 'bill, invoice, calculation',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Rechnungen'
+	},
+	{
+		lemma: 'Weibchen',
+		meaning: 'female (animal)',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Details",
+		plural: 'Weibchen'
 	},
 	{
-		lemma: "Vielzahl",
-		meaning: "multitude, large number",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Vielzahlen",
-	},
-		{
-		lemma: "Bewohner",
-		meaning: "resident or inhabitant",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Bewohner",
-	},
-	{
-		lemma: "Zeichen",
-		meaning: "sign, symbol, or character",
+		lemma: 'Detail',
+		meaning: 'detail',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Zeichen",
-	},
-		{
-		lemma: "Gestaltung",
-		meaning: "design, arrangement, or creation",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Gestaltungen",
+		plural: 'Details'
 	},
 	{
-		lemma: "Einführung",
-		meaning: "introduction, implementation",
+		lemma: 'Vielzahl',
+		meaning: 'multitude, large number',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Einführungen",
+		plural: 'Vielzahlen'
 	},
-					{
-		lemma: "Hintergrund",
-		meaning: "background",
+	{
+		lemma: 'Bewohner',
+		meaning: 'resident or inhabitant',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Hintergründe",
-	},
-			{
-		lemma: "Siedlung",
-		meaning: "settlement, housing estate",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Siedlungen",
+		plural: 'Bewohner'
 	},
 	{
-		lemma: "Opfer",
-		meaning: "victim, sacrifice",
+		lemma: 'Zeichen',
+		meaning: 'sign, symbol, or character',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Opfer",
+		plural: 'Zeichen'
 	},
 	{
-		lemma: "Sammlung",
-		meaning: "collection",
+		lemma: 'Gestaltung',
+		meaning: 'design, arrangement, or creation',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Sammlungen",
+		plural: 'Gestaltungen'
 	},
 	{
-		lemma: "Park",
-		meaning: "park",
+		lemma: 'Einführung',
+		meaning: 'introduction, implementation',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Einführungen'
+	},
+	{
+		lemma: 'Hintergrund',
+		meaning: 'background',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Parks",
+		plural: 'Hintergründe'
 	},
 	{
-		lemma: "Verkauf",
-		meaning: "sale, selling",
+		lemma: 'Siedlung',
+		meaning: 'settlement, housing estate',
 		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Verkäufe",
+		gender: 'die' as const,
+		plural: 'Siedlungen'
 	},
 	{
-		lemma: "Zentimeter",
-		meaning: "centimeter",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Zentimeter",
-	},
-	{
-		lemma: "Tor",
-		meaning: "gates or goals",
+		lemma: 'Opfer',
+		meaning: 'victim, sacrifice',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Tore",
+		plural: 'Opfer'
 	},
 	{
-		lemma: "Netz",
-		meaning: "net, network, web",
+		lemma: 'Sammlung',
+		meaning: 'collection',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Sammlungen'
+	},
+	{
+		lemma: 'Park',
+		meaning: 'park',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Parks'
+	},
+	{
+		lemma: 'Verkauf',
+		meaning: 'sale, selling',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Verkäufe'
+	},
+	{
+		lemma: 'Zentimeter',
+		meaning: 'centimeter',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Zentimeter'
+	},
+	{
+		lemma: 'Tor',
+		meaning: 'gates or goals',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Netze",
-	},
-			{
-		lemma: "Zeitraum",
-		meaning: "period of time, timeframe",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Zeiträume",
+		plural: 'Tore'
 	},
 	{
-		lemma: "Studio",
-		meaning: "studio",
+		lemma: 'Netz',
+		meaning: 'net, network, web',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Studios",
+		plural: 'Netze'
 	},
 	{
-		lemma: "Pflanze",
-		meaning: "plants",
+		lemma: 'Zeitraum',
+		meaning: 'period of time, timeframe',
 		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Pflanzen",
+		gender: 'der' as const,
+		plural: 'Zeiträume'
 	},
 	{
-		lemma: "Netzwerk",
-		meaning: "network",
+		lemma: 'Studio',
+		meaning: 'studio',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Netzwerke",
+		plural: 'Studios'
 	},
 	{
-		lemma: "Finale",
-		meaning: "final or finale",
+		lemma: 'Pflanze',
+		meaning: 'plants',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Pflanzen'
+	},
+	{
+		lemma: 'Netzwerk',
+		meaning: 'network',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Finale",
+		plural: 'Netzwerke'
 	},
-		{
-		lemma: "Amateur",
-		meaning: "amateur",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Amateure",
-	},
-			{
-		lemma: "Ehefrau",
-		meaning: "wife",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Ehefrauen",
-	},
-		{
-		lemma: "Aktion",
-		meaning: "action, campaign",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Aktionen",
-	},
-				{
-		lemma: "Kloster",
-		meaning: "monastery or convent",
+	{
+		lemma: 'Finale',
+		meaning: 'final or finale',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Klöster",
-	},
-		{
-		lemma: "Diskussion",
-		meaning: "discussion, debate",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Diskussionen",
+		plural: 'Finale'
 	},
 	{
-		lemma: "Roman",
-		meaning: "novel",
+		lemma: 'Amateur',
+		meaning: 'amateur',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Romane",
+		plural: 'Amateure'
 	},
 	{
-		lemma: "Bundesregierung",
-		meaning: "federal government",
+		lemma: 'Ehefrau',
+		meaning: 'wife',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Bundesregierungen",
+		plural: 'Ehefrauen'
 	},
 	{
-		lemma: "Team",
-		meaning: "teams",
+		lemma: 'Aktion',
+		meaning: 'action, campaign',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Aktionen'
+	},
+	{
+		lemma: 'Kloster',
+		meaning: 'monastery or convent',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Teams",
-	},
-		{
-		lemma: "Nachfolger",
-		meaning: "successor",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Nachfolger",
+		plural: 'Klöster'
 	},
 	{
-		lemma: "Risiko",
-		meaning: "risk",
+		lemma: 'Diskussion',
+		meaning: 'discussion, debate',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Diskussionen'
+	},
+	{
+		lemma: 'Roman',
+		meaning: 'novel',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Romane'
+	},
+	{
+		lemma: 'Bundesregierung',
+		meaning: 'federal government',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Bundesregierungen'
+	},
+	{
+		lemma: 'Team',
+		meaning: 'teams',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Risiken",
+		plural: 'Teams'
 	},
 	{
-		lemma: "Geschmack",
-		meaning: "taste or flavor",
+		lemma: 'Nachfolger',
+		meaning: 'successor',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Geschmäcker",
-	},
-				{
-		lemma: "Landwirtschaft",
-		meaning: "agriculture",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Landwirtschaften",
+		plural: 'Nachfolger'
 	},
 	{
-		lemma: "Methode",
-		meaning: "methods",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Methoden",
-	},
-		{
-		lemma: "Kauf",
-		meaning: "purchase or buy",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Käufe",
-	},
-	{
-		lemma: "Frühjahr",
-		meaning: "spring",
+		lemma: 'Risiko',
+		meaning: 'risk',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Frühjahre",
+		plural: 'Risiken'
 	},
-		{
-		lemma: "Heimat",
-		meaning: "home, homeland",
+	{
+		lemma: 'Geschmack',
+		meaning: 'taste or flavor',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Geschmäcker'
+	},
+	{
+		lemma: 'Landwirtschaft',
+		meaning: 'agriculture',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Heimaten",
+		plural: 'Landwirtschaften'
 	},
-		{
-		lemma: "Portal",
-		meaning: "portal, gateway",
+	{
+		lemma: 'Methode',
+		meaning: 'methods',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Methoden'
+	},
+	{
+		lemma: 'Kauf',
+		meaning: 'purchase or buy',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Käufe'
+	},
+	{
+		lemma: 'Frühjahr',
+		meaning: 'spring',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Portale",
-	},
-		{
-		lemma: "Bedingung",
-		meaning: "conditions, terms",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Bedingungen",
+		plural: 'Frühjahre'
 	},
 	{
-		lemma: "Bewertung",
-		meaning: "evaluation, rating, assessment",
+		lemma: 'Heimat',
+		meaning: 'home, homeland',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Bewertungen",
-	},
-		{
-		lemma: "Ebene",
-		meaning: "level, plane, layer",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Ebenen",
-	},
-		{
-		lemma: "Luft",
-		meaning: "air",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Lüfte",
-	},
-			{
-		lemma: "Rückkehr",
-		meaning: "return, homecoming",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Rückkehren",
+		plural: 'Heimaten'
 	},
 	{
-		lemma: "Fahrt",
-		meaning: "trip, journey, drive",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Fahrten",
-	},
-	{
-		lemma: "Finger",
-		meaning: "finger",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Finger",
-	},
-		{
-		lemma: "Mittelpunkt",
-		meaning: "center, focus, midpoint",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Mittelpunkte",
-	},
-			{
-		lemma: "Gelegenheit",
-		meaning: "opportunity, occasion",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Gelegenheiten",
-	},
-	{
-		lemma: "Friedhof",
-		meaning: "cemetery, graveyard",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Friedhöfe",
-	},
-	{
-		lemma: "Wochenende",
-		meaning: "weekend",
+		lemma: 'Portal',
+		meaning: 'portal, gateway',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Wochenenden",
+		plural: 'Portale'
 	},
 	{
-		lemma: "Fehler",
-		meaning: "mistake, error",
+		lemma: 'Bedingung',
+		meaning: 'conditions, terms',
 		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Fehler",
+		gender: 'die' as const,
+		plural: 'Bedingungen'
 	},
 	{
-		lemma: "Umsatz",
-		meaning: "turnover, revenue, sales",
+		lemma: 'Bewertung',
+		meaning: 'evaluation, rating, assessment',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Bewertungen'
+	},
+	{
+		lemma: 'Ebene',
+		meaning: 'level, plane, layer',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Ebenen'
+	},
+	{
+		lemma: 'Luft',
+		meaning: 'air',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Lüfte'
+	},
+	{
+		lemma: 'Rückkehr',
+		meaning: 'return, homecoming',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Rückkehren'
+	},
+	{
+		lemma: 'Fahrt',
+		meaning: 'trip, journey, drive',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Fahrten'
+	},
+	{
+		lemma: 'Finger',
+		meaning: 'finger',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Umsätze",
+		plural: 'Finger'
 	},
-		{
-		lemma: "Wetter",
-		meaning: "weather",
+	{
+		lemma: 'Mittelpunkt',
+		meaning: 'center, focus, midpoint',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Mittelpunkte'
+	},
+	{
+		lemma: 'Gelegenheit',
+		meaning: 'opportunity, occasion',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Gelegenheiten'
+	},
+	{
+		lemma: 'Friedhof',
+		meaning: 'cemetery, graveyard',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Friedhöfe'
+	},
+	{
+		lemma: 'Wochenende',
+		meaning: 'weekend',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Wetter",
-	},
-		{
-		lemma: "Vorteil",
-		meaning: "advantage, benefit",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Vorteile",
-	},
-					{
-		lemma: "Entscheid",
-		meaning: "decision, ruling",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Entscheide",
+		plural: 'Wochenenden'
 	},
 	{
-		lemma: "Plattform",
-		meaning: "platform",
+		lemma: 'Fehler',
+		meaning: 'mistake, error',
 		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Plattformen",
+		gender: 'der' as const,
+		plural: 'Fehler'
 	},
 	{
-		lemma: "Profil",
-		meaning: "profile",
+		lemma: 'Umsatz',
+		meaning: 'turnover, revenue, sales',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Umsätze'
+	},
+	{
+		lemma: 'Wetter',
+		meaning: 'weather',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Profile",
+		plural: 'Wetter'
 	},
-		{
-		lemma: "Theater",
-		meaning: "theater",
+	{
+		lemma: 'Vorteil',
+		meaning: 'advantage, benefit',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Vorteile'
+	},
+	{
+		lemma: 'Entscheid',
+		meaning: 'decision, ruling',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Entscheide'
+	},
+	{
+		lemma: 'Plattform',
+		meaning: 'platform',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Plattformen'
+	},
+	{
+		lemma: 'Profil',
+		meaning: 'profile',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Theater",
+		plural: 'Profile'
 	},
-			{
-		lemma: "Impressum",
-		meaning: "legal notice, masthead",
+	{
+		lemma: 'Theater',
+		meaning: 'theater',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Impressen",
+		plural: 'Theater'
 	},
-		{
-		lemma: "Bein",
-		meaning: "leg",
+	{
+		lemma: 'Impressum',
+		meaning: 'legal notice, masthead',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Beine",
+		plural: 'Impressen'
 	},
 	{
-		lemma: "Männchen",
-		meaning: "little man, male animal",
+		lemma: 'Bein',
+		meaning: 'leg',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Männchen",
-	},
-		{
-		lemma: "Zustand",
-		meaning: "condition or state",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Zustände",
+		plural: 'Beine'
 	},
 	{
-		lemma: "Verhältnis",
-		meaning: "relationship or ratio",
+		lemma: 'Männchen',
+		meaning: 'little man, male animal',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Verhältnisse",
-	},
-			{
-		lemma: "Rat",
-		meaning: "advice or council",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Räte",
+		plural: 'Männchen'
 	},
 	{
-		lemma: "Gewalt",
-		meaning: "violence, force, or power",
+		lemma: 'Zustand',
+		meaning: 'condition or state',
 		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Gewalten",
+		gender: 'der' as const,
+		plural: 'Zustände'
 	},
-		{
-		lemma: "Wappen",
-		meaning: "coat of arms",
+	{
+		lemma: 'Verhältnis',
+		meaning: 'relationship or ratio',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Wappen",
+		plural: 'Verhältnisse'
 	},
 	{
-		lemma: "Professor",
-		meaning: "professor",
+		lemma: 'Rat',
+		meaning: 'advice or council',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Professoren",
-	},
-			{
-		lemma: "Veröffentlichung",
-		meaning: "publication",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Veröffentlichungen",
-	},
-								{
-		lemma: "Spitze",
-		meaning: "tip, point, top, lace",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Spitzen",
+		plural: 'Räte'
 	},
 	{
-		lemma: "Auswirkung",
-		meaning: "effects, impacts",
+		lemma: 'Gewalt',
+		meaning: 'violence, force, or power',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Auswirkungen",
+		plural: 'Gewalten'
 	},
 	{
-		lemma: "Durchführung",
-		meaning: "implementation, execution",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Durchführungen",
-	},
-	{
-		lemma: "Ernährung",
-		meaning: "nutrition, diet, or nourishment",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Ernährungen",
-	},
-	{
-		lemma: "Hinweis",
-		meaning: "hint, tip, or reference",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Hinweise",
-	},
-	{
-		lemma: "Kommentar",
-		meaning: "comment or commentary",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Kommentare",
-	},
-			{
-		lemma: "Behörde",
-		meaning: "authorities",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Behörden",
-	},
-	{
-		lemma: "Erde",
-		meaning: "earth, soil, ground",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Erden",
-	},
-	{
-		lemma: "Breite",
-		meaning: "width, breadth",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Breiten",
-	},
-		{
-		lemma: "Test",
-		meaning: "test",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Tests",
-	},
-							{
-		lemma: "Leder",
-		meaning: "leather",
+		lemma: 'Wappen',
+		meaning: 'coat of arms',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Leder",
-	},
-			{
-		lemma: "Vertreter",
-		meaning: "representative, agent, substitute",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Vertreter",
-	},
-		{
-		lemma: "Vortrag",
-		meaning: "lecture, presentation",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Vorträge",
+		plural: 'Wappen'
 	},
 	{
-		lemma: "Urteil",
-		meaning: "judgment, verdict",
+		lemma: 'Professor',
+		meaning: 'professor',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Professoren'
+	},
+	{
+		lemma: 'Veröffentlichung',
+		meaning: 'publication',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Veröffentlichungen'
+	},
+	{
+		lemma: 'Spitze',
+		meaning: 'tip, point, top, lace',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Spitzen'
+	},
+	{
+		lemma: 'Auswirkung',
+		meaning: 'effects, impacts',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Auswirkungen'
+	},
+	{
+		lemma: 'Durchführung',
+		meaning: 'implementation, execution',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Durchführungen'
+	},
+	{
+		lemma: 'Ernährung',
+		meaning: 'nutrition, diet, or nourishment',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Ernährungen'
+	},
+	{
+		lemma: 'Hinweis',
+		meaning: 'hint, tip, or reference',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Hinweise'
+	},
+	{
+		lemma: 'Kommentar',
+		meaning: 'comment or commentary',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Kommentare'
+	},
+	{
+		lemma: 'Behörde',
+		meaning: 'authorities',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Behörden'
+	},
+	{
+		lemma: 'Erde',
+		meaning: 'earth, soil, ground',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Erden'
+	},
+	{
+		lemma: 'Breite',
+		meaning: 'width, breadth',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Breiten'
+	},
+	{
+		lemma: 'Test',
+		meaning: 'test',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Tests'
+	},
+	{
+		lemma: 'Leder',
+		meaning: 'leather',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Urteile",
+		plural: 'Leder'
 	},
 	{
-		lemma: "Adresse",
-		meaning: "address",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Adressen",
-	},
-	{
-		lemma: "Strom",
-		meaning: "electricity, current, stream",
+		lemma: 'Vertreter',
+		meaning: 'representative, agent, substitute',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Ströme",
+		plural: 'Vertreter'
 	},
 	{
-		lemma: "Untersuchung",
-		meaning: "investigations, examinations, studies",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Untersuchungen",
-	},
-	{
-		lemma: "Autor",
-		meaning: "author, writer",
+		lemma: 'Vortrag',
+		meaning: 'lecture, presentation',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Autoren",
+		plural: 'Vorträge'
 	},
 	{
-		lemma: "Durchmesser",
-		meaning: "diameter",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Durchmesser",
-	},
-	{
-		lemma: "Landschaft",
-		meaning: "landscape, scenery",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Landschaften",
-	},
-		{
-		lemma: "Vagina",
-		meaning: "vagina",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Vaginen",
-	},
-			{
-		lemma: "Sonne",
-		meaning: "sun",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Sonnen",
-	},
-	{
-		lemma: "Gutschein",
-		meaning: "voucher or coupon",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Gutscheine",
-	},
-	{
-		lemma: "Branche",
-		meaning: "industry, sector, branch",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Branchen",
-	},
-	{
-		lemma: "Veränderung",
-		meaning: "changes, alterations",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Veränderungen",
-	},
-		{
-		lemma: "Gesetz",
-		meaning: "law, act, statute",
+		lemma: 'Urteil',
+		meaning: 'judgment, verdict',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Gesetze",
+		plural: 'Urteile'
 	},
 	{
-		lemma: "Verhalten",
-		meaning: "behavior, conduct, attitude",
+		lemma: 'Adresse',
+		meaning: 'address',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Adressen'
+	},
+	{
+		lemma: 'Strom',
+		meaning: 'electricity, current, stream',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Ströme'
+	},
+	{
+		lemma: 'Untersuchung',
+		meaning: 'investigations, examinations, studies',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Untersuchungen'
+	},
+	{
+		lemma: 'Autor',
+		meaning: 'author, writer',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Autoren'
+	},
+	{
+		lemma: 'Durchmesser',
+		meaning: 'diameter',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Durchmesser'
+	},
+	{
+		lemma: 'Landschaft',
+		meaning: 'landscape, scenery',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Landschaften'
+	},
+	{
+		lemma: 'Vagina',
+		meaning: 'vagina',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Vaginen'
+	},
+	{
+		lemma: 'Sonne',
+		meaning: 'sun',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Sonnen'
+	},
+	{
+		lemma: 'Gutschein',
+		meaning: 'voucher or coupon',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Gutscheine'
+	},
+	{
+		lemma: 'Branche',
+		meaning: 'industry, sector, branch',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Branchen'
+	},
+	{
+		lemma: 'Veränderung',
+		meaning: 'changes, alterations',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Veränderungen'
+	},
+	{
+		lemma: 'Gesetz',
+		meaning: 'law, act, statute',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "-",
-	},
-				{
-		lemma: "Kontrolle",
-		meaning: "control or inspection",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Kontrollen",
+		plural: 'Gesetze'
 	},
 	{
-		lemma: "Jugend",
-		meaning: "youth",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Jugenden",
-	},
-	{
-		lemma: "Gefahr",
-		meaning: "danger, risk",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Gefahren",
-	},
-	{
-		lemma: "Tradition",
-		meaning: "tradition",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Traditionen",
-	},
-	{
-		lemma: "Form",
-		meaning: "form, shape",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Formen",
-	},
-	{
-		lemma: "Post",
-		meaning: "mail, post office",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "-",
-	},
-		{
-		lemma: "Herz",
-		meaning: "heart",
+		lemma: 'Verhalten',
+		meaning: 'behavior, conduct, attitude',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Herzen",
+		plural: '-'
 	},
-		{
-		lemma: "Willkommen",
-		meaning: "welcome",
+	{
+		lemma: 'Kontrolle',
+		meaning: 'control or inspection',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Kontrollen'
+	},
+	{
+		lemma: 'Jugend',
+		meaning: 'youth',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Jugenden'
+	},
+	{
+		lemma: 'Gefahr',
+		meaning: 'danger, risk',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Gefahren'
+	},
+	{
+		lemma: 'Tradition',
+		meaning: 'tradition',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Traditionen'
+	},
+	{
+		lemma: 'Form',
+		meaning: 'form, shape',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Formen'
+	},
+	{
+		lemma: 'Post',
+		meaning: 'mail, post office',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: '-'
+	},
+	{
+		lemma: 'Herz',
+		meaning: 'heart',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Willkommen",
-	},
-		{
-		lemma: "Spielzeit",
-		meaning: "playing time, season",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Spielzeiten",
+		plural: 'Herzen'
 	},
 	{
-		lemma: "Abteilung",
-		meaning: "department, division",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Abteilungen",
-	},
-	{
-		lemma: "Kreis",
-		meaning: "circle, district",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Kreise",
-	},
-						{
-		lemma: "Vergangenheit",
-		meaning: "past",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Vergangenheiten",
-	},
-	{
-		lemma: "Hektar",
-		meaning: "hectare",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Hektar",
-	},
-	{
-		lemma: "Reich",
-		meaning: "empire, kingdom, or realm",
+		lemma: 'Willkommen',
+		meaning: 'welcome',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Reiche",
+		plural: 'Willkommen'
 	},
 	{
-		lemma: "Angriff",
-		meaning: "attack, assault, or offensive",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Angriffe",
-	},
-	{
-		lemma: "Aufbau",
-		meaning: "construction, structure, buildup",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Aufbauten",
-	},
-			{
-		lemma: "Geschäftsführer",
-		meaning: "managing director, manager",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Geschäftsführer",
-	},
-			{
-		lemma: "Tonne",
-		meaning: "tons, bins",
+		lemma: 'Spielzeit',
+		meaning: 'playing time, season',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Tonnen",
-	},
-			{
-		lemma: "Text",
-		meaning: "texts",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Texte",
+		plural: 'Spielzeiten'
 	},
 	{
-		lemma: "Seitensprung",
-		meaning: "affair or fling",
+		lemma: 'Abteilung',
+		meaning: 'department, division',
 		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Seitensprünge",
+		gender: 'die' as const,
+		plural: 'Abteilungen'
 	},
 	{
-		lemma: "Erlebnis",
-		meaning: "experience",
+		lemma: 'Kreis',
+		meaning: 'circle, district',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Kreise'
+	},
+	{
+		lemma: 'Vergangenheit',
+		meaning: 'past',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Vergangenheiten'
+	},
+	{
+		lemma: 'Hektar',
+		meaning: 'hectare',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Hektar'
+	},
+	{
+		lemma: 'Reich',
+		meaning: 'empire, kingdom, or realm',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Erlebnisse",
-	},
-		{
-		lemma: "Infrastruktur",
-		meaning: "infrastructure",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Infrastrukturen",
+		plural: 'Reiche'
 	},
 	{
-		lemma: "Sklave",
-		meaning: "slave",
+		lemma: 'Angriff',
+		meaning: 'attack, assault, or offensive',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Sklaven",
+		plural: 'Angriffe'
 	},
-		{
-		lemma: "Lebensmittel",
-		meaning: "food, groceries",
+	{
+		lemma: 'Aufbau',
+		meaning: 'construction, structure, buildup',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Aufbauten'
+	},
+	{
+		lemma: 'Geschäftsführer',
+		meaning: 'managing director, manager',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Geschäftsführer'
+	},
+	{
+		lemma: 'Tonne',
+		meaning: 'tons, bins',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Tonnen'
+	},
+	{
+		lemma: 'Text',
+		meaning: 'texts',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Texte'
+	},
+	{
+		lemma: 'Seitensprung',
+		meaning: 'affair or fling',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Seitensprünge'
+	},
+	{
+		lemma: 'Erlebnis',
+		meaning: 'experience',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Lebensmittel",
+		plural: 'Erlebnisse'
 	},
-			{
-		lemma: "Gang",
-		meaning: "corridor, gear, or course",
+	{
+		lemma: 'Infrastruktur',
+		meaning: 'infrastructure',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Infrastrukturen'
+	},
+	{
+		lemma: 'Sklave',
+		meaning: 'slave',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Gänge",
+		plural: 'Sklaven'
 	},
 	{
-		lemma: "Direktor",
-		meaning: "director or principal",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Direktoren",
-	},
-		{
-		lemma: "Änderung",
-		meaning: "changes, modifications",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Änderungen",
-	},
-	{
-		lemma: "Therapie",
-		meaning: "therapy, treatment",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Therapien",
-	},
-			{
-		lemma: "Gattung",
-		meaning: "genus, species, or genre",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Gattungen",
-	},
-	{
-		lemma: "Regelung",
-		meaning: "regulations or rules",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Regelungen",
-	},
-		{
-		lemma: "Schaden",
-		meaning: "damage, harm",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Schäden",
-	},
-	{
-		lemma: "Rücken",
-		meaning: "back",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Rücken",
-	},
-				{
-		lemma: "Verbesserung",
-		meaning: "improvement",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Verbesserungen",
-	},
-	{
-		lemma: "Technologie",
-		meaning: "technology",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Technologien",
-	},
-		{
-		lemma: "Vertrauen",
-		meaning: "trust, confidence",
+		lemma: 'Lebensmittel',
+		meaning: 'food, groceries',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "-",
+		plural: 'Lebensmittel'
 	},
 	{
-		lemma: "Einwohnerzahl",
-		meaning: "number of inhabitants",
+		lemma: 'Gang',
+		meaning: 'corridor, gear, or course',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Gänge'
+	},
+	{
+		lemma: 'Direktor',
+		meaning: 'director or principal',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Direktoren'
+	},
+	{
+		lemma: 'Änderung',
+		meaning: 'changes, modifications',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Einwohnerzahlen",
+		plural: 'Änderungen'
 	},
 	{
-		lemma: "Figur",
-		meaning: "figures, characters",
+		lemma: 'Therapie',
+		meaning: 'therapy, treatment',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Figuren",
+		plural: 'Therapien'
 	},
 	{
-		lemma: "Glas",
-		meaning: "glass, jar",
+		lemma: 'Gattung',
+		meaning: 'genus, species, or genre',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Gattungen'
+	},
+	{
+		lemma: 'Regelung',
+		meaning: 'regulations or rules',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Regelungen'
+	},
+	{
+		lemma: 'Schaden',
+		meaning: 'damage, harm',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Schäden'
+	},
+	{
+		lemma: 'Rücken',
+		meaning: 'back',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Rücken'
+	},
+	{
+		lemma: 'Verbesserung',
+		meaning: 'improvement',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Verbesserungen'
+	},
+	{
+		lemma: 'Technologie',
+		meaning: 'technology',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Technologien'
+	},
+	{
+		lemma: 'Vertrauen',
+		meaning: 'trust, confidence',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Gläser",
+		plural: '-'
 	},
 	{
-		lemma: "Analyse",
-		meaning: "analysis",
+		lemma: 'Einwohnerzahl',
+		meaning: 'number of inhabitants',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Analysen",
+		plural: 'Einwohnerzahlen'
 	},
 	{
-		lemma: "Bestellung",
-		meaning: "order, reservation",
+		lemma: 'Figur',
+		meaning: 'figures, characters',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Bestellungen",
+		plural: 'Figuren'
 	},
 	{
-		lemma: "Ressource",
-		meaning: "resources",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Ressourcen",
-	},
-	{
-		lemma: "Gericht",
-		meaning: "dish or court of law",
+		lemma: 'Glas',
+		meaning: 'glass, jar',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Gerichte",
-	},
-			{
-		lemma: "Schwule",
-		meaning: "gay men",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Schwulen",
+		plural: 'Gläser'
 	},
 	{
-		lemma: "Sexkino",
-		meaning: "adult movie theater",
+		lemma: 'Analyse',
+		meaning: 'analysis',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Analysen'
+	},
+	{
+		lemma: 'Bestellung',
+		meaning: 'order, reservation',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Bestellungen'
+	},
+	{
+		lemma: 'Ressource',
+		meaning: 'resources',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Ressourcen'
+	},
+	{
+		lemma: 'Gericht',
+		meaning: 'dish or court of law',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Sexkinos",
+		plural: 'Gerichte'
 	},
 	{
-		lemma: "Krankenhaus",
-		meaning: "hospital",
+		lemma: 'Schwule',
+		meaning: 'gay men',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Schwulen'
+	},
+	{
+		lemma: 'Sexkino',
+		meaning: 'adult movie theater',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Krankenhäuser",
-	},
-			{
-		lemma: "Demokratie",
-		meaning: "democracy",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Demokratien",
+		plural: 'Sexkinos'
 	},
 	{
-		lemma: "Tour",
-		meaning: "tour, trip",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Touren",
-	},
-		{
-		lemma: "Fähigkeit",
-		meaning: "abilities, skills",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Fähigkeiten",
-	},
-		{
-		lemma: "Stimmung",
-		meaning: "mood, atmosphere",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Stimmungen",
-	},
-	{
-		lemma: "Typ",
-		meaning: "type, guy",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Typen",
-	},
-	{
-		lemma: "Verbraucher",
-		meaning: "consumer",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Verbraucher",
-	},
-	{
-		lemma: "Zunge",
-		meaning: "tongue",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Zungen",
-	},
-	{
-		lemma: "Pärchen",
-		meaning: "couple, small pair",
+		lemma: 'Krankenhaus',
+		meaning: 'hospital',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Pärchen",
+		plural: 'Krankenhäuser'
 	},
 	{
-		lemma: "Telefon",
-		meaning: "telephone, phone",
+		lemma: 'Demokratie',
+		meaning: 'democracy',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Demokratien'
+	},
+	{
+		lemma: 'Tour',
+		meaning: 'tour, trip',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Touren'
+	},
+	{
+		lemma: 'Fähigkeit',
+		meaning: 'abilities, skills',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Fähigkeiten'
+	},
+	{
+		lemma: 'Stimmung',
+		meaning: 'mood, atmosphere',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Stimmungen'
+	},
+	{
+		lemma: 'Typ',
+		meaning: 'type, guy',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Typen'
+	},
+	{
+		lemma: 'Verbraucher',
+		meaning: 'consumer',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Verbraucher'
+	},
+	{
+		lemma: 'Zunge',
+		meaning: 'tongue',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Zungen'
+	},
+	{
+		lemma: 'Pärchen',
+		meaning: 'couple, small pair',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Telefone",
+		plural: 'Pärchen'
 	},
 	{
-		lemma: "Neubau",
-		meaning: "new building",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Neubauten",
-	},
-	{
-		lemma: "Nachmittag",
-		meaning: "afternoon",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Nachmittage",
-	},
-	{
-		lemma: "Szene",
-		meaning: "scene",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Szenen",
-	},
-	{
-		lemma: "Bestandteil",
-		meaning: "component, part, element",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Bestandteile",
-	},
-	{
-		lemma: "Einblick",
-		meaning: "insight, glimpse",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Einblicke",
-	},
-	{
-		lemma: "Tourismus",
-		meaning: "tourism",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Tourismen",
-	},
-	{
-		lemma: "Gewerbe",
-		meaning: "trade, business, industry",
+		lemma: 'Telefon',
+		meaning: 'telephone, phone',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Gewerbe",
+		plural: 'Telefone'
 	},
 	{
-		lemma: "Großteil",
-		meaning: "majority, bulk",
+		lemma: 'Neubau',
+		meaning: 'new building',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Großteile",
+		plural: 'Neubauten'
 	},
 	{
-		lemma: "Investition",
-		meaning: "investment",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Investitionen",
-	},
-	{
-		lemma: "Brust",
-		meaning: "breast, chest",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Brüste",
-	},
-	{
-		lemma: "Grad",
-		meaning: "degree",
+		lemma: 'Nachmittag',
+		meaning: 'afternoon',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Grade",
+		plural: 'Nachmittage'
 	},
 	{
-		lemma: "Institution",
-		meaning: "institution",
+		lemma: 'Szene',
+		meaning: 'scene',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Institutionen",
+		plural: 'Szenen'
 	},
 	{
-		lemma: "Restaurant",
-		meaning: "restaurant",
+		lemma: 'Bestandteil',
+		meaning: 'component, part, element',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Bestandteile'
+	},
+	{
+		lemma: 'Einblick',
+		meaning: 'insight, glimpse',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Einblicke'
+	},
+	{
+		lemma: 'Tourismus',
+		meaning: 'tourism',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Tourismen'
+	},
+	{
+		lemma: 'Gewerbe',
+		meaning: 'trade, business, industry',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Restaurants",
+		plural: 'Gewerbe'
 	},
 	{
-		lemma: "Krise",
-		meaning: "crisis",
+		lemma: 'Großteil',
+		meaning: 'majority, bulk',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Großteile'
+	},
+	{
+		lemma: 'Investition',
+		meaning: 'investment',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Krisen",
+		plural: 'Investitionen'
 	},
 	{
-		lemma: "Lehre",
-		meaning: "apprenticeship or teaching",
+		lemma: 'Brust',
+		meaning: 'breast, chest',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Lehren",
+		plural: 'Brüste'
 	},
 	{
-		lemma: "Republik",
-		meaning: "republic",
+		lemma: 'Grad',
+		meaning: 'degree',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Grade'
+	},
+	{
+		lemma: 'Institution',
+		meaning: 'institution',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Republiken",
+		plural: 'Institutionen'
 	},
 	{
-		lemma: "Stellung",
-		meaning: "position / stance",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Stellungen",
-	},
-	{
-		lemma: "Nummer",
-		meaning: "number",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Nummern",
-	},
-	{
-		lemma: "Meer",
-		meaning: "sea / ocean",
+		lemma: 'Restaurant',
+		meaning: 'restaurant',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Meere",
+		plural: 'Restaurants'
 	},
 	{
-		lemma: "Dauer",
-		meaning: "duration / length of time",
+		lemma: 'Krise',
+		meaning: 'crisis',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Dauern",
+		plural: 'Krisen'
 	},
 	{
-		lemma: "Prozess",
-		meaning: "processes / trials",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Prozesse",
-	},
-	{
-		lemma: "Architektur",
-		meaning: "architecture",
+		lemma: 'Lehre',
+		meaning: 'apprenticeship or teaching',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Architekturen",
+		plural: 'Lehren'
 	},
 	{
-		lemma: "Training",
-		meaning: "training or practice",
+		lemma: 'Republik',
+		meaning: 'republic',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Republiken'
+	},
+	{
+		lemma: 'Stellung',
+		meaning: 'position / stance',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Stellungen'
+	},
+	{
+		lemma: 'Nummer',
+		meaning: 'number',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Nummern'
+	},
+	{
+		lemma: 'Meer',
+		meaning: 'sea / ocean',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Trainings",
+		plural: 'Meere'
 	},
 	{
-		lemma: "Umfang",
-		meaning: "scope, extent, or circumference",
+		lemma: 'Dauer',
+		meaning: 'duration / length of time',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Dauern'
+	},
+	{
+		lemma: 'Prozess',
+		meaning: 'processes / trials',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Umfänge",
+		plural: 'Prozesse'
 	},
 	{
-		lemma: "Verarbeitung",
-		meaning: "processing or treatment",
+		lemma: 'Architektur',
+		meaning: 'architecture',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Verarbeitungen",
+		plural: 'Architekturen'
 	},
 	{
-		lemma: "Sitzung",
-		meaning: "session or meeting",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Sitzungen",
-	},
-	{
-		lemma: "Personal",
-		meaning: "staff, personnel",
+		lemma: 'Training',
+		meaning: 'training or practice',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Personal",
+		plural: 'Trainings'
 	},
 	{
-		lemma: "Unterlage",
-		meaning: "documents, records, documentation",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Unterlagen",
-	},
-	{
-		lemma: "Nutzungsbedingung",
-		meaning: "terms of use",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Nutzungsbedingungen",
-	},
-	{
-		lemma: "Kompetenz",
-		meaning: "skills or competences",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Kompetenzen",
-	},
-	{
-		lemma: "Zuschauer",
-		meaning: "spectator or viewer",
+		lemma: 'Umfang',
+		meaning: 'scope, extent, or circumference',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Zuschauer",
+		plural: 'Umfänge'
 	},
 	{
-		lemma: "Fuß",
-		meaning: "foot",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Füße",
-	},
-	{
-		lemma: "Krankheit",
-		meaning: "illness, disease",
+		lemma: 'Verarbeitung',
+		meaning: 'processing or treatment',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Krankheiten",
+		plural: 'Verarbeitungen'
 	},
 	{
-		lemma: "Ordner",
-		meaning: "folder, file",
+		lemma: 'Sitzung',
+		meaning: 'session or meeting',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Sitzungen'
+	},
+	{
+		lemma: 'Personal',
+		meaning: 'staff, personnel',
+		partOfSpeech: 'noun' as const,
+		gender: 'das' as const,
+		plural: 'Personal'
+	},
+	{
+		lemma: 'Unterlage',
+		meaning: 'documents, records, documentation',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Unterlagen'
+	},
+	{
+		lemma: 'Nutzungsbedingung',
+		meaning: 'terms of use',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Nutzungsbedingungen'
+	},
+	{
+		lemma: 'Kompetenz',
+		meaning: 'skills or competences',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Kompetenzen'
+	},
+	{
+		lemma: 'Zuschauer',
+		meaning: 'spectator or viewer',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Ordner",
+		plural: 'Zuschauer'
 	},
 	{
-		lemma: "Uhr",
+		lemma: 'Fuß',
+		meaning: 'foot',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Füße'
+	},
+	{
+		lemma: 'Krankheit',
+		meaning: 'illness, disease',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Krankheiten'
+	},
+	{
+		lemma: 'Ordner',
+		meaning: 'folder, file',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Ordner'
+	},
+	{
+		lemma: 'Uhr',
 		meaning: "clock, watch, o'clock",
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Uhren",
+		plural: 'Uhren'
 	},
 	{
-		lemma: "Kirche",
-		meaning: "church",
+		lemma: 'Kirche',
+		meaning: 'church',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Kirchen",
+		plural: 'Kirchen'
 	},
 	{
-		lemma: "Information",
-		meaning: "information",
+		lemma: 'Information',
+		meaning: 'information',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Informationen",
+		plural: 'Informationen'
 	},
 	{
-		lemma: "Einheit",
-		meaning: "unit, unity",
+		lemma: 'Einheit',
+		meaning: 'unit, unity',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Einheiten",
+		plural: 'Einheiten'
 	},
 	{
-		lemma: "Motor",
-		meaning: "motor, engine",
+		lemma: 'Motor',
+		meaning: 'motor, engine',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Motoren",
+		plural: 'Motoren'
 	},
 	{
-		lemma: "Akademie",
-		meaning: "academy",
+		lemma: 'Akademie',
+		meaning: 'academy',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Akademien",
+		plural: 'Akademien'
 	},
 	{
-		lemma: "Flüchtling",
-		meaning: "refugee",
+		lemma: 'Flüchtling',
+		meaning: 'refugee',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Flüchtlinge",
+		plural: 'Flüchtlinge'
 	},
 	{
-		lemma: "Amtszeit",
-		meaning: "term of office",
+		lemma: 'Amtszeit',
+		meaning: 'term of office',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Amtszeiten",
+		plural: 'Amtszeiten'
 	},
 	{
-		lemma: "Klinik",
-		meaning: "clinic or hospital",
+		lemma: 'Klinik',
+		meaning: 'clinic or hospital',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Kliniken",
-	},
-		{
-		lemma: "Bestimmung",
-		meaning: "regulations or provisions",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Bestimmungen",
+		plural: 'Kliniken'
 	},
 	{
-		lemma: "Bordell",
-		meaning: "brothel",
+		lemma: 'Bestimmung',
+		meaning: 'regulations or provisions',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Bestimmungen'
+	},
+	{
+		lemma: 'Bordell',
+		meaning: 'brothel',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Bordelle",
+		plural: 'Bordelle'
 	},
 	{
-		lemma: "Ernst",
-		meaning: "seriousness, gravity",
+		lemma: 'Ernst',
+		meaning: 'seriousness, gravity',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Ernst",
+		plural: 'Ernst'
 	},
 	{
-		lemma: "Alternative",
-		meaning: "alternative",
+		lemma: 'Alternative',
+		meaning: 'alternative',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Alternativen",
+		plural: 'Alternativen'
 	},
 	{
-		lemma: "Lied",
-		meaning: "songs",
+		lemma: 'Lied',
+		meaning: 'songs',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Lieder",
+		plural: 'Lieder'
 	},
 	{
-		lemma: "Beschreibung",
-		meaning: "description",
+		lemma: 'Beschreibung',
+		meaning: 'description',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Beschreibungen",
+		plural: 'Beschreibungen'
 	},
 	{
-		lemma: "Handwerk",
-		meaning: "craft, trade, handicraft",
+		lemma: 'Handwerk',
+		meaning: 'craft, trade, handicraft',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Handwerke",
+		plural: 'Handwerke'
 	},
 	{
-		lemma: "Schmerz",
-		meaning: "pain",
+		lemma: 'Schmerz',
+		meaning: 'pain',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Schmerzen",
+		plural: 'Schmerzen'
 	},
 	{
-		lemma: "Verständnis",
-		meaning: "understanding, comprehension",
+		lemma: 'Verständnis',
+		meaning: 'understanding, comprehension',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Verständnisse",
+		plural: 'Verständnisse'
 	},
 	{
-		lemma: "Herkunft",
-		meaning: "origin, descent",
+		lemma: 'Herkunft',
+		meaning: 'origin, descent',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Herkünfte",
+		plural: 'Herkünfte'
 	},
 	{
-		lemma: "Beziehung",
-		meaning: "relationships",
+		lemma: 'Beziehung',
+		meaning: 'relationships',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Beziehungen",
+		plural: 'Beziehungen'
 	},
 	{
-		lemma: "Eindruck",
-		meaning: "impression",
+		lemma: 'Eindruck',
+		meaning: 'impression',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Eindrücke",
+		plural: 'Eindrücke'
 	},
 	{
-		lemma: "Bewerbung",
-		meaning: "application",
+		lemma: 'Bewerbung',
+		meaning: 'application',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Bewerbungen",
+		plural: 'Bewerbungen'
 	},
 	{
-		lemma: "Plan",
-		meaning: "plan",
+		lemma: 'Plan',
+		meaning: 'plan',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Pläne",
+		plural: 'Pläne'
 	},
 	{
-		lemma: "Dessous",
-		meaning: "lingerie",
+		lemma: 'Dessous',
+		meaning: 'lingerie',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Dessous",
+		plural: 'Dessous'
 	},
 	{
-		lemma: "Vorstand",
-		meaning: "board of directors",
+		lemma: 'Vorstand',
+		meaning: 'board of directors',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Vorstände",
+		plural: 'Vorstände'
 	},
 	{
-		lemma: "Partner",
-		meaning: "partner",
+		lemma: 'Partner',
+		meaning: 'partner',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Partner",
-	},
-		{
-		lemma: "Anfrage",
-		meaning: "request, inquiry",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Anfragen",
+		plural: 'Partner'
 	},
 	{
-		lemma: "Feuerwehr",
-		meaning: "fire department",
+		lemma: 'Anfrage',
+		meaning: 'request, inquiry',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Feuerwehren",
+		plural: 'Anfragen'
 	},
 	{
-		lemma: "Lehrperson",
-		meaning: "teachers, teaching staff",
+		lemma: 'Feuerwehr',
+		meaning: 'fire department',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Lehrpersonen",
+		plural: 'Feuerwehren'
 	},
 	{
-		lemma: "Student",
-		meaning: "students",
+		lemma: 'Lehrperson',
+		meaning: 'teachers, teaching staff',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Lehrpersonen'
+	},
+	{
+		lemma: 'Student',
+		meaning: 'students',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Studenten",
+		plural: 'Studenten'
 	},
 	{
-		lemma: "Schrift",
-		meaning: "writings, scripts",
+		lemma: 'Schrift',
+		meaning: 'writings, scripts',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Schriften",
+		plural: 'Schriften'
 	},
 	{
-		lemma: "Chor",
-		meaning: "choir",
+		lemma: 'Chor',
+		meaning: 'choir',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Chöre",
+		plural: 'Chöre'
 	},
 	{
-		lemma: "Ausnahme",
-		meaning: "exception",
+		lemma: 'Ausnahme',
+		meaning: 'exception',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Ausnahmen",
+		plural: 'Ausnahmen'
 	},
 	{
-		lemma: "Fernsehen",
-		meaning: "television",
+		lemma: 'Fernsehen',
+		meaning: 'television',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Fernsehen",
+		plural: 'Fernsehen'
 	},
 	{
-		lemma: "Berg",
-		meaning: "mountain",
+		lemma: 'Berg',
+		meaning: 'mountain',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Berge",
+		plural: 'Berge'
 	},
 	{
-		lemma: "Erwachsene",
-		meaning: "adult",
+		lemma: 'Erwachsene',
+		meaning: 'adult',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: "die Erwachsenen",
+		plural: 'die Erwachsenen'
 	},
 	{
-		lemma: "Spital",
-		meaning: "hospital",
+		lemma: 'Spital',
+		meaning: 'hospital',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "die Spitäler",
+		plural: 'die Spitäler'
 	},
 	{
-		lemma: "Maß",
-		meaning: "measure, dimension, degree",
+		lemma: 'Maß',
+		meaning: 'measure, dimension, degree',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "die Maße",
+		plural: 'die Maße'
 	},
 	{
-		lemma: "Zweifel",
-		meaning: "doubt",
+		lemma: 'Zweifel',
+		meaning: 'doubt',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "die Zweifel",
+		plural: 'die Zweifel'
 	},
 	{
-		lemma: "Unterschied",
-		meaning: "difference",
+		lemma: 'Unterschied',
+		meaning: 'difference',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Unterschiede",
+		plural: 'Unterschiede'
 	},
 	{
-		lemma: "Bauer",
-		meaning: "farmers",
+		lemma: 'Bauer',
+		meaning: 'farmers',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Bauern",
+		plural: 'Bauern'
 	},
 	{
-		lemma: "Büro",
-		meaning: "office",
+		lemma: 'Büro',
+		meaning: 'office',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Büros",
+		plural: 'Büros'
 	},
 	{
-		lemma: "Geburt",
-		meaning: "birth",
+		lemma: 'Geburt',
+		meaning: 'birth',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Geburten",
+		plural: 'Geburten'
 	},
 	{
-		lemma: "Absatz",
-		meaning: "paragraph, heel, sales",
+		lemma: 'Absatz',
+		meaning: 'paragraph, heel, sales',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Absätze",
+		plural: 'Absätze'
 	},
 	{
-		lemma: "Behinderung",
-		meaning: "disability, handicap, obstruction",
+		lemma: 'Behinderung',
+		meaning: 'disability, handicap, obstruction',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Behinderungen",
+		plural: 'Behinderungen'
 	},
 	{
-		lemma: "Bahn",
-		meaning: "train, railway, track",
+		lemma: 'Bahn',
+		meaning: 'train, railway, track',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Bahnen",
+		plural: 'Bahnen'
 	},
 	{
-		lemma: "Flucht",
-		meaning: "escape, flight",
+		lemma: 'Flucht',
+		meaning: 'escape, flight',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Fluchten",
+		plural: 'Fluchten'
 	},
 	{
-		lemma: "Kleidung",
-		meaning: "clothing, clothes",
+		lemma: 'Kleidung',
+		meaning: 'clothing, clothes',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "-",
+		plural: '-'
 	},
 	{
-		lemma: "Strategie",
-		meaning: "strategy",
+		lemma: 'Strategie',
+		meaning: 'strategy',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Strategien",
+		plural: 'Strategien'
 	},
 	{
-		lemma: "Nachhaltigkeit",
-		meaning: "sustainability",
+		lemma: 'Nachhaltigkeit',
+		meaning: 'sustainability',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "-",
+		plural: '-'
 	},
 	{
-		lemma: "Vorhaben",
-		meaning: "plan, project, intention",
+		lemma: 'Vorhaben',
+		meaning: 'plan, project, intention',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Vorhaben",
+		plural: 'Vorhaben'
 	},
 	{
-		lemma: "Begleitung",
-		meaning: "accompaniment, escort, company",
+		lemma: 'Begleitung',
+		meaning: 'accompaniment, escort, company',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Begleitungen",
+		plural: 'Begleitungen'
 	},
 	{
-		lemma: "Charakter",
-		meaning: "character, personality",
+		lemma: 'Charakter',
+		meaning: 'character, personality',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Charaktere",
+		plural: 'Charaktere'
 	},
 	{
-		lemma: "Element",
-		meaning: "elements",
+		lemma: 'Element',
+		meaning: 'elements',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Elemente",
+		plural: 'Elemente'
 	},
 	{
-		lemma: "Gold",
-		meaning: "gold",
+		lemma: 'Gold',
+		meaning: 'gold',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "-",
+		plural: '-'
 	},
 	{
-		lemma: "Philosophie",
-		meaning: "philosophy",
+		lemma: 'Philosophie',
+		meaning: 'philosophy',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Philosophien",
+		plural: 'Philosophien'
 	},
 	{
-		lemma: "Zweck",
-		meaning: "purpose or aim",
+		lemma: 'Zweck',
+		meaning: 'purpose or aim',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Zwecke",
+		plural: 'Zwecke'
 	},
 	{
-		lemma: "Besitzer",
-		meaning: "owner",
+		lemma: 'Besitzer',
+		meaning: 'owner',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Besitzer",
+		plural: 'Besitzer'
 	},
 	{
-		lemma: "Freiheit",
-		meaning: "freedom",
+		lemma: 'Freiheit',
+		meaning: 'freedom',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Freiheiten",
+		plural: 'Freiheiten'
 	},
 	{
-		lemma: "Party",
-		meaning: "parties",
+		lemma: 'Party',
+		meaning: 'parties',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Partys",
+		plural: 'Partys'
 	},
 	{
-		lemma: "Baby",
-		meaning: "baby",
+		lemma: 'Baby',
+		meaning: 'baby',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Babys",
+		plural: 'Babys'
 	},
 	{
-		lemma: "Aufnahme",
-		meaning: "recording, reception, admission",
+		lemma: 'Aufnahme',
+		meaning: 'recording, reception, admission',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Aufnahmen",
+		plural: 'Aufnahmen'
 	},
 	{
-		lemma: "Drittel",
-		meaning: "third (fraction)",
+		lemma: 'Drittel',
+		meaning: 'third (fraction)',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Drittel",
+		plural: 'Drittel'
 	},
 	{
-		lemma: "Aspekt",
-		meaning: "aspect",
+		lemma: 'Aspekt',
+		meaning: 'aspect',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Aspekte",
+		plural: 'Aspekte'
 	},
 	{
-		lemma: "Vorgabe",
-		meaning: "requirement or guideline",
+		lemma: 'Vorgabe',
+		meaning: 'requirement or guideline',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Vorgaben",
+		plural: 'Vorgaben'
 	},
 	{
-		lemma: "Auflösung",
-		meaning: "resolution or dissolution",
+		lemma: 'Auflösung',
+		meaning: 'resolution or dissolution',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Auflösungen",
+		plural: 'Auflösungen'
 	},
 	{
-		lemma: "Ausbau",
-		meaning: "expansion or extension",
+		lemma: 'Ausbau',
+		meaning: 'expansion or extension',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Ausbauten",
+		plural: 'Ausbauten'
 	},
 	{
-		lemma: "Erkrankung",
-		meaning: "illnesses, diseases",
+		lemma: 'Erkrankung',
+		meaning: 'illnesses, diseases',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Erkrankungen",
+		plural: 'Erkrankungen'
 	},
 	{
-		lemma: "Struktur",
-		meaning: "structures",
+		lemma: 'Struktur',
+		meaning: 'structures',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Strukturen",
+		plural: 'Strukturen'
 	},
 	{
-		lemma: "Zähler",
-		meaning: "counter, numerator",
+		lemma: 'Zähler',
+		meaning: 'counter, numerator',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Zähler",
+		plural: 'Zähler'
 	},
-		{
-		lemma: "Ablauf",
-		meaning: "process, sequence, expiration",
+	{
+		lemma: 'Ablauf',
+		meaning: 'process, sequence, expiration',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Abläufe",
+		plural: 'Abläufe'
 	},
 	{
-		lemma: "Dolmetscher",
-		meaning: "interpreter",
+		lemma: 'Dolmetscher',
+		meaning: 'interpreter',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Dolmetscher",
+		plural: 'Dolmetscher'
 	},
 	{
-		lemma: "Finanzierung",
-		meaning: "financing, funding",
+		lemma: 'Finanzierung',
+		meaning: 'financing, funding',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Finanzierungen",
+		plural: 'Finanzierungen'
 	},
 	{
-		lemma: "Kenntnis",
-		meaning: "knowledge, skills",
+		lemma: 'Kenntnis',
+		meaning: 'knowledge, skills',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Kenntnisse",
+		plural: 'Kenntnisse'
 	},
 	{
-		lemma: "Widerstand",
-		meaning: "resistance, opposition",
+		lemma: 'Widerstand',
+		meaning: 'resistance, opposition',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Widerstände",
+		plural: 'Widerstände'
 	},
 	{
-		lemma: "Brand",
-		meaning: "fire, blaze, or conflagration",
+		lemma: 'Brand',
+		meaning: 'fire, blaze, or conflagration',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Brände",
+		plural: 'Brände'
 	},
 	{
-		lemma: "Datenschutz",
-		meaning: "data protection or privacy",
+		lemma: 'Datenschutz',
+		meaning: 'data protection or privacy',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Datenschutz",
+		plural: 'Datenschutz'
 	},
 	{
-		lemma: "Eigenschaft",
-		meaning: "property, quality, or characteristic",
+		lemma: 'Eigenschaft',
+		meaning: 'property, quality, or characteristic',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Eigenschaften",
+		plural: 'Eigenschaften'
 	},
 	{
-		lemma: "Theorie",
-		meaning: "theory",
+		lemma: 'Theorie',
+		meaning: 'theory',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Theorien",
+		plural: 'Theorien'
 	},
 	{
-		lemma: "Station",
-		meaning: "station, ward, stop",
+		lemma: 'Station',
+		meaning: 'station, ward, stop',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Stationen",
+		plural: 'Stationen'
 	},
 	{
-		lemma: "Datenschutzerklärung",
-		meaning: "privacy policy",
+		lemma: 'Datenschutzerklärung',
+		meaning: 'privacy policy',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Datenschutzerklärungen",
+		plural: 'Datenschutzerklärungen'
 	},
 	{
-		lemma: "General",
-		meaning: "general (military rank)",
+		lemma: 'General',
+		meaning: 'general (military rank)',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Generäle",
+		plural: 'Generäle'
 	},
 	{
-		lemma: "Ball",
-		meaning: "ball",
+		lemma: 'Ball',
+		meaning: 'ball',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Bälle",
+		plural: 'Bälle'
 	},
 	{
-		lemma: "Ermittlung",
-		meaning: "investigations",
+		lemma: 'Ermittlung',
+		meaning: 'investigations',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Ermittlungen",
+		plural: 'Ermittlungen'
 	},
 	{
-		lemma: "Geschäft",
-		meaning: "shop or business",
+		lemma: 'Geschäft',
+		meaning: 'shop or business',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Geschäfte",
+		plural: 'Geschäfte'
 	},
 	{
-		lemma: "Beschäftigte",
-		meaning: "employees, staff",
+		lemma: 'Beschäftigte',
+		meaning: 'employees, staff',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: "Beschäftigten",
+		plural: 'Beschäftigten'
 	},
 	{
-		lemma: "Vordergrund",
-		meaning: "foreground",
+		lemma: 'Vordergrund',
+		meaning: 'foreground',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Vordergründe",
+		plural: 'Vordergründe'
 	},
 	{
-		lemma: "Bürgerin",
-		meaning: "female citizens",
+		lemma: 'Bürgerin',
+		meaning: 'female citizens',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Bürgerinnen",
+		plural: 'Bürgerinnen'
 	},
 	{
-		lemma: "Schlacht",
-		meaning: "battle",
+		lemma: 'Schlacht',
+		meaning: 'battle',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Schlachten",
+		plural: 'Schlachten'
 	},
 	{
-		lemma: "Musiker",
-		meaning: "musician",
+		lemma: 'Musiker',
+		meaning: 'musician',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Musiker",
+		plural: 'Musiker'
 	},
 	{
-		lemma: "Radio",
-		meaning: "radio",
+		lemma: 'Radio',
+		meaning: 'radio',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Radios",
+		plural: 'Radios'
 	},
 	{
-		lemma: "Oberfläche",
-		meaning: "surface",
+		lemma: 'Oberfläche',
+		meaning: 'surface',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Oberflächen",
+		plural: 'Oberflächen'
 	},
 	{
-		lemma: "Bibliothek",
-		meaning: "library",
+		lemma: 'Bibliothek',
+		meaning: 'library',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Bibliotheken",
+		plural: 'Bibliotheken'
 	},
 	{
-		lemma: "Spielzeug",
-		meaning: "toy",
+		lemma: 'Spielzeug',
+		meaning: 'toy',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Spielzeuge",
+		plural: 'Spielzeuge'
 	},
 	{
-		lemma: "Aussicht",
-		meaning: "view, prospect",
+		lemma: 'Aussicht',
+		meaning: 'view, prospect',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Aussichten",
+		plural: 'Aussichten'
 	},
 	{
-		lemma: "Interview",
-		meaning: "interview",
+		lemma: 'Interview',
+		meaning: 'interview',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Interviews",
+		plural: 'Interviews'
 	},
 	{
-		lemma: "Mehrheit",
-		meaning: "majority",
+		lemma: 'Mehrheit',
+		meaning: 'majority',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Mehrheiten",
+		plural: 'Mehrheiten'
 	},
 	{
-		lemma: "Mittelalter",
-		meaning: "Middle Ages",
+		lemma: 'Mittelalter',
+		meaning: 'Middle Ages',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Mittelalter",
+		plural: 'Mittelalter'
 	},
 	{
-		lemma: "Sachschaden",
-		meaning: "property damage",
+		lemma: 'Sachschaden',
+		meaning: 'property damage',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Sachschäden",
+		plural: 'Sachschäden'
 	},
 	{
-		lemma: "Kriegsende",
-		meaning: "end of the war",
+		lemma: 'Kriegsende',
+		meaning: 'end of the war',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Kriegsende",
+		plural: 'Kriegsende'
 	},
 	{
-		lemma: "Präsentation",
-		meaning: "presentation",
+		lemma: 'Präsentation',
+		meaning: 'presentation',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Präsentationen",
+		plural: 'Präsentationen'
 	},
 	{
-		lemma: "Wachstum",
-		meaning: "growth",
+		lemma: 'Wachstum',
+		meaning: 'growth',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Wachstum",
+		plural: 'Wachstum'
 	},
 	{
-		lemma: "Dach",
-		meaning: "roof",
+		lemma: 'Dach',
+		meaning: 'roof',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Dächer",
+		plural: 'Dächer'
 	},
 	{
-		lemma: "Erwähnung",
-		meaning: "mention",
+		lemma: 'Erwähnung',
+		meaning: 'mention',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Erwähnungen",
+		plural: 'Erwähnungen'
 	},
 	{
-		lemma: "Gegenwart",
-		meaning: "present",
+		lemma: 'Gegenwart',
+		meaning: 'present',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "null",
+		plural: 'null'
 	},
 	{
-		lemma: "Exemplar",
-		meaning: "copy or specimen",
+		lemma: 'Exemplar',
+		meaning: 'copy or specimen',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Exemplare",
+		plural: 'Exemplare'
 	},
 	{
-		lemma: "Messe",
-		meaning: "trade fair or mass",
+		lemma: 'Messe',
+		meaning: 'trade fair or mass',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Messen",
+		plural: 'Messen'
 	},
 	{
-		lemma: "Preis",
-		meaning: "price, prize",
+		lemma: 'Preis',
+		meaning: 'price, prize',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Preise",
+		plural: 'Preise'
 	},
 	{
-		lemma: "Besuch",
-		meaning: "visit, visitor",
+		lemma: 'Besuch',
+		meaning: 'visit, visitor',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Besuche",
+		plural: 'Besuche'
 	},
 	{
-		lemma: "Weise",
-		meaning: "way, manner",
+		lemma: 'Weise',
+		meaning: 'way, manner',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Weisen",
+		plural: 'Weisen'
 	},
 	{
-		lemma: "Mobilität",
-		meaning: "mobility",
+		lemma: 'Mobilität',
+		meaning: 'mobility',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "-",
+		plural: '-'
 	},
 	{
-		lemma: "König",
-		meaning: "king",
+		lemma: 'König',
+		meaning: 'king',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Könige",
+		plural: 'Könige'
 	},
 	{
-		lemma: "Kilometer",
-		meaning: "kilometer",
+		lemma: 'Kilometer',
+		meaning: 'kilometer',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Kilometer",
+		plural: 'Kilometer'
 	},
 	{
-		lemma: "Nutzer",
-		meaning: "user",
+		lemma: 'Nutzer',
+		meaning: 'user',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Nutzer",
+		plural: 'Nutzer'
 	},
 	{
-		lemma: "Studium",
-		meaning: "studies, degree course",
+		lemma: 'Studium',
+		meaning: 'studies, degree course',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Studien",
+		plural: 'Studien'
 	},
 	{
-		lemma: "Politik",
-		meaning: "politics, policy",
+		lemma: 'Politik',
+		meaning: 'politics, policy',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Politiken",
+		plural: 'Politiken'
 	},
 	{
-		lemma: "Festival",
-		meaning: "festival",
+		lemma: 'Festival',
+		meaning: 'festival',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Festivals",
+		plural: 'Festivals'
 	},
 	{
-		lemma: "Agentur",
-		meaning: "agency",
+		lemma: 'Agentur',
+		meaning: 'agency',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Agenturen",
+		plural: 'Agenturen'
 	},
 	{
-		lemma: "Kriterium",
-		meaning: "criteria",
+		lemma: 'Kriterium',
+		meaning: 'criteria',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Kriterien",
-	},
-		{
-		lemma: "Markt",
-		meaning: "market",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Märkte",
+		plural: 'Kriterien'
 	},
 	{
-		lemma: "Widerrufsbelehrung",
-		meaning: "instructions on right of withdrawal",
+		lemma: 'Markt',
+		meaning: 'market',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Märkte'
+	},
+	{
+		lemma: 'Widerrufsbelehrung',
+		meaning: 'instructions on right of withdrawal',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Widerrufsbelehrungen",
+		plural: 'Widerrufsbelehrungen'
 	},
 	{
-		lemma: "Ausdruck",
-		meaning: "expression, printout",
+		lemma: 'Ausdruck',
+		meaning: 'expression, printout',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Ausdrücke",
+		plural: 'Ausdrücke'
 	},
 	{
-		lemma: "Höhepunkt",
-		meaning: "highlight, climax, peak",
+		lemma: 'Höhepunkt',
+		meaning: 'highlight, climax, peak',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Höhepunkte",
+		plural: 'Höhepunkte'
 	},
 	{
-		lemma: "Karte",
-		meaning: "cards, maps, tickets",
+		lemma: 'Karte',
+		meaning: 'cards, maps, tickets',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Karten",
+		plural: 'Karten'
 	},
 	{
-		lemma: "Bischof",
-		meaning: "bishop",
+		lemma: 'Bischof',
+		meaning: 'bishop',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Bischöfe",
+		plural: 'Bischöfe'
 	},
 	{
-		lemma: "Frühling",
-		meaning: "spring (season)",
+		lemma: 'Frühling',
+		meaning: 'spring (season)',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Frühlinge",
+		plural: 'Frühlinge'
 	},
 	{
-		lemma: "Lernende",
-		meaning: "learners, students",
+		lemma: 'Lernende',
+		meaning: 'learners, students',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: "Lernenden",
+		plural: 'Lernenden'
 	},
 	{
-		lemma: "Vorschlag",
-		meaning: "suggestion, proposal",
+		lemma: 'Vorschlag',
+		meaning: 'suggestion, proposal',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Vorschläge",
+		plural: 'Vorschläge'
 	},
 	{
-		lemma: "Rand",
-		meaning: "edge, border, margin",
+		lemma: 'Rand',
+		meaning: 'edge, border, margin',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Ränder",
+		plural: 'Ränder'
 	},
 	{
-		lemma: "Zugriff",
-		meaning: "access, grip",
+		lemma: 'Zugriff',
+		meaning: 'access, grip',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Zugriffe",
+		plural: 'Zugriffe'
 	},
 	{
-		lemma: "Abstand",
-		meaning: "distance, gap, interval",
+		lemma: 'Abstand',
+		meaning: 'distance, gap, interval',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Abstände",
+		plural: 'Abstände'
 	},
 	{
-		lemma: "Kamera",
-		meaning: "camera",
+		lemma: 'Kamera',
+		meaning: 'camera',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Kameras",
+		plural: 'Kameras'
 	},
 	{
-		lemma: "Trend",
-		meaning: "trend",
+		lemma: 'Trend',
+		meaning: 'trend',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Trends",
+		plural: 'Trends'
 	},
 	{
-		lemma: "Eingang",
-		meaning: "entrance, entry",
+		lemma: 'Eingang',
+		meaning: 'entrance, entry',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Eingänge",
+		plural: 'Eingänge'
 	},
 	{
-		lemma: "Laufbahn",
-		meaning: "career, track",
+		lemma: 'Laufbahn',
+		meaning: 'career, track',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Laufbahnen",
+		plural: 'Laufbahnen'
 	},
 	{
-		lemma: "Arzneimittel",
-		meaning: "medicine, drug, medication",
+		lemma: 'Arzneimittel',
+		meaning: 'medicine, drug, medication',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Arzneimittel",
+		plural: 'Arzneimittel'
 	},
 	{
-		lemma: "Maschine",
-		meaning: "machine",
+		lemma: 'Maschine',
+		meaning: 'machine',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Maschinen",
+		plural: 'Maschinen'
 	},
 	{
-		lemma: "Rest",
-		meaning: "rest, remainder",
+		lemma: 'Rest',
+		meaning: 'rest, remainder',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Reste",
+		plural: 'Reste'
 	},
 	{
-		lemma: "Weiterentwicklung",
-		meaning: "further development",
+		lemma: 'Weiterentwicklung',
+		meaning: 'further development',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Weiterentwicklungen",
+		plural: 'Weiterentwicklungen'
 	},
 	{
-		lemma: "Analyst",
-		meaning: "analyst",
+		lemma: 'Analyst',
+		meaning: 'analyst',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Analysten",
+		plural: 'Analysten'
 	},
 	{
-		lemma: "Arbeitnehmer",
-		meaning: "employee",
+		lemma: 'Arbeitnehmer',
+		meaning: 'employee',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Arbeitnehmer",
+		plural: 'Arbeitnehmer'
 	},
 	{
-		lemma: "Technik",
-		meaning: "technology, technique",
+		lemma: 'Technik',
+		meaning: 'technology, technique',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Techniken",
+		plural: 'Techniken'
 	},
 	{
-		lemma: "Benutzer",
-		meaning: "user",
+		lemma: 'Benutzer',
+		meaning: 'user',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Benutzer",
+		plural: 'Benutzer'
 	},
 	{
-		lemma: "Beteiligte",
-		meaning: "participants, those involved",
+		lemma: 'Beteiligte',
+		meaning: 'participants, those involved',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Beteiligten",
+		plural: 'Beteiligten'
 	},
 	{
-		lemma: "Danke",
-		meaning: "thanks or gratitude",
+		lemma: 'Danke',
+		meaning: 'thanks or gratitude',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "n/a",
+		plural: 'n/a'
 	},
 	{
-		lemma: "Forscher",
-		meaning: "researcher",
+		lemma: 'Forscher',
+		meaning: 'researcher',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Forscher",
+		plural: 'Forscher'
 	},
 	{
-		lemma: "Passwort",
-		meaning: "password",
+		lemma: 'Passwort',
+		meaning: 'password',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Passwörter",
+		plural: 'Passwörter'
 	},
 	{
-		lemma: "Beschwerde",
-		meaning: "complaint",
+		lemma: 'Beschwerde',
+		meaning: 'complaint',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Beschwerden",
+		plural: 'Beschwerden'
 	},
 	{
-		lemma: "Bundesamt",
-		meaning: "federal office",
+		lemma: 'Bundesamt',
+		meaning: 'federal office',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Bundesämter",
+		plural: 'Bundesämter'
 	},
 	{
-		lemma: "Tal",
-		meaning: "valley",
+		lemma: 'Tal',
+		meaning: 'valley',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Täler",
+		plural: 'Täler'
 	},
 	{
-		lemma: "Hoden",
-		meaning: "testicle",
+		lemma: 'Hoden',
+		meaning: 'testicle',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Hoden",
+		plural: 'Hoden'
 	},
 	{
-		lemma: "Division",
-		meaning: "division",
+		lemma: 'Division',
+		meaning: 'division',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Divisionen",
+		plural: 'Divisionen'
 	},
 	{
-		lemma: "Besitz",
-		meaning: "possession, property, ownership",
+		lemma: 'Besitz',
+		meaning: 'possession, property, ownership',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Besitze",
+		plural: 'Besitze'
 	},
 	{
-		lemma: "Weltkrieg",
-		meaning: "world war",
+		lemma: 'Weltkrieg',
+		meaning: 'world war',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Weltkriege",
+		plural: 'Weltkriege'
 	},
 	{
-		lemma: "Westen",
-		meaning: "west",
+		lemma: 'Westen',
+		meaning: 'west',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "-",
+		plural: '-'
 	},
 	{
-		lemma: "Zutat",
-		meaning: "ingredients",
+		lemma: 'Zutat',
+		meaning: 'ingredients',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Zutaten",
+		plural: 'Zutaten'
 	},
 	{
-		lemma: "Dokument",
-		meaning: "documents",
+		lemma: 'Dokument',
+		meaning: 'documents',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Dokumente",
+		plural: 'Dokumente'
 	},
 	{
-		lemma: "Anregung",
-		meaning: "suggestions, impulses, stimuli",
+		lemma: 'Anregung',
+		meaning: 'suggestions, impulses, stimuli',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Anregungen",
+		plural: 'Anregungen'
 	},
 	{
-		lemma: "Schwierigkeit",
-		meaning: "difficulties, troubles",
+		lemma: 'Schwierigkeit',
+		meaning: 'difficulties, troubles',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Schwierigkeiten",
+		plural: 'Schwierigkeiten'
 	},
 	{
-		lemma: "Lehrkraft",
-		meaning: "teachers or teaching staff",
+		lemma: 'Lehrkraft',
+		meaning: 'teachers or teaching staff',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Lehrkräfte",
+		plural: 'Lehrkräfte'
 	},
 	{
-		lemma: "Edelstahl",
-		meaning: "stainless steel",
+		lemma: 'Edelstahl',
+		meaning: 'stainless steel',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Edelstähle",
+		plural: 'Edelstähle'
 	},
 	{
-		lemma: "Feuer",
-		meaning: "fire",
+		lemma: 'Feuer',
+		meaning: 'fire',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Feuer",
+		plural: 'Feuer'
 	},
 	{
-		lemma: "Geburtstag",
-		meaning: "birthday",
+		lemma: 'Geburtstag',
+		meaning: 'birthday',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Geburtstage",
+		plural: 'Geburtstage'
 	},
 	{
-		lemma: "Gemälde",
-		meaning: "painting",
+		lemma: 'Gemälde',
+		meaning: 'painting',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Gemälde",
+		plural: 'Gemälde'
 	},
 	{
-		lemma: "Präsident",
-		meaning: "president",
+		lemma: 'Präsident',
+		meaning: 'president',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Präsidenten",
+		plural: 'Präsidenten'
 	},
 	{
-		lemma: "Faktor",
-		meaning: "factors",
+		lemma: 'Faktor',
+		meaning: 'factors',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Faktoren",
+		plural: 'Faktoren'
 	},
 	{
-		lemma: "Österreicher",
-		meaning: "Austrian (male)",
+		lemma: 'Österreicher',
+		meaning: 'Austrian (male)',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Österreicher",
+		plural: 'Österreicher'
 	},
 	{
-		lemma: "Wandel",
-		meaning: "change, transformation",
+		lemma: 'Wandel',
+		meaning: 'change, transformation',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Wandel",
+		plural: 'Wandel'
 	},
 	{
-		lemma: "Klitoris",
-		meaning: "clitoris",
+		lemma: 'Klitoris',
+		meaning: 'clitoris',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Klitorides",
+		plural: 'Klitorides'
 	},
 	{
-		lemma: "Beschwerdeführer",
-		meaning: "complainant or appellant",
+		lemma: 'Beschwerdeführer',
+		meaning: 'complainant or appellant',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Beschwerdeführer",
+		plural: 'Beschwerdeführer'
 	},
 	{
-		lemma: "Villa",
-		meaning: "villa or mansion",
+		lemma: 'Villa',
+		meaning: 'villa or mansion',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Villen",
+		plural: 'Villen'
 	},
 	{
-		lemma: "Verband",
-		meaning: "association or bandage",
+		lemma: 'Verband',
+		meaning: 'association or bandage',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Verbände",
+		plural: 'Verbände'
 	},
 	{
-		lemma: "Prostituierte",
-		meaning: "prostitute",
+		lemma: 'Prostituierte',
+		meaning: 'prostitute',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Prostituierten",
+		plural: 'Prostituierten'
 	},
 	{
-		lemma: "Lager",
-		meaning: "camp, warehouse, storage",
+		lemma: 'Lager',
+		meaning: 'camp, warehouse, storage',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Lager",
+		plural: 'Lager'
 	},
 	{
-		lemma: "Sendung",
-		meaning: "broadcast, shipment, program",
+		lemma: 'Sendung',
+		meaning: 'broadcast, shipment, program',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Sendungen",
+		plural: 'Sendungen'
 	},
 	{
-		lemma: "Zuhause",
-		meaning: "home",
+		lemma: 'Zuhause',
+		meaning: 'home',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Zuhause",
+		plural: 'Zuhause'
 	},
 	{
-		lemma: "Medizin",
-		meaning: "medicine",
+		lemma: 'Medizin',
+		meaning: 'medicine',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Medizinen",
+		plural: 'Medizinen'
 	},
 	{
-		lemma: "Klägerin",
-		meaning: "female plaintiff",
+		lemma: 'Klägerin',
+		meaning: 'female plaintiff',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Klägerinnen",
+		plural: 'Klägerinnen'
 	},
 	{
-		lemma: "Architekt",
-		meaning: "architects",
+		lemma: 'Architekt',
+		meaning: 'architects',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Architekten",
+		plural: 'Architekten'
 	},
 	{
-		lemma: "Ortsteil",
-		meaning: "district or part of town",
+		lemma: 'Ortsteil',
+		meaning: 'district or part of town',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Ortsteile",
+		plural: 'Ortsteile'
 	},
 	{
-		lemma: "Erotik",
-		meaning: "eroticism",
+		lemma: 'Erotik',
+		meaning: 'eroticism',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "-",
+		plural: '-'
 	},
 	{
-		lemma: "Prozent",
-		meaning: "percent / percentage",
+		lemma: 'Prozent',
+		meaning: 'percent / percentage',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Prozent",
+		plural: 'Prozent'
 	},
 	{
-		lemma: "Gymnasium",
-		meaning: "grammar school, secondary school",
+		lemma: 'Gymnasium',
+		meaning: 'grammar school, secondary school',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Gymnasien",
+		plural: 'Gymnasien'
 	},
 	{
-		lemma: "Resultat",
-		meaning: "result, outcome",
+		lemma: 'Resultat',
+		meaning: 'result, outcome',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Resultate",
+		plural: 'Resultate'
 	},
 	{
-		lemma: "Temperatur",
-		meaning: "temperatures",
+		lemma: 'Temperatur',
+		meaning: 'temperatures',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Temperaturen",
+		plural: 'Temperaturen'
 	},
 	{
-		lemma: "Aufenthalt",
-		meaning: "stay, residence",
+		lemma: 'Aufenthalt',
+		meaning: 'stay, residence',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Aufenthalte",
+		plural: 'Aufenthalte'
 	},
 	{
-		lemma: "Gefängnis",
-		meaning: "prison, jail",
+		lemma: 'Gefängnis',
+		meaning: 'prison, jail',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Gefängnisse",
+		plural: 'Gefängnisse'
 	},
 	{
-		lemma: "Eröffnung",
-		meaning: "opening, inauguration",
+		lemma: 'Eröffnung',
+		meaning: 'opening, inauguration',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Eröffnungen",
+		plural: 'Eröffnungen'
 	},
 	{
-		lemma: "Beteiligung",
-		meaning: "participation, involvement",
+		lemma: 'Beteiligung',
+		meaning: 'participation, involvement',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Beteiligungen",
+		plural: 'Beteiligungen'
 	},
 	{
-		lemma: "Aussage",
-		meaning: "statement, testimony",
+		lemma: 'Aussage',
+		meaning: 'statement, testimony',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Aussagen",
+		plural: 'Aussagen'
 	},
 	{
-		lemma: "Papier",
-		meaning: "paper",
+		lemma: 'Papier',
+		meaning: 'paper',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Papiere",
+		plural: 'Papiere'
 	},
 	{
-		lemma: "Seele",
-		meaning: "soul",
+		lemma: 'Seele',
+		meaning: 'soul',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Seelen",
+		plural: 'Seelen'
 	},
 	{
-		lemma: "Anfänger",
-		meaning: "beginner",
+		lemma: 'Anfänger',
+		meaning: 'beginner',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Anfänger",
+		plural: 'Anfänger'
 	},
 	{
-		lemma: "Tat",
-		meaning: "deed or act",
+		lemma: 'Tat',
+		meaning: 'deed or act',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Taten",
+		plural: 'Taten'
 	},
 	{
-		lemma: "Gemeinschaft",
-		meaning: "community",
+		lemma: 'Gemeinschaft',
+		meaning: 'community',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Gemeinschaften",
+		plural: 'Gemeinschaften'
 	},
 	{
-		lemma: "Träger",
-		meaning: "carrier or wearer",
+		lemma: 'Träger',
+		meaning: 'carrier or wearer',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Träger",
+		plural: 'Träger'
 	},
 	{
-		lemma: "Graf",
-		meaning: "count or earl",
+		lemma: 'Graf',
+		meaning: 'count or earl',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Grafen",
+		plural: 'Grafen'
 	},
 	{
-		lemma: "Regierungsrat",
-		meaning: "government councilor",
+		lemma: 'Regierungsrat',
+		meaning: 'government councilor',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Regierungsräte",
+		plural: 'Regierungsräte'
 	},
 	{
-		lemma: "Status",
-		meaning: "status",
+		lemma: 'Status',
+		meaning: 'status',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Status",
+		plural: 'Status'
 	},
 	{
-		lemma: "Vorjahr",
-		meaning: "previous year",
+		lemma: 'Vorjahr',
+		meaning: 'previous year',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Vorjahre",
-	},
-		{
-		lemma: "Erkenntnis",
-		meaning: "insights, findings",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Erkenntnisse",
+		plural: 'Vorjahre'
 	},
 	{
-		lemma: "Innenstadt",
-		meaning: "city center, downtown",
+		lemma: 'Erkenntnis',
+		meaning: 'insights, findings',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Innenstädte",
+		plural: 'Erkenntnisse'
 	},
 	{
-		lemma: "Schuljahr",
-		meaning: "school year",
+		lemma: 'Innenstadt',
+		meaning: 'city center, downtown',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Innenstädte'
+	},
+	{
+		lemma: 'Schuljahr',
+		meaning: 'school year',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Schuljahre",
+		plural: 'Schuljahre'
 	},
 	{
-		lemma: "Falle",
-		meaning: "trap",
+		lemma: 'Falle',
+		meaning: 'trap',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Fallen",
+		plural: 'Fallen'
 	},
 	{
-		lemma: "Erinnerung",
-		meaning: "memory or reminder",
+		lemma: 'Erinnerung',
+		meaning: 'memory or reminder',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Erinnerungen",
+		plural: 'Erinnerungen'
 	},
 	{
-		lemma: "Entspannung",
-		meaning: "relaxation",
+		lemma: 'Entspannung',
+		meaning: 'relaxation',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Entspannungen",
+		plural: 'Entspannungen'
 	},
 	{
-		lemma: "Dialog",
-		meaning: "dialogue or conversation",
+		lemma: 'Dialog',
+		meaning: 'dialogue or conversation',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Dialoge",
+		plural: 'Dialoge'
 	},
 	{
-		lemma: "Erstellung",
-		meaning: "creation or preparation",
+		lemma: 'Erstellung',
+		meaning: 'creation or preparation',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Erstellungen",
+		plural: 'Erstellungen'
 	},
 	{
-		lemma: "Flügel",
-		meaning: "wing, grand piano",
+		lemma: 'Flügel',
+		meaning: 'wing, grand piano',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Flügel",
+		plural: 'Flügel'
 	},
 	{
-		lemma: "Kreuz",
-		meaning: "cross",
+		lemma: 'Kreuz',
+		meaning: 'cross',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Kreuze",
+		plural: 'Kreuze'
 	},
 	{
-		lemma: "Erweiterung",
-		meaning: "extension, expansion",
+		lemma: 'Erweiterung',
+		meaning: 'extension, expansion',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Erweiterungen",
+		plural: 'Erweiterungen'
 	},
 	{
-		lemma: "Anleitung",
-		meaning: "instruction, guide, manual",
+		lemma: 'Anleitung',
+		meaning: 'instruction, guide, manual',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Anleitungen",
+		plural: 'Anleitungen'
 	},
 	{
-		lemma: "Konto",
-		meaning: "bank account",
+		lemma: 'Konto',
+		meaning: 'bank account',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Konten",
+		plural: 'Konten'
 	},
 	{
-		lemma: "Schauspieler",
-		meaning: "actor",
+		lemma: 'Schauspieler',
+		meaning: 'actor',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Schauspieler",
+		plural: 'Schauspieler'
 	},
 	{
-		lemma: "Vorstellung",
-		meaning: "performance, idea, or introduction",
+		lemma: 'Vorstellung',
+		meaning: 'performance, idea, or introduction',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Vorstellungen",
+		plural: 'Vorstellungen'
 	},
 	{
-		lemma: "Vorfeld",
-		meaning: "run-up or advance",
+		lemma: 'Vorfeld',
+		meaning: 'run-up or advance',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Vorfelder",
+		plural: 'Vorfelder'
 	},
 	{
-		lemma: "Ansatz",
-		meaning: "approach or starting point",
+		lemma: 'Ansatz',
+		meaning: 'approach or starting point',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Ansätze",
+		plural: 'Ansätze'
 	},
 	{
-		lemma: "Sänger",
-		meaning: "singer",
+		lemma: 'Sänger',
+		meaning: 'singer',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Sänger",
+		plural: 'Sänger'
 	},
 	{
-		lemma: "Datum",
-		meaning: "data or dates",
+		lemma: 'Datum',
+		meaning: 'data or dates',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Daten",
+		plural: 'Daten'
 	},
 	{
-		lemma: "Grab",
-		meaning: "grave, tomb",
+		lemma: 'Grab',
+		meaning: 'grave, tomb',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Gräber",
+		plural: 'Gräber'
 	},
 	{
-		lemma: "Klima",
-		meaning: "climate",
+		lemma: 'Klima',
+		meaning: 'climate',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Klimate",
+		plural: 'Klimate'
 	},
 	{
-		lemma: "Metall",
-		meaning: "metal",
+		lemma: 'Metall',
+		meaning: 'metal',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Metalle",
+		plural: 'Metalle'
 	},
 	{
-		lemma: "Blondine",
-		meaning: "blonde woman",
+		lemma: 'Blondine',
+		meaning: 'blonde woman',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Blondinen",
+		plural: 'Blondinen'
 	},
 	{
-		lemma: "Grundschule",
-		meaning: "elementary school",
+		lemma: 'Grundschule',
+		meaning: 'elementary school',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Grundschulen",
+		plural: 'Grundschulen'
 	},
 	{
-		lemma: "Beklagte",
-		meaning: "defendant",
+		lemma: 'Beklagte',
+		meaning: 'defendant',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: "Beklagten",
+		plural: 'Beklagten'
 	},
 	{
-		lemma: "Gebühr",
-		meaning: "fees, charges",
+		lemma: 'Gebühr',
+		meaning: 'fees, charges',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Gebühren",
+		plural: 'Gebühren'
 	},
 	{
-		lemma: "Mobile",
-		meaning: "mobile (hanging decoration)",
-		partOfSpeech: 'noun' as const,
-		gender: 'das' as const,
-		plural: "Mobiles",
-	},
-	{
-		lemma: "Fachkraft",
-		meaning: "skilled workers, specialists",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Fachkräfte",
-	},
-	{
-		lemma: "Gegend",
-		meaning: "area, region, neighborhood",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Gegenden",
-	},
-	{
-		lemma: "Ortschaft",
-		meaning: "village, town, locality",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Ortschaften",
-	},
-	{
-		lemma: "Geist",
-		meaning: "spirit, mind, ghost",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Geister",
-	},
-	{
-		lemma: "Errichtung",
-		meaning: "establishment, construction",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Errichtungen",
-	},
-	{
-		lemma: "Realität",
-		meaning: "reality",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Realitäten",
-	},
-	{
-		lemma: "Rede",
-		meaning: "speech, talk",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Reden",
-	},
-	{
-		lemma: "Speise",
-		meaning: "food, dish, meal",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Speisen",
-	},
-	{
-		lemma: "Freizeit",
-		meaning: "free time, leisure",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Freizeiten",
-	},
-	{
-		lemma: "Genuss",
-		meaning: "enjoyment, pleasure",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Genüsse",
-	},
-	{
-		lemma: "Keller",
-		meaning: "basement, cellar",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Keller",
-	},
-	{
-		lemma: "Sexfilm",
-		meaning: "adult films",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Sexfilme",
-	},
-	{
-		lemma: "Bach",
-		meaning: "stream, brook",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Bäche",
-	},
-	{
-		lemma: "Eintritt",
-		meaning: "entry, admission",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Eintritte",
-	},
-	{
-		lemma: "Konzern",
-		meaning: "large company or corporation",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Konzerne",
-	},
-	{
-		lemma: "Ausführung",
-		meaning: "execution, version, or design",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Ausführungen",
-	},
-	{
-		lemma: "Wahrheit",
-		meaning: "truth",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Wahrheiten",
-	},
-	{
-		lemma: "Wechsel",
-		meaning: "change, exchange, or shift",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Wechsel",
-	},
-	{
-		lemma: "Schnee",
-		meaning: "snow",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "-",
-	},
-	{
-		lemma: "Kondom",
-		meaning: "condom",
+		lemma: 'Mobile',
+		meaning: 'mobile (hanging decoration)',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Kondome",
+		plural: 'Mobiles'
 	},
 	{
-		lemma: "Stadtteil",
-		meaning: "district or neighborhood",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Stadtteile",
-	},
-	{
-		lemma: "Fischer",
-		meaning: "fisherman",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Fischer",
-	},
-	{
-		lemma: "Hose",
-		meaning: "trousers or pants",
+		lemma: 'Fachkraft',
+		meaning: 'skilled workers, specialists',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Hosen",
+		plural: 'Fachkräfte'
 	},
 	{
-		lemma: "Variante",
-		meaning: "variant, version",
+		lemma: 'Gegend',
+		meaning: 'area, region, neighborhood',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Varianten",
+		plural: 'Gegenden'
 	},
 	{
-		lemma: "Hauptstadt",
-		meaning: "capital city",
+		lemma: 'Ortschaft',
+		meaning: 'village, town, locality',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Hauptstädte",
+		plural: 'Ortschaften'
 	},
 	{
-		lemma: "Termin",
-		meaning: "appointment, date, deadline",
+		lemma: 'Geist',
+		meaning: 'spirit, mind, ghost',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Termine",
+		plural: 'Geister'
 	},
 	{
-		lemma: "Turnier",
-		meaning: "tournament",
+		lemma: 'Errichtung',
+		meaning: 'establishment, construction',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Errichtungen'
+	},
+	{
+		lemma: 'Realität',
+		meaning: 'reality',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Realitäten'
+	},
+	{
+		lemma: 'Rede',
+		meaning: 'speech, talk',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Reden'
+	},
+	{
+		lemma: 'Speise',
+		meaning: 'food, dish, meal',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Speisen'
+	},
+	{
+		lemma: 'Freizeit',
+		meaning: 'free time, leisure',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Freizeiten'
+	},
+	{
+		lemma: 'Genuss',
+		meaning: 'enjoyment, pleasure',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Genüsse'
+	},
+	{
+		lemma: 'Keller',
+		meaning: 'basement, cellar',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Keller'
+	},
+	{
+		lemma: 'Sexfilm',
+		meaning: 'adult films',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Sexfilme'
+	},
+	{
+		lemma: 'Bach',
+		meaning: 'stream, brook',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Bäche'
+	},
+	{
+		lemma: 'Eintritt',
+		meaning: 'entry, admission',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Eintritte'
+	},
+	{
+		lemma: 'Konzern',
+		meaning: 'large company or corporation',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Konzerne'
+	},
+	{
+		lemma: 'Ausführung',
+		meaning: 'execution, version, or design',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Ausführungen'
+	},
+	{
+		lemma: 'Wahrheit',
+		meaning: 'truth',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Wahrheiten'
+	},
+	{
+		lemma: 'Wechsel',
+		meaning: 'change, exchange, or shift',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Wechsel'
+	},
+	{
+		lemma: 'Schnee',
+		meaning: 'snow',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: '-'
+	},
+	{
+		lemma: 'Kondom',
+		meaning: 'condom',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Turniere",
+		plural: 'Kondome'
 	},
 	{
-		lemma: "Vorliebe",
-		meaning: "preference, predilection",
+		lemma: 'Stadtteil',
+		meaning: 'district or neighborhood',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Stadtteile'
+	},
+	{
+		lemma: 'Fischer',
+		meaning: 'fisherman',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Fischer'
+	},
+	{
+		lemma: 'Hose',
+		meaning: 'trousers or pants',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Vorlieben",
+		plural: 'Hosen'
 	},
 	{
-		lemma: "Volk",
-		meaning: "people, nation, folk",
+		lemma: 'Variante',
+		meaning: 'variant, version',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Varianten'
+	},
+	{
+		lemma: 'Hauptstadt',
+		meaning: 'capital city',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Hauptstädte'
+	},
+	{
+		lemma: 'Termin',
+		meaning: 'appointment, date, deadline',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Termine'
+	},
+	{
+		lemma: 'Turnier',
+		meaning: 'tournament',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Völker",
+		plural: 'Turniere'
 	},
 	{
-		lemma: "Schwangerschaft",
-		meaning: "pregnancy",
+		lemma: 'Vorliebe',
+		meaning: 'preference, predilection',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Schwangerschaften",
+		plural: 'Vorlieben'
 	},
 	{
-		lemma: "Dusche",
-		meaning: "shower",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Duschen",
-	},
-	{
-		lemma: "Schuh",
-		meaning: "shoe",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Schuhe",
-	},
-	{
-		lemma: "Himmel",
-		meaning: "sky or heaven",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Himmel",
-	},
-	{
-		lemma: "Katalognummer",
-		meaning: "catalog number",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Katalognummern",
-	},
-	{
-		lemma: "Lieferung",
-		meaning: "delivery or shipment",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Lieferungen",
-	},
-	{
-		lemma: "Medikament",
-		meaning: "medications",
+		lemma: 'Volk',
+		meaning: 'people, nation, folk',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Medikamente",
+		plural: 'Völker'
 	},
 	{
-		lemma: "Buchstabe",
-		meaning: "letters of the alphabet",
+		lemma: 'Schwangerschaft',
+		meaning: 'pregnancy',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Schwangerschaften'
+	},
+	{
+		lemma: 'Dusche',
+		meaning: 'shower',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Duschen'
+	},
+	{
+		lemma: 'Schuh',
+		meaning: 'shoe',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Buchstaben",
+		plural: 'Schuhe'
 	},
 	{
-		lemma: "Übung",
-		meaning: "exercises",
+		lemma: 'Himmel',
+		meaning: 'sky or heaven',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Himmel'
+	},
+	{
+		lemma: 'Katalognummer',
+		meaning: 'catalog number',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Übungen",
+		plural: 'Katalognummern'
 	},
 	{
-		lemma: "Vorlage",
-		meaning: "template, model, or draft",
+		lemma: 'Lieferung',
+		meaning: 'delivery or shipment',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Vorlagen",
+		plural: 'Lieferungen'
 	},
 	{
-		lemma: "Wohnen",
-		meaning: "living or housing",
+		lemma: 'Medikament',
+		meaning: 'medications',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "none",
+		plural: 'Medikamente'
 	},
 	{
-		lemma: "Auseinandersetzung",
-		meaning: "argument, debate, or confrontation",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Auseinandersetzungen",
-	},
-	{
-		lemma: "Besetzung",
-		meaning: "cast, occupation, filling",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Besetzungen",
-	},
-	{
-		lemma: "Hintern",
-		meaning: "bottom, backside, butt",
+		lemma: 'Buchstabe',
+		meaning: 'letters of the alphabet',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Hintern",
+		plural: 'Buchstaben'
 	},
 	{
-		lemma: "Ring",
-		meaning: "ring",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Ringe",
-	},
-	{
-		lemma: "Ansicht",
-		meaning: "view, opinion, sight",
+		lemma: 'Übung',
+		meaning: 'exercises',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Ansichten",
+		plural: 'Übungen'
 	},
 	{
-		lemma: "Arbeiter",
-		meaning: "worker, laborer",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Arbeiter",
-	},
-	{
-		lemma: "Fantasie",
-		meaning: "fantasy, imagination",
+		lemma: 'Vorlage',
+		meaning: 'template, model, or draft',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Fantasien",
+		plural: 'Vorlagen'
 	},
 	{
-		lemma: "Wärme",
-		meaning: "warmth, heat",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "-",
-	},
-	{
-		lemma: "Silber",
-		meaning: "silver",
+		lemma: 'Wohnen',
+		meaning: 'living or housing',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "-",
+		plural: 'none'
 	},
 	{
-		lemma: "Wand",
-		meaning: "wall",
+		lemma: 'Auseinandersetzung',
+		meaning: 'argument, debate, or confrontation',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Wände",
+		plural: 'Auseinandersetzungen'
 	},
 	{
-		lemma: "Arbeitsplatz",
-		meaning: "workplace, job",
+		lemma: 'Besetzung',
+		meaning: 'cast, occupation, filling',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Besetzungen'
+	},
+	{
+		lemma: 'Hintern',
+		meaning: 'bottom, backside, butt',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Arbeitsplätze",
+		plural: 'Hintern'
 	},
 	{
-		lemma: "Bord",
-		meaning: "board (on a ship)",
+		lemma: 'Ring',
+		meaning: 'ring',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Borde",
+		plural: 'Ringe'
 	},
 	{
-		lemma: "Ereignis",
-		meaning: "event, occurrence",
+		lemma: 'Ansicht',
+		meaning: 'view, opinion, sight',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Ansichten'
+	},
+	{
+		lemma: 'Arbeiter',
+		meaning: 'worker, laborer',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Arbeiter'
+	},
+	{
+		lemma: 'Fantasie',
+		meaning: 'fantasy, imagination',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Fantasien'
+	},
+	{
+		lemma: 'Wärme',
+		meaning: 'warmth, heat',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: '-'
+	},
+	{
+		lemma: 'Silber',
+		meaning: 'silver',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Ereignisse",
+		plural: '-'
 	},
 	{
-		lemma: "Ordnung",
-		meaning: "order, tidiness",
+		lemma: 'Wand',
+		meaning: 'wall',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Ordnungen",
+		plural: 'Wände'
 	},
-		{
-		lemma: "Fach",
-		meaning: "subject, compartment, shelf",
+	{
+		lemma: 'Arbeitsplatz',
+		meaning: 'workplace, job',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Arbeitsplätze'
+	},
+	{
+		lemma: 'Bord',
+		meaning: 'board (on a ship)',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Borde'
+	},
+	{
+		lemma: 'Ereignis',
+		meaning: 'event, occurrence',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Fächer",
+		plural: 'Ereignisse'
 	},
 	{
-		lemma: "Potenzial",
-		meaning: "potential",
+		lemma: 'Ordnung',
+		meaning: 'order, tidiness',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Ordnungen'
+	},
+	{
+		lemma: 'Fach',
+		meaning: 'subject, compartment, shelf',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Potenziale",
+		plural: 'Fächer'
 	},
 	{
-		lemma: "Prostata",
-		meaning: "prostate",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Prostaten",
-	},
-	{
-		lemma: "Hoffnung",
-		meaning: "hope",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Hoffnungen",
-	},
-	{
-		lemma: "Tätigkeit",
-		meaning: "activities, occupations",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Tätigkeiten",
-	},
-	{
-		lemma: "Energiewende",
-		meaning: "energy transition",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Energiewenden",
-	},
-	{
-		lemma: "Gummi",
-		meaning: "rubber, eraser, elastic band",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Gummis",
-	},
-	{
-		lemma: "Nippel",
-		meaning: "nipple",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Nippel",
-	},
-		{
-		lemma: "Bewerber",
-		meaning: "applicant",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Bewerber",
-	},
-	{
-		lemma: "Küste",
-		meaning: "coast",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Küsten",
-	},
-	{
-		lemma: "Abmahnung",
-		meaning: "formal warning",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Abmahnungen",
-	},
-	{
-		lemma: "Haltung",
-		meaning: "attitude, posture",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Haltungen",
-	},
-	{
-		lemma: "Börse",
-		meaning: "stock market, exchange",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Börsen",
-	},
-	{
-		lemma: "Informatik",
-		meaning: "computer science",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Informatik",
-	},
-	{
-		lemma: "Wanderung",
-		meaning: "hike, migration",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Wanderungen",
-	},
-	{
-		lemma: "Besatzung",
-		meaning: "crew, occupation",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Besatzungen",
-	},
-	{
-		lemma: "Klimaschutz",
-		meaning: "climate protection",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Klimaschutz",
-	},
-	{
-		lemma: "Viertel",
-		meaning: "quarter, neighborhood",
+		lemma: 'Potenzial',
+		meaning: 'potential',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Viertel",
+		plural: 'Potenziale'
 	},
 	{
-		lemma: "Gegenteil",
-		meaning: "opposite",
+		lemma: 'Prostata',
+		meaning: 'prostate',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Prostaten'
+	},
+	{
+		lemma: 'Hoffnung',
+		meaning: 'hope',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Hoffnungen'
+	},
+	{
+		lemma: 'Tätigkeit',
+		meaning: 'activities, occupations',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Tätigkeiten'
+	},
+	{
+		lemma: 'Energiewende',
+		meaning: 'energy transition',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Energiewenden'
+	},
+	{
+		lemma: 'Gummi',
+		meaning: 'rubber, eraser, elastic band',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Gummis'
+	},
+	{
+		lemma: 'Nippel',
+		meaning: 'nipple',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Nippel'
+	},
+	{
+		lemma: 'Bewerber',
+		meaning: 'applicant',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Bewerber'
+	},
+	{
+		lemma: 'Küste',
+		meaning: 'coast',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Küsten'
+	},
+	{
+		lemma: 'Abmahnung',
+		meaning: 'formal warning',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Abmahnungen'
+	},
+	{
+		lemma: 'Haltung',
+		meaning: 'attitude, posture',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Haltungen'
+	},
+	{
+		lemma: 'Börse',
+		meaning: 'stock market, exchange',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Börsen'
+	},
+	{
+		lemma: 'Informatik',
+		meaning: 'computer science',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Informatik'
+	},
+	{
+		lemma: 'Wanderung',
+		meaning: 'hike, migration',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Wanderungen'
+	},
+	{
+		lemma: 'Besatzung',
+		meaning: 'crew, occupation',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Besatzungen'
+	},
+	{
+		lemma: 'Klimaschutz',
+		meaning: 'climate protection',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Klimaschutz'
+	},
+	{
+		lemma: 'Viertel',
+		meaning: 'quarter, neighborhood',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Gegenteile",
+		plural: 'Viertel'
 	},
 	{
-		lemma: "Verbreitung",
-		meaning: "distribution, spread",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Verbreitungen",
-	},
-	{
-		lemma: "Streit",
-		meaning: "argument or dispute",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Streite",
-	},
-	{
-		lemma: "Alkohol",
-		meaning: "alcohol",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Alkohole",
-	},
-	{
-		lemma: "Salz",
-		meaning: "salt",
+		lemma: 'Gegenteil',
+		meaning: 'opposite',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Salze",
+		plural: 'Gegenteile'
 	},
 	{
-		lemma: "Debatte",
-		meaning: "debate or discussion",
+		lemma: 'Verbreitung',
+		meaning: 'distribution, spread',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Debatten",
+		plural: 'Verbreitungen'
 	},
 	{
-		lemma: "Einstieg",
-		meaning: "entry or beginning",
+		lemma: 'Streit',
+		meaning: 'argument or dispute',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Einstiege",
+		plural: 'Streite'
 	},
 	{
-		lemma: "Seminar",
-		meaning: "seminar or workshop",
+		lemma: 'Alkohol',
+		meaning: 'alcohol',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Alkohole'
+	},
+	{
+		lemma: 'Salz',
+		meaning: 'salt',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Seminare",
+		plural: 'Salze'
 	},
 	{
-		lemma: "Tiefe",
-		meaning: "depth",
+		lemma: 'Debatte',
+		meaning: 'debate or discussion',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Tiefen",
+		plural: 'Debatten'
 	},
 	{
-		lemma: "Politiker",
-		meaning: "politician",
+		lemma: 'Einstieg',
+		meaning: 'entry or beginning',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Politiker",
+		plural: 'Einstiege'
 	},
 	{
-		lemma: "Hafen",
-		meaning: "port or harbor",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Häfen",
-	},
-	{
-		lemma: "Spur",
-		meaning: "traces or tracks",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Spuren",
-	},
-	{
-		lemma: "Umbau",
-		meaning: "renovation or reconstruction",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Umbauten",
-	},
-	{
-		lemma: "Zucker",
-		meaning: "sugar",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Zucker",
-	},
-	{
-		lemma: "Kindergarten",
-		meaning: "kindergarten or preschool",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Kindergärten",
-	},
-	{
-		lemma: "Sieger",
-		meaning: "winner or victor",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Sieger",
-	},
-	{
-		lemma: "Terrasse",
-		meaning: "terrace or patio",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Terrassen",
-	},
-	{
-		lemma: "Internetseite",
-		meaning: "website or webpage",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Internetseiten",
-	},
-	{
-		lemma: "Praktikum",
-		meaning: "internship or placement",
+		lemma: 'Seminar',
+		meaning: 'seminar or workshop',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Praktika",
+		plural: 'Seminare'
 	},
 	{
-		lemma: "Volkszählung",
-		meaning: "census",
+		lemma: 'Tiefe',
+		meaning: 'depth',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Volkszählungen",
+		plural: 'Tiefen'
 	},
 	{
-		lemma: "Partnerin",
-		meaning: "female partner",
+		lemma: 'Politiker',
+		meaning: 'politician',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Politiker'
+	},
+	{
+		lemma: 'Hafen',
+		meaning: 'port or harbor',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Häfen'
+	},
+	{
+		lemma: 'Spur',
+		meaning: 'traces or tracks',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Partnerinnen",
+		plural: 'Spuren'
 	},
 	{
-		lemma: "Vernetzung",
-		meaning: "networking or interconnection",
+		lemma: 'Umbau',
+		meaning: 'renovation or reconstruction',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Umbauten'
+	},
+	{
+		lemma: 'Zucker',
+		meaning: 'sugar',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Zucker'
+	},
+	{
+		lemma: 'Kindergarten',
+		meaning: 'kindergarten or preschool',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Kindergärten'
+	},
+	{
+		lemma: 'Sieger',
+		meaning: 'winner or victor',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Sieger'
+	},
+	{
+		lemma: 'Terrasse',
+		meaning: 'terrace or patio',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Vernetzungen",
+		plural: 'Terrassen'
 	},
 	{
-		lemma: "Konzert",
-		meaning: "concerts",
+		lemma: 'Internetseite',
+		meaning: 'website or webpage',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Internetseiten'
+	},
+	{
+		lemma: 'Praktikum',
+		meaning: 'internship or placement',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Konzerte",
+		plural: 'Praktika'
 	},
 	{
-		lemma: "Wind",
-		meaning: "wind",
+		lemma: 'Volkszählung',
+		meaning: 'census',
 		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Winde",
+		gender: 'die' as const,
+		plural: 'Volkszählungen'
 	},
 	{
-		lemma: "Haushalt",
-		meaning: "household, budget",
+		lemma: 'Partnerin',
+		meaning: 'female partner',
 		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Haushalte",
+		gender: 'die' as const,
+		plural: 'Partnerinnen'
 	},
 	{
-		lemma: "Anwesen",
-		meaning: "property or estate",
+		lemma: 'Vernetzung',
+		meaning: 'networking or interconnection',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Vernetzungen'
+	},
+	{
+		lemma: 'Konzert',
+		meaning: 'concerts',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Anwesen",
+		plural: 'Konzerte'
 	},
 	{
-		lemma: "Entwurf",
-		meaning: "draft or design",
+		lemma: 'Wind',
+		meaning: 'wind',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Entwürfe",
+		plural: 'Winde'
 	},
 	{
-		lemma: "Leser",
-		meaning: "reader",
+		lemma: 'Haushalt',
+		meaning: 'household, budget',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Leser",
+		plural: 'Haushalte'
 	},
 	{
-		lemma: "Rathaus",
-		meaning: "town hall",
+		lemma: 'Anwesen',
+		meaning: 'property or estate',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Rathäuser",
+		plural: 'Anwesen'
 	},
 	{
-		lemma: "Rubrik",
-		meaning: "category or section",
+		lemma: 'Entwurf',
+		meaning: 'draft or design',
 		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Rubriken",
+		gender: 'der' as const,
+		plural: 'Entwürfe'
 	},
 	{
-		lemma: "Flexibilität",
-		meaning: "flexibility",
+		lemma: 'Leser',
+		meaning: 'reader',
 		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Flexibilitäten",
+		gender: 'der' as const,
+		plural: 'Leser'
 	},
 	{
-		lemma: "Schloss",
-		meaning: "castle or lock",
+		lemma: 'Rathaus',
+		meaning: 'town hall',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Schlösser",
+		plural: 'Rathäuser'
 	},
 	{
-		lemma: "Objekt",
-		meaning: "object",
+		lemma: 'Rubrik',
+		meaning: 'category or section',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Rubriken'
+	},
+	{
+		lemma: 'Flexibilität',
+		meaning: 'flexibility',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Flexibilitäten'
+	},
+	{
+		lemma: 'Schloss',
+		meaning: 'castle or lock',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Objekte",
+		plural: 'Schlösser'
 	},
 	{
-		lemma: "Spezialist",
-		meaning: "specialists",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Spezialisten",
-	},
-	{
-		lemma: "Ware",
-		meaning: "goods, merchandise",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Waren",
-	},
-	{
-		lemma: "Hinblick",
-		meaning: "view, regard",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Hinblicke",
-	},
-	{
-		lemma: "Existenz",
-		meaning: "existence",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Existenzen",
-	},
-	{
-		lemma: "Orgel",
-		meaning: "organ (musical instrument)",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Orgeln",
-	},
-	{
-		lemma: "Schamlippe",
-		meaning: "labia",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Schamlippen",
-	},
-	{
-		lemma: "Kreativität",
-		meaning: "creativity",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Kreativitäten",
-	},
-	{
-		lemma: "Gesundheit",
-		meaning: "health",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "-",
-	},
-	{
-		lemma: "Anspruch",
-		meaning: "claim, demand, entitlement",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Ansprüche",
-	},
-	{
-		lemma: "Niederlage",
-		meaning: "defeat",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Niederlagen",
-	},
-	{
-		lemma: "Summe",
-		meaning: "sum, total",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Summen",
-	},
-	{
-		lemma: "Einkommen",
-		meaning: "income",
+		lemma: 'Objekt',
+		meaning: 'object',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Einkommen",
+		plural: 'Objekte'
 	},
 	{
-		lemma: "Weihnachten",
-		meaning: "Christmas",
+		lemma: 'Spezialist',
+		meaning: 'specialists',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Spezialisten'
+	},
+	{
+		lemma: 'Ware',
+		meaning: 'goods, merchandise',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Waren'
+	},
+	{
+		lemma: 'Hinblick',
+		meaning: 'view, regard',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Hinblicke'
+	},
+	{
+		lemma: 'Existenz',
+		meaning: 'existence',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Existenzen'
+	},
+	{
+		lemma: 'Orgel',
+		meaning: 'organ (musical instrument)',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Orgeln'
+	},
+	{
+		lemma: 'Schamlippe',
+		meaning: 'labia',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Schamlippen'
+	},
+	{
+		lemma: 'Kreativität',
+		meaning: 'creativity',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Kreativitäten'
+	},
+	{
+		lemma: 'Gesundheit',
+		meaning: 'health',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: '-'
+	},
+	{
+		lemma: 'Anspruch',
+		meaning: 'claim, demand, entitlement',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Ansprüche'
+	},
+	{
+		lemma: 'Niederlage',
+		meaning: 'defeat',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Niederlagen'
+	},
+	{
+		lemma: 'Summe',
+		meaning: 'sum, total',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Summen'
+	},
+	{
+		lemma: 'Einkommen',
+		meaning: 'income',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Weihnachten",
+		plural: 'Einkommen'
 	},
 	{
-		lemma: "Betrag",
-		meaning: "amount, sum",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Beträge",
-	},
-	{
-		lemma: "Vorgehen",
-		meaning: "approach, procedure, or action",
+		lemma: 'Weihnachten',
+		meaning: 'Christmas',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Vorgehen",
+		plural: 'Weihnachten'
 	},
 	{
-		lemma: "Eintrag",
-		meaning: "entry or record",
+		lemma: 'Betrag',
+		meaning: 'amount, sum',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Einträge",
+		plural: 'Beträge'
 	},
 	{
-		lemma: "Bundesrat",
-		meaning: "Federal Council",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Bundesräte",
-	},
-	{
-		lemma: "Tier",
-		meaning: "animal",
+		lemma: 'Vorgehen',
+		meaning: 'approach, procedure, or action',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Tiere",
+		plural: 'Vorgehen'
 	},
 	{
-		lemma: "Einstellung",
-		meaning: "settings or attitudes",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Einstellungen",
-	},
-	{
-		lemma: "Unternehmer",
-		meaning: "entrepreneur or businessman",
+		lemma: 'Eintrag',
+		meaning: 'entry or record',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Unternehmer",
+		plural: 'Einträge'
 	},
 	{
-		lemma: "Zielgruppe",
-		meaning: "target group or audience",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Zielgruppen",
-	},
-	{
-		lemma: "Anhänger",
-		meaning: "trailer, fan, follower, pendant",
+		lemma: 'Bundesrat',
+		meaning: 'Federal Council',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Anhänger",
+		plural: 'Bundesräte'
 	},
 	{
-		lemma: "Bereitstellung",
-		meaning: "provision, supply",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Bereitstellungen",
-	},
-	{
-		lemma: "Diskretion",
-		meaning: "discretion, confidentiality",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Diskretionen",
-	},
-	{
-		lemma: "Installation",
-		meaning: "installation",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Installationen",
-	},
-	{
-		lemma: "Spiegel",
-		meaning: "mirror",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Spiegel",
-	},
-	{
-		lemma: "Verletzung",
-		meaning: "injuries, wounds",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Verletzungen",
-	},
-	{
-		lemma: "Geschwindigkeit",
-		meaning: "speed, velocity",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Geschwindigkeiten",
-	},
-	{
-		lemma: "Lippe",
-		meaning: "lips",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Lippen",
-	},
-	{
-		lemma: "Altstadt",
-		meaning: "old town, historic center",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Altstädte",
-	},
-	{
-		lemma: "Ausmaß",
-		meaning: "extent, dimension, scale",
+		lemma: 'Tier',
+		meaning: 'animal',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Ausmaße",
+		plural: 'Tiere'
 	},
 	{
-		lemma: "Inschrift",
-		meaning: "inscription",
+		lemma: 'Einstellung',
+		meaning: 'settings or attitudes',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Inschriften",
+		plural: 'Einstellungen'
 	},
 	{
-		lemma: "Zubehör",
-		meaning: "accessories, equipment",
+		lemma: 'Unternehmer',
+		meaning: 'entrepreneur or businessman',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Unternehmer'
+	},
+	{
+		lemma: 'Zielgruppe',
+		meaning: 'target group or audience',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Zielgruppen'
+	},
+	{
+		lemma: 'Anhänger',
+		meaning: 'trailer, fan, follower, pendant',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Anhänger'
+	},
+	{
+		lemma: 'Bereitstellung',
+		meaning: 'provision, supply',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Bereitstellungen'
+	},
+	{
+		lemma: 'Diskretion',
+		meaning: 'discretion, confidentiality',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Diskretionen'
+	},
+	{
+		lemma: 'Installation',
+		meaning: 'installation',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Installationen'
+	},
+	{
+		lemma: 'Spiegel',
+		meaning: 'mirror',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Spiegel'
+	},
+	{
+		lemma: 'Verletzung',
+		meaning: 'injuries, wounds',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Verletzungen'
+	},
+	{
+		lemma: 'Geschwindigkeit',
+		meaning: 'speed, velocity',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Geschwindigkeiten'
+	},
+	{
+		lemma: 'Lippe',
+		meaning: 'lips',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Lippen'
+	},
+	{
+		lemma: 'Altstadt',
+		meaning: 'old town, historic center',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Altstädte'
+	},
+	{
+		lemma: 'Ausmaß',
+		meaning: 'extent, dimension, scale',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Zubehör",
+		plural: 'Ausmaße'
 	},
 	{
-		lemma: "Broschüre",
-		meaning: "brochure, pamphlet",
+		lemma: 'Inschrift',
+		meaning: 'inscription',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Broschüren",
+		plural: 'Inschriften'
 	},
 	{
-		lemma: "Revolution",
-		meaning: "revolution",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Revolutionen",
-	},
-	{
-		lemma: "Erhalt",
-		meaning: "receipt or preservation",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "-",
-	},
-	{
-		lemma: "Stress",
-		meaning: "stress",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "-",
-	},
-	{
-		lemma: "Blut",
-		meaning: "blood",
+		lemma: 'Zubehör',
+		meaning: 'accessories, equipment',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "-",
+		plural: 'Zubehör'
 	},
 	{
-		lemma: "Ruf",
-		meaning: "reputation or call",
+		lemma: 'Broschüre',
+		meaning: 'brochure, pamphlet',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Broschüren'
+	},
+	{
+		lemma: 'Revolution',
+		meaning: 'revolution',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Revolutionen'
+	},
+	{
+		lemma: 'Erhalt',
+		meaning: 'receipt or preservation',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Rufe",
+		plural: '-'
 	},
 	{
-		lemma: "Kandidat",
-		meaning: "candidate",
+		lemma: 'Stress',
+		meaning: 'stress',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Kandidaten",
-	},
-		{
-		lemma: "Dokumentation",
-		meaning: "documentation",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Dokumentationen",
+		plural: '-'
 	},
 	{
-		lemma: "Journalist",
-		meaning: "journalist",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Journalisten",
-	},
-		{
-		lemma: "Umstand",
-		meaning: "circumstance",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Umstände",
-	},
-	{
-		lemma: "Botschaft",
-		meaning: "message or embassy",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Botschaften",
-	},
-	{
-		lemma: "Affäre",
-		meaning: "affair or scandal",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Affären",
-	},
-	{
-		lemma: "Perspektive",
-		meaning: "perspective or outlook",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Perspektiven",
-	},
-	{
-		lemma: "Rechner",
-		meaning: "computer or calculator",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Rechner",
-	},
-	{
-		lemma: "Hostess",
-		meaning: "hostess",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Hostessen",
-	},
-	{
-		lemma: "Motivation",
-		meaning: "motivation",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Motivationen",
-	},
-	{
-		lemma: "Prinzip",
-		meaning: "principle",
+		lemma: 'Blut',
+		meaning: 'blood',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Prinzipien",
+		plural: '-'
 	},
 	{
-		lemma: "Regie",
-		meaning: "direction (film or theater)",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Regien",
-	},
-	{
-		lemma: "Bonus",
-		meaning: "bonus",
+		lemma: 'Ruf',
+		meaning: 'reputation or call',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Boni",
+		plural: 'Rufe'
 	},
 	{
-		lemma: "Fassung",
-		meaning: "version or composure",
+		lemma: 'Kandidat',
+		meaning: 'candidate',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Kandidaten'
+	},
+	{
+		lemma: 'Dokumentation',
+		meaning: 'documentation',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Fassungen",
+		plural: 'Dokumentationen'
 	},
 	{
-		lemma: "Mädel",
-		meaning: "girls",
+		lemma: 'Journalist',
+		meaning: 'journalist',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Journalisten'
+	},
+	{
+		lemma: 'Umstand',
+		meaning: 'circumstance',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Umstände'
+	},
+	{
+		lemma: 'Botschaft',
+		meaning: 'message or embassy',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Botschaften'
+	},
+	{
+		lemma: 'Affäre',
+		meaning: 'affair or scandal',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Affären'
+	},
+	{
+		lemma: 'Perspektive',
+		meaning: 'perspective or outlook',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Perspektiven'
+	},
+	{
+		lemma: 'Rechner',
+		meaning: 'computer or calculator',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Rechner'
+	},
+	{
+		lemma: 'Hostess',
+		meaning: 'hostess',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Hostessen'
+	},
+	{
+		lemma: 'Motivation',
+		meaning: 'motivation',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Motivationen'
+	},
+	{
+		lemma: 'Prinzip',
+		meaning: 'principle',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Mädels",
+		plural: 'Prinzipien'
 	},
 	{
-		lemma: "Anlass",
-		meaning: "occasion, cause, reason",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Anlässe",
-	},
-	{
-		lemma: "Kampagne",
-		meaning: "campaign",
+		lemma: 'Regie',
+		meaning: 'direction (film or theater)',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Kampagnen",
+		plural: 'Regien'
 	},
 	{
-		lemma: "Vergnügen",
-		meaning: "pleasure, enjoyment",
+		lemma: 'Bonus',
+		meaning: 'bonus',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Boni'
+	},
+	{
+		lemma: 'Fassung',
+		meaning: 'version or composure',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Fassungen'
+	},
+	{
+		lemma: 'Mädel',
+		meaning: 'girls',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Vergnügen",
+		plural: 'Mädels'
 	},
 	{
-		lemma: "Zustimmung",
-		meaning: "agreement, approval, or consent",
+		lemma: 'Anlass',
+		meaning: 'occasion, cause, reason',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Anlässe'
+	},
+	{
+		lemma: 'Kampagne',
+		meaning: 'campaign',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Zustimmungen",
+		plural: 'Kampagnen'
 	},
 	{
-		lemma: "Semester",
-		meaning: "semester or academic term",
+		lemma: 'Vergnügen',
+		meaning: 'pleasure, enjoyment',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Semester",
+		plural: 'Vergnügen'
 	},
 	{
-		lemma: "Ursache",
-		meaning: "cause or reason",
+		lemma: 'Zustimmung',
+		meaning: 'agreement, approval, or consent',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Ursachen",
+		plural: 'Zustimmungen'
 	},
 	{
-		lemma: "Steuer",
-		meaning: "taxes",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Steuern",
-	},
-	{
-		lemma: "Operation",
-		meaning: "operation or surgery",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Operationen",
-	},
-	{
-		lemma: "Dosis",
-		meaning: "dose",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Dosen",
-	},
-	{
-		lemma: "Versicherung",
-		meaning: "insurance",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Versicherungen",
-	},
-	{
-		lemma: "Gebrauch",
-		meaning: "use, usage",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Gebräuche",
-	},
-	{
-		lemma: "Option",
-		meaning: "option",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Optionen",
-	},
-	{
-		lemma: "Versandkosten",
-		meaning: "shipping costs",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Versandkosten",
-	},
-	{
-		lemma: "Rezept",
-		meaning: "recipe, prescription",
+		lemma: 'Semester',
+		meaning: 'semester or academic term',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Rezepte",
+		plural: 'Semester'
 	},
-		{
-		lemma: "Bewusstsein",
-		meaning: "consciousness, awareness",
+	{
+		lemma: 'Ursache',
+		meaning: 'cause or reason',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Ursachen'
+	},
+	{
+		lemma: 'Steuer',
+		meaning: 'taxes',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Steuern'
+	},
+	{
+		lemma: 'Operation',
+		meaning: 'operation or surgery',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Operationen'
+	},
+	{
+		lemma: 'Dosis',
+		meaning: 'dose',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Dosen'
+	},
+	{
+		lemma: 'Versicherung',
+		meaning: 'insurance',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Versicherungen'
+	},
+	{
+		lemma: 'Gebrauch',
+		meaning: 'use, usage',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Gebräuche'
+	},
+	{
+		lemma: 'Option',
+		meaning: 'option',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Optionen'
+	},
+	{
+		lemma: 'Versandkosten',
+		meaning: 'shipping costs',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Versandkosten'
+	},
+	{
+		lemma: 'Rezept',
+		meaning: 'recipe, prescription',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Bewusstseine",
+		plural: 'Rezepte'
 	},
 	{
-		lemma: "Verordnung",
-		meaning: "regulation, decree",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Verordnungen",
-	},
-	{
-		lemma: "Baum",
-		meaning: "trees",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Bäume",
-	},
-	{
-		lemma: "Lebensqualität",
-		meaning: "quality of life",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Lebensqualitäten",
-	},
-	{
-		lemma: "Qualifikation",
-		meaning: "qualification",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Qualifikationen",
-	},
-	{
-		lemma: "Maler",
-		meaning: "painter",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Maler",
-	},
-	{
-		lemma: "Entfernung",
-		meaning: "distance",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Entfernungen",
-	},
-	{
-		lemma: "Vermieter",
-		meaning: "landlord",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Vermieter",
-	},
-	{
-		lemma: "Budget",
-		meaning: "budget",
+		lemma: 'Bewusstsein',
+		meaning: 'consciousness, awareness',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Budgets",
+		plural: 'Bewusstseine'
 	},
 	{
-		lemma: "Stimulation",
-		meaning: "stimulation",
+		lemma: 'Verordnung',
+		meaning: 'regulation, decree',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Stimulationen",
+		plural: 'Verordnungen'
 	},
 	{
-		lemma: "Betreiber",
-		meaning: "operator, manager",
+		lemma: 'Baum',
+		meaning: 'trees',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Betreiber",
+		plural: 'Bäume'
 	},
 	{
-		lemma: "Kunststoff",
-		meaning: "plastic, synthetic material",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Kunststoffe",
-	},
-	{
-		lemma: "Beschluss",
-		meaning: "decision, resolution",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Beschlüsse",
-	},
-	{
-		lemma: "Landtag",
-		meaning: "state parliament",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Landtage",
-	},
-	{
-		lemma: "Vorgänger",
-		meaning: "predecessor",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Vorgänger",
-	},
-	{
-		lemma: "Gestalt",
-		meaning: "shape, figure, or form",
+		lemma: 'Lebensqualität',
+		meaning: 'quality of life',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Gestalten",
+		plural: 'Lebensqualitäten'
 	},
 	{
-		lemma: "Mieter",
-		meaning: "tenant or renter",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Mieter",
-	},
-	{
-		lemma: "Vorwurf",
-		meaning: "accusation or reproach",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Vorwürfe",
-	},
-	{
-		lemma: "Übernahme",
-		meaning: "takeover, adoption, assumption",
+		lemma: 'Qualifikation',
+		meaning: 'qualification',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Übernahmen",
+		plural: 'Qualifikationen'
 	},
 	{
-		lemma: "Marke",
-		meaning: "brands, marks, stamps",
+		lemma: 'Maler',
+		meaning: 'painter',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Maler'
+	},
+	{
+		lemma: 'Entfernung',
+		meaning: 'distance',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Marken",
+		plural: 'Entfernungen'
 	},
 	{
-		lemma: "Liter",
-		meaning: "liter",
+		lemma: 'Vermieter',
+		meaning: 'landlord',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Liter",
+		plural: 'Vermieter'
 	},
 	{
-		lemma: "Bauch",
-		meaning: "belly, stomach, abdomen",
+		lemma: 'Budget',
+		meaning: 'budget',
+		partOfSpeech: 'noun' as const,
+		gender: 'das' as const,
+		plural: 'Budgets'
+	},
+	{
+		lemma: 'Stimulation',
+		meaning: 'stimulation',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Stimulationen'
+	},
+	{
+		lemma: 'Betreiber',
+		meaning: 'operator, manager',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Bäuche",
+		plural: 'Betreiber'
 	},
 	{
-		lemma: "Auftritt",
-		meaning: "appearance, performance, gig",
+		lemma: 'Kunststoff',
+		meaning: 'plastic, synthetic material',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Auftritte",
+		plural: 'Kunststoffe'
 	},
 	{
-		lemma: "Betroffene",
-		meaning: "affected person, victim",
+		lemma: 'Beschluss',
+		meaning: 'decision, resolution',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Beschlüsse'
+	},
+	{
+		lemma: 'Landtag',
+		meaning: 'state parliament',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Landtage'
+	},
+	{
+		lemma: 'Vorgänger',
+		meaning: 'predecessor',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Vorgänger'
+	},
+	{
+		lemma: 'Gestalt',
+		meaning: 'shape, figure, or form',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Gestalten'
+	},
+	{
+		lemma: 'Mieter',
+		meaning: 'tenant or renter',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Mieter'
+	},
+	{
+		lemma: 'Vorwurf',
+		meaning: 'accusation or reproach',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Vorwürfe'
+	},
+	{
+		lemma: 'Übernahme',
+		meaning: 'takeover, adoption, assumption',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Übernahmen'
+	},
+	{
+		lemma: 'Marke',
+		meaning: 'brands, marks, stamps',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Marken'
+	},
+	{
+		lemma: 'Liter',
+		meaning: 'liter',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Liter'
+	},
+	{
+		lemma: 'Bauch',
+		meaning: 'belly, stomach, abdomen',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Bäuche'
+	},
+	{
+		lemma: 'Auftritt',
+		meaning: 'appearance, performance, gig',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Auftritte'
+	},
+	{
+		lemma: 'Betroffene',
+		meaning: 'affected person, victim',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: "Betroffenen",
+		plural: 'Betroffenen'
 	},
 	{
-		lemma: "Optik",
-		meaning: "optics, appearance, look",
+		lemma: 'Optik',
+		meaning: 'optics, appearance, look',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Optiken",
+		plural: 'Optiken'
 	},
 	{
-		lemma: "Teig",
-		meaning: "dough, batter, pastry",
+		lemma: 'Teig',
+		meaning: 'dough, batter, pastry',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Teige",
-	},
-		{
-		lemma: "Strand",
-		meaning: "beach",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Strände",
+		plural: 'Teige'
 	},
 	{
-		lemma: "Initiative",
-		meaning: "initiative",
+		lemma: 'Strand',
+		meaning: 'beach',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
+		plural: 'Strände'
+	},
+	{
+		lemma: 'Initiative',
+		meaning: 'initiative',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Initiativen",
+		plural: 'Initiativen'
 	},
 	{
-		lemma: "Pfarrkirche",
-		meaning: "parish church",
+		lemma: 'Pfarrkirche',
+		meaning: 'parish church',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Pfarrkirchen",
+		plural: 'Pfarrkirchen'
 	},
 	{
-		lemma: "Franzose",
-		meaning: "Frenchmen or French people",
+		lemma: 'Franzose',
+		meaning: 'Frenchmen or French people',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Franzosen",
+		plural: 'Franzosen'
 	},
 	{
-		lemma: "Golf",
-		meaning: "golf or gulf",
+		lemma: 'Golf',
+		meaning: 'golf or gulf',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Golfe",
+		plural: 'Golfe'
 	},
 	{
-		lemma: "Masturbation",
-		meaning: "masturbation",
+		lemma: 'Masturbation',
+		meaning: 'masturbation',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Masturbationen",
+		plural: 'Masturbationen'
 	},
 	{
-		lemma: "Möbel",
-		meaning: "furniture",
+		lemma: 'Möbel',
+		meaning: 'furniture',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Möbel",
+		plural: 'Möbel'
 	},
 	{
-		lemma: "Teppich",
-		meaning: "carpet, rug",
+		lemma: 'Teppich',
+		meaning: 'carpet, rug',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Teppiche",
+		plural: 'Teppiche'
 	},
 	{
-		lemma: "Flugzeug",
-		meaning: "airplane",
+		lemma: 'Flugzeug',
+		meaning: 'airplane',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Flugzeuge",
+		plural: 'Flugzeuge'
 	},
 	{
-		lemma: "Halbfinale",
-		meaning: "semi-final",
+		lemma: 'Halbfinale',
+		meaning: 'semi-final',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Halbfinale",
+		plural: 'Halbfinale'
 	},
 	{
-		lemma: "Quartal",
-		meaning: "quarter of a year",
+		lemma: 'Quartal',
+		meaning: 'quarter of a year',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Quartale",
+		plural: 'Quartale'
 	},
 	{
-		lemma: "Mauer",
-		meaning: "wall",
+		lemma: 'Mauer',
+		meaning: 'wall',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Mauern",
+		plural: 'Mauern'
 	},
 	{
-		lemma: "Minister",
-		meaning: "minister",
+		lemma: 'Minister',
+		meaning: 'minister',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Minister",
+		plural: 'Minister'
 	},
 	{
-		lemma: "Teilnehmer",
-		meaning: "participant",
+		lemma: 'Teilnehmer',
+		meaning: 'participant',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Teilnehmer",
+		plural: 'Teilnehmer'
 	},
 	{
-		lemma: "Auswertung",
-		meaning: "evaluation, analysis",
+		lemma: 'Auswertung',
+		meaning: 'evaluation, analysis',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Auswertungen",
+		plural: 'Auswertungen'
 	},
 	{
-		lemma: "Stein",
-		meaning: "stones, rocks",
+		lemma: 'Stein',
+		meaning: 'stones, rocks',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Steine",
+		plural: 'Steine'
 	},
-		{
-		lemma: "Koalition",
-		meaning: "coalition",
+	{
+		lemma: 'Koalition',
+		meaning: 'coalition',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Koalitionen",
+		plural: 'Koalitionen'
 	},
 	{
-		lemma: "Mut",
-		meaning: "courage, bravery",
+		lemma: 'Mut',
+		meaning: 'courage, bravery',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Mut",
+		plural: 'Mut'
 	},
 	{
-		lemma: "Herzog",
-		meaning: "duke",
+		lemma: 'Herzog',
+		meaning: 'duke',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Herzöge",
+		plural: 'Herzöge'
 	},
 	{
-		lemma: "Intelligenz",
-		meaning: "intelligence",
+		lemma: 'Intelligenz',
+		meaning: 'intelligence',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Intelligenzen",
+		plural: 'Intelligenzen'
 	},
 	{
-		lemma: "Kapitel",
-		meaning: "chapter",
+		lemma: 'Kapitel',
+		meaning: 'chapter',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Kapitel",
+		plural: 'Kapitel'
 	},
 	{
-		lemma: "Konferenz",
-		meaning: "conference, meeting",
+		lemma: 'Konferenz',
+		meaning: 'conference, meeting',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Konferenzen",
+		plural: 'Konferenzen'
 	},
 	{
-		lemma: "Abwechslung",
-		meaning: "variety, change, diversion",
+		lemma: 'Abwechslung',
+		meaning: 'variety, change, diversion',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Abwechslungen",
+		plural: 'Abwechslungen'
 	},
 	{
-		lemma: "Pflicht",
-		meaning: "duty, obligation",
+		lemma: 'Pflicht',
+		meaning: 'duty, obligation',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Pflichten",
+		plural: 'Pflichten'
 	},
 	{
-		lemma: "Bund",
-		meaning: "federation, league, or alliance",
+		lemma: 'Bund',
+		meaning: 'federation, league, or alliance',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Bünde",
+		plural: 'Bünde'
 	},
 	{
-		lemma: "Regisseur",
-		meaning: "director (film or theater)",
+		lemma: 'Regisseur',
+		meaning: 'director (film or theater)',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Regisseure",
+		plural: 'Regisseure'
 	},
 	{
-		lemma: "Warenkorb",
-		meaning: "shopping cart",
+		lemma: 'Warenkorb',
+		meaning: 'shopping cart',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Warenkörbe",
+		plural: 'Warenkörbe'
 	},
 	{
-		lemma: "Benutzerkonto",
-		meaning: "user account",
+		lemma: 'Benutzerkonto',
+		meaning: 'user account',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Benutzerkonten",
+		plural: 'Benutzerkonten'
 	},
 	{
-		lemma: "Bundesministerium",
-		meaning: "federal ministry",
+		lemma: 'Bundesministerium',
+		meaning: 'federal ministry',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Bundesministerien",
-	},
-		{
-		lemma: "Unabhängigkeit",
-		meaning: "independence",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Unabhängigkeiten",
+		plural: 'Bundesministerien'
 	},
 	{
-		lemma: "Partnerschaft",
-		meaning: "partnership",
+		lemma: 'Unabhängigkeit',
+		meaning: 'independence',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Partnerschaften",
+		plural: 'Unabhängigkeiten'
 	},
 	{
-		lemma: "Fakultät",
-		meaning: "faculty, department",
+		lemma: 'Partnerschaft',
+		meaning: 'partnership',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Fakultäten",
+		plural: 'Partnerschaften'
 	},
 	{
-		lemma: "Bundesland",
-		meaning: "federal state",
+		lemma: 'Fakultät',
+		meaning: 'faculty, department',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Fakultäten'
+	},
+	{
+		lemma: 'Bundesland',
+		meaning: 'federal state',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Bundesländer",
+		plural: 'Bundesländer'
 	},
 	{
-		lemma: "Erscheinung",
-		meaning: "appearance, phenomenon",
+		lemma: 'Erscheinung',
+		meaning: 'appearance, phenomenon',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Erscheinungen",
+		plural: 'Erscheinungen'
 	},
 	{
-		lemma: "Sanierung",
-		meaning: "renovation, refurbishment",
+		lemma: 'Sanierung',
+		meaning: 'renovation, refurbishment',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Sanierungen",
+		plural: 'Sanierungen'
 	},
 	{
-		lemma: "Datei",
-		meaning: "computer files",
+		lemma: 'Datei',
+		meaning: 'computer files',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Dateien",
+		plural: 'Dateien'
 	},
 	{
-		lemma: "Tote",
-		meaning: "dead people",
+		lemma: 'Tote',
+		meaning: 'dead people',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Toten",
+		plural: 'Toten'
 	},
 	{
-		lemma: "Abstimmung",
-		meaning: "vote, ballot, coordination",
+		lemma: 'Abstimmung',
+		meaning: 'vote, ballot, coordination',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Abstimmungen",
+		plural: 'Abstimmungen'
 	},
 	{
-		lemma: "Achtung",
-		meaning: "attention, respect, caution",
+		lemma: 'Achtung',
+		meaning: 'attention, respect, caution',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Achtungen",
+		plural: 'Achtungen'
 	},
 	{
-		lemma: "Identität",
-		meaning: "identity",
+		lemma: 'Identität',
+		meaning: 'identity',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Identitäten",
+		plural: 'Identitäten'
 	},
 	{
-		lemma: "Kern",
-		meaning: "core, nucleus, seed",
+		lemma: 'Kern',
+		meaning: 'core, nucleus, seed',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Kerne",
+		plural: 'Kerne'
 	},
 	{
-		lemma: "Verlust",
-		meaning: "loss",
+		lemma: 'Verlust',
+		meaning: 'loss',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Verluste",
+		plural: 'Verluste'
 	},
 	{
-		lemma: "Arbeitsmarkt",
-		meaning: "labor market",
+		lemma: 'Arbeitsmarkt',
+		meaning: 'labor market',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Arbeitsmärkte",
+		plural: 'Arbeitsmärkte'
 	},
 	{
-		lemma: "Begeisterung",
-		meaning: "enthusiasm, excitement",
+		lemma: 'Begeisterung',
+		meaning: 'enthusiasm, excitement',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Begeisterungen",
+		plural: 'Begeisterungen'
 	},
 	{
-		lemma: "Beweis",
-		meaning: "proof, evidence",
+		lemma: 'Beweis',
+		meaning: 'proof, evidence',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Beweise",
+		plural: 'Beweise'
 	},
 	{
-		lemma: "Wettbewerb",
-		meaning: "competition",
+		lemma: 'Wettbewerb',
+		meaning: 'competition',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Wettbewerbe",
+		plural: 'Wettbewerbe'
 	},
 	{
-		lemma: "Atmosphäre",
-		meaning: "atmosphere",
+		lemma: 'Atmosphäre',
+		meaning: 'atmosphere',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Atmosphären",
+		plural: 'Atmosphären'
 	},
 	{
-		lemma: "Sieg",
-		meaning: "victory / win",
+		lemma: 'Sieg',
+		meaning: 'victory / win',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Siege",
+		plural: 'Siege'
 	},
 	{
-		lemma: "Nachweis",
-		meaning: "proof, evidence, verification",
+		lemma: 'Nachweis',
+		meaning: 'proof, evidence, verification',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Nachweise",
+		plural: 'Nachweise'
 	},
 	{
-		lemma: "Stärkung",
-		meaning: "strengthening, reinforcement",
+		lemma: 'Stärkung',
+		meaning: 'strengthening, reinforcement',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Stärkungen",
+		plural: 'Stärkungen'
 	},
 	{
-		lemma: "Kerl",
-		meaning: "guy, fellow, chap",
+		lemma: 'Kerl',
+		meaning: 'guy, fellow, chap',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Kerle",
+		plural: 'Kerle'
 	},
 	{
-		lemma: "Flasche",
-		meaning: "bottle",
+		lemma: 'Flasche',
+		meaning: 'bottle',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Flaschen",
+		plural: 'Flaschen'
 	},
 	{
-		lemma: "Interessierte",
-		meaning: "interested persons",
+		lemma: 'Interessierte',
+		meaning: 'interested persons',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: "Interessierten",
+		plural: 'Interessierten'
 	},
 	{
-		lemma: "Komponente",
-		meaning: "components or parts",
+		lemma: 'Komponente',
+		meaning: 'components or parts',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Komponenten",
+		plural: 'Komponenten'
 	},
 	{
-		lemma: "Konstruktion",
-		meaning: "construction or design",
+		lemma: 'Konstruktion',
+		meaning: 'construction or design',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Konstruktionen",
+		plural: 'Konstruktionen'
 	},
 	{
-		lemma: "Nase",
-		meaning: "nose",
+		lemma: 'Nase',
+		meaning: 'nose',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Nasen",
+		plural: 'Nasen'
 	},
 	{
-		lemma: "Rücktritt",
-		meaning: "resignation or withdrawal",
+		lemma: 'Rücktritt',
+		meaning: 'resignation or withdrawal',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Rücktritte",
+		plural: 'Rücktritte'
 	},
 	{
-		lemma: "Transport",
-		meaning: "transport or transportation",
+		lemma: 'Transport',
+		meaning: 'transport or transportation',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Transporte",
+		plural: 'Transporte'
 	},
 	{
-		lemma: "Volksschule",
-		meaning: "elementary school",
+		lemma: 'Volksschule',
+		meaning: 'elementary school',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Volksschulen",
+		plural: 'Volksschulen'
 	},
 	{
-		lemma: "Berücksichtigung",
-		meaning: "consideration or regard",
+		lemma: 'Berücksichtigung',
+		meaning: 'consideration or regard',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Berücksichtigungen",
+		plural: 'Berücksichtigungen'
 	},
 	{
-		lemma: "Leidenschaft",
-		meaning: "passion",
+		lemma: 'Leidenschaft',
+		meaning: 'passion',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Leidenschaften",
+		plural: 'Leidenschaften'
 	},
 	{
-		lemma: "Meisterschaft",
-		meaning: "championship",
+		lemma: 'Meisterschaft',
+		meaning: 'championship',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Meisterschaften",
+		plural: 'Meisterschaften'
 	},
 	{
-		lemma: "Galle",
-		meaning: "bile, gall",
+		lemma: 'Galle',
+		meaning: 'bile, gall',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Gallen",
+		plural: 'Gallen'
 	},
 	{
-		lemma: "Verkehr",
-		meaning: "traffic, transport",
+		lemma: 'Verkehr',
+		meaning: 'traffic, transport',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Verkehre",
+		plural: 'Verkehre'
 	},
 	{
-		lemma: "Symptom",
-		meaning: "symptoms",
+		lemma: 'Symptom',
+		meaning: 'symptoms',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Symptome",
+		plural: 'Symptome'
 	},
 	{
-		lemma: "Wiederaufbau",
-		meaning: "reconstruction, rebuilding",
+		lemma: 'Wiederaufbau',
+		meaning: 'reconstruction, rebuilding',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Wiederaufbauten",
-	},
-		{
-		lemma: "Kammer",
-		meaning: "chamber, small room",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Kammern",
+		plural: 'Wiederaufbauten'
 	},
 	{
-		lemma: "Anwender",
-		meaning: "user, operator",
+		lemma: 'Kammer',
+		meaning: 'chamber, small room',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Kammern'
+	},
+	{
+		lemma: 'Anwender',
+		meaning: 'user, operator',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Anwender",
+		plural: 'Anwender'
 	},
 	{
-		lemma: "Zerstörung",
-		meaning: "destruction",
+		lemma: 'Zerstörung',
+		meaning: 'destruction',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Zerstörungen",
+		plural: 'Zerstörungen'
 	},
 	{
-		lemma: "Stadion",
-		meaning: "stadium",
+		lemma: 'Stadion',
+		meaning: 'stadium',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Stadien",
+		plural: 'Stadien'
 	},
 	{
-		lemma: "Eigentümer",
-		meaning: "owner, proprietor",
+		lemma: 'Eigentümer',
+		meaning: 'owner, proprietor',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Eigentümer",
+		plural: 'Eigentümer'
 	},
 	{
-		lemma: "Fortbildung",
-		meaning: "further education, training",
+		lemma: 'Fortbildung',
+		meaning: 'further education, training',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Fortbildungen",
+		plural: 'Fortbildungen'
 	},
 	{
-		lemma: "Teilhabe",
-		meaning: "participation, involvement",
+		lemma: 'Teilhabe',
+		meaning: 'participation, involvement',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Teilhaben",
+		plural: 'Teilhaben'
 	},
 	{
-		lemma: "Ausgangspunkt",
-		meaning: "starting point",
+		lemma: 'Ausgangspunkt',
+		meaning: 'starting point',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Ausgangspunkte",
+		plural: 'Ausgangspunkte'
 	},
 	{
-		lemma: "Bundesgericht",
-		meaning: "federal court",
+		lemma: 'Bundesgericht',
+		meaning: 'federal court',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Bundesgerichte",
+		plural: 'Bundesgerichte'
 	},
 	{
-		lemma: "Opposition",
-		meaning: "opposition",
+		lemma: 'Opposition',
+		meaning: 'opposition',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Oppositionen",
+		plural: 'Oppositionen'
 	},
 	{
-		lemma: "Einkauf",
-		meaning: "purchase or shopping",
+		lemma: 'Einkauf',
+		meaning: 'purchase or shopping',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Einkäufe",
+		plural: 'Einkäufe'
 	},
 	{
-		lemma: "Hügel",
-		meaning: "hill",
+		lemma: 'Hügel',
+		meaning: 'hill',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Hügel",
+		plural: 'Hügel'
 	},
 	{
-		lemma: "Kindheit",
-		meaning: "childhood",
+		lemma: 'Kindheit',
+		meaning: 'childhood',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Kindheiten",
+		plural: 'Kindheiten'
 	},
 	{
-		lemma: "Nahrung",
-		meaning: "food, nourishment",
+		lemma: 'Nahrung',
+		meaning: 'food, nourishment',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Nahrungen",
+		plural: 'Nahrungen'
 	},
-		{
-		lemma: "Ministerium",
-		meaning: "ministry",
+	{
+		lemma: 'Ministerium',
+		meaning: 'ministry',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Ministerien",
+		plural: 'Ministerien'
 	},
 	{
-		lemma: "Religion",
-		meaning: "religion",
+		lemma: 'Religion',
+		meaning: 'religion',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Religionen",
+		plural: 'Religionen'
 	},
 	{
-		lemma: "Schriftsteller",
-		meaning: "writer or author",
+		lemma: 'Schriftsteller',
+		meaning: 'writer or author',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Schriftsteller",
+		plural: 'Schriftsteller'
 	},
 	{
-		lemma: "Sehenswürdigkeit",
-		meaning: "sights or tourist attractions",
+		lemma: 'Sehenswürdigkeit',
+		meaning: 'sights or tourist attractions',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Sehenswürdigkeiten",
+		plural: 'Sehenswürdigkeiten'
 	},
 	{
-		lemma: "Vereinbarung",
-		meaning: "agreement or arrangement",
+		lemma: 'Vereinbarung',
+		meaning: 'agreement or arrangement',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Vereinbarungen",
+		plural: 'Vereinbarungen'
 	},
 	{
-		lemma: "Geschenk",
-		meaning: "gift or present",
+		lemma: 'Geschenk',
+		meaning: 'gift or present',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Geschenke",
+		plural: 'Geschenke'
 	},
 	{
-		lemma: "Herausgeber",
-		meaning: "editor or publisher",
+		lemma: 'Herausgeber',
+		meaning: 'editor or publisher',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Herausgeber",
+		plural: 'Herausgeber'
 	},
 	{
-		lemma: "Duft",
-		meaning: "scent, fragrance",
+		lemma: 'Duft',
+		meaning: 'scent, fragrance',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Düfte",
+		plural: 'Düfte'
 	},
 	{
-		lemma: "Ansprechpartner",
-		meaning: "contact person",
+		lemma: 'Ansprechpartner',
+		meaning: 'contact person',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Ansprechpartner",
+		plural: 'Ansprechpartner'
 	},
 	{
-		lemma: "Generation",
-		meaning: "generation",
+		lemma: 'Generation',
+		meaning: 'generation',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Generationen",
+		plural: 'Generationen'
 	},
 	{
-		lemma: "Nachfrage",
-		meaning: "demand or inquiry",
+		lemma: 'Nachfrage',
+		meaning: 'demand or inquiry',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Nachfragen",
+		plural: 'Nachfragen'
 	},
 	{
-		lemma: "Wein",
-		meaning: "wine",
+		lemma: 'Wein',
+		meaning: 'wine',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Weine",
+		plural: 'Weine'
 	},
 	{
-		lemma: "Sortiment",
-		meaning: "assortment or range",
+		lemma: 'Sortiment',
+		meaning: 'assortment or range',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Sortimente",
+		plural: 'Sortimente'
 	},
 	{
-		lemma: "Ehemann",
-		meaning: "husband",
+		lemma: 'Ehemann',
+		meaning: 'husband',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Ehemänner",
+		plural: 'Ehemänner'
 	},
 	{
-		lemma: "Tabelle",
-		meaning: "table or chart",
+		lemma: 'Tabelle',
+		meaning: 'table or chart',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Tabellen",
+		plural: 'Tabellen'
 	},
 	{
-		lemma: "Innovation",
-		meaning: "innovation",
+		lemma: 'Innovation',
+		meaning: 'innovation',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Innovationen",
+		plural: 'Innovationen'
 	},
 	{
-		lemma: "Blick",
-		meaning: "view, glance, look",
+		lemma: 'Blick',
+		meaning: 'view, glance, look',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Blicke",
+		plural: 'Blicke'
 	},
 	{
-		lemma: "Frühling",
-		meaning: "spring",
+		lemma: 'Frühling',
+		meaning: 'spring',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Frühlinge",
+		plural: 'Frühlinge'
 	},
 	{
-		lemma: "Herbst",
-		meaning: "autumn",
+		lemma: 'Herbst',
+		meaning: 'autumn',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Herbste",
+		plural: 'Herbste'
 	},
 	{
-		lemma: "Winter",
-		meaning: "winter",
+		lemma: 'Winter',
+		meaning: 'winter',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Winter",
+		plural: 'Winter'
 	},
 	{
-		lemma: "Arm",
-		meaning: "arm",
+		lemma: 'Arm',
+		meaning: 'arm',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Arme",
+		plural: 'Arme'
 	},
 	{
-		lemma: "Bein",
-		meaning: "leg",
+		lemma: 'Bein',
+		meaning: 'leg',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Beine",
+		plural: 'Beine'
 	},
 	{
-		lemma: "Fuß",
-		meaning: "foot",
+		lemma: 'Fuß',
+		meaning: 'foot',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Füße",
+		plural: 'Füße'
 	},
 	{
-		lemma: "Finger",
-		meaning: "finger",
+		lemma: 'Finger',
+		meaning: 'finger',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Finger",
+		plural: 'Finger'
 	},
 	{
-		lemma: "Bauch",
-		meaning: "stomach",
+		lemma: 'Bauch',
+		meaning: 'stomach',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Bäuche",
+		plural: 'Bäuche'
 	},
 	{
-		lemma: "Rücken",
-		meaning: "back",
+		lemma: 'Rücken',
+		meaning: 'back',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Rücken",
+		plural: 'Rücken'
 	},
 	{
-		lemma: "Hals",
-		meaning: "neck",
+		lemma: 'Hals',
+		meaning: 'neck',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Hälse",
+		plural: 'Hälse'
 	},
 	{
-		lemma: "Mund",
-		meaning: "mouth",
+		lemma: 'Mund',
+		meaning: 'mouth',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Münder",
+		plural: 'Münder'
 	},
 	{
-		lemma: "Nase",
-		meaning: "nose",
+		lemma: 'Nase',
+		meaning: 'nose',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Nasen",
+		plural: 'Nasen'
 	},
 	{
-		lemma: "Ohr",
-		meaning: "ear",
+		lemma: 'Ohr',
+		meaning: 'ear',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: "Ohren",
+		plural: 'Ohren'
 	},
 	{
-		lemma: "Baum",
-		meaning: "tree",
+		lemma: 'Baum',
+		meaning: 'tree',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Bäume",
+		plural: 'Bäume'
 	},
 	{
-		lemma: "Blume",
-		meaning: "flower",
+		lemma: 'Blume',
+		meaning: 'flower',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Blumen",
+		plural: 'Blumen'
 	},
 	{
-		lemma: "Wald",
-		meaning: "forest",
+		lemma: 'Wald',
+		meaning: 'forest',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Wälder",
+		plural: 'Wälder'
 	},
 	{
-		lemma: "Berg",
-		meaning: "mountain",
+		lemma: 'Berg',
+		meaning: 'mountain',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Berge",
+		plural: 'Berge'
 	},
 	{
-		lemma: "Fluss",
-		meaning: "river",
+		lemma: 'Fluss',
+		meaning: 'river',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: "Flüsse",
+		plural: 'Flüsse'
 	},
 	{
-		lemma: "Umwelt",
-		meaning: "environment",
+		lemma: 'Umwelt',
+		meaning: 'environment',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Umwelten",
+		plural: 'Umwelten'
 	},
 	{
-		lemma: "Klimawandel",
-		meaning: "climate change",
+		lemma: 'Klimawandel',
+		meaning: 'climate change',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const
+	},
+	{
+		lemma: 'Erderwärmung',
+		meaning: 'global warming',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Erderwärmungen'
+	},
+	{
+		lemma: 'Nachhaltigkeit',
+		meaning: 'sustainability',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const
+	},
+	{
+		lemma: 'Verschmutzung',
+		meaning: 'pollution',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Verschmutzungen'
+	},
+	{
+		lemma: 'Recycling',
+		meaning: 'recycling',
+		partOfSpeech: 'noun' as const,
+		gender: 'das' as const
+	},
+	{
+		lemma: 'Müll',
+		meaning: 'trash',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const
+	},
+	{
+		lemma: 'Solarenergie',
+		meaning: 'solar energy',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Solarenergien'
+	},
+	{
+		lemma: 'Windkraft',
+		meaning: 'wind power',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Windkräfte'
+	},
+	{
+		lemma: 'Europäische Union',
+		meaning: 'European Union',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const
+	},
+	{
+		lemma: 'Demokratie',
+		meaning: 'democracy',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Demokratien'
+	},
+	{
+		lemma: 'Menschenrecht',
+		meaning: 'human right',
+		partOfSpeech: 'noun' as const,
+		gender: 'das' as const,
+		plural: 'Menschenrechte'
+	},
+	{
+		lemma: 'Bürger',
+		meaning: 'citizen',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
+		plural: 'Bürger'
 	},
 	{
-		lemma: "Erderwärmung",
-		meaning: "global warming",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Erderwärmungen",
-	},
-	{
-		lemma: "Nachhaltigkeit",
-		meaning: "sustainability",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-	},
-	{
-		lemma: "Verschmutzung",
-		meaning: "pollution",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Verschmutzungen",
-	},
-	{
-		lemma: "Recycling",
-		meaning: "recycling",
+		lemma: 'Gesetz',
+		meaning: 'law',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
+		plural: 'Gesetze'
 	},
 	{
-		lemma: "Müll",
-		meaning: "trash",
+		lemma: 'Frieden',
+		meaning: 'peace',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const
+	},
+	{
+		lemma: 'Vielfalt',
+		meaning: 'diversity',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const
+	},
+	{
+		lemma: 'Vorurteil',
+		meaning: 'prejudice',
+		partOfSpeech: 'noun' as const,
+		gender: 'das' as const,
+		plural: 'Vorurteile'
+	},
+	{
+		lemma: 'Bildungssystem',
+		meaning: 'education system',
+		partOfSpeech: 'noun' as const,
+		gender: 'das' as const,
+		plural: 'Bildungssysteme'
+	},
+	{
+		lemma: 'Prüfung',
+		meaning: 'exam',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Prüfungen'
+	},
+	{
+		lemma: 'Zeugnis',
+		meaning: 'report card',
+		partOfSpeech: 'noun' as const,
+		gender: 'das' as const,
+		plural: 'Zeugnisse'
+	},
+	{
+		lemma: 'Studium',
+		meaning: 'university studies',
+		partOfSpeech: 'noun' as const,
+		gender: 'das' as const,
+		plural: 'Studien'
+	},
+	{
+		lemma: 'Architektur',
+		meaning: 'architecture',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
+		plural: 'Architekturen'
+	},
+	{
+		lemma: 'Kunstwerk',
+		meaning: 'work of art',
+		partOfSpeech: 'noun' as const,
+		gender: 'das' as const,
+		plural: 'Kunstwerke'
+	},
+	{
+		lemma: 'Gemälde',
+		meaning: 'painting',
+		partOfSpeech: 'noun' as const,
+		gender: 'das' as const,
+		plural: 'Gemälde'
+	},
+	{
+		lemma: 'Künstler',
+		meaning: 'artist',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-	},
-	{
-		lemma: "Solarenergie",
-		meaning: "solar energy",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Solarenergien",
-	},
-	{
-		lemma: "Windkraft",
-		meaning: "wind power",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Windkräfte",
-	},
-	{
-		lemma: "Europäische Union",
-		meaning: "European Union",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-	},
-	{
-		lemma: "Demokratie",
-		meaning: "democracy",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Demokratien",
-	},
-	{
-		lemma: "Menschenrecht",
-		meaning: "human right",
-		partOfSpeech: 'noun' as const,
-		gender: 'das' as const,
-		plural: "Menschenrechte",
-	},
-	{
-		lemma: "Bürger",
-		meaning: "citizen",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Bürger",
-	},
-	{
-		lemma: "Gesetz",
-		meaning: "law",
-		partOfSpeech: 'noun' as const,
-		gender: 'das' as const,
-		plural: "Gesetze",
-	},
-	{
-		lemma: "Frieden",
-		meaning: "peace",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-	},
-	{
-		lemma: "Vielfalt",
-		meaning: "diversity",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-	},
-	{
-		lemma: "Vorurteil",
-		meaning: "prejudice",
-		partOfSpeech: 'noun' as const,
-		gender: 'das' as const,
-		plural: "Vorurteile",
-	},
-	{
-		lemma: "Bildungssystem",
-		meaning: "education system",
-		partOfSpeech: 'noun' as const,
-		gender: 'das' as const,
-		plural: "Bildungssysteme",
-	},
-	{
-		lemma: "Prüfung",
-		meaning: "exam",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Prüfungen",
-	},
-	{
-		lemma: "Zeugnis",
-		meaning: "report card",
-		partOfSpeech: 'noun' as const,
-		gender: 'das' as const,
-		plural: "Zeugnisse",
-	},
-	{
-		lemma: "Studium",
-		meaning: "university studies",
-		partOfSpeech: 'noun' as const,
-		gender: 'das' as const,
-		plural: "Studien",
-	},
-	{
-		lemma: "Architektur",
-		meaning: "architecture",
-		partOfSpeech: 'noun' as const,
-		gender: 'die' as const,
-		plural: "Architekturen",
-	},
-	{
-		lemma: "Kunstwerk",
-		meaning: "work of art",
-		partOfSpeech: 'noun' as const,
-		gender: 'das' as const,
-		plural: "Kunstwerke",
-	},
-	{
-		lemma: "Gemälde",
-		meaning: "painting",
-		partOfSpeech: 'noun' as const,
-		gender: 'das' as const,
-		plural: "Gemälde",
-	},
-	{
-		lemma: "Künstler",
-		meaning: "artist",
-		partOfSpeech: 'noun' as const,
-		gender: 'der' as const,
-		plural: "Künstler",
+		plural: 'Künstler'
 	},
 
 	{
-		lemma: "Berlin",
-		meaning: "Berlin",
+		lemma: 'Berlin',
+		meaning: 'Berlin',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "Paris",
-		meaning: "Paris",
+		lemma: 'Paris',
+		meaning: 'Paris',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "London",
-		meaning: "London",
+		lemma: 'London',
+		meaning: 'London',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "Rom",
-		meaning: "Rome",
+		lemma: 'Rom',
+		meaning: 'Rome',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "Madrid",
-		meaning: "Madrid",
+		lemma: 'Madrid',
+		meaning: 'Madrid',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "Wien",
-		meaning: "Vienna",
+		lemma: 'Wien',
+		meaning: 'Vienna',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "Amsterdam",
-		meaning: "Amsterdam",
+		lemma: 'Amsterdam',
+		meaning: 'Amsterdam',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "Prag",
-		meaning: "Prague",
+		lemma: 'Prag',
+		meaning: 'Prague',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "Warschau",
-		meaning: "Warsaw",
+		lemma: 'Warschau',
+		meaning: 'Warsaw',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "Budapest",
-		meaning: "Budapest",
+		lemma: 'Budapest',
+		meaning: 'Budapest',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "Stockholm",
-		meaning: "Stockholm",
+		lemma: 'Stockholm',
+		meaning: 'Stockholm',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "Athen",
-		meaning: "Athens",
+		lemma: 'Athen',
+		meaning: 'Athens',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "Deutschland",
-		meaning: "Germany",
+		lemma: 'Deutschland',
+		meaning: 'Germany',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "Frankreich",
-		meaning: "France",
+		lemma: 'Frankreich',
+		meaning: 'France',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "Großbritannien",
-		meaning: "Great Britain",
+		lemma: 'Großbritannien',
+		meaning: 'Great Britain',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "Italien",
-		meaning: "Italy",
+		lemma: 'Italien',
+		meaning: 'Italy',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "Spanien",
-		meaning: "Spain",
+		lemma: 'Spanien',
+		meaning: 'Spain',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "Österreich",
-		meaning: "Austria",
+		lemma: 'Österreich',
+		meaning: 'Austria',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "Schweiz",
-		meaning: "Switzerland",
+		lemma: 'Schweiz',
+		meaning: 'Switzerland',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "Türkei",
-		meaning: "Turkey",
+		lemma: 'Türkei',
+		meaning: 'Turkey',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "USA",
-		meaning: "USA",
+		lemma: 'USA',
+		meaning: 'USA',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "USA",
+		plural: 'USA'
 	},
 	{
-		lemma: "Russland",
-		meaning: "Russia",
+		lemma: 'Russland',
+		meaning: 'Russia',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "China",
-		meaning: "China",
+		lemma: 'China',
+		meaning: 'China',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "Japan",
-		meaning: "Japan",
+		lemma: 'Japan',
+		meaning: 'Japan',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "Indien",
-		meaning: "India",
+		lemma: 'Indien',
+		meaning: 'India',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "Brasilien",
-		meaning: "Brazil",
+		lemma: 'Brasilien',
+		meaning: 'Brazil',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "Australien",
-		meaning: "Australia",
+		lemma: 'Australien',
+		meaning: 'Australia',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "Kanada",
-		meaning: "Canada",
+		lemma: 'Kanada',
+		meaning: 'Canada',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "Mexiko",
-		meaning: "Mexico",
+		lemma: 'Mexiko',
+		meaning: 'Mexico',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "Polen",
-		meaning: "Poland",
+		lemma: 'Polen',
+		meaning: 'Poland',
 		partOfSpeech: 'noun' as const,
 		gender: null,
-		plural: null,
+		plural: null
 	},
 	{
-		lemma: "Niederlande",
-		meaning: "Netherlands",
+		lemma: 'Niederlande',
+		meaning: 'Netherlands',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: "Niederlande",
+		plural: 'Niederlande'
 	},
 	{
-	  "lemma": "Computer",
-	  "meaning": "computer",
-	  "partOfSpeech": "noun",
-	  "gender": "der",
-	  "plural": "Computer",
-	  "isBeginner": true
+		lemma: 'Computer',
+		meaning: 'computer',
+		partOfSpeech: 'noun',
+		gender: 'der',
+		plural: 'Computer',
+		isBeginner: true
 	},
 	{
-	  "lemma": "Hund",
-	  "meaning": "dog",
-	  "partOfSpeech": "noun",
-	  "gender": "der",
-	  "plural": "Hunde",
-	  "isBeginner": true
+		lemma: 'Hund',
+		meaning: 'dog',
+		partOfSpeech: 'noun',
+		gender: 'der',
+		plural: 'Hunde',
+		isBeginner: true
 	},
 	{
-	  "lemma": "Katze",
-	  "meaning": "cat",
-	  "partOfSpeech": "noun",
-	  "gender": "die",
-	  "plural": "Katzen",
-	  "isBeginner": true
+		lemma: 'Katze',
+		meaning: 'cat',
+		partOfSpeech: 'noun',
+		gender: 'die',
+		plural: 'Katzen',
+		isBeginner: true
 	},
 	{
-	  "lemma": "Kopf",
-	  "meaning": "head",
-	  "partOfSpeech": "noun",
-	  "gender": "der",
-	  "plural": "Köpfe",
-	  "isBeginner": true
+		lemma: 'Kopf',
+		meaning: 'head',
+		partOfSpeech: 'noun',
+		gender: 'der',
+		plural: 'Köpfe',
+		isBeginner: true
 	},
 	{
-	  "lemma": "Hand",
-	  "meaning": "hand",
-	  "partOfSpeech": "noun",
-	  "gender": "die",
-	  "plural": "Hände",
-	  "isBeginner": true
+		lemma: 'Hand',
+		meaning: 'hand',
+		partOfSpeech: 'noun',
+		gender: 'die',
+		plural: 'Hände',
+		isBeginner: true
 	},
 	{
-	  "lemma": "Auge",
-	  "meaning": "eye",
-	  "partOfSpeech": "noun",
-	  "gender": "das",
-	  "plural": "Augen",
-	  "isBeginner": true
+		lemma: 'Auge',
+		meaning: 'eye',
+		partOfSpeech: 'noun',
+		gender: 'das',
+		plural: 'Augen',
+		isBeginner: true
 	},
 	{
-	  "lemma": "Welt",
-	  "meaning": "world",
-	  "partOfSpeech": "noun",
-	  "gender": "die",
-	  "plural": "Welten",
-	  "isBeginner": true
+		lemma: 'Welt',
+		meaning: 'world',
+		partOfSpeech: 'noun',
+		gender: 'die',
+		plural: 'Welten',
+		isBeginner: true
 	},
 	{
-	  "lemma": "Liebe",
-	  "meaning": "love",
-	  "partOfSpeech": "noun",
-	  "gender": "die",
-	  "plural": "Lieben",
-	  "isBeginner": true
-	},
-
+		lemma: 'Liebe',
+		meaning: 'love',
+		partOfSpeech: 'noun',
+		gender: 'die',
+		plural: 'Lieben',
+		isBeginner: true
+	}
 ];
-

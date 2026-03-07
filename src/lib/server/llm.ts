@@ -44,9 +44,22 @@ export async function generateChatCompletion({
 	]);
 
 	// 2. Resolve Base URL and API Key (User custom OR Site Settings OR fallback to environment variables)
-	const baseUrl = (user?.llmBaseUrl || settings.llmEndpoint || env.DEFAULT_LLM_BASE_URL || '').replace(/^["']|["']$/g, '');
-	const apiKey = (user?.llmApiKey || settings.llmApiKey || env.DEFAULT_LLM_API_KEY || '').replace(/^["']|["']$/g, '');
-	const resolvedModel = (model || settings.llmModel || env.DEFAULT_LLM_MODEL || 'gpt-3.5-turbo').replace(/^["']|["']$/g, '');
+	const baseUrl = (
+		user?.llmBaseUrl ||
+		settings.llmEndpoint ||
+		env.DEFAULT_LLM_BASE_URL ||
+		''
+	).replace(/^["']|["']$/g, '');
+	const apiKey = (user?.llmApiKey || settings.llmApiKey || env.DEFAULT_LLM_API_KEY || '').replace(
+		/^["']|["']$/g,
+		''
+	);
+	const resolvedModel = (
+		model ||
+		settings.llmModel ||
+		env.DEFAULT_LLM_MODEL ||
+		'gpt-3.5-turbo'
+	).replace(/^["']|["']$/g, '');
 
 	if (!baseUrl) {
 		throw new Error('LLM Base URL is not configured.');
@@ -62,13 +75,16 @@ export async function generateChatCompletion({
 
 	let constraintPrompt = '';
 	if (languageName === 'German') {
-		constraintPrompt = "Agieren Sie als erfahrener deutscher Lektor. Schreiben Sie den Text in fehlerfreiem Hochdeutsch (Duden-Konform) und vermeiden Sie Anglizismen oder englische Schreibweisen bei verwandten Begriffen. Achten Sie besonders darauf, keine englischen Schreibweisen für deutsche Wörter zu verwenden (z.B. 'oft' statt 'often', 'kollektiv' statt 'collective').";
+		constraintPrompt =
+			"Agieren Sie als erfahrener deutscher Lektor. Schreiben Sie den Text in fehlerfreiem Hochdeutsch (Duden-Konform) und vermeiden Sie Anglizismen oder englische Schreibweisen bei verwandten Begriffen. Achten Sie besonders darauf, keine englischen Schreibweisen für deutsche Wörter zu verwenden (z.B. 'oft' statt 'often', 'kollektiv' statt 'collective').";
 	} else if (languageName === 'French') {
-		constraintPrompt = "Agissez en tant que relecteur français expérimenté. Écrivez le texte dans un français impeccable (conforme à l'Académie française) et évitez les anglicismes ou les orthographes anglaises pour les termes apparentés. Veillez particulièrement à ne pas utiliser l'orthographe anglaise pour les mots français.";
+		constraintPrompt =
+			"Agissez en tant que relecteur français expérimenté. Écrivez le texte dans un français impeccable (conforme à l'Académie française) et évitez les anglicismes ou les orthographes anglaises pour les termes apparentés. Veillez particulièrement à ne pas utiliser l'orthographe anglaise pour les mots français.";
 	} else if (languageName === 'Spanish') {
-		constraintPrompt = "Actúe como un revisor de español experimentado. Escriba el texto en un español impecable (conforme a la RAE) y evite los anglicismos o la ortografía inglesa para términos relacionados. Tenga especial cuidado en no utilizar la ortografía inglesa para palabras españolas.";
+		constraintPrompt =
+			'Actúe como un revisor de español experimentado. Escriba el texto en un español impecable (conforme a la RAE) y evite los anglicismos o la ortografía inglesa para términos relacionados. Tenga especial cuidado en no utilizar la ortografía inglesa para palabras españolas.';
 	}
-	
+
 	if (systemPrompt) {
 		payloadMessages.unshift({ role: 'system', content: `${systemPrompt}\n\n${constraintPrompt}` });
 	} else if (constraintPrompt) {
@@ -102,9 +118,10 @@ export async function generateChatCompletion({
 	// 5. Make the fetch request to the OpenAI-compatible endpoint
 	// Ensure no double slashes if baseUrl has a trailing slash
 	const cleanBaseUrl = baseUrl.replace(/\/$/, '');
-	const endpoint = cleanBaseUrl.endsWith('/v1') || cleanBaseUrl.endsWith('/openai')
-		? `${cleanBaseUrl}/chat/completions`
-		: `${cleanBaseUrl}/v1/chat/completions`;
+	const endpoint =
+		cleanBaseUrl.endsWith('/v1') || cleanBaseUrl.endsWith('/openai')
+			? `${cleanBaseUrl}/chat/completions`
+			: `${cleanBaseUrl}/v1/chat/completions`;
 
 	const response = await fetch(endpoint, {
 		method: 'POST',
@@ -164,7 +181,7 @@ Rules:
 			return result.normalizedWords;
 		}
 	} catch (e) {
-		console.error("Failed to normalize words", e);
+		console.error('Failed to normalize words', e);
 	}
 
 	return words; // Fallback to original words if anything fails

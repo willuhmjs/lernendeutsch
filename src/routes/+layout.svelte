@@ -23,7 +23,7 @@
 	function cycleTheme() {
 		if (theme === 'light') theme = 'dark';
 		else theme = 'light';
-		
+
 		document.documentElement.setAttribute('data-theme', theme);
 		localStorage.setItem('app-theme', theme);
 	}
@@ -68,121 +68,334 @@
 <svelte:head>
 	<link rel="icon" href={favicon} />
 	<title>LingoLearn</title>
-	<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+	<link
+		href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap"
+		rel="stylesheet"
+	/>
 </svelte:head>
 
 <div class="app-container" class:no-sidebar={$page.url.pathname === '/'}>
 	{#if $page.url.pathname !== '/'}
-	<nav class="sidebar">
-		<div class="sidebar-header">
-			<a href="/" class="brand">
-				<svg class="brand-icon animate-float" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-				<span class="brand-text">LingoLearn</span>
-			</a>
-		</div>
+		<nav class="sidebar">
+			<div class="sidebar-header">
+				<a href="/" class="brand">
+					<svg
+						class="brand-icon animate-float"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path
+							d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"
+						/></svg
+					>
+					<span class="brand-text">LingoLearn</span>
+				</a>
+			</div>
 
-		<div class="nav-links">
-			{#if user}
-				<a href="/dashboard" class="nav-item {$page.url.pathname.startsWith('/dashboard') ? 'active' : ''}">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-					<span class="nav-text">Dashboard</span>
-				</a>
-				<a href="/play" class="nav-item {$page.url.pathname.startsWith('/play') ? 'active' : ''}">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-					<span class="nav-text">Play</span>
-				</a>
-				<a href="/classes" class="nav-item {$page.url.pathname.startsWith('/classes') ? 'active' : ''}">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-					<span class="nav-text">Classes</span>
-				</a>
-				<a href="/dictionary" class="nav-item {$page.url.pathname.startsWith('/dictionary') ? 'active' : ''}">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-					<span class="nav-text">Dictionary</span>
-				</a>
-				<a href="/practice/chat" class="nav-item {$page.url.pathname.startsWith('/practice/chat') ? 'active' : ''}">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-					<span class="nav-text">Chat</span>
-				</a>
-				<a href="/review" class="nav-item {$page.url.pathname.startsWith('/review') ? 'active' : ''}">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-					<span class="nav-text">Review</span>
-				</a>
-				<a href="/onboarding" class="nav-item {$page.url.pathname.startsWith('/onboarding') ? 'active' : ''}">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-					<span class="nav-text">Onboarding</span>
-				</a>
-				<a href="/profile" class="nav-item {$page.url.pathname.startsWith('/profile') ? 'active' : ''}">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-					<span class="nav-text">Profile</span>
-				</a>
-				{#if user.role === 'ADMIN'}
-					<a href="/admin" class="nav-item admin-link {$page.url.pathname.startsWith('/admin') ? 'active' : ''}">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-						<span class="nav-text">Admin</span>
+			<div class="nav-links">
+				{#if user}
+					<a
+						href="/dashboard"
+						class="nav-item {$page.url.pathname.startsWith('/dashboard') ? 'active' : ''}"
+					>
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							><rect x="3" y="3" width="7" height="7" rx="1" /><rect
+								x="14"
+								y="3"
+								width="7"
+								height="7"
+								rx="1"
+							/><rect x="3" y="14" width="7" height="7" rx="1" /><rect
+								x="14"
+								y="14"
+								width="7"
+								height="7"
+								rx="1"
+							/></svg
+						>
+						<span class="nav-text">Dashboard</span>
+					</a>
+					<a href="/play" class="nav-item {$page.url.pathname.startsWith('/play') ? 'active' : ''}">
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3" /></svg
+						>
+						<span class="nav-text">Play</span>
+					</a>
+					<a
+						href="/classes"
+						class="nav-item {$page.url.pathname.startsWith('/classes') ? 'active' : ''}"
+					>
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle
+								cx="9"
+								cy="7"
+								r="4"
+							/><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg
+						>
+						<span class="nav-text">Classes</span>
+					</a>
+					<a
+						href="/dictionary"
+						class="nav-item {$page.url.pathname.startsWith('/dictionary') ? 'active' : ''}"
+					>
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path
+								d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
+							></path></svg
+						>
+						<span class="nav-text">Dictionary</span>
+					</a>
+					<a
+						href="/practice/chat"
+						class="nav-item {$page.url.pathname.startsWith('/practice/chat') ? 'active' : ''}"
+					>
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg
+						>
+						<span class="nav-text">Chat</span>
+					</a>
+					<a
+						href="/review"
+						class="nav-item {$page.url.pathname.startsWith('/review') ? 'active' : ''}"
+					>
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path
+								d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
+							></path></svg
+						>
+						<span class="nav-text">Review</span>
+					</a>
+					<a
+						href="/onboarding"
+						class="nav-item {$page.url.pathname.startsWith('/onboarding') ? 'active' : ''}"
+					>
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							><path d="M12 20h9" /><path
+								d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
+							/></svg
+						>
+						<span class="nav-text">Onboarding</span>
+					</a>
+					<a
+						href="/profile"
+						class="nav-item {$page.url.pathname.startsWith('/profile') ? 'active' : ''}"
+					>
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle
+								cx="12"
+								cy="7"
+								r="4"
+							/></svg
+						>
+						<span class="nav-text">Profile</span>
+					</a>
+					{#if user.role === 'ADMIN'}
+						<a
+							href="/admin"
+							class="nav-item admin-link {$page.url.pathname.startsWith('/admin') ? 'active' : ''}"
+						>
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								><path
+									d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"
+								/><circle cx="12" cy="12" r="3" /></svg
+							>
+							<span class="nav-text">Admin</span>
+						</a>
+					{/if}
+				{:else}
+					<a
+						href="/login"
+						class="nav-item {$page.url.pathname.startsWith('/login') ? 'active' : ''}"
+					>
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /><polyline
+								points="10 17 15 12 10 7"
+							/><line x1="15" y1="12" x2="3" y2="12" /></svg
+						>
+						<span class="nav-text">Login</span>
+					</a>
+					<a
+						href="/signup"
+						class="nav-item signup-link {$page.url.pathname.startsWith('/signup') ? 'active' : ''}"
+					>
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle
+								cx="8.5"
+								cy="7"
+								r="4"
+							/><line x1="20" y1="8" x2="20" y2="14" /><line x1="23" y1="11" x2="17" y2="11" /></svg
+						>
+						<span class="nav-text">Sign Up</span>
 					</a>
 				{/if}
-			{:else}
-				<a href="/login" class="nav-item {$page.url.pathname.startsWith('/login') ? 'active' : ''}">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-					<span class="nav-text">Login</span>
-				</a>
-				<a href="/signup" class="nav-item signup-link {$page.url.pathname.startsWith('/signup') ? 'active' : ''}">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
-					<span class="nav-text">Sign Up</span>
-				</a>
-			{/if}
-		</div>
-
-		{#if user}
-			<div class="sidebar-footer">
-				{#if languages.length > 0}
-					<div class="language-dropdown-container">
-						<button class="nav-item language-selector-btn" onclick={toggleDropdown}>
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-							<span class="active-lang-text nav-text">
-								{#if user?.activeLanguage}
-									{user.activeLanguage.flag ? user.activeLanguage.flag + ' ' : ''}{user.activeLanguage.name}
-								{:else}
-									Language
-								{/if}
-							</span>
-							<svg class="dropdown-chevron nav-text {isDropdownOpen ? 'open' : ''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-						</button>
-
-						{#if isDropdownOpen}
-							<div class="dropdown-menu">
-								{#each languages as lang}
-									<button 
-										class="dropdown-item {user?.activeLanguage?.id === lang.id ? 'active' : ''}"
-										onclick={() => changeLanguage(lang.id)}
-									>
-										<span class="lang-flag">{lang.flag || ''}</span>
-										<span class="lang-name">{lang.name}</span>
-										{#if user?.activeLanguage?.id === lang.id}
-											<svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-										{/if}
-									</button>
-								{/each}
-							</div>
-						{/if}
-					</div>
-				{/if}
-
-				<form action="/logout" method="POST" class="logout-form">
-					<button type="submit" class="logout-btn nav-item">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-						<span class="nav-text">Logout</span>
-					</button>
-				</form>
 			</div>
-		{/if}
-	</nav>
+
+			{#if user}
+				<div class="sidebar-footer">
+					{#if languages.length > 0}
+						<div class="language-dropdown-container">
+							<button class="nav-item language-selector-btn" onclick={toggleDropdown}>
+								<svg
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path
+										d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+									/></svg
+								>
+								<span class="active-lang-text nav-text">
+									{#if user?.activeLanguage}
+										{user.activeLanguage.flag ? user.activeLanguage.flag + ' ' : ''}{user
+											.activeLanguage.name}
+									{:else}
+										Language
+									{/if}
+								</span>
+								<svg
+									class="dropdown-chevron nav-text {isDropdownOpen ? 'open' : ''}"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg
+								>
+							</button>
+
+							{#if isDropdownOpen}
+								<div class="dropdown-menu">
+									{#each languages as lang}
+										<button
+											class="dropdown-item {user?.activeLanguage?.id === lang.id ? 'active' : ''}"
+											onclick={() => changeLanguage(lang.id)}
+										>
+											<span class="lang-flag">{lang.flag || ''}</span>
+											<span class="lang-name">{lang.name}</span>
+											{#if user?.activeLanguage?.id === lang.id}
+												<svg
+													class="check-icon"
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="2"
+													stroke-linecap="round"
+													stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg
+												>
+											{/if}
+										</button>
+									{/each}
+								</div>
+							{/if}
+						</div>
+					{/if}
+
+					<form action="/logout" method="POST" class="logout-form">
+						<button type="submit" class="logout-btn nav-item">
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline
+									points="16 17 21 12 16 7"
+								/><line x1="21" y1="12" x2="9" y2="12" /></svg
+							>
+							<span class="nav-text">Logout</span>
+						</button>
+					</form>
+				</div>
+			{/if}
+		</nav>
 	{/if}
 
 	<div class="content-wrapper">
 		<header class="mobile-header">
 			<a href="/" class="mobile-brand">
-				<svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+				<svg
+					class="brand-icon"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path
+						d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"
+					/></svg
+				>
 				<span class="brand-text">LingoLearn</span>
 			</a>
 			{#if user}
@@ -199,11 +412,50 @@
 
 		<header class="desktop-topbar">
 			<div class="spacer"></div>
-			<button class="nav-item theme-toggle-btn" onclick={cycleTheme} style="margin-right: 1rem; border: none; background: transparent; cursor: pointer; padding: 0.5rem; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; width: auto; height: auto;">
+			<button
+				class="nav-item theme-toggle-btn"
+				onclick={cycleTheme}
+				style="margin-right: 1rem; border: none; background: transparent; cursor: pointer; padding: 0.5rem; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; width: auto; height: auto;"
+			>
 				{#if theme === 'light'}
-					<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+					<svg
+						viewBox="0 0 24 24"
+						width="24"
+						height="24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line
+							x1="12"
+							y1="21"
+							x2="12"
+							y2="23"
+						/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line
+							x1="18.36"
+							y1="18.36"
+							x2="19.78"
+							y2="19.78"
+						/><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line
+							x1="4.22"
+							y1="19.78"
+							x2="5.64"
+							y2="18.36"
+						/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></svg
+					>
 				{:else}
-					<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+					<svg
+						viewBox="0 0 24 24"
+						width="24"
+						height="24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg
+					>
 				{/if}
 			</button>
 			{#if user}
@@ -238,10 +490,23 @@
 <style>
 	:global(body) {
 		margin: 0;
-		font-family: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+		font-family:
+			'Nunito',
+			-apple-system,
+			BlinkMacSystemFont,
+			'Segoe UI',
+			Roboto,
+			Helvetica,
+			Arial,
+			sans-serif,
+			'Apple Color Emoji',
+			'Segoe UI Emoji',
+			'Segoe UI Symbol';
 		background-color: var(--bg-color, #ffffff);
 		color: var(--text-color, #374151);
-		transition: background-color 0.3s, color 0.3s;
+		transition:
+			background-color 0.3s,
+			color 0.3s;
 	}
 
 	:global(h1, h2, h3, h4, h5, h6) {
@@ -259,7 +524,9 @@
 		letter-spacing: 0.05em;
 		border-radius: 1rem;
 		border: 2px solid transparent;
-		transition: transform 0.1s, box-shadow 0.1s;
+		transition:
+			transform 0.1s,
+			box-shadow 0.1s;
 		cursor: pointer;
 		text-decoration: none;
 		outline: none;
@@ -316,18 +583,26 @@
 		border-radius: 1.5rem;
 		padding: 1.5rem;
 		box-shadow: 0 4px 0 #e5e7eb;
-		transition: transform 0.2s, box-shadow 0.2s;
+		transition:
+			transform 0.2s,
+			box-shadow 0.2s;
 	}
-	
+
 	:global(.card-duo:hover) {
 		transform: translateY(-2px);
 		box-shadow: 0 6px 0 #e5e7eb;
 	}
 
 	@keyframes float {
-		0% { transform: translateY(0px); }
-		50% { transform: translateY(-4px); }
-		100% { transform: translateY(0px); }
+		0% {
+			transform: translateY(0px);
+		}
+		50% {
+			transform: translateY(-4px);
+		}
+		100% {
+			transform: translateY(0px);
+		}
 	}
 
 	:global(.animate-float) {
@@ -335,8 +610,13 @@
 	}
 
 	@keyframes bounce-subtle {
-		0%, 100% { transform: translateY(0); }
-		50% { transform: translateY(-10%); }
+		0%,
+		100% {
+			transform: translateY(0);
+		}
+		50% {
+			transform: translateY(-10%);
+		}
 	}
 
 	:global(.animate-bounce-subtle) {
@@ -344,15 +624,20 @@
 	}
 
 	@keyframes pulse-glow {
-		0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
-		50% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+		0%,
+		100% {
+			box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+		}
+		50% {
+			box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
+		}
 	}
 
 	:global(.animate-pulse-glow) {
 		animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 	}
 
-	:global(html[data-theme="dark"]) {
+	:global(html[data-theme='dark']) {
 		--bg-color: #121212;
 		--text-color: #e5e5e5;
 		--header-bg: #1e1e1e;
@@ -367,23 +652,23 @@
 		--input-text: #e5e5e5;
 	}
 
-	:global(html[data-theme="dark"] .info-card),
-	:global(html[data-theme="dark"] .password-card),
-	:global(html[data-theme="dark"] .theme-card),
-	:global(html[data-theme="dark"] .card) {
+	:global(html[data-theme='dark'] .info-card),
+	:global(html[data-theme='dark'] .password-card),
+	:global(html[data-theme='dark'] .theme-card),
+	:global(html[data-theme='dark'] .card) {
 		background: var(--card-bg) !important;
 		border-color: var(--card-border) !important;
 	}
 
-	:global(html[data-theme="dark"] h1),
-	:global(html[data-theme="dark"] h2),
-	:global(html[data-theme="dark"] h3),
-	:global(html[data-theme="dark"] .info-value) {
+	:global(html[data-theme='dark'] h1),
+	:global(html[data-theme='dark'] h2),
+	:global(html[data-theme='dark'] h3),
+	:global(html[data-theme='dark'] .info-value) {
 		color: var(--text-color) !important;
 	}
 
-	:global(html[data-theme="dark"] input),
-	:global(html[data-theme="dark"] select) {
+	:global(html[data-theme='dark'] input),
+	:global(html[data-theme='dark'] select) {
 		background: var(--input-bg) !important;
 		border-color: var(--input-border) !important;
 		color: var(--input-text) !important;
@@ -448,14 +733,19 @@
 		font-size: 1rem;
 		padding: 0.75rem 1rem;
 		border-radius: 1rem;
-		transition: transform 0.1s, box-shadow 0.1s, color 0.15s, background-color 0.15s;
+		transition:
+			transform 0.1s,
+			box-shadow 0.1s,
+			color 0.15s,
+			background-color 0.15s;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		width: 100%;
 		box-sizing: border-box;
 	}
 
-	.nav-item:hover, .nav-item.active {
+	.nav-item:hover,
+	.nav-item.active {
 		color: #1cb0f6;
 		background-color: #ddf4ff;
 	}
@@ -517,7 +807,10 @@
 		background-color: var(--card-bg, #ffffff);
 		border: 2px solid var(--card-border, #e5e7eb);
 		border-radius: 1rem;
-		box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1), 0 -2px 4px -1px rgba(0, 0, 0, 0.06), 0 4px 0 var(--card-border, #e5e7eb);
+		box-shadow:
+			0 -4px 6px -1px rgba(0, 0, 0, 0.1),
+			0 -2px 4px -1px rgba(0, 0, 0, 0.06),
+			0 4px 0 var(--card-border, #e5e7eb);
 		padding: 0.5rem;
 		width: 100%;
 		box-sizing: border-box;
@@ -542,10 +835,13 @@
 		color: var(--text-color, #374151);
 		border-radius: 0.75rem;
 		text-align: left;
-		transition: background-color 0.15s, color 0.15s;
+		transition:
+			background-color 0.15s,
+			color 0.15s;
 	}
 
-	.dropdown-item:hover, .dropdown-item.active {
+	.dropdown-item:hover,
+	.dropdown-item.active {
 		background-color: #ddf4ff;
 		color: #1cb0f6;
 	}
@@ -575,7 +871,7 @@
 		background-color: #4ade80 !important;
 		color: #ffffff !important;
 	}
-	
+
 	.signup-link:active {
 		transform: translateY(2px);
 		box-shadow: 0 2px 0 #16a34a;
@@ -604,7 +900,8 @@
 		color: #7c3aed !important;
 	}
 
-	.admin-link:hover, .admin-link.active {
+	.admin-link:hover,
+	.admin-link.active {
 		color: #6d28d9 !important;
 		background-color: #f5f3ff !important;
 	}
@@ -821,26 +1118,27 @@
 			padding: 0;
 		}
 	}
-	
+
 	@media (min-width: 769px) and (max-width: 1024px) {
 		.sidebar {
 			width: 80px;
 			padding: 1rem 0.5rem;
 		}
-		
-		.brand-text, .nav-text {
+
+		.brand-text,
+		.nav-text {
 			display: none;
 		}
-		
+
 		.nav-item {
 			justify-content: center;
 			padding: 0.75rem;
 		}
-		
+
 		.nav-item svg {
 			margin: 0;
 		}
-		
+
 		.content-wrapper {
 			margin-left: 80px;
 		}
@@ -848,7 +1146,7 @@
 		.no-sidebar .content-wrapper {
 			margin-left: 0;
 		}
-		
+
 		.dropdown-menu {
 			left: 100%;
 			bottom: 0;

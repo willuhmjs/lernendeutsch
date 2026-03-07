@@ -29,7 +29,10 @@
 	$: activeLanguageId = data.user?.activeLanguage?.id;
 
 	function handleKeydown(e: KeyboardEvent) {
-		if ((e.key === '/' || (e.ctrlKey && e.key === 'k') || (e.metaKey && e.key === 'k')) && document.activeElement !== searchInputEl) {
+		if (
+			(e.key === '/' || (e.ctrlKey && e.key === 'k') || (e.metaKey && e.key === 'k')) &&
+			document.activeElement !== searchInputEl
+		) {
 			e.preventDefault();
 			searchInputEl?.focus();
 		}
@@ -102,12 +105,12 @@
 				} else if (res.status === 429) {
 					llmError = "You've asked the AI too many times recently. Please try again later.";
 				} else {
-					llmError = "An error occurred while asking the AI. Please try again.";
+					llmError = 'An error occurred while asking the AI. Please try again.';
 				}
 			}
 		} catch (error) {
 			console.error('LLM lookup failed:', error);
-			llmError = "An error occurred while connecting to the AI.";
+			llmError = 'An error occurred while connecting to the AI.';
 		} finally {
 			llmLoading = false;
 		}
@@ -150,8 +153,19 @@
 	<div class="search-section" in:fly={{ y: 20, duration: 400, delay: 100 }}>
 		<div class="search-wrapper">
 			<div class="search-icon-wrapper">
-				<svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+				<svg
+					class="search-icon"
+					fill="none"
+					stroke="currentColor"
+					viewBox="0 0 24 24"
+					xmlns="http://www.w3.org/2000/svg"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+					></path>
 				</svg>
 			</div>
 			<input
@@ -179,8 +193,8 @@
 						<div class="result-content">
 							<div class="result-details">
 								<!-- svelte-ignore a11y-no-static-element-interactions -->
-								<div 
-									class="result-clickable" 
+								<div
+									class="result-clickable"
 									on:click={() => openModal(result)}
 									on:keydown={(e) => {
 										if (e.key === 'Enter' || e.key === ' ') {
@@ -208,22 +222,16 @@
 										</p>
 									{/if}
 									{#if result.metadata}
-										<div class="expand-indicator">
-											▶ Show details
-										</div>
+										<div class="expand-indicator">▶ Show details</div>
 									{/if}
 								</div>
 							</div>
-							
+
 							<div class="result-action">
 								{#if addedWords.includes(result.id)}
-									<button disabled class="btn-added">
-										Added
-									</button>
+									<button disabled class="btn-added"> Added </button>
 								{:else}
-									<button on:click={() => handleAddWord(result.id)} class="btn-add">
-										Add
-									</button>
+									<button on:click={() => handleAddWord(result.id)} class="btn-add"> Add </button>
 								{/if}
 							</div>
 						</div>
@@ -233,8 +241,19 @@
 		</div>
 	{:else if query.trim() && !loading}
 		<div class="no-results" transition:fade>
-			<svg class="no-results-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+			<svg
+				class="no-results-icon"
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke="currentColor"
+				aria-hidden="true"
+			>
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					stroke-width="2"
+					d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+				/>
 			</svg>
 			<h3 class="no-results-title">Word not found</h3>
 			<p class="no-results-text">Would you like to ask the AI to define it?</p>
@@ -267,8 +286,8 @@
 {#if selectedResult}
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
-	<div class="modal-backdrop" on:click={closeModal} transition:fade={{duration: 200}}>
-		<div class="modal-content" on:click|stopPropagation transition:fly={{y: 20, duration: 200}}>
+	<div class="modal-backdrop" on:click={closeModal} transition:fade={{ duration: 200 }}>
+		<div class="modal-content" on:click|stopPropagation transition:fly={{ y: 20, duration: 200 }}>
 			<button class="modal-close" on:click={closeModal}>&times;</button>
 			<div class="modal-header">
 				<h2 class="modal-title">
@@ -281,13 +300,13 @@
 				</h2>
 				<p class="modal-pos">{selectedResult.partOfSpeech || 'Word'}</p>
 			</div>
-			
+
 			<div class="modal-body">
 				<div class="modal-section">
 					<h3 class="modal-section-title">Meaning</h3>
 					<p class="modal-meaning">{selectedResult.meaning}</p>
 				</div>
-				
+
 				{#if selectedResult.plural}
 					<div class="modal-section">
 						<h3 class="modal-section-title">Plural</h3>
@@ -337,7 +356,9 @@
 							<h3 class="modal-section-title">Example</h3>
 							<p class="modal-example">"{selectedResult.metadata.example}"</p>
 							{#if selectedResult.metadata.exampleTranslation}
-								<p class="modal-example-translation">{selectedResult.metadata.exampleTranslation}</p>
+								<p class="modal-example-translation">
+									{selectedResult.metadata.exampleTranslation}
+								</p>
 							{/if}
 						</div>
 					{/if}
@@ -374,7 +395,7 @@
 							</p>
 						</div>
 					{/if}
-					
+
 					{#if !selectedResult.metadata.conjugations && !selectedResult.metadata.declensions && !selectedResult.metadata.example && !selectedResult.metadata.synonyms && !selectedResult.metadata.antonyms && !selectedResult.metadata.level && Object.keys(selectedResult.metadata).length > 0}
 						<div class="modal-section">
 							<h3 class="modal-section-title">Details</h3>
@@ -383,14 +404,18 @@
 					{/if}
 				{/if}
 			</div>
-			
+
 			<div class="modal-footer">
 				{#if addedWords.includes(selectedResult.id)}
-					<button disabled class="btn-added">
-						Added to List
-					</button>
+					<button disabled class="btn-added"> Added to List </button>
 				{:else}
-					<button on:click={() => { handleAddWord(selectedResult.id); closeModal(); }} class="btn-add">
+					<button
+						on:click={() => {
+							handleAddWord(selectedResult.id);
+							closeModal();
+						}}
+						class="btn-add"
+					>
 						Add to My List
 					</button>
 				{/if}
@@ -527,7 +552,9 @@
 		overflow: hidden;
 		border-radius: 0.5rem;
 		background-color: #ffffff;
-		box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+		box-shadow:
+			0 1px 3px 0 rgba(0, 0, 0, 0.1),
+			0 1px 2px 0 rgba(0, 0, 0, 0.06);
 	}
 
 	:global(.dark) .results-container {
@@ -691,7 +718,9 @@
 
 	.btn-add:focus {
 		outline: none;
-		box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #3b82f6;
+		box-shadow:
+			0 0 0 2px #ffffff,
+			0 0 0 4px #3b82f6;
 	}
 
 	:global(.dark) .btn-add {
@@ -841,7 +870,8 @@
 			width: 100%;
 		}
 
-		.btn-add, .btn-added {
+		.btn-add,
+		.btn-added {
 			width: 100%;
 			justify-content: center;
 		}
@@ -864,7 +894,9 @@
 	.modal-content {
 		background-color: #ffffff;
 		border-radius: 0.5rem;
-		box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+		box-shadow:
+			0 20px 25px -5px rgba(0, 0, 0, 0.1),
+			0 10px 10px -5px rgba(0, 0, 0, 0.04);
 		max-width: 32rem;
 		width: 100%;
 		max-height: 90vh;
@@ -1012,25 +1044,29 @@
 		color: #d1d5db;
 	}
 
-	.modal-conjugations, .modal-declensions {
+	.modal-conjugations,
+	.modal-declensions {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
 		gap: 1rem;
 	}
 
-	.conjugation-tense, .declension-case {
+	.conjugation-tense,
+	.declension-case {
 		background-color: #f9fafb;
 		padding: 1rem;
 		border-radius: 0.375rem;
 		border: 1px solid #e5e7eb;
 	}
 
-	:global(.dark) .conjugation-tense, :global(.dark) .declension-case {
+	:global(.dark) .conjugation-tense,
+	:global(.dark) .declension-case {
 		background-color: #374151;
 		border-color: #4b5563;
 	}
 
-	.tense-title, .case-title {
+	.tense-title,
+	.case-title {
 		font-size: 0.875rem;
 		font-weight: 600;
 		color: #111827;
@@ -1038,11 +1074,13 @@
 		text-transform: capitalize;
 	}
 
-	:global(.dark) .tense-title, :global(.dark) .case-title {
+	:global(.dark) .tense-title,
+	:global(.dark) .case-title {
 		color: #ffffff;
 	}
 
-	.conjugation-list, .declension-list {
+	.conjugation-list,
+	.declension-list {
 		list-style: none;
 		padding: 0;
 		margin: 0;
@@ -1050,28 +1088,33 @@
 		color: #4b5563;
 	}
 
-	:global(.dark) .conjugation-list, :global(.dark) .declension-list {
+	:global(.dark) .conjugation-list,
+	:global(.dark) .declension-list {
 		color: #d1d5db;
 	}
 
-	.conjugation-list li, .declension-list li {
+	.conjugation-list li,
+	.declension-list li {
 		margin-bottom: 0.25rem;
 		display: flex;
 		gap: 0.5rem;
 	}
 
-	.conjugation-list li:last-child, .declension-list li:last-child {
+	.conjugation-list li:last-child,
+	.declension-list li:last-child {
 		margin-bottom: 0;
 	}
 
-	.person, .gender {
+	.person,
+	.gender {
 		font-weight: 500;
 		color: #6b7280;
 		width: 3rem;
 		flex-shrink: 0;
 	}
 
-	:global(.dark) .person, :global(.dark) .gender {
+	:global(.dark) .person,
+	:global(.dark) .gender {
 		color: #9ca3af;
 	}
 
@@ -1124,32 +1167,38 @@
 		text-transform: uppercase;
 	}
 
-	.level-a1, .level-a2 {
+	.level-a1,
+	.level-a2 {
 		background-color: #dcfce7;
 		color: #166534;
 	}
-	
-	:global(.dark) .level-a1, :global(.dark) .level-a2 {
+
+	:global(.dark) .level-a1,
+	:global(.dark) .level-a2 {
 		background-color: #14532d;
 		color: #86efac;
 	}
 
-	.level-b1, .level-b2 {
+	.level-b1,
+	.level-b2 {
 		background-color: #fef08a;
 		color: #854d0e;
 	}
-	
-	:global(.dark) .level-b1, :global(.dark) .level-b2 {
+
+	:global(.dark) .level-b1,
+	:global(.dark) .level-b2 {
 		background-color: #713f12;
 		color: #fde047;
 	}
 
-	.level-c1, .level-c2 {
+	.level-c1,
+	.level-c2 {
 		background-color: #fee2e2;
 		color: #991b1b;
 	}
-	
-	:global(.dark) .level-c1, :global(.dark) .level-c2 {
+
+	:global(.dark) .level-c1,
+	:global(.dark) .level-c2 {
 		background-color: #7f1d1d;
 		color: #fca5a5;
 	}

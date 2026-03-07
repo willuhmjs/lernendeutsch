@@ -1,5 +1,9 @@
 import { json } from '@sveltejs/kit';
-import { buildEvaluationPrompt, parseEvaluationResponse, updateEloRatings } from '$lib/server/grader';
+import {
+	buildEvaluationPrompt,
+	parseEvaluationResponse,
+	updateEloRatings
+} from '$lib/server/grader';
 import { generateChatCompletion } from '$lib/server/llm';
 import { prisma } from '$lib/server/prisma';
 import { submitAnswerRateLimiter } from '$lib/server/ratelimit';
@@ -45,7 +49,14 @@ export async function POST(event) {
 
 	try {
 		const body = await request.json();
-		const { userInput, targetSentence, targetedVocabularyIds, targetedGrammarIds, gameMode: bodyGameMode, assignmentId } = body;
+		const {
+			userInput,
+			targetSentence,
+			targetedVocabularyIds,
+			targetedGrammarIds,
+			gameMode: bodyGameMode,
+			assignmentId
+		} = body;
 		const userId = locals.user.id;
 		const gameMode = bodyGameMode || 'native-to-target';
 
@@ -58,14 +69,14 @@ export async function POST(event) {
 			where: { id: { in: targetedVocabularyIds || [] } }
 		});
 		const targetedVocabulary = (targetedVocabularyIds || [])
-			.map((id: string) => targetedVocabRaw.find(v => v.id === id))
+			.map((id: string) => targetedVocabRaw.find((v) => v.id === id))
 			.filter(Boolean);
 
 		const targetedGrammarRaw = await prisma.grammarRule.findMany({
 			where: { id: { in: targetedGrammarIds || [] } }
 		});
 		const targetedGrammar = (targetedGrammarIds || [])
-			.map((id: string) => targetedGrammarRaw.find(g => g.id === id))
+			.map((id: string) => targetedGrammarRaw.find((g) => g.id === id))
 			.filter(Boolean);
 
 		// Fast-path for multiple choice: no LLM needed
@@ -98,8 +109,28 @@ export async function POST(event) {
 		}
 
 		// Build prompt and call LLM with streaming
-		const userLevel = locals.user.cefrLevel || 'A1';
-		const activeLanguageName = locals.user.activeLanguage?.name || 'German';
+		let userLevel = locals.user.cefrLevel || 'A1';
+		let activeLanguageName = locals.user.activeLanguage?.name || 'German';
+
+		if (assignmentId) {
+			const assignment = await prisma.assignment.findUnique({
+				where: { id: assignmentId }
+			});
+			if (assignment) {
+				if (assignment.targetCefrLevel) {
+					userLevel = assignment.targetCefrLevel;
+				}
+				if (assignment.language && assignment.language !== 'international') {
+					const assignmentLanguage = await prisma.language.findUnique({
+						where: { code: assignment.language }
+					});
+					if (assignmentLanguage) {
+						activeLanguageName = assignmentLanguage.name;
+					}
+				}
+			}
+		}
+
 		const { systemPrompt, userMessage, idMap } = buildEvaluationPrompt(
 			userInput,
 			targetSentence,
@@ -189,11 +220,11 @@ export async function POST(event) {
 				try {
 					const evaluation = parseEvaluationResponse(fullContent);
 					// Remap short IDs (v0, g0, ...) back to real UUIDs
-					evaluation.vocabularyUpdates = evaluation.vocabularyUpdates.map(u => ({
+					evaluation.vocabularyUpdates = evaluation.vocabularyUpdates.map((u) => ({
 						...u,
 						id: idMap[u.id] || u.id
 					}));
-					evaluation.grammarUpdates = evaluation.grammarUpdates.map(u => ({
+					evaluation.grammarUpdates = evaluation.grammarUpdates.map((u) => ({
 						...u,
 						id: idMap[u.id] || u.id
 					}));
@@ -213,7 +244,11 @@ export async function POST(event) {
 					}
 
 					// Send the final evaluation payload before closing the stream
-					controller.enqueue(new TextEncoder().encode(`\n\nJSON_PAYLOAD:${JSON.stringify({ ...evaluation, assignmentProgress })}`));
+					controller.enqueue(
+						new TextEncoder().encode(
+							`\n\nJSON_PAYLOAD:${JSON.stringify({ ...evaluation, assignmentProgress })}`
+						)
+					);
 				} catch (e) {
 					console.error('Post-stream processing error in submit-answer:', e);
 				}

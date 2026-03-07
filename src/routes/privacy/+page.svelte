@@ -1,6 +1,9 @@
 <svelte:head>
 	<title>Privacy Policy - LingoLearn</title>
-	<meta name="description" content="LingoLearn privacy policy — how we collect, use, and protect your data." />
+	<meta
+		name="description"
+		content="LingoLearn privacy policy — how we collect, use, and protect your data."
+	/>
 </svelte:head>
 
 <div class="legal-page">
@@ -22,26 +25,43 @@
 			<ul class="dark:text-slate-300">
 				<li><strong>Email address</strong> — used for authentication and account recovery.</li>
 				<li><strong>Username</strong> — your chosen display name on the platform.</li>
-				<li><strong>Password</strong> — stored securely using bcrypt hashing. We never store your password in plain text.</li>
-				<li><strong>Profile image</strong> — provided via your Google account if you sign in with Google.</li>
+				<li>
+					<strong>Password</strong> — stored securely using bcrypt hashing. We never store your password
+					in plain text.
+				</li>
+				<li>
+					<strong>Profile image</strong> — provided via your Google account if you sign in with Google.
+				</li>
 			</ul>
 
 			<h3 class="dark:text-slate-200">Google Sign-In</h3>
 			<p class="dark:text-slate-300">
 				If you choose to sign in with Google, we receive your name, email address, and profile
-				picture from Google. We do not access your Google contacts, calendar, or any other
-				Google services.
+				picture from Google. We do not access your Google contacts, calendar, or any other Google
+				services.
 			</p>
 
 			<h3 class="dark:text-slate-200">Learning Data</h3>
 			<p class="dark:text-slate-300">As you use LingoLearn, we collect and store:</p>
 			<ul class="dark:text-slate-300">
-				<li><strong>Language preferences</strong> — which languages you are learning (e.g., German, Spanish, French).</li>
+				<li>
+					<strong>Language preferences</strong> — which languages you are learning (e.g., German, Spanish,
+					French).
+				</li>
 				<li><strong>CEFR proficiency level</strong> — your assessed language level (A1–C2).</li>
-				<li><strong>Vocabulary progress</strong> — words you have studied, your spaced repetition state (Unseen, Learning, Known, Mastered), accuracy, and review history.</li>
-				<li><strong>Grammar progress</strong> — grammar rules you have studied and your mastery level.</li>
-				<li><strong>Assignment scores</strong> — scores and completion status for class assignments.</li>
-				<li><strong>Onboarding status</strong> — whether you have completed the initial assessment.</li>
+				<li>
+					<strong>Vocabulary progress</strong> — words you have studied, your spaced repetition state
+					(Unseen, Learning, Known, Mastered), accuracy, and review history.
+				</li>
+				<li>
+					<strong>Grammar progress</strong> — grammar rules you have studied and your mastery level.
+				</li>
+				<li>
+					<strong>Assignment scores</strong> — scores and completion status for class assignments.
+				</li>
+				<li>
+					<strong>Onboarding status</strong> — whether you have completed the initial assessment.
+				</li>
 			</ul>
 
 			<h3 class="dark:text-slate-200">Usage Data</h3>
@@ -53,7 +73,11 @@
 
 			<h3 class="dark:text-slate-200">Optional Data</h3>
 			<ul class="dark:text-slate-300">
-				<li><strong>Custom LLM configuration</strong> — if you provide your own AI model endpoint and API key, these are stored to enable personalized lesson generation. Your API key is stored server-side and is not shared.</li>
+				<li>
+					<strong>Custom LLM configuration</strong> — if you provide your own AI model endpoint and API
+					key, these are stored to enable personalized lesson generation. Your API key is stored server-side
+					and is not shared.
+				</li>
 			</ul>
 		</section>
 
@@ -65,7 +89,10 @@
 				<li>Authenticate your identity and manage your account.</li>
 				<li>Generate AI-powered lessons tailored to your proficiency level.</li>
 				<li>Track your learning progress across vocabulary and grammar.</li>
-				<li>Enable classroom features, including classes, assignments, and teacher-student interactions.</li>
+				<li>
+					Enable classroom features, including classes, assignments, and teacher-student
+					interactions.
+				</li>
 				<li>Improve and optimize the platform's performance and user experience.</li>
 				<li>Communicate with you about your account or important updates.</li>
 			</ul>
@@ -82,11 +109,23 @@
 
 		<section>
 			<h2 class="dark:text-white">4. Data Sharing</h2>
-			<p class="dark:text-slate-300">We do not sell, rent, or trade your personal information. We may share limited data in the following circumstances:</p>
+			<p class="dark:text-slate-300">
+				We do not sell, rent, or trade your personal information. We may share limited data in the
+				following circumstances:
+			</p>
 			<ul class="dark:text-slate-300">
-				<li><strong>Classroom context</strong> — if you join a class, your teacher may see your username, assignment scores, and progress within that class.</li>
-				<li><strong>Service providers</strong> — we use third-party services (e.g., Google OAuth, database hosting) that process data on our behalf under strict confidentiality agreements.</li>
-				<li><strong>Legal requirements</strong> — we may disclose information if required by law, regulation, or legal process.</li>
+				<li>
+					<strong>Classroom context</strong> — if you join a class, your teacher may see your username,
+					assignment scores, and progress within that class.
+				</li>
+				<li>
+					<strong>Service providers</strong> — we use third-party services (e.g., Google OAuth, database
+					hosting) that process data on our behalf under strict confidentiality agreements.
+				</li>
+				<li>
+					<strong>Legal requirements</strong> — we may disclose information if required by law, regulation,
+					or legal process.
+				</li>
 			</ul>
 		</section>
 
@@ -102,18 +141,18 @@
 				<li>OAuth tokens are stored securely and scoped to minimum necessary permissions.</li>
 			</ul>
 			<p class="dark:text-slate-300">
-				While we strive to protect your information, no method of electronic transmission or
-				storage is 100% secure. We cannot guarantee absolute security.
+				While we strive to protect your information, no method of electronic transmission or storage
+				is 100% secure. We cannot guarantee absolute security.
 			</p>
 		</section>
 
 		<section>
 			<h2 class="dark:text-white">6. Data Retention</h2>
 			<p class="dark:text-slate-300">
-				We retain your account data and learning progress for as long as your account is active.
-				If you delete your account, your personal data and associated learning records will be
-				permanently removed from our systems. Some anonymized, aggregated data may be retained
-				for platform analytics.
+				We retain your account data and learning progress for as long as your account is active. If
+				you delete your account, your personal data and associated learning records will be
+				permanently removed from our systems. Some anonymized, aggregated data may be retained for
+				platform analytics.
 			</p>
 		</section>
 
@@ -135,8 +174,8 @@
 		<section>
 			<h2 class="dark:text-white">8. Cookies and Sessions</h2>
 			<p class="dark:text-slate-300">
-				LingoLearn uses session cookies to keep you logged in and maintain your preferences.
-				We do not use advertising or third-party tracking cookies.
+				LingoLearn uses session cookies to keep you logged in and maintain your preferences. We do
+				not use advertising or third-party tracking cookies.
 			</p>
 		</section>
 
@@ -144,8 +183,8 @@
 			<h2 class="dark:text-white">9. Children's Privacy</h2>
 			<p class="dark:text-slate-300">
 				LingoLearn is intended for users aged 13 and older. We do not knowingly collect personal
-				information from children under 13. If we become aware that we have collected data from
-				a child under 13, we will take steps to delete that information promptly.
+				information from children under 13. If we become aware that we have collected data from a
+				child under 13, we will take steps to delete that information promptly.
 			</p>
 		</section>
 
@@ -161,8 +200,8 @@
 		<section>
 			<h2 class="dark:text-white">11. Contact Us</h2>
 			<p class="dark:text-slate-300">
-				If you have questions or concerns about this Privacy Policy or your data, please reach
-				out to us at <strong>support@lingolearn.app</strong>.
+				If you have questions or concerns about this Privacy Policy or your data, please reach out
+				to us at <strong>support@lingolearn.app</strong>.
 			</p>
 		</section>
 

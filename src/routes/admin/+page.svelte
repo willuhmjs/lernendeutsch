@@ -32,32 +32,52 @@
 	let isCheckingAI = false;
 	let aiCheckResult = '';
 
+	let aiCheckProgress = '';
+
 	async function runAICheckAll() {
 		if (data.pendingVocab.length === 0) return;
-		
+
 		isCheckingAI = true;
 		aiCheckResult = '';
-		
+		aiCheckProgress = `Checking 0 of ${data.pendingVocab.length} words...`;
+
 		try {
-			const res = await fetch('/api/admin/vocabulary/ai-review', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ words: data.pendingVocab })
-			});
-			
-			const result = await res.json();
-			
-			if (res.ok) {
-				aiCheckResult = `AI Check complete: ${result.approvedCount} approved, ${result.rejectedCount} rejected.`;
-				await invalidateAll();
-			} else {
-				alert(result.error || 'Failed to run AI check.');
+			const batchSize = 10;
+			let totalApproved = 0;
+			let totalRejected = 0;
+			const totalWords = data.pendingVocab.length;
+
+			for (let i = 0; i < totalWords; i += batchSize) {
+				const batch = data.pendingVocab.slice(i, i + batchSize);
+				aiCheckProgress = `Checking ${Math.min(i + batchSize, totalWords)} of ${totalWords} words...`;
+
+				const res = await fetch('/api/admin/vocabulary/ai-review', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ words: batch })
+				});
+
+				const result = await res.json();
+
+				if (res.ok) {
+					totalApproved += result.approvedCount;
+					totalRejected += result.rejectedCount;
+					aiCheckResult = `Checking in progress... ${totalApproved} approved, ${totalRejected} rejected so far.`;
+				} else {
+					console.error('Batch error:', result.error);
+					alert(`Error on batch ${i / batchSize + 1}: ${result.error || 'Failed to run AI check.'}`);
+					break; // Stop on error
+				}
 			}
+
+			aiCheckResult = `AI Check complete: ${totalApproved} approved, ${totalRejected} rejected.`;
+			await invalidateAll();
 		} catch (error) {
 			console.error('AI check error:', error);
 			alert('An error occurred during AI check.');
 		} finally {
 			isCheckingAI = false;
+			aiCheckProgress = '';
 		}
 	}
 
@@ -82,7 +102,7 @@
 			availableModels = [];
 			return;
 		}
-		
+
 		isFetchingModels = true;
 		try {
 			// Append /v1/models if the endpoint doesn't already end with it. Often base URL is provided.
@@ -124,7 +144,7 @@
 			// Initialize
 		}
 	}
-	
+
 	// Svelte onMount is better for initial fetch to avoid SSR issues
 	import { onMount } from 'svelte';
 	onMount(() => {
@@ -139,14 +159,20 @@
 		isExporting = true;
 		const res = await fetch(`/api/admin/language-data?languageId=${selectedLangId}`);
 		isExporting = false;
-		if (!res.ok) { langDataMsg = 'Export failed.'; langDataError = true; return; }
+		if (!res.ok) {
+			langDataMsg = 'Export failed.';
+			langDataError = true;
+			return;
+		}
 		const blob = await res.blob();
 		const cd = res.headers.get('Content-Disposition') || '';
 		const fnMatch = cd.match(/filename="([^"]+)"/);
 		const filename = fnMatch ? fnMatch[1] : 'language-data.json';
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
-		a.href = url; a.download = filename; a.click();
+		a.href = url;
+		a.download = filename;
+		a.click();
 		URL.revokeObjectURL(url);
 		langDataMsg = `Exported ${filename}`;
 		langDataError = false;
@@ -164,9 +190,12 @@
 				body: JSON.stringify({ ...payload, languageId: selectedLangId })
 			});
 			const result = await res.json();
-			if (!res.ok) { langDataMsg = result.error || 'Import failed.'; langDataError = true; }
-			else {
-				const v = result.vocab; const g = result.grammar;
+			if (!res.ok) {
+				langDataMsg = result.error || 'Import failed.';
+				langDataError = true;
+			} else {
+				const v = result.vocab;
+				const g = result.grammar;
 				langDataMsg = `Import complete — Vocab: +${v.created} created, ${v.updated} updated · Grammar: +${g.created} created, ${g.updated} updated`;
 				langDataError = false;
 				await invalidateAll();
@@ -182,12 +211,17 @@
 	async function deleteLangData() {
 		if (!selectedLangId) return;
 		isDeletingLangData = true;
-		const res = await fetch(`/api/admin/language-data?languageId=${selectedLangId}&scope=${deleteScope}`, { method: 'DELETE' });
+		const res = await fetch(
+			`/api/admin/language-data?languageId=${selectedLangId}&scope=${deleteScope}`,
+			{ method: 'DELETE' }
+		);
 		const result = await res.json();
 		isDeletingLangData = false;
 		showDeleteLangConfirm = false;
-		if (!res.ok) { langDataMsg = result.error || 'Delete failed.'; langDataError = true; }
-		else {
+		if (!res.ok) {
+			langDataMsg = result.error || 'Delete failed.';
+			langDataError = true;
+		} else {
 			langDataMsg = `Deleted ${result.vocabDeleted} vocab + ${result.grammarDeleted} grammar entries.`;
 			langDataError = false;
 			await invalidateAll();
@@ -213,7 +247,7 @@
 	let modalError = '';
 	let showDeleteConfirm = false;
 
-	function openEditModal(user: typeof data.users[number]) {
+	function openEditModal(user: (typeof data.users)[number]) {
 		editingUser = {
 			id: user.id,
 			username: user.username,
@@ -305,8 +339,13 @@
 
 	async function resetProgress(languageId: string) {
 		if (!editingUser) return;
-		if (!confirm('Are you sure you want to reset all progress for this language? This cannot be undone.')) return;
-		
+		if (
+			!confirm(
+				'Are you sure you want to reset all progress for this language? This cannot be undone.'
+			)
+		)
+			return;
+
 		try {
 			const res = await fetch(`/api/admin/users/${editingUser.id}/reset-progress`, {
 				method: 'POST',
@@ -405,7 +444,10 @@
 	<section class="seed-card" in:fly={{ y: 20, duration: 400, delay: 150 }}>
 		<div class="seed-info">
 			<h2>Vocabulary Seed</h2>
-			<p>Run the vocabulary and grammar rules seed script to update the database with the latest entries.</p>
+			<p>
+				Run the vocabulary and grammar rules seed script to update the database with the latest
+				entries.
+			</p>
 		</div>
 		<form
 			method="POST"
@@ -435,7 +477,8 @@
 				{#if data.localLoginEnabled}
 					Local (email/password) login and signup are currently <strong>enabled</strong>.
 				{:else}
-					Local (email/password) login and signup are currently <strong>disabled</strong>. Only OAuth sign-in is available.
+					Local (email/password) login and signup are currently <strong>disabled</strong>. Only
+					OAuth sign-in is available.
 				{/if}
 			</p>
 		</div>
@@ -450,21 +493,33 @@
 		</form>
 	</section>
 
-	<section class="seed-card" style="flex-direction: column; align-items: stretch; gap: 1rem;" in:fly={{ y: 20, duration: 400, delay: 250 }}>
+	<section
+		class="seed-card"
+		style="flex-direction: column; align-items: stretch; gap: 1rem;"
+		in:fly={{ y: 20, duration: 400, delay: 250 }}
+	>
 		<div class="seed-info">
 			<h2>LLM Configuration</h2>
-			<p>Configure the language model used for AI features (e.g. vocabulary generation, onboarding, chat). The endpoint must be OpenAI-compatible.</p>
+			<p>
+				Configure the language model used for AI features (e.g. vocabulary generation, onboarding,
+				chat). The endpoint must be OpenAI-compatible.
+			</p>
 		</div>
-		
+
 		{#if llmMsg}
-			<div class="alert" class:alert-success={!llmError} class:alert-error={llmError} style="margin: 0;">
+			<div
+				class="alert"
+				class:alert-success={!llmError}
+				class:alert-error={llmError}
+				style="margin: 0;"
+			>
 				{llmMsg}
 			</div>
 		{/if}
 
-		<form 
-			method="POST" 
-			action="?/updateLLMSettings" 
+		<form
+			method="POST"
+			action="?/updateLLMSettings"
 			use:enhance={() => {
 				llmMsg = '';
 				llmError = false;
@@ -484,15 +539,20 @@
 			<div class="form-group" style="margin-bottom: 0;">
 				<label for="llmEndpoint">LLM API Endpoint (e.g., http://localhost:11434/v1)</label>
 				<div style="display: flex; gap: 0.5rem;">
-					<input 
-						type="text" 
-						id="llmEndpoint" 
-						name="llmEndpoint" 
-						bind:value={llmEndpoint} 
+					<input
+						type="text"
+						id="llmEndpoint"
+						name="llmEndpoint"
+						bind:value={llmEndpoint}
 						placeholder="https://api.openai.com/v1"
 						style="flex: 1;"
 					/>
-					<button type="button" class="cancel-btn" on:click={fetchModels} disabled={isFetchingModels || !llmEndpoint}>
+					<button
+						type="button"
+						class="cancel-btn"
+						on:click={fetchModels}
+						disabled={isFetchingModels || !llmEndpoint}
+					>
 						{isFetchingModels ? 'Fetching...' : 'Fetch Models'}
 					</button>
 				</div>
@@ -500,11 +560,11 @@
 
 			<div class="form-group" style="margin-bottom: 0;">
 				<label for="llmApiKey">API Key (Optional depending on provider)</label>
-				<input 
-					type="password" 
-					id="llmApiKey" 
-					name="llmApiKey" 
-					bind:value={llmApiKey} 
+				<input
+					type="password"
+					id="llmApiKey"
+					name="llmApiKey"
+					bind:value={llmApiKey}
 					placeholder="sk-..."
 				/>
 			</div>
@@ -519,11 +579,11 @@
 						{/each}
 					</select>
 				{:else}
-					<input 
-						type="text" 
-						id="llmModel" 
-						name="llmModel" 
-						bind:value={llmModel} 
+					<input
+						type="text"
+						id="llmModel"
+						name="llmModel"
+						bind:value={llmModel}
 						placeholder="e.g., gpt-4o-mini"
 					/>
 				{/if}
@@ -548,7 +608,10 @@
 
 	<section class="lang-data-card" in:fly={{ y: 20, duration: 400, delay: 300 }}>
 		<h2>Language Data</h2>
-		<p class="lang-data-desc">Export a full JSON snapshot of vocabulary and grammar rules for any language — copy it into your seed scripts for source control. Import a JSON file to upsert entries into the database.</p>
+		<p class="lang-data-desc">
+			Export a full JSON snapshot of vocabulary and grammar rules for any language — copy it into
+			your seed scripts for source control. Import a JSON file to upsert entries into the database.
+		</p>
 
 		<div class="lang-data-controls">
 			<div class="form-group mb-0">
@@ -556,7 +619,11 @@
 				<select id="lang-select" bind:value={selectedLangId}>
 					<option value="" disabled>Select a language…</option>
 					{#each data.languages as lang}
-						<option value={lang.id}>{lang.flag} {lang.name} — {(lang as any)._count.vocabularies} vocab, {(lang as any)._count.grammarRules} grammar rules</option>
+						<option value={lang.id}
+							>{lang.flag}
+							{lang.name} — {(lang as any)._count.vocabularies} vocab, {(lang as any)._count
+								.grammarRules} grammar rules</option
+						>
 					{/each}
 				</select>
 			</div>
@@ -575,7 +642,11 @@
 					<span class="lang-action-label">Import (upsert)</span>
 					<div class="lang-import-row">
 						<input type="file" accept=".json" bind:files={importFile} class="file-input" />
-						<button class="seed-btn" on:click={importLangData} disabled={isImporting || !importFile?.length}>
+						<button
+							class="seed-btn"
+							on:click={importLangData}
+							disabled={isImporting || !importFile?.length}
+						>
 							{isImporting ? 'Importing…' : 'Import'}
 						</button>
 					</div>
@@ -590,15 +661,25 @@
 								<option value="grammar">Grammar only</option>
 								<option value="all">All (vocab + grammar)</option>
 							</select>
-							<button class="delete-btn" on:click={() => showDeleteLangConfirm = true}>Delete…</button>
+							<button class="delete-btn" on:click={() => (showDeleteLangConfirm = true)}
+								>Delete…</button
+							>
 						</div>
 					{:else}
 						<div class="delete-confirm">
-							<span class="delete-warning">Delete all {deleteScope === 'all' ? 'vocab + grammar' : deleteScope} for {selectedLang?.name}?</span>
-							<button class="delete-confirm-btn" on:click={deleteLangData} disabled={isDeletingLangData}>
+							<span class="delete-warning"
+								>Delete all {deleteScope === 'all' ? 'vocab + grammar' : deleteScope} for {selectedLang?.name}?</span
+							>
+							<button
+								class="delete-confirm-btn"
+								on:click={deleteLangData}
+								disabled={isDeletingLangData}
+							>
 								{isDeletingLangData ? 'Deleting…' : 'Confirm'}
 							</button>
-							<button class="cancel-delete-btn" on:click={() => showDeleteLangConfirm = false}>Cancel</button>
+							<button class="cancel-delete-btn" on:click={() => (showDeleteLangConfirm = false)}
+								>Cancel</button
+							>
 						</div>
 					{/if}
 				</div>
@@ -606,27 +687,41 @@
 		{/if}
 
 		{#if langDataMsg}
-			<div class="alert" class:alert-success={!langDataError} class:alert-error={langDataError} style="margin: 1rem 0 0 0;">
+			<div
+				class="alert"
+				class:alert-success={!langDataError}
+				class:alert-error={langDataError}
+				style="margin: 1rem 0 0 0;"
+			>
 				{langDataMsg}
 			</div>
 		{/if}
 	</section>
 
 	<section class="pending-vocab-card" in:fly={{ y: 20, duration: 400, delay: 350 }}>
-		<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+		<div
+			style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;"
+		>
 			<h2 style="margin: 0;">Auto-Generated Vocabulary</h2>
-			<button class="seed-btn" on:click={runAICheckAll} disabled={isCheckingAI || data.pendingVocab.length === 0} style="background-color: #3b82f6;">
-				{isCheckingAI ? 'Checking...' : 'AI Check All'}
+			<button
+				class="seed-btn"
+				on:click={runAICheckAll}
+				disabled={isCheckingAI || data.pendingVocab.length === 0}
+				style="background-color: #3b82f6;"
+			>
+				{isCheckingAI ? aiCheckProgress || 'Checking...' : 'AI Check All'}
 			</button>
 		</div>
-		<p class="lang-data-desc">Review vocabulary generated by the LLM before finalizing it in the database.</p>
-		
+		<p class="lang-data-desc">
+			Review vocabulary generated by the LLM before finalizing it in the database.
+		</p>
+
 		{#if aiCheckResult}
 			<div class="alert alert-success" style="margin-bottom: 1rem; padding: 0.75rem;">
 				{aiCheckResult}
 			</div>
 		{/if}
-		
+
 		<div class="table-wrapper">
 			<table>
 				<thead>
@@ -654,8 +749,12 @@
 								<td>{new Date(vocab.createdAt).toLocaleDateString()}</td>
 								<td>
 									<div style="display: flex; gap: 0.5rem;">
-										<button class="approve-btn" on:click={() => approveVocab(vocab.id)}>Approve</button>
-										<button class="delete-vocab-btn" on:click={() => deleteVocab(vocab.id)}>Delete</button>
+										<button class="approve-btn" on:click={() => approveVocab(vocab.id)}
+											>Approve</button
+										>
+										<button class="delete-vocab-btn" on:click={() => deleteVocab(vocab.id)}
+											>Delete</button
+										>
 									</div>
 								</td>
 							</tr>
@@ -698,7 +797,9 @@
 								<td>{cls._count.assignments}</td>
 								<td>{new Date(cls.createdAt).toLocaleDateString()}</td>
 								<td>
-									<button class="delete-vocab-btn" on:click={() => deleteClass(cls.id)}>Delete</button>
+									<button class="delete-vocab-btn" on:click={() => deleteClass(cls.id)}
+										>Delete</button
+									>
 								</td>
 							</tr>
 						{/each}
@@ -741,12 +842,15 @@
 								<span class="role-badge" class:role-admin={user.role === 'ADMIN'}>{user.role}</span>
 							</td>
 							<td>
-								{user.progress?.find((p) => p.languageId === user.activeLanguage?.id)?.cefrLevel || 'A1'}
+								{user.progress?.find((p) => p.languageId === user.activeLanguage?.id)?.cefrLevel ||
+									'A1'}
 							</td>
 							<td>{new Date(user.createdAt).toLocaleDateString()}</td>
 							<td>
 								{new Date(user.lastActive).toLocaleDateString()}<br />
-								<span style="font-size: 0.85em; color: #6b7280;">{new Date(user.lastActive).toLocaleTimeString()}</span>
+								<span style="font-size: 0.85em; color: #6b7280;"
+									>{new Date(user.lastActive).toLocaleTimeString()}</span
+								>
 							</td>
 							<td>
 								<button class="edit-btn" on:click={() => openEditModal(user)}>Edit</button>
@@ -817,7 +921,12 @@
 										Onboarded
 									</label>
 								</div>
-								<button type="button" class="cancel-delete-btn" style="padding: 0.3rem 0.5rem; font-size: 0.75rem;" on:click={() => resetProgress(prog.languageId)}>
+								<button
+									type="button"
+									class="cancel-delete-btn"
+									style="padding: 0.3rem 0.5rem; font-size: 0.75rem;"
+									on:click={() => resetProgress(prog.languageId)}
+								>
 									Reset Progress
 								</button>
 							</div>
@@ -833,10 +942,19 @@
 					{:else}
 						<div class="delete-confirm">
 							<span class="delete-warning">Are you sure?</span>
-							<button type="button" class="delete-confirm-btn" on:click={deleteUser} disabled={isDeleting}>
+							<button
+								type="button"
+								class="delete-confirm-btn"
+								on:click={deleteUser}
+								disabled={isDeleting}
+							>
 								{isDeleting ? 'Deleting...' : 'Yes, Delete'}
 							</button>
-							<button type="button" class="cancel-delete-btn" on:click={() => (showDeleteConfirm = false)}>
+							<button
+								type="button"
+								class="cancel-delete-btn"
+								on:click={() => (showDeleteConfirm = false)}
+							>
 								Cancel
 							</button>
 						</div>
@@ -1382,7 +1500,7 @@
 	.classes-section {
 		margin-bottom: 2rem;
 	}
-	
+
 	.lang-data-card {
 		background: var(--card-bg, #ffffff);
 		border: 1px solid var(--card-border, #e5e7eb);
@@ -1480,7 +1598,7 @@
 		cursor: pointer;
 	}
 
-	.checkbox-group input[type="checkbox"] {
+	.checkbox-group input[type='checkbox'] {
 		width: auto;
 		cursor: pointer;
 	}

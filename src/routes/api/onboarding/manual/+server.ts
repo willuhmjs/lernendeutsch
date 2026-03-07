@@ -16,22 +16,22 @@ export async function POST({ request, locals }: any) {
 		}
 
 		console.log(`[Manual Onboarding Complete] User ${userId} placed at level ${level}.`);
-		
+
 		await prisma.userProgress.upsert({
-					where: {
-						userId_languageId: { userId, languageId: locals.user.activeLanguage!.id }
-					},
-					create: {
-						userId,
-						languageId: locals.user.activeLanguage!.id,
-						hasOnboarded: true,
-						cefrLevel: level
-					},
-					update: {
-						hasOnboarded: true,
-						cefrLevel: level
-					}
-				});
+			where: {
+				userId_languageId: { userId, languageId: locals.user.activeLanguage!.id }
+			},
+			create: {
+				userId,
+				languageId: locals.user.activeLanguage!.id,
+				hasOnboarded: true,
+				cefrLevel: level
+			},
+			update: {
+				hasOnboarded: true,
+				cefrLevel: level
+			}
+		});
 
 		console.log('Successfully completed manual onboarding');
 

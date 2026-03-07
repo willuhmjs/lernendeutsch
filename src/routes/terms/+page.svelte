@@ -1,6 +1,9 @@
 <svelte:head>
 	<title>Terms of Service - LingoLearn</title>
-	<meta name="description" content="LingoLearn terms of service — rules and guidelines for using the platform." />
+	<meta
+		name="description"
+		content="LingoLearn terms of service — rules and guidelines for using the platform."
+	/>
 </svelte:head>
 
 <div class="legal-page">
@@ -35,7 +38,9 @@
 		<section>
 			<h2 class="dark:text-white">3. Account Registration</h2>
 			<ul class="dark:text-slate-300">
-				<li>You may register using your email address and a password, or by signing in with Google.</li>
+				<li>
+					You may register using your email address and a password, or by signing in with Google.
+				</li>
 				<li>You are responsible for maintaining the confidentiality of your login credentials.</li>
 				<li>You agree to provide accurate and complete information when creating your account.</li>
 				<li>You are responsible for all activity that occurs under your account.</li>
@@ -48,25 +53,43 @@
 			<p class="dark:text-slate-300">You agree not to:</p>
 			<ul class="dark:text-slate-300">
 				<li>Use LingoLearn for any unlawful purpose or in violation of any applicable laws.</li>
-				<li>Attempt to gain unauthorized access to any part of the platform, other users' accounts, or our systems.</li>
+				<li>
+					Attempt to gain unauthorized access to any part of the platform, other users' accounts, or
+					our systems.
+				</li>
 				<li>Interfere with or disrupt the integrity or performance of the platform.</li>
 				<li>Upload or transmit viruses, malware, or other harmful code.</li>
-				<li>Use automated scripts, bots, or scrapers to access or collect data from the platform without our written consent.</li>
-				<li>Impersonate another person or entity, or misrepresent your affiliation with any person or entity.</li>
+				<li>
+					Use automated scripts, bots, or scrapers to access or collect data from the platform
+					without our written consent.
+				</li>
+				<li>
+					Impersonate another person or entity, or misrepresent your affiliation with any person or
+					entity.
+				</li>
 				<li>Harass, abuse, or harm other users, including teachers and classmates.</li>
-				<li>Share, redistribute, or commercially exploit LingoLearn's content, lessons, or AI-generated materials without permission.</li>
+				<li>
+					Share, redistribute, or commercially exploit LingoLearn's content, lessons, or
+					AI-generated materials without permission.
+				</li>
 			</ul>
 		</section>
 
 		<section>
 			<h2 class="dark:text-white">5. Classroom Features</h2>
 			<p class="dark:text-slate-300">
-				LingoLearn includes classroom functionality where teachers can create classes,
-				assign work, and view student progress. By joining a class:
+				LingoLearn includes classroom functionality where teachers can create classes, assign work,
+				and view student progress. By joining a class:
 			</p>
 			<ul class="dark:text-slate-300">
-				<li>You consent to your teacher viewing your username, assignment scores, and learning progress within that class.</li>
-				<li>Teachers are responsible for managing their classes appropriately and in compliance with any applicable educational policies.</li>
+				<li>
+					You consent to your teacher viewing your username, assignment scores, and learning
+					progress within that class.
+				</li>
+				<li>
+					Teachers are responsible for managing their classes appropriately and in compliance with
+					any applicable educational policies.
+				</li>
 				<li>Class invite codes should not be shared publicly without the teacher's consent.</li>
 			</ul>
 		</section>
@@ -74,66 +97,70 @@
 		<section>
 			<h2 class="dark:text-white">6. AI-Generated Content</h2>
 			<p class="dark:text-slate-300">
-				LingoLearn uses artificial intelligence to generate lessons, exercises, and feedback.
-				While we strive for accuracy, AI-generated content may occasionally contain errors.
-				LingoLearn does not guarantee the accuracy, completeness, or reliability of AI-generated
-				materials. You should not rely solely on LingoLearn as your only source of language
-				education.
+				LingoLearn uses artificial intelligence to generate lessons, exercises, and feedback. While
+				we strive for accuracy, AI-generated content may occasionally contain errors. LingoLearn
+				does not guarantee the accuracy, completeness, or reliability of AI-generated materials. You
+				should not rely solely on LingoLearn as your only source of language education.
 			</p>
 		</section>
 
 		<section>
 			<h2 class="dark:text-white">7. Custom LLM Configuration</h2>
 			<p class="dark:text-slate-300">
-				LingoLearn allows users to configure a custom AI model endpoint and API key. If you
-				choose to use this feature:
+				LingoLearn allows users to configure a custom AI model endpoint and API key. If you choose
+				to use this feature:
 			</p>
 			<ul class="dark:text-slate-300">
 				<li>You are solely responsible for any costs incurred through your custom AI provider.</li>
-				<li>You are responsible for ensuring your use of third-party AI services complies with their respective terms of service.</li>
-				<li>LingoLearn is not liable for any issues arising from the use of third-party AI services.</li>
+				<li>
+					You are responsible for ensuring your use of third-party AI services complies with their
+					respective terms of service.
+				</li>
+				<li>
+					LingoLearn is not liable for any issues arising from the use of third-party AI services.
+				</li>
 			</ul>
 		</section>
 
 		<section>
 			<h2 class="dark:text-white">8. Intellectual Property</h2>
 			<p class="dark:text-slate-300">
-				All content, design, code, and branding of LingoLearn, including but not limited to
-				the platform interface, vocabulary databases, grammar guides, and AI lesson frameworks,
-				are the intellectual property of LingoLearn and are protected by applicable copyright
-				and intellectual property laws. You may not reproduce, distribute, or create derivative
-				works from our materials without explicit written permission.
+				All content, design, code, and branding of LingoLearn, including but not limited to the
+				platform interface, vocabulary databases, grammar guides, and AI lesson frameworks, are the
+				intellectual property of LingoLearn and are protected by applicable copyright and
+				intellectual property laws. You may not reproduce, distribute, or create derivative works
+				from our materials without explicit written permission.
 			</p>
 		</section>
 
 		<section>
 			<h2 class="dark:text-white">9. Account Termination</h2>
 			<p class="dark:text-slate-300">
-				We reserve the right to suspend or terminate your account at our sole discretion,
-				without prior notice, for conduct that we determine violates these Terms, is harmful
-				to other users, or is otherwise objectionable. You may delete your account at any
-				time through your profile settings.
+				We reserve the right to suspend or terminate your account at our sole discretion, without
+				prior notice, for conduct that we determine violates these Terms, is harmful to other users,
+				or is otherwise objectionable. You may delete your account at any time through your profile
+				settings.
 			</p>
 		</section>
 
 		<section>
 			<h2 class="dark:text-white">10. Disclaimer of Warranties</h2>
 			<p class="dark:text-slate-300">
-				LingoLearn is provided on an "as is" and "as available" basis without warranties of
-				any kind, either express or implied. We do not warrant that the platform will be
-				uninterrupted, error-free, or free of harmful components. We disclaim all warranties,
-				including but not limited to implied warranties of merchantability, fitness for a
-				particular purpose, and non-infringement.
+				LingoLearn is provided on an "as is" and "as available" basis without warranties of any
+				kind, either express or implied. We do not warrant that the platform will be uninterrupted,
+				error-free, or free of harmful components. We disclaim all warranties, including but not
+				limited to implied warranties of merchantability, fitness for a particular purpose, and
+				non-infringement.
 			</p>
 		</section>
 
 		<section>
 			<h2 class="dark:text-white">11. Limitation of Liability</h2>
 			<p class="dark:text-slate-300">
-				To the fullest extent permitted by applicable law, LingoLearn and its operators shall
-				not be liable for any indirect, incidental, special, consequential, or punitive damages,
-				or any loss of profits, data, or goodwill, arising out of or in connection with your
-				use of the platform, whether based on warranty, contract, tort, or any other legal theory.
+				To the fullest extent permitted by applicable law, LingoLearn and its operators shall not be
+				liable for any indirect, incidental, special, consequential, or punitive damages, or any
+				loss of profits, data, or goodwill, arising out of or in connection with your use of the
+				platform, whether based on warranty, contract, tort, or any other legal theory.
 			</p>
 		</section>
 
@@ -141,9 +168,9 @@
 			<h2 class="dark:text-white">12. Changes to These Terms</h2>
 			<p class="dark:text-slate-300">
 				We may revise these Terms from time to time. The most current version will always be
-				available on this page with an updated effective date. By continuing to use LingoLearn
-				after changes are posted, you agree to be bound by the revised Terms. We encourage you
-				to review these Terms periodically.
+				available on this page with an updated effective date. By continuing to use LingoLearn after
+				changes are posted, you agree to be bound by the revised Terms. We encourage you to review
+				these Terms periodically.
 			</p>
 		</section>
 
@@ -151,8 +178,7 @@
 			<h2 class="dark:text-white">13. Governing Law</h2>
 			<p class="dark:text-slate-300">
 				These Terms shall be governed by and construed in accordance with the laws of the
-				jurisdiction in which LingoLearn operates, without regard to its conflict of law
-				provisions.
+				jurisdiction in which LingoLearn operates, without regard to its conflict of law provisions.
 			</p>
 		</section>
 

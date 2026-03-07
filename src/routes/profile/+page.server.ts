@@ -22,7 +22,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 		})
 	]);
 
-	const activeProgress = userProgress.find((p: { languageId: string }) => p.languageId === locals.user?.activeLanguage?.id);
+	const activeProgress = userProgress.find(
+		(p: { languageId: string }) => p.languageId === locals.user?.activeLanguage?.id
+	);
 
 	return {
 		user: locals.user,
@@ -112,7 +114,7 @@ export const actions: Actions = {
 			throw redirect(303, '/login');
 		}
 
-		// Prisma will cascade delete UserVocabulary, UserGrammarRule, Accounts, Sessions 
+		// Prisma will cascade delete UserVocabulary, UserGrammarRule, Accounts, Sessions
 		// due to the onDelete: Cascade in the schema
 		await prisma.user.delete({
 			where: { id: locals.user.id }
@@ -126,7 +128,7 @@ export const actions: Actions = {
 
 		// We could also call the signout endpoint, but redirecting to / with a cleared cookie usually works well
 		// and we don't want to get stuck in a weird state.
-		
+
 		throw redirect(303, '/login');
 	}
 };

@@ -17,7 +17,7 @@
 	async function submitGrade(score: number) {
 		if (isSubmitting || !currentReview) return;
 		isSubmitting = true;
-		
+
 		try {
 			const res = await fetch('/api/review/submit', {
 				method: 'POST',
@@ -70,7 +70,7 @@
 			<div class="card-duo review-card">
 				<!-- Progress Bar -->
 				<div class="progress-track">
-					<div 
+					<div
 						class="progress-fill"
 						style="width: {(currentReviewIndex / dueReviews.length) * 100}%"
 					></div>
@@ -82,7 +82,7 @@
 						<h2 class="lemma-text">
 							{currentReview.vocabulary.lemma}
 						</h2>
-						
+
 						{#if currentReview.vocabulary.partOfSpeech}
 							<span class="pos-badge">
 								{currentReview.vocabulary.partOfSpeech}
@@ -119,30 +119,30 @@
 
 								<!-- Grading Buttons -->
 								<div class="grading-buttons">
-									<button 
-										class="btn-duo btn-danger" 
-										on:click={() => submitGrade(0)} 
+									<button
+										class="btn-duo btn-danger"
+										on:click={() => submitGrade(0)}
 										disabled={isSubmitting}
 									>
 										Again
 									</button>
-									<button 
-										class="btn-duo btn-hard" 
-										on:click={() => submitGrade(0.4)} 
+									<button
+										class="btn-duo btn-hard"
+										on:click={() => submitGrade(0.4)}
 										disabled={isSubmitting}
 									>
 										Hard
 									</button>
-									<button 
-										class="btn-duo btn-primary" 
-										on:click={() => submitGrade(0.8)} 
+									<button
+										class="btn-duo btn-primary"
+										on:click={() => submitGrade(0.8)}
 										disabled={isSubmitting}
 									>
 										Good
 									</button>
-									<button 
-										class="btn-duo btn-easy" 
-										on:click={() => submitGrade(1.0)} 
+									<button
+										class="btn-duo btn-easy"
+										on:click={() => submitGrade(1.0)}
 										disabled={isSubmitting}
 									>
 										Easy
@@ -150,10 +150,7 @@
 								</div>
 							</div>
 						{:else}
-							<button 
-								class="btn-duo btn-primary show-answer-btn" 
-								on:click={showAnswer}
-							>
+							<button class="btn-duo btn-primary show-answer-btn" on:click={showAnswer}>
 								Show Answer
 							</button>
 						{/if}
@@ -199,7 +196,7 @@
 		font-weight: 700;
 	}
 
-	:global(html[data-theme="dark"]) .review-counter {
+	:global(html[data-theme='dark']) .review-counter {
 		background-color: rgba(30, 58, 138, 0.5);
 		color: #bfdbfe;
 	}
@@ -230,7 +227,7 @@
 		height: 3rem;
 	}
 
-	:global(html[data-theme="dark"]) .success-icon {
+	:global(html[data-theme='dark']) .success-icon {
 		background-color: rgba(20, 83, 45, 0.3);
 	}
 
@@ -264,7 +261,7 @@
 		background-color: #f1f5f9;
 	}
 
-	:global(html[data-theme="dark"]) .progress-track {
+	:global(html[data-theme='dark']) .progress-track {
 		background-color: #1e293b;
 	}
 
@@ -318,7 +315,7 @@
 		font-weight: 700;
 	}
 
-	:global(html[data-theme="dark"]) .pos-badge {
+	:global(html[data-theme='dark']) .pos-badge {
 		background-color: #1e293b;
 		border-color: #334155;
 		color: #cbd5e1;
@@ -340,8 +337,14 @@
 	}
 
 	@keyframes fadeIn {
-		from { opacity: 0; transform: translateY(10px); }
-		to { opacity: 1; transform: translateY(0); }
+		from {
+			opacity: 0;
+			transform: translateY(10px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
 	}
 
 	.divider {
@@ -351,7 +354,7 @@
 	}
 
 	.divider::before {
-		content: "";
+		content: '';
 		position: absolute;
 		top: 50%;
 		left: 0;
@@ -395,7 +398,7 @@
 		font-size: 0.875rem;
 	}
 
-	:global(html[data-theme="dark"]) .meta-tag {
+	:global(html[data-theme='dark']) .meta-tag {
 		background-color: #1e293b;
 		color: #94a3b8;
 	}

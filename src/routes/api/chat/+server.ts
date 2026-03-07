@@ -36,9 +36,12 @@ export async function POST(event) {
 	// Create a new session if one doesn't exist
 	if (!currentSessionId) {
 		if (!persona || !language) {
-			return json({ error: 'Persona and language are required for a new session' }, { status: 400 });
+			return json(
+				{ error: 'Persona and language are required for a new session' },
+				{ status: 400 }
+			);
 		}
-		
+
 		currentSession = await prisma.conversationSession.create({
 			data: {
 				userId,
@@ -71,7 +74,7 @@ export async function POST(event) {
 		orderBy: { createdAt: 'asc' }
 	});
 
-	const chatMessages: ChatMessage[] = history.map(m => ({
+	const chatMessages: ChatMessage[] = history.map((m) => ({
 		role: m.role as 'user' | 'assistant',
 		content: m.content
 	}));
@@ -117,12 +120,12 @@ Return your response as a JSON object with the following structure:
 				const decoder = new TextDecoder();
 				let buffer = '';
 				let fullContent = '';
-				
+
 				try {
 					while (true) {
 						const { done, value } = await reader.read();
 						if (done) break;
-						
+
 						buffer += decoder.decode(value, { stream: true });
 						const lines = buffer.split('\n');
 						buffer = lines.pop() || '';
@@ -136,9 +139,7 @@ Return your response as a JSON object with the following structure:
 									if (content) {
 										fullContent += content;
 										controller.enqueue(
-											new TextEncoder().encode(
-												JSON.stringify({ type: 'chunk', content }) + '\n'
-											)
+											new TextEncoder().encode(JSON.stringify({ type: 'chunk', content }) + '\n')
 										);
 									}
 								} catch {
@@ -147,7 +148,7 @@ Return your response as a JSON object with the following structure:
 							}
 						}
 					}
-					
+
 					if (buffer.trim().startsWith('data: ') && buffer.trim() !== 'data: [DONE]') {
 						try {
 							const data = JSON.parse(buffer.trim().slice(6));
@@ -155,9 +156,7 @@ Return your response as a JSON object with the following structure:
 							if (content) {
 								fullContent += content;
 								controller.enqueue(
-									new TextEncoder().encode(
-										JSON.stringify({ type: 'chunk', content }) + '\n'
-									)
+									new TextEncoder().encode(JSON.stringify({ type: 'chunk', content }) + '\n')
 								);
 							}
 						} catch {
@@ -183,9 +182,7 @@ Return your response as a JSON object with the following structure:
 					});
 
 					controller.enqueue(
-						new TextEncoder().encode(
-							JSON.stringify({ type: 'done', message: aiMessage }) + '\n'
-						)
+						new TextEncoder().encode(JSON.stringify({ type: 'done', message: aiMessage }) + '\n')
 					);
 
 					controller.close();

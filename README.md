@@ -12,15 +12,15 @@ A German language learning app with spaced repetition, AI-powered lesson generat
 
 ## Environment Variables
 
-| Variable | Required | Description |
-|---|---|---|
-| `DATABASE_URL` | Yes | PostgreSQL connection string |
-| `AUTH_SECRET` | Yes | Secret used to sign Auth.js session tokens |
-| `AUTH_GOOGLE_ID` | No | Google OAuth client ID |
-| `AUTH_GOOGLE_SECRET` | No | Google OAuth client secret |
-| `DEFAULT_LLM_BASE_URL` | No | Base URL for the OpenAI-compatible API (users can also set their own) |
-| `DEFAULT_LLM_API_KEY` | No | API key for the default LLM endpoint |
-| `DEFAULT_LLM_MODEL` | No | Model name (defaults to `gpt-3.5-turbo`) |
+| Variable               | Required | Description                                                           |
+| ---------------------- | -------- | --------------------------------------------------------------------- |
+| `DATABASE_URL`         | Yes      | PostgreSQL connection string                                          |
+| `AUTH_SECRET`          | Yes      | Secret used to sign Auth.js session tokens                            |
+| `AUTH_GOOGLE_ID`       | No       | Google OAuth client ID                                                |
+| `AUTH_GOOGLE_SECRET`   | No       | Google OAuth client secret                                            |
+| `DEFAULT_LLM_BASE_URL` | No       | Base URL for the OpenAI-compatible API (users can also set their own) |
+| `DEFAULT_LLM_API_KEY`  | No       | API key for the default LLM endpoint                                  |
+| `DEFAULT_LLM_MODEL`    | No       | Model name (defaults to `gpt-3.5-turbo`)                              |
 
 ## Deployment
 

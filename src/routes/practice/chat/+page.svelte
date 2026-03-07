@@ -6,7 +6,7 @@
 	let sessionStarted = false;
 	let sessionId = '';
 	let persona = 'A friendly waiter at a café';
-	
+
 	$: language = $page.data.user?.activeLanguage?.name || 'German';
 	let message = '';
 	let isLoading = false;
@@ -22,7 +22,7 @@
 		'A confused tourist asking for directions',
 		'A seller at a local market',
 		'A coworker discussing a project',
-		'An old friend you haven\'t seen in years'
+		"An old friend you haven't seen in years"
 	];
 
 	function randomizeTopic() {
@@ -66,7 +66,7 @@
 
 		const userMessageText = message;
 		message = '';
-		
+
 		const tempUserMessage: ChatMessage = {
 			id: Date.now().toString(),
 			role: 'user',
@@ -102,7 +102,7 @@
 				content: ''
 			};
 			messages = [...messages, assistantMessage];
-			
+
 			const decoder = new TextDecoder();
 			let buffer = '';
 			let fullContent = '';
@@ -125,7 +125,7 @@
 							}
 						} else if (event.type === 'chunk') {
 							fullContent += event.content;
-							
+
 							// Try to extract just the reply part if we can see it
 							// The JSON looks like {"reply": "something", "correction": null}
 							const replyMatch = fullContent.match(/"reply"\s*:\s*"([^]*)/);
@@ -142,19 +142,20 @@
 									}
 								}
 								// Handle basic escaped quotes
-								extracted = extracted.replace(/\\"/g, '"').replace(/\\\\/g, '\\').replace(/\\n/g, '\n');
-								
-								messages = messages.map(m => 
-									m.id === assistantMessage.id 
-										? { ...m, content: extracted } 
-										: m
+								extracted = extracted
+									.replace(/\\"/g, '"')
+									.replace(/\\\\/g, '\\')
+									.replace(/\\n/g, '\n');
+
+								messages = messages.map((m) =>
+									m.id === assistantMessage.id ? { ...m, content: extracted } : m
 								);
 								scrollToBottom();
 							}
 						} else if (event.type === 'done') {
-							messages = messages.map(m => 
-								m.id === assistantMessage.id 
-									? { ...m, content: event.message.content, correction: event.message.correction } 
+							messages = messages.map((m) =>
+								m.id === assistantMessage.id
+									? { ...m, content: event.message.content, correction: event.message.correction }
 									: m
 							);
 							scrollToBottom();
@@ -170,21 +171,20 @@
 				try {
 					const event = JSON.parse(buffer.trim());
 					if (event.type === 'done') {
-						messages = messages.map(m => 
-							m.id === assistantMessage.id 
-								? { ...m, content: event.message.content, correction: event.message.correction } 
+						messages = messages.map((m) =>
+							m.id === assistantMessage.id
+								? { ...m, content: event.message.content, correction: event.message.correction }
 								: m
 						);
 						scrollToBottom();
 					}
 				} catch (err) {}
 			}
-
 		} catch (error: any) {
 			console.error(error);
 			toast.error(error.message || 'An error occurred.');
 			// Remove the optimistic message if it failed
-			messages = messages.filter(m => m.id !== tempUserMessage.id);
+			messages = messages.filter((m) => m.id !== tempUserMessage.id);
 		} finally {
 			isLoading = false;
 		}
@@ -220,7 +220,7 @@
 				content: ''
 			};
 			messages = [...messages, assistantMessage];
-			
+
 			const decoder = new TextDecoder();
 			let buffer = '';
 			let fullContent = '';
@@ -243,7 +243,7 @@
 							}
 						} else if (event.type === 'chunk') {
 							fullContent += event.content;
-							
+
 							// Try to extract just the reply part if we can see it
 							const replyMatch = fullContent.match(/"reply"\s*:\s*"([^]*)/);
 							if (replyMatch && replyMatch[1]) {
@@ -257,19 +257,20 @@
 										extracted = extracted.substring(0, endBraceIdx);
 									}
 								}
-								extracted = extracted.replace(/\\"/g, '"').replace(/\\\\/g, '\\').replace(/\\n/g, '\n');
-								
-								messages = messages.map(m => 
-									m.id === assistantMessage.id 
-										? { ...m, content: extracted } 
-										: m
+								extracted = extracted
+									.replace(/\\"/g, '"')
+									.replace(/\\\\/g, '\\')
+									.replace(/\\n/g, '\n');
+
+								messages = messages.map((m) =>
+									m.id === assistantMessage.id ? { ...m, content: extracted } : m
 								);
 								scrollToBottom();
 							}
 						} else if (event.type === 'done') {
-							messages = messages.map(m => 
-								m.id === assistantMessage.id 
-									? { ...m, content: event.message.content, correction: event.message.correction } 
+							messages = messages.map((m) =>
+								m.id === assistantMessage.id
+									? { ...m, content: event.message.content, correction: event.message.correction }
 									: m
 							);
 							scrollToBottom();
@@ -284,16 +285,15 @@
 				try {
 					const event = JSON.parse(buffer.trim());
 					if (event.type === 'done') {
-						messages = messages.map(m => 
-							m.id === assistantMessage.id 
-								? { ...m, content: event.message.content, correction: event.message.correction } 
+						messages = messages.map((m) =>
+							m.id === assistantMessage.id
+								? { ...m, content: event.message.content, correction: event.message.correction }
 								: m
 						);
 						scrollToBottom();
 					}
 				} catch (err) {}
 			}
-
 		} catch (error: any) {
 			console.error(error);
 			toast.error(error.message || 'An error occurred.');
@@ -323,8 +323,17 @@
 					<div class="label-row">
 						<label for="persona">Persona / Scenario</label>
 						<button class="randomize-btn" on:click={randomizeTopic} title="Randomize Topic">
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-								<path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/>
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<path
+									d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"
+								/>
 							</svg>
 						</button>
 					</div>
@@ -335,10 +344,7 @@
 						placeholder="e.g. A friendly waiter at a café"
 					/>
 				</div>
-				<button
-					on:click={startSession}
-					class="btn-duo btn-primary start-btn"
-				>
+				<button on:click={startSession} class="btn-duo btn-primary start-btn">
 					Start Conversation
 				</button>
 			</div>
@@ -352,13 +358,16 @@
 					<span class="persona-lang">{language}</span>
 				</div>
 				<button
-					on:click={() => { sessionStarted = false; sessionId = ''; }}
+					on:click={() => {
+						sessionStarted = false;
+						sessionId = '';
+					}}
 					class="end-session-btn"
 				>
 					End Session
 				</button>
 			</div>
-			
+
 			<!-- Messages Area -->
 			<div class="messages-area" bind:this={chatContainer}>
 				<div class="messages-list">
@@ -366,28 +375,36 @@
 						<div class="empty-state">
 							<div class="wave">👋</div>
 							<p>Start the conversation! Introduce yourself or say hello.</p>
-							<button 
-								on:click={startAIConversation} 
-								class="ai-start-btn"
-								disabled={isLoading}
-							>
+							<button on:click={startAIConversation} class="ai-start-btn" disabled={isLoading}>
 								Make the AI ask the first question
 							</button>
 						</div>
 					{/if}
-					
+
 					{#each messages as msg}
 						<div class="message-row {msg.role === 'user' ? 'row-user' : 'row-assistant'}">
-							<div class="message-content {msg.role === 'user' ? 'content-user' : 'content-assistant'}">
+							<div
+								class="message-content {msg.role === 'user' ? 'content-user' : 'content-assistant'}"
+							>
 								<div class="bubble {msg.role === 'user' ? 'bubble-user' : 'bubble-assistant'}">
 									<p>{msg.content}</p>
 								</div>
-								
+
 								{#if msg.correction}
 									<div class="correction-box">
 										<div class="correction-header">
-											<svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-												<path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+											<svg
+												class="icon"
+												fill="none"
+												viewBox="0 0 24 24"
+												stroke="currentColor"
+												stroke-width="2"
+											>
+												<path
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+												/>
 											</svg>
 											Correction
 										</div>
@@ -397,7 +414,7 @@
 							</div>
 						</div>
 					{/each}
-					
+
 					{#if isLoading}
 						<div class="message-row row-assistant">
 							<div class="bubble bubble-assistant typing-indicator">
@@ -422,13 +439,19 @@
 							disabled={isLoading}
 						></textarea>
 					</div>
-					<button
-						on:click={sendMessage}
-						disabled={isLoading || !message.trim()}
-						class="send-btn"
-					>
-						<svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-							<path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+					<button on:click={sendMessage} disabled={isLoading || !message.trim()} class="send-btn">
+						<svg
+							class="icon"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+							stroke-width="2.5"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+							/>
 						</svg>
 					</button>
 				</div>
@@ -510,7 +533,9 @@
 		color: #64748b;
 		padding: 0.25rem;
 		border-radius: 0.375rem;
-		transition: color 0.2s, background-color 0.2s;
+		transition:
+			color 0.2s,
+			background-color 0.2s;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -526,7 +551,7 @@
 		height: 1.25rem;
 	}
 
-	:global(html[data-theme="dark"]) .randomize-btn:hover {
+	:global(html[data-theme='dark']) .randomize-btn:hover {
 		background-color: #334155;
 	}
 
@@ -645,13 +670,13 @@
 		cursor: not-allowed;
 	}
 
-	:global(html[data-theme="dark"]) .ai-start-btn {
+	:global(html[data-theme='dark']) .ai-start-btn {
 		background-color: #1e293b;
 		color: #60a5fa;
 		border-color: #3b82f6;
 	}
 
-	:global(html[data-theme="dark"]) .ai-start-btn:hover:not(:disabled) {
+	:global(html[data-theme='dark']) .ai-start-btn:hover:not(:disabled) {
 		background-color: #334155;
 	}
 
@@ -745,8 +770,14 @@
 	}
 
 	@keyframes fadeIn {
-		from { opacity: 0; transform: translateY(-10px); }
-		to { opacity: 1; transform: translateY(0); }
+		from {
+			opacity: 0;
+			transform: translateY(-10px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
 	}
 
 	.typing-indicator {
@@ -763,12 +794,21 @@
 		animation: bounce 1s infinite;
 	}
 
-	.dot:nth-child(2) { animation-delay: 0.15s; }
-	.dot:nth-child(3) { animation-delay: 0.3s; }
+	.dot:nth-child(2) {
+		animation-delay: 0.15s;
+	}
+	.dot:nth-child(3) {
+		animation-delay: 0.3s;
+	}
 
 	@keyframes bounce {
-		0%, 100% { transform: translateY(0); }
-		50% { transform: translateY(-25%); }
+		0%,
+		100% {
+			transform: translateY(0);
+		}
+		50% {
+			transform: translateY(-25%);
+		}
 	}
 
 	.input-area {
@@ -801,7 +841,9 @@
 		font-weight: 500;
 		color: var(--input-text, #0f172a);
 		outline: none;
-		transition: border-color 0.2s, background-color 0.2s;
+		transition:
+			border-color 0.2s,
+			background-color 0.2s;
 		min-height: 52px;
 		max-height: 8rem;
 		box-sizing: border-box;
@@ -829,7 +871,10 @@
 		background-color: #3b82f6;
 		color: white;
 		box-shadow: 0 4px 0 #2563eb;
-		transition: transform 0.1s, box-shadow 0.1s, background-color 0.2s;
+		transition:
+			transform 0.1s,
+			box-shadow 0.1s,
+			background-color 0.2s;
 		border: none;
 		cursor: pointer;
 	}
@@ -854,23 +899,23 @@
 		height: 1.5rem;
 		width: 1.5rem;
 	}
-	
-	:global(html[data-theme="dark"]) .end-session-btn {
+
+	:global(html[data-theme='dark']) .end-session-btn {
 		background-color: #334155;
 		color: #cbd5e1;
 	}
-	
-	:global(html[data-theme="dark"]) .end-session-btn:hover {
+
+	:global(html[data-theme='dark']) .end-session-btn:hover {
 		background-color: #475569;
 	}
-	
-	:global(html[data-theme="dark"]) .correction-box {
+
+	:global(html[data-theme='dark']) .correction-box {
 		border-color: rgba(124, 45, 18, 0.5);
 		background-color: rgba(124, 45, 18, 0.2);
 		color: #fed7aa;
 	}
-	
-	:global(html[data-theme="dark"]) .correction-header {
+
+	:global(html[data-theme='dark']) .correction-header {
 		color: #fb923c;
 	}
 </style>

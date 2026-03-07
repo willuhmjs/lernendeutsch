@@ -1,8 +1,25 @@
 import { prisma } from './prisma';
 
 type SrsState = 'UNSEEN' | 'LEARNING' | 'KNOWN' | 'MASTERED';
-type Vocabulary = { id: string; lemma: string; meaning: string | null; partOfSpeech: string | null; gender: 'der' | 'die' | 'das' | null; plural: string | null; metadata: import('@prisma/client').Prisma.JsonValue | null; createdAt: Date; updatedAt: Date };
-type GrammarRule = { id: string; title: string; description: string | null; level: string; createdAt: Date; updatedAt: Date };
+type Vocabulary = {
+	id: string;
+	lemma: string;
+	meaning: string | null;
+	partOfSpeech: string | null;
+	gender: 'der' | 'die' | 'das' | null;
+	plural: string | null;
+	metadata: import('@prisma/client').Prisma.JsonValue | null;
+	createdAt: Date;
+	updatedAt: Date;
+};
+type GrammarRule = {
+	id: string;
+	title: string;
+	description: string | null;
+	level: string;
+	createdAt: Date;
+	updatedAt: Date;
+};
 
 export type GameMode = 'native-to-target' | 'target-to-native' | 'fill-blank' | 'multiple-choice';
 
@@ -41,8 +58,12 @@ export function buildEvaluationPrompt(
 ): { systemPrompt: string; userMessage: string; idMap: Record<string, string> } {
 	// Build short ID maps so the LLM sees tiny tokens like "v0" instead of full UUIDs
 	const idMap: Record<string, string> = {}; // short -> real
-	targetedVocabulary.forEach((v, i) => { idMap[`v${i}`] = v.id; });
-	targetedGrammar.forEach((g, i) => { idMap[`g${i}`] = g.id; });
+	targetedVocabulary.forEach((v, i) => {
+		idMap[`v${i}`] = v.id;
+	});
+	targetedGrammar.forEach((g, i) => {
+		idMap[`g${i}`] = g.id;
+	});
 
 	const vocabList = targetedVocabulary.map((v, i) => `- ${v.lemma} (ID: v${i})`).join('\n');
 	const grammarList = targetedGrammar.map((g, i) => `- ${g.title} (ID: g${i})`).join('\n');
@@ -191,20 +212,25 @@ JSON format:
  * Parses raw LLM content into a typed EvaluationPayload.
  */
 export function parseEvaluationResponse(content: string): EvaluationPayload {
-	const cleanedContent = content.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
+	const cleanedContent = content
+		.replace(/^```json\s*/i, '')
+		.replace(/```\s*$/i, '')
+		.trim();
 	const payload = JSON.parse(cleanedContent);
 
 	// Ensure backwards compatibility if LLM returns "success" (boolean) instead of "score"
 	const mapItem = (item: { id: string; score?: number; success?: boolean }) => ({
 		id: item.id,
-		score: typeof item.score === 'number' ? item.score : (item.success ? 1.0 : 0.0)
+		score: typeof item.score === 'number' ? item.score : item.success ? 1.0 : 0.0
 	});
 
 	const result: EvaluationPayload = {
 		globalScore: payload.globalScore ?? 0,
 		vocabularyUpdates: (payload.vocabularyUpdates || []).map(mapItem),
 		grammarUpdates: (payload.grammarUpdates || []).map(mapItem),
-		extraVocabLemmas: (payload.extraVocabLemmas || []).map((l: string) => l.replace(/^[.,!?;:'"()[\]{}-]+|[.,!?;:'"()[\]{}-]+$/g, '')),
+		extraVocabLemmas: (payload.extraVocabLemmas || []).map((l: string) =>
+			l.replace(/^[.,!?;:'"()[\]{}-]+|[.,!?;:'"()[\]{}-]+$/g, '')
+		),
 		feedback: payload.feedback || '',
 		feedbackEnglish: payload.feedbackEnglish || ''
 	};
@@ -214,11 +240,11 @@ export function parseEvaluationResponse(content: string): EvaluationPayload {
 	// match the global signal (e.g. capitalize-only errors scored at 0 despite 95% global).
 	if (result.globalScore >= 0.8) {
 		const minItemScore = 0.5;
-		result.vocabularyUpdates = result.vocabularyUpdates.map(u => ({
+		result.vocabularyUpdates = result.vocabularyUpdates.map((u) => ({
 			...u,
 			score: Math.max(u.score, minItemScore)
 		}));
-		result.grammarUpdates = result.grammarUpdates.map(u => ({
+		result.grammarUpdates = result.grammarUpdates.map((u) => ({
 			...u,
 			score: Math.max(u.score, minItemScore)
 		}));
@@ -241,12 +267,17 @@ export function mapLevelToElo(level: string): number {
 
 const K_FACTOR = 256;
 
-function calculateNewElo(currentElo: number, score: number, baseDifficulty: number, gameMode: string): number {
+function calculateNewElo(
+	currentElo: number,
+	score: number,
+	baseDifficulty: number,
+	gameMode: string
+): number {
 	const expectedScore = 1 / (1 + Math.pow(10, (baseDifficulty - currentElo) / 400));
-	
+
 	let kMultiplier = 1.0;
 	if (gameMode === 'multiple-choice') kMultiplier = 0.5; // easier, less reward/penalty
-	if (gameMode === 'native-to-target') kMultiplier = 1.2;        // harder, more reward/penalty
+	if (gameMode === 'native-to-target') kMultiplier = 1.2; // harder, more reward/penalty
 
 	const effectiveK = K_FACTOR * kMultiplier;
 	return currentElo + effectiveK * (score - expectedScore);
@@ -323,7 +354,11 @@ export async function updateSrsMetrics(userId: string, vocabularyId: string, sco
  * Updates the user's database records based on the evaluation payload.
  * Adjusts Elo ratings and SRS states for targeted Vocabulary and Grammar rules.
  */
-export async function updateEloRatings(userId: string, payload: EvaluationPayload, gameMode: string = 'native-to-target') {
+export async function updateEloRatings(
+	userId: string,
+	payload: EvaluationPayload,
+	gameMode: string = 'native-to-target'
+) {
 	console.log(`Updating Elos for user ${userId} with payload:`, JSON.stringify(payload, null, 2));
 	for (const vocabUpdate of payload.vocabularyUpdates || []) {
 		try {

@@ -11,7 +11,7 @@ export const authRateLimiter = new RateLimiter({
 });
 
 export const generateLessonRateLimiter = new RateLimiter({
-	IP: [10, 'm'],   // 10 requests per minute per IP
+	IP: [10, 'm'], // 10 requests per minute per IP
 	IPUA: [200, 'd'] // 200 requests per day per IP
 });
 

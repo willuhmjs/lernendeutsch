@@ -26,7 +26,9 @@ export async function initLoadTimeStat(): Promise<void> {
 			samples = settings.loadTimeSamples.slice(-MAX_SAMPLES);
 		}
 		initialized = true;
-		console.log(`[loadTimeStat] initialized with ${samples.length} stored sample(s), avg: ${getAverageLoadTime()}ms`);
+		console.log(
+			`[loadTimeStat] initialized with ${samples.length} stored sample(s), avg: ${getAverageLoadTime()}ms`
+		);
 	} catch (err) {
 		console.error('[loadTimeStat] failed to load from DB, starting fresh:', err);
 		initialized = true;
@@ -40,7 +42,9 @@ export async function recordLoadTime(ms: number): Promise<void> {
 	}
 
 	const avg = getAverageLoadTime();
-	console.log(`[loadTimeStat] recorded load time: ${ms}ms | rolling avg (${samples.length}/${MAX_SAMPLES} samples): ${avg}ms`);
+	console.log(
+		`[loadTimeStat] recorded load time: ${ms}ms | rolling avg (${samples.length}/${MAX_SAMPLES} samples): ${avg}ms`
+	);
 
 	try {
 		await prisma.siteSettings.upsert({

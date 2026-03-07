@@ -10,7 +10,16 @@ export const load: PageServerLoad = async ({ locals }) => {
 		throw redirect(303, '/');
 	}
 
-	const [users, settings, languages, pendingVocab, totalUsers, activeUsers, totalClasses, totalVocabWords] = await Promise.all([
+	const [
+		users,
+		settings,
+		languages,
+		pendingVocab,
+		totalUsers,
+		activeUsers,
+		totalClasses,
+		totalVocabWords
+	] = await Promise.all([
 		prisma.user.findMany({
 			orderBy: { createdAt: 'desc' },
 			select: {
@@ -107,17 +116,17 @@ export const actions: Actions = {
 		if (!locals.user || locals.user.role !== 'ADMIN') {
 			return fail(403, { message: 'Unauthorized' });
 		}
-		
+
 		const data = await request.formData();
 		const llmEndpoint = data.get('llmEndpoint')?.toString() || '';
 		const llmApiKey = data.get('llmApiKey')?.toString() || '';
 		const llmModel = data.get('llmModel')?.toString() || '';
-		
+
 		try {
-			await updateSiteSettings({ 
-				llmEndpoint: llmEndpoint || null, 
+			await updateSiteSettings({
+				llmEndpoint: llmEndpoint || null,
 				llmApiKey: llmApiKey || null,
-				llmModel: llmModel || null 
+				llmModel: llmModel || null
 			});
 			return { success: true, message: 'LLM settings updated.' };
 		} catch (error) {

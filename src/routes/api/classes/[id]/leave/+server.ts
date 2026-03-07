@@ -27,7 +27,13 @@ export const POST: RequestHandler = async ({ params, locals }) => {
 				where: { classId, role: 'TEACHER' }
 			});
 			if (teacherCount <= 1) {
-				return json({ error: 'Cannot leave: you are the only teacher. Promote another member first or delete the class.' }, { status: 400 });
+				return json(
+					{
+						error:
+							'Cannot leave: you are the only teacher. Promote another member first or delete the class.'
+					},
+					{ status: 400 }
+				);
 			}
 		}
 

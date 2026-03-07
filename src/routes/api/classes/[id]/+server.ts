@@ -18,7 +18,10 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
 		});
 
 		if ((!member || member.role !== 'TEACHER') && locals.user.role !== 'ADMIN') {
-			return json({ error: 'Unauthorized: Only teachers or admins can delete a class' }, { status: 403 });
+			return json(
+				{ error: 'Unauthorized: Only teachers or admins can delete a class' },
+				{ status: 403 }
+			);
 		}
 
 		await prisma.class.delete({

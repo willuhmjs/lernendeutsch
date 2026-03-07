@@ -8,7 +8,7 @@
 	let loading = true;
 	let joined = false;
 	let currentUserId = '';
-	
+
 	let currentQuestionData: any = null;
 
 	const classId = $page.params.id;
@@ -17,17 +17,17 @@
 		try {
 			const res = await fetch(`/api/classes/${classId}/live-session`);
 			const data = await res.json();
-			
+
 			if (data.userId) currentUserId = data.userId;
 
 			if (data.session) {
 				session = data.session;
 				loading = false;
-				
+
 				if (session.currentQuestion) {
 					try {
 						currentQuestionData = JSON.parse(session.currentQuestion);
-					} catch(e) {
+					} catch (e) {
 						currentQuestionData = { text: session.currentQuestion, options: [] };
 					}
 				}
@@ -63,7 +63,7 @@
 				body: JSON.stringify({ action: 'answer', isCorrect })
 			});
 			if (!res.ok) throw new Error('Failed to submit answer');
-			
+
 			fetchSession();
 			toast.success(isCorrect ? 'Correct!' : 'Incorrect!');
 		} catch (error: any) {
@@ -94,29 +94,28 @@
 	{:else if !joined}
 		<div class="battle-card">
 			<h2 class="card-title mb-large">Battle is ready!</h2>
-			<button class="btn-primary w-full btn-large" on:click={joinSession}>
-				Join Now
-			</button>
+			<button class="btn-primary w-full btn-large" on:click={joinSession}> Join Now </button>
 		</div>
 	{:else}
 		<div class="battle-card relative overflow-hidden">
 			<!-- Simple Background Animation -->
 			<div class="bg-gradient"></div>
-			
+
 			{#if session.status === 'waiting'}
 				<h2 class="card-title">Waiting for teacher to start...</h2>
 				<p class="card-desc mb-large">Get ready!</p>
 				<div class="spinner"></div>
 			{:else if session.status === 'active'}
-				
-				{@const me = session.participants?.find((p: any) => p.userId === currentUserId)} 
-				
+				{@const me = session.participants?.find((p: any) => p.userId === currentUserId)}
+
 				<div class="score-board">
 					<p class="score-text">My Score: <span class="score-value">{me?.score || 0}</span></p>
 				</div>
 
-				<h2 class="question-title">{currentQuestionData?.text || session.currentQuestion || "Get Ready!"}</h2>
-				
+				<h2 class="question-title">
+					{currentQuestionData?.text || session.currentQuestion || 'Get Ready!'}
+				</h2>
+
 				{#if me?.hasAnswered}
 					<div class="answered-state">
 						<h3>Answer submitted!</h3>
@@ -126,12 +125,15 @@
 				{:else if currentQuestionData?.options && currentQuestionData.options.length > 0}
 					<div class="options-grid">
 						{#each currentQuestionData.options as opt, i}
-							<button class={`option-btn option-${opt.id}`} on:click={() => submitAnswer(opt.isCorrect)}>
+							<button
+								class={`option-btn option-${opt.id}`}
+								on:click={() => submitAnswer(opt.isCorrect)}
+							>
 								{opt.id.toUpperCase()}: {opt.text}
 							</button>
 						{/each}
 					</div>
-					
+
 					<p class="hint-text">Select the correct translation. Faster answers give more points!</p>
 				{/if}
 			{/if}
@@ -160,11 +162,12 @@
 	}
 
 	@keyframes pulse {
-		0%, 100% {
+		0%,
+		100% {
 			opacity: 1;
 		}
 		50% {
-			opacity: .5;
+			opacity: 0.5;
 		}
 	}
 
@@ -178,7 +181,9 @@
 		color: #0f172a;
 		padding: 2rem;
 		border-radius: 1rem;
-		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+		box-shadow:
+			0 10px 15px -3px rgba(0, 0, 0, 0.1),
+			0 4px 6px -2px rgba(0, 0, 0, 0.05);
 		border: 1px solid #e2e8f0;
 	}
 
@@ -205,7 +210,9 @@
 		border-radius: 0.5rem;
 		cursor: pointer;
 		font-weight: 700;
-		transition: background-color 0.2s, transform 0.1s;
+		transition:
+			background-color 0.2s,
+			transform 0.1s;
 		box-shadow: 0 4px 0 #2563eb;
 	}
 
@@ -297,7 +304,9 @@
 		border: none;
 		border-radius: 0.75rem;
 		cursor: pointer;
-		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+		box-shadow:
+			0 4px 6px -1px rgba(0, 0, 0, 0.1),
+			0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		transition: transform 0.2s;
 	}
 
@@ -309,15 +318,35 @@
 		transform: scale(0.98);
 	}
 
-	.option-a { background-color: #ef4444; box-shadow: 0 4px 0 #b91c1c; }
-	.option-b { background-color: #3b82f6; box-shadow: 0 4px 0 #1d4ed8; }
-	.option-c { background-color: #eab308; box-shadow: 0 4px 0 #a16207; }
-	.option-d { background-color: #22c55e; box-shadow: 0 4px 0 #15803d; }
-	
-	.option-a:active { box-shadow: 0 2px 0 #b91c1c; }
-	.option-b:active { box-shadow: 0 2px 0 #1d4ed8; }
-	.option-c:active { box-shadow: 0 2px 0 #a16207; }
-	.option-d:active { box-shadow: 0 2px 0 #15803d; }
+	.option-a {
+		background-color: #ef4444;
+		box-shadow: 0 4px 0 #b91c1c;
+	}
+	.option-b {
+		background-color: #3b82f6;
+		box-shadow: 0 4px 0 #1d4ed8;
+	}
+	.option-c {
+		background-color: #eab308;
+		box-shadow: 0 4px 0 #a16207;
+	}
+	.option-d {
+		background-color: #22c55e;
+		box-shadow: 0 4px 0 #15803d;
+	}
+
+	.option-a:active {
+		box-shadow: 0 2px 0 #b91c1c;
+	}
+	.option-b:active {
+		box-shadow: 0 2px 0 #1d4ed8;
+	}
+	.option-c:active {
+		box-shadow: 0 2px 0 #a16207;
+	}
+	.option-d:active {
+		box-shadow: 0 2px 0 #15803d;
+	}
 
 	.hint-text {
 		font-size: 0.875rem;

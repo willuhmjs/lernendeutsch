@@ -13,7 +13,7 @@ const BEGINNER_GRAMMAR_TITLES = [
 	'Sein, Haben, Werden - Conjugation',
 	'Definite Articles (Nominative)',
 	'Personal Pronouns (Nominative)',
-	'Word Order - Main Clause (Hauptsatz)',
+	'Word Order - Main Clause (Hauptsatz)'
 ];
 
 export async function POST({ locals }: any) {
@@ -61,7 +61,7 @@ export async function POST({ locals }: any) {
 						vocabularyId: vocabulary.id
 					}
 				},
-				update: {},  // Don't overwrite if already exists
+				update: {}, // Don't overwrite if already exists
 				create: {
 					userId,
 					vocabularyId: vocabulary.id,
@@ -89,7 +89,7 @@ export async function POST({ locals }: any) {
 						grammarRuleId: grammarRule.id
 					}
 				},
-				update: {},  // Don't overwrite if already exists
+				update: {}, // Don't overwrite if already exists
 				create: {
 					userId,
 					grammarRuleId: grammarRule.id,
@@ -100,14 +100,17 @@ export async function POST({ locals }: any) {
 			grammarSeeded++;
 		}
 
-		console.log(`[Beginner Onboarding] User ${userId}: seeded ${vocabSeeded} vocab, ${grammarSeeded} grammar as LEARNING at Elo ${startingElo}`);
+		console.log(
+			`[Beginner Onboarding] User ${userId}: seeded ${vocabSeeded} vocab, ${grammarSeeded} grammar as LEARNING at Elo ${startingElo}`
+		);
 
 		return json({
 			success: true,
 			level: 'A1',
 			vocabSeeded,
 			grammarSeeded,
-			message: 'Welcome! We\'ve set you up as a complete beginner. Your lessons will start with the very basics — greetings, pronouns, and simple sentences. Let\'s begin your language journey!'
+			message:
+				"Welcome! We've set you up as a complete beginner. Your lessons will start with the very basics — greetings, pronouns, and simple sentences. Let's begin your language journey!"
 		});
 	} catch (error: any) {
 		console.error('Error in beginner onboarding API:', error);

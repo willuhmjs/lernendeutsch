@@ -20,7 +20,14 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 		prisma.vocabulary.findMany({
 			where: { languageId },
 			orderBy: [{ partOfSpeech: 'asc' }, { lemma: 'asc' }],
-			select: { lemma: true, meaning: true, partOfSpeech: true, gender: true, plural: true, isBeginner: true }
+			select: {
+				lemma: true,
+				meaning: true,
+				partOfSpeech: true,
+				gender: true,
+				plural: true,
+				isBeginner: true
+			}
 		}),
 		prisma.grammarRule.findMany({
 			where: { languageId },
@@ -34,7 +41,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 	const exportData = {
 		language: { code: language.code, name: language.name, flag: language.flag },
 		exportedAt: new Date().toISOString(),
-		vocabulary: vocabulary.map(v => ({
+		vocabulary: vocabulary.map((v) => ({
 			lemma: v.lemma,
 			meaning: v.meaning,
 			partOfSpeech: v.partOfSpeech,
@@ -42,11 +49,11 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 			plural: v.plural,
 			isBeginner: v.isBeginner
 		})),
-		grammarRules: grammarRules.map(g => ({
+		grammarRules: grammarRules.map((g) => ({
 			title: g.title,
 			description: g.description,
 			level: g.level,
-			dependencies: g.dependencies.map(d => d.title)
+			dependencies: g.dependencies.map((d) => d.title)
 		}))
 	};
 
@@ -79,8 +86,10 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	const language = await prisma.language.findUnique({ where: { id: languageId } });
 	if (!language) return json({ error: 'Language not found' }, { status: 404 });
 
-	let vocabCreated = 0, vocabUpdated = 0;
-	let grammarCreated = 0, grammarUpdated = 0;
+	let vocabCreated = 0,
+		vocabUpdated = 0;
+	let grammarCreated = 0,
+		grammarUpdated = 0;
 
 	// --- Vocabulary upsert ---
 	if (Array.isArray(vocabulary)) {
@@ -159,7 +168,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 			if (depRules.length > 0) {
 				await prisma.grammarRule.update({
 					where: { id: rule.id },
-					data: { dependencies: { set: depRules.map(d => ({ id: d.id })) } }
+					data: { dependencies: { set: depRules.map((d) => ({ id: d.id })) } }
 				});
 			}
 		}
@@ -182,7 +191,8 @@ export const DELETE: RequestHandler = async ({ locals, url }) => {
 	const scope = url.searchParams.get('scope') ?? 'all';
 	if (!languageId) return json({ error: 'languageId is required' }, { status: 400 });
 
-	let vocabDeleted = 0, grammarDeleted = 0;
+	let vocabDeleted = 0,
+		grammarDeleted = 0;
 
 	if (scope === 'vocab' || scope === 'all') {
 		const { count } = await prisma.vocabulary.deleteMany({ where: { languageId } });

@@ -26,10 +26,7 @@ export const actions: Actions = {
 
 		const user = await prisma.user.findFirst({
 			where: {
-				OR: [
-					{ email: identifier },
-					{ username: identifier }
-				]
+				OR: [{ email: identifier }, { username: identifier }]
 			}
 		});
 

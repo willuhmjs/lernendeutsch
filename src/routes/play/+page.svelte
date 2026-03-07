@@ -1,4 +1,4 @@
-r<script lang="ts">
+<script lang="ts">
 	import { onMount, onDestroy, tick } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
 	import toast from 'svelte-french-toast';
@@ -13,14 +13,17 @@ r<script lang="ts">
 
 	onMount(async () => {
 		try {
-			if ('keyboard' in navigator && typeof (navigator as any).keyboard?.getLayoutMap === 'function') {
+			if (
+				'keyboard' in navigator &&
+				typeof (navigator as any).keyboard?.getLayoutMap === 'function'
+			) {
 				const layoutMap = await (navigator as any).keyboard.getLayoutMap();
 				// Keyboard Layout Map doesn't directly expose locale, but we can check navigator.language as primary signal
 			}
 		} catch {}
 		// Fall back to navigator.language / navigator.languages
-		const langs = [...(navigator.languages || []), navigator.language].map(l => l.toLowerCase());
-		if (langs.some(l => l === 'en-us' || l.startsWith('en-us'))) {
+		const langs = [...(navigator.languages || []), navigator.language].map((l) => l.toLowerCase());
+		if (langs.some((l) => l === 'en-us' || l.startsWith('en-us'))) {
 			englishFlag = '🇺🇸';
 		}
 	});
@@ -41,7 +44,11 @@ r<script lang="ts">
 	// Assignment context
 	const assignment = data.assignment ?? null;
 	let assignmentProgress = data.assignmentScore
-		? { score: data.assignmentScore.score, targetScore: assignment?.targetScore ?? 0, passed: data.assignmentScore.passed }
+		? {
+				score: data.assignmentScore.score,
+				targetScore: assignment?.targetScore ?? 0,
+				passed: data.assignmentScore.passed
+			}
 		: assignment
 			? { score: 0, targetScore: assignment.targetScore, passed: false }
 			: null;
@@ -74,54 +81,54 @@ r<script lang="ts">
 		'Thinking in your target language (even simple thoughts) builds fluency faster than translation.',
 		'The forgetting curve shows you lose ~70% of new info in 24 hours without review.',
 		'Writing by hand activates more brain regions than typing, boosting word retention.',
-		'Immersion doesn\'t require travel — change your phone\'s language for instant practice.',
-		'You need roughly 3,000 words to understand ~95% of everyday conversation in most languages.',
+		"Immersion doesn't require travel — change your phone's language for instant practice.",
+		'You need roughly 3,000 words to understand ~95% of everyday conversation in most languages.'
 	];
 
 	const LANG_TIPS: Record<string, string[]> = {
-		'German': [
+		German: [
 			'All nouns in German are capitalized — even in the middle of a sentence.',
-			'The word \'Schadenfreude\' has no direct English equivalent: joy at others\' misfortune.',
-			'German compound nouns can be infinitely long — \'Donaudampfschifffahrtsgesellschaft\' is a real word.',
-			'\'Fingerspitzengefühl\' means \'fingertip feeling\' — a delicate touch or sensitivity.',
+			"The word 'Schadenfreude' has no direct English equivalent: joy at others' misfortune.",
+			"German compound nouns can be infinitely long — 'Donaudampfschifffahrtsgesellschaft' is a real word.",
+			"'Fingerspitzengefühl' means 'fingertip feeling' — a delicate touch or sensitivity.",
 			'German has formal (Sie) and informal (du) ways of addressing people.',
 			'In German main clauses, the conjugated verb always sits in the second position.',
-			'\'Weltschmerz\' meaning world-weariness was coined by Jean Paul, a German author.',
+			"'Weltschmerz' meaning world-weariness was coined by Jean Paul, a German author.",
 			'German and English share about 60% of their vocabulary roots.',
 			'The German alphabet adds 4 extra letters: ä, ö, ü, and ß.',
-			'\'Doch\' can contradict a negative question — like \'Oh yes it is!\' in English.',
+			"'Doch' can contradict a negative question — like 'Oh yes it is!' in English.",
 			'Modal verbs (können, müssen, dürfen…) push the main verb to the very end of the clause.',
 			'German has 4 grammatical cases: Nominative, Accusative, Dative, and Genitive.',
 			'German word order in subordinate clauses sends the verb to the very end.',
-			'\'Gemütlichkeit\' describes a feeling of warmth, coziness, and belonging — untranslatable in English.',
-			'The longest German word in everyday use is \'Rechtsschutzversicherungsgesellschaften\' (legal insurance companies).',
-			'German separable verbs split apart in main clauses — \'anfangen\' becomes \'Ich fange an.\'',
-			'The German \'ch\' sound doesn\'t exist in English — it\'s like a soft hiss from the roof of your mouth.',
+			"'Gemütlichkeit' describes a feeling of warmth, coziness, and belonging — untranslatable in English.",
+			"The longest German word in everyday use is 'Rechtsschutzversicherungsgesellschaften' (legal insurance companies).",
+			"German separable verbs split apart in main clauses — 'anfangen' becomes 'Ich fange an.'",
+			"The German 'ch' sound doesn't exist in English — it's like a soft hiss from the roof of your mouth.",
 			'In German, adjective endings change based on case, gender, and whether an article is present.',
-			'\'Kummerspeck\' literally means \'grief bacon\' — weight gained from emotional eating.',
+			"'Kummerspeck' literally means 'grief bacon' — weight gained from emotional eating.",
 			'German uses three genders: der (masculine), die (feminine), and das (neuter).',
-			'The Dative case is used after prepositions like mit, bei, nach, seit, von, zu, and aus.',
+			'The Dative case is used after prepositions like mit, bei, nach, seit, von, zu, and aus.'
 		],
-		'Spanish': [
+		Spanish: [
 			'Spanish is the 2nd most spoken native language in the world with ~500 million speakers.',
-			'Spanish has two verbs for \'to be\': ser (permanent) and estar (temporary).',
+			"Spanish has two verbs for 'to be': ser (permanent) and estar (temporary).",
 			'In Spanish, nouns have grammatical gender — either masculine or feminine.',
 			'The ¡ and ¿ marks at the start of sentences are unique to Spanish.',
 			'Spanish is spoken in over 20 countries across 4 continents.',
-			'The subjunctive mood in Spanish expresses doubt, wishes, and hypotheticals — and it\'s used constantly.',
-			'\'Sobremesa\' is the time spent chatting at the table after a meal — there\'s no English word for it.',
-			'Spanish \'ll\' and \'y\' sound the same in most dialects — a phenomenon called yeísmo.',
+			"The subjunctive mood in Spanish expresses doubt, wishes, and hypotheticals — and it's used constantly.",
+			"'Sobremesa' is the time spent chatting at the table after a meal — there's no English word for it.",
+			"Spanish 'll' and 'y' sound the same in most dialects — a phenomenon called yeísmo.",
 			'The letter ñ is unique to Spanish and represents a palatal nasal sound.',
-			'In Spanish, adjectives usually come after the noun: \'casa blanca\' not \'blanca casa.\'',
-			'\'Empalagar\' means to feel sick from eating too much of something sweet.',
+			"In Spanish, adjectives usually come after the noun: 'casa blanca' not 'blanca casa.'",
+			"'Empalagar' means to feel sick from eating too much of something sweet.",
 			'The Spanish Royal Academy (RAE) officially regulates the language since 1713.',
 			'Spanish has about 10 million words, but you only need ~2,000 for everyday conversation.',
-			'The word \'ojalá\' comes from Arabic (inshallah) and means \'hopefully\' or \'God willing.\'',
-			'Ser vs. estar: \'Estoy aburrido\' = I am bored, but \'Soy aburrido\' = I am boring!',
-			'Spanish uses the personal \'a\' before direct objects that are people: \'Veo a María.\'',
-			'\'Madrugada\' refers to the wee hours between midnight and dawn — a single word English lacks.',
+			"The word 'ojalá' comes from Arabic (inshallah) and means 'hopefully' or 'God willing.'",
+			"Ser vs. estar: 'Estoy aburrido' = I am bored, but 'Soy aburrido' = I am boring!",
+			"Spanish uses the personal 'a' before direct objects that are people: 'Veo a María.'",
+			"'Madrugada' refers to the wee hours between midnight and dawn — a single word English lacks."
 		],
-		'French': [
+		French: [
 			'French has two genders for nouns: masculine and feminine.',
 			'Adjectives in French usually come after the noun they describe.',
 			'The letter "h" is usually silent in French.',
@@ -131,7 +138,7 @@ r<script lang="ts">
 			'Many English words end in -tion because they were borrowed directly from French.',
 			'The word "voilà" means "there it is" or "here you go" and is widely used.',
 			'French has distinct formal (vous) and informal (tu) pronouns for "you".',
-			'Numbers from 70 to 99 are counted in a unique way in French (e.g., 80 is quatre-vingts, or four twenties).',
+			'Numbers from 70 to 99 are counted in a unique way in French (e.g., 80 is quatre-vingts, or four twenties).'
 		]
 	};
 
@@ -152,8 +159,14 @@ r<script lang="ts">
 	let submitController: AbortController | null = null;
 
 	function stopLoadingIntervals() {
-		if (_loadProgressInterval) { clearInterval(_loadProgressInterval); _loadProgressInterval = null; }
-		if (_loadTipInterval) { clearInterval(_loadTipInterval); _loadTipInterval = null; }
+		if (_loadProgressInterval) {
+			clearInterval(_loadProgressInterval);
+			_loadProgressInterval = null;
+		}
+		if (_loadTipInterval) {
+			clearInterval(_loadTipInterval);
+			_loadTipInterval = null;
+		}
 	}
 
 	function cancelAllRequests() {
@@ -176,340 +189,344 @@ r<script lang="ts">
 	// This enables tooltips on conjugated verbs, contractions, etc.
 	const GERMAN_INFLECTION_MAP: Record<string, { lemma: string; note: string }> = {
 		// sein (to be) conjugations
-		'bin': { lemma: 'sein', note: 'ich bin (I am)' },
-		'bist': { lemma: 'sein', note: 'du bist (you are)' },
-		'ist': { lemma: 'sein', note: 'er/sie/es ist (he/she/it is)' },
-		'sind': { lemma: 'sein', note: 'wir/sie/Sie sind (we/they are)' },
-		'seid': { lemma: 'sein', note: 'ihr seid (you all are)' },
-		'war': { lemma: 'sein', note: 'ich/er war (I/he was)' },
-		'warst': { lemma: 'sein', note: 'du warst (you were)' },
-		'waren': { lemma: 'sein', note: 'wir/sie waren (we/they were)' },
-		'wart': { lemma: 'sein', note: 'ihr wart (you all were)' },
-		'gewesen': { lemma: 'sein', note: 'past participle of sein' },
+		bin: { lemma: 'sein', note: 'ich bin (I am)' },
+		bist: { lemma: 'sein', note: 'du bist (you are)' },
+		ist: { lemma: 'sein', note: 'er/sie/es ist (he/she/it is)' },
+		sind: { lemma: 'sein', note: 'wir/sie/Sie sind (we/they are)' },
+		seid: { lemma: 'sein', note: 'ihr seid (you all are)' },
+		war: { lemma: 'sein', note: 'ich/er war (I/he was)' },
+		warst: { lemma: 'sein', note: 'du warst (you were)' },
+		waren: { lemma: 'sein', note: 'wir/sie waren (we/they were)' },
+		wart: { lemma: 'sein', note: 'ihr wart (you all were)' },
+		gewesen: { lemma: 'sein', note: 'past participle of sein' },
 		// haben (to have) conjugations
-		'habe': { lemma: 'haben', note: 'ich habe (I have)' },
-		'hast': { lemma: 'haben', note: 'du hast (you have)' },
-		'hat': { lemma: 'haben', note: 'er/sie/es hat (he/she/it has)' },
-		'habt': { lemma: 'haben', note: 'ihr habt (you all have)' },
-		'hatte': { lemma: 'haben', note: 'ich/er hatte (I/he had)' },
-		'hattest': { lemma: 'haben', note: 'du hattest (you had)' },
-		'hatten': { lemma: 'haben', note: 'wir/sie hatten (we/they had)' },
-		'hattet': { lemma: 'haben', note: 'ihr hattet (you all had)' },
-		'gehabt': { lemma: 'haben', note: 'past participle of haben' },
+		habe: { lemma: 'haben', note: 'ich habe (I have)' },
+		hast: { lemma: 'haben', note: 'du hast (you have)' },
+		hat: { lemma: 'haben', note: 'er/sie/es hat (he/she/it has)' },
+		habt: { lemma: 'haben', note: 'ihr habt (you all have)' },
+		hatte: { lemma: 'haben', note: 'ich/er hatte (I/he had)' },
+		hattest: { lemma: 'haben', note: 'du hattest (you had)' },
+		hatten: { lemma: 'haben', note: 'wir/sie hatten (we/they had)' },
+		hattet: { lemma: 'haben', note: 'ihr hattet (you all had)' },
+		gehabt: { lemma: 'haben', note: 'past participle of haben' },
 		// werden (to become) conjugations
-		'werde': { lemma: 'werden', note: 'ich werde (I become/will)' },
-		'wirst': { lemma: 'werden', note: 'du wirst (you become/will)' },
-		'wird': { lemma: 'werden', note: 'er/sie/es wird (becomes/will)' },
-		'werdet': { lemma: 'werden', note: 'ihr werdet (you all become/will)' },
-		'wurde': { lemma: 'werden', note: 'ich/er wurde (became/was)' },
-		'wurdest': { lemma: 'werden', note: 'du wurdest (you became)' },
-		'wurden': { lemma: 'werden', note: 'wir/sie wurden (became/were)' },
-		'geworden': { lemma: 'werden', note: 'past participle of werden' },
+		werde: { lemma: 'werden', note: 'ich werde (I become/will)' },
+		wirst: { lemma: 'werden', note: 'du wirst (you become/will)' },
+		wird: { lemma: 'werden', note: 'er/sie/es wird (becomes/will)' },
+		werdet: { lemma: 'werden', note: 'ihr werdet (you all become/will)' },
+		wurde: { lemma: 'werden', note: 'ich/er wurde (became/was)' },
+		wurdest: { lemma: 'werden', note: 'du wurdest (you became)' },
+		wurden: { lemma: 'werden', note: 'wir/sie wurden (became/were)' },
+		geworden: { lemma: 'werden', note: 'past participle of werden' },
 		// können (can) conjugations
-		'kann': { lemma: 'können', note: 'ich/er kann (I/he can)' },
-		'kannst': { lemma: 'können', note: 'du kannst (you can)' },
-		'könnt': { lemma: 'können', note: 'ihr könnt (you all can)' },
-		'konnte': { lemma: 'können', note: 'ich/er konnte (could)' },
-		'konntest': { lemma: 'können', note: 'du konntest (you could)' },
-		'konnten': { lemma: 'können', note: 'wir/sie konnten (could)' },
-		'gekonnt': { lemma: 'können', note: 'past participle of können' },
+		kann: { lemma: 'können', note: 'ich/er kann (I/he can)' },
+		kannst: { lemma: 'können', note: 'du kannst (you can)' },
+		könnt: { lemma: 'können', note: 'ihr könnt (you all can)' },
+		konnte: { lemma: 'können', note: 'ich/er konnte (could)' },
+		konntest: { lemma: 'können', note: 'du konntest (you could)' },
+		konnten: { lemma: 'können', note: 'wir/sie konnten (could)' },
+		gekonnt: { lemma: 'können', note: 'past participle of können' },
 		// müssen (must) conjugations
-		'muss': { lemma: 'müssen', note: 'ich/er muss (I/he must)' },
-		'musst': { lemma: 'müssen', note: 'du musst (you must)' },
-		'müsst': { lemma: 'müssen', note: 'ihr müsst (you all must)' },
-		'musste': { lemma: 'müssen', note: 'ich/er musste (had to)' },
-		'musstest': { lemma: 'müssen', note: 'du musstest (you had to)' },
-		'mussten': { lemma: 'müssen', note: 'wir/sie mussten (had to)' },
-		'gemusst': { lemma: 'müssen', note: 'past participle of müssen' },
+		muss: { lemma: 'müssen', note: 'ich/er muss (I/he must)' },
+		musst: { lemma: 'müssen', note: 'du musst (you must)' },
+		müsst: { lemma: 'müssen', note: 'ihr müsst (you all must)' },
+		musste: { lemma: 'müssen', note: 'ich/er musste (had to)' },
+		musstest: { lemma: 'müssen', note: 'du musstest (you had to)' },
+		mussten: { lemma: 'müssen', note: 'wir/sie mussten (had to)' },
+		gemusst: { lemma: 'müssen', note: 'past participle of müssen' },
 		// wollen (to want) conjugations
-		'will': { lemma: 'wollen', note: 'ich/er will (I/he want(s))' },
-		'willst': { lemma: 'wollen', note: 'du willst (you want)' },
-		'wollt': { lemma: 'wollen', note: 'ihr wollt (you all want)' },
-		'wollte': { lemma: 'wollen', note: 'ich/er wollte (wanted)' },
-		'wolltest': { lemma: 'wollen', note: 'du wolltest (you wanted)' },
-		'wollten': { lemma: 'wollen', note: 'wir/sie wollten (wanted)' },
-		'gewollt': { lemma: 'wollen', note: 'past participle of wollen' },
+		will: { lemma: 'wollen', note: 'ich/er will (I/he want(s))' },
+		willst: { lemma: 'wollen', note: 'du willst (you want)' },
+		wollt: { lemma: 'wollen', note: 'ihr wollt (you all want)' },
+		wollte: { lemma: 'wollen', note: 'ich/er wollte (wanted)' },
+		wolltest: { lemma: 'wollen', note: 'du wolltest (you wanted)' },
+		wollten: { lemma: 'wollen', note: 'wir/sie wollten (wanted)' },
+		gewollt: { lemma: 'wollen', note: 'past participle of wollen' },
 		// sollen (should) conjugations
-		'soll': { lemma: 'sollen', note: 'ich/er soll (I/he should)' },
-		'sollst': { lemma: 'sollen', note: 'du sollst (you should)' },
-		'sollt': { lemma: 'sollen', note: 'ihr sollt (you all should)' },
-		'sollte': { lemma: 'sollen', note: 'ich/er sollte (should)' },
-		'solltest': { lemma: 'sollen', note: 'du solltest (you should)' },
-		'sollten': { lemma: 'sollen', note: 'wir/sie sollten (should)' },
-		'gesollt': { lemma: 'sollen', note: 'past participle of sollen' },
+		soll: { lemma: 'sollen', note: 'ich/er soll (I/he should)' },
+		sollst: { lemma: 'sollen', note: 'du sollst (you should)' },
+		sollt: { lemma: 'sollen', note: 'ihr sollt (you all should)' },
+		sollte: { lemma: 'sollen', note: 'ich/er sollte (should)' },
+		solltest: { lemma: 'sollen', note: 'du solltest (you should)' },
+		sollten: { lemma: 'sollen', note: 'wir/sie sollten (should)' },
+		gesollt: { lemma: 'sollen', note: 'past participle of sollen' },
 		// dürfen (may) conjugations
-		'darf': { lemma: 'dürfen', note: 'ich/er darf (I/he may)' },
-		'darfst': { lemma: 'dürfen', note: 'du darfst (you may)' },
-		'dürft': { lemma: 'dürfen', note: 'ihr dürft (you all may)' },
-		'durfte': { lemma: 'dürfen', note: 'ich/er durfte (was allowed)' },
-		'durftest': { lemma: 'dürfen', note: 'du durftest (you were allowed)' },
-		'durften': { lemma: 'dürfen', note: 'wir/sie durften (were allowed)' },
-		'gedurft': { lemma: 'dürfen', note: 'past participle of dürfen' },
+		darf: { lemma: 'dürfen', note: 'ich/er darf (I/he may)' },
+		darfst: { lemma: 'dürfen', note: 'du darfst (you may)' },
+		dürft: { lemma: 'dürfen', note: 'ihr dürft (you all may)' },
+		durfte: { lemma: 'dürfen', note: 'ich/er durfte (was allowed)' },
+		durftest: { lemma: 'dürfen', note: 'du durftest (you were allowed)' },
+		durften: { lemma: 'dürfen', note: 'wir/sie durften (were allowed)' },
+		gedurft: { lemma: 'dürfen', note: 'past participle of dürfen' },
 		// mögen/möchten
-		'mag': { lemma: 'mögen', note: 'ich/er mag (I/he like(s))' },
-		'magst': { lemma: 'mögen', note: 'du magst (you like)' },
-		'mögt': { lemma: 'mögen', note: 'ihr mögt (you all like)' },
-		'mochte': { lemma: 'mögen', note: 'ich/er mochte (liked)' },
-		'möchte': { lemma: 'mögen', note: 'ich/er möchte (would like)' },
-		'möchtest': { lemma: 'mögen', note: 'du möchtest (you would like)' },
-		'möchten': { lemma: 'mögen', note: 'wir/sie möchten (would like)' },
-		'möchtet': { lemma: 'mögen', note: 'ihr möchtet (you all would like)' },
+		mag: { lemma: 'mögen', note: 'ich/er mag (I/he like(s))' },
+		magst: { lemma: 'mögen', note: 'du magst (you like)' },
+		mögt: { lemma: 'mögen', note: 'ihr mögt (you all like)' },
+		mochte: { lemma: 'mögen', note: 'ich/er mochte (liked)' },
+		möchte: { lemma: 'mögen', note: 'ich/er möchte (would like)' },
+		möchtest: { lemma: 'mögen', note: 'du möchtest (you would like)' },
+		möchten: { lemma: 'mögen', note: 'wir/sie möchten (would like)' },
+		möchtet: { lemma: 'mögen', note: 'ihr möchtet (you all would like)' },
 		// wissen (to know)
-		'weiß': { lemma: 'wissen', note: 'ich/er weiß (I/he know(s))' },
-		'weißt': { lemma: 'wissen', note: 'du weißt (you know)' },
-		'wisst': { lemma: 'wissen', note: 'ihr wisst (you all know)' },
-		'wusste': { lemma: 'wissen', note: 'ich/er wusste (knew)' },
-		'wusstest': { lemma: 'wissen', note: 'du wusstest (you knew)' },
-		'wussten': { lemma: 'wissen', note: 'wir/sie wussten (knew)' },
-		'gewusst': { lemma: 'wissen', note: 'past participle of wissen' },
+		weiß: { lemma: 'wissen', note: 'ich/er weiß (I/he know(s))' },
+		weißt: { lemma: 'wissen', note: 'du weißt (you know)' },
+		wisst: { lemma: 'wissen', note: 'ihr wisst (you all know)' },
+		wusste: { lemma: 'wissen', note: 'ich/er wusste (knew)' },
+		wusstest: { lemma: 'wissen', note: 'du wusstest (you knew)' },
+		wussten: { lemma: 'wissen', note: 'wir/sie wussten (knew)' },
+		gewusst: { lemma: 'wissen', note: 'past participle of wissen' },
 		// geben (to give)
-		'gibt': { lemma: 'geben', note: 'er/sie/es gibt (gives); es gibt (there is/are)' },
-		'gab': { lemma: 'geben', note: 'ich/er gab (gave)' },
-		'gabst': { lemma: 'geben', note: 'du gabst (you gave)' },
-		'gaben': { lemma: 'geben', note: 'wir/sie gaben (gave)' },
-		'gegeben': { lemma: 'geben', note: 'past participle of geben' },
+		gibt: { lemma: 'geben', note: 'er/sie/es gibt (gives); es gibt (there is/are)' },
+		gab: { lemma: 'geben', note: 'ich/er gab (gave)' },
+		gabst: { lemma: 'geben', note: 'du gabst (you gave)' },
+		gaben: { lemma: 'geben', note: 'wir/sie gaben (gave)' },
+		gegeben: { lemma: 'geben', note: 'past participle of geben' },
 		// fahren (to drive/go)
-		'fährt': { lemma: 'fahren', note: 'er/sie/es fährt (drives)' },
-		'fährst': { lemma: 'fahren', note: 'du fährst (you drive)' },
-		'fuhr': { lemma: 'fahren', note: 'ich/er fuhr (drove)' },
-		'gefahren': { lemma: 'fahren', note: 'past participle of fahren' },
+		fährt: { lemma: 'fahren', note: 'er/sie/es fährt (drives)' },
+		fährst: { lemma: 'fahren', note: 'du fährst (you drive)' },
+		fuhr: { lemma: 'fahren', note: 'ich/er fuhr (drove)' },
+		gefahren: { lemma: 'fahren', note: 'past participle of fahren' },
 		// sprechen (to speak)
-		'spricht': { lemma: 'sprechen', note: 'er/sie/es spricht (speaks)' },
-		'sprichst': { lemma: 'sprechen', note: 'du sprichst (you speak)' },
-		'sprach': { lemma: 'sprechen', note: 'ich/er sprach (spoke)' },
-		'gesprochen': { lemma: 'sprechen', note: 'past participle of sprechen' },
+		spricht: { lemma: 'sprechen', note: 'er/sie/es spricht (speaks)' },
+		sprichst: { lemma: 'sprechen', note: 'du sprichst (you speak)' },
+		sprach: { lemma: 'sprechen', note: 'ich/er sprach (spoke)' },
+		gesprochen: { lemma: 'sprechen', note: 'past participle of sprechen' },
 		// sehen (to see)
-		'sieht': { lemma: 'sehen', note: 'er/sie/es sieht (sees)' },
-		'siehst': { lemma: 'sehen', note: 'du siehst (you see)' },
-		'sah': { lemma: 'sehen', note: 'ich/er sah (saw)' },
-		'gesehen': { lemma: 'sehen', note: 'past participle of sehen' },
+		sieht: { lemma: 'sehen', note: 'er/sie/es sieht (sees)' },
+		siehst: { lemma: 'sehen', note: 'du siehst (you see)' },
+		sah: { lemma: 'sehen', note: 'ich/er sah (saw)' },
+		gesehen: { lemma: 'sehen', note: 'past participle of sehen' },
 		// lesen (to read)
-		'liest': { lemma: 'lesen', note: 'er/sie/du liest (reads/you read)' },
-		'las': { lemma: 'lesen', note: 'ich/er las (read)' },
-		'gelesen': { lemma: 'lesen', note: 'past participle of lesen' },
+		liest: { lemma: 'lesen', note: 'er/sie/du liest (reads/you read)' },
+		las: { lemma: 'lesen', note: 'ich/er las (read)' },
+		gelesen: { lemma: 'lesen', note: 'past participle of lesen' },
 		// essen (to eat)
-		'isst': { lemma: 'essen', note: 'er/sie/du isst (eats/you eat)' },
-		'aß': { lemma: 'essen', note: 'ich/er aß (ate)' },
-		'gegessen': { lemma: 'essen', note: 'past participle of essen' },
+		isst: { lemma: 'essen', note: 'er/sie/du isst (eats/you eat)' },
+		aß: { lemma: 'essen', note: 'ich/er aß (ate)' },
+		gegessen: { lemma: 'essen', note: 'past participle of essen' },
 		// nehmen (to take)
-		'nimmt': { lemma: 'nehmen', note: 'er/sie/es nimmt (takes)' },
-		'nimmst': { lemma: 'nehmen', note: 'du nimmst (you take)' },
-		'nahm': { lemma: 'nehmen', note: 'ich/er nahm (took)' },
-		'genommen': { lemma: 'nehmen', note: 'past participle of nehmen' },
+		nimmt: { lemma: 'nehmen', note: 'er/sie/es nimmt (takes)' },
+		nimmst: { lemma: 'nehmen', note: 'du nimmst (you take)' },
+		nahm: { lemma: 'nehmen', note: 'ich/er nahm (took)' },
+		genommen: { lemma: 'nehmen', note: 'past participle of nehmen' },
 		// kommen (to come)
-		'kommt': { lemma: 'kommen', note: 'er/sie/es kommt (comes)' },
-		'kam': { lemma: 'kommen', note: 'ich/er kam (came)' },
-		'gekommen': { lemma: 'kommen', note: 'past participle of kommen' },
+		kommt: { lemma: 'kommen', note: 'er/sie/es kommt (comes)' },
+		kam: { lemma: 'kommen', note: 'ich/er kam (came)' },
+		gekommen: { lemma: 'kommen', note: 'past participle of kommen' },
 		// gehen (to go)
-		'geht': { lemma: 'gehen', note: 'er/sie/es geht (goes)' },
-		'ging': { lemma: 'gehen', note: 'ich/er ging (went)' },
-		'gegangen': { lemma: 'gehen', note: 'past participle of gehen' },
+		geht: { lemma: 'gehen', note: 'er/sie/es geht (goes)' },
+		ging: { lemma: 'gehen', note: 'ich/er ging (went)' },
+		gegangen: { lemma: 'gehen', note: 'past participle of gehen' },
 		// stehen (to stand)
-		'steht': { lemma: 'stehen', note: 'er/sie/es steht (stands)' },
-		'stand': { lemma: 'stehen', note: 'ich/er stand (stood)' },
-		'gestanden': { lemma: 'stehen', note: 'past participle of stehen' },
+		steht: { lemma: 'stehen', note: 'er/sie/es steht (stands)' },
+		stand: { lemma: 'stehen', note: 'ich/er stand (stood)' },
+		gestanden: { lemma: 'stehen', note: 'past participle of stehen' },
 		// finden (to find)
-		'findet': { lemma: 'finden', note: 'er/sie/es findet (finds)' },
-		'fand': { lemma: 'finden', note: 'ich/er fand (found)' },
-		'gefunden': { lemma: 'finden', note: 'past participle of finden' },
+		findet: { lemma: 'finden', note: 'er/sie/es findet (finds)' },
+		fand: { lemma: 'finden', note: 'ich/er fand (found)' },
+		gefunden: { lemma: 'finden', note: 'past participle of finden' },
 		// tun (to do)
-		'tut': { lemma: 'tun', note: 'er/sie/es tut (does)' },
-		'tat': { lemma: 'tun', note: 'ich/er tat (did)' },
-		'getan': { lemma: 'tun', note: 'past participle of tun' },
+		tut: { lemma: 'tun', note: 'er/sie/es tut (does)' },
+		tat: { lemma: 'tun', note: 'ich/er tat (did)' },
+		getan: { lemma: 'tun', note: 'past participle of tun' },
 		// laufen (to run)
-		'läuft': { lemma: 'laufen', note: 'er/sie/es läuft (runs)' },
-		'läufst': { lemma: 'laufen', note: 'du läufst (you run)' },
-		'lief': { lemma: 'laufen', note: 'ich/er lief (ran)' },
-		'gelaufen': { lemma: 'laufen', note: 'past participle of laufen' },
+		läuft: { lemma: 'laufen', note: 'er/sie/es läuft (runs)' },
+		läufst: { lemma: 'laufen', note: 'du läufst (you run)' },
+		lief: { lemma: 'laufen', note: 'ich/er lief (ran)' },
+		gelaufen: { lemma: 'laufen', note: 'past participle of laufen' },
 		// schlafen (to sleep)
-		'schläft': { lemma: 'schlafen', note: 'er/sie/es schläft (sleeps)' },
-		'schläfst': { lemma: 'schlafen', note: 'du schläfst (you sleep)' },
-		'schlief': { lemma: 'schlafen', note: 'ich/er schlief (slept)' },
-		'geschlafen': { lemma: 'schlafen', note: 'past participle of schlafen' },
+		schläft: { lemma: 'schlafen', note: 'er/sie/es schläft (sleeps)' },
+		schläfst: { lemma: 'schlafen', note: 'du schläfst (you sleep)' },
+		schlief: { lemma: 'schlafen', note: 'ich/er schlief (slept)' },
+		geschlafen: { lemma: 'schlafen', note: 'past participle of schlafen' },
 		// tragen (to carry/wear)
-		'trägt': { lemma: 'tragen', note: 'er/sie/es trägt (carries/wears)' },
-		'trägst': { lemma: 'tragen', note: 'du trägst (you carry/wear)' },
+		trägt: { lemma: 'tragen', note: 'er/sie/es trägt (carries/wears)' },
+		trägst: { lemma: 'tragen', note: 'du trägst (you carry/wear)' },
 		// heißen (to be called)
-		'heiße': { lemma: 'heißen', note: 'ich heiße (I am called)' },
-		'heißt': { lemma: 'heißen', note: 'du/er heißt (you are/is called)' },
+		heiße: { lemma: 'heißen', note: 'ich heiße (I am called)' },
+		heißt: { lemma: 'heißen', note: 'du/er heißt (you are/is called)' },
 
 		// Preposition + article contractions
-		'am': { lemma: 'an', note: 'am = an + dem (at/on the)' },
-		'ans': { lemma: 'an', note: 'ans = an + das (to/onto the)' },
-		'im': { lemma: 'in', note: 'im = in + dem (in the)' },
-		'ins': { lemma: 'in', note: 'ins = in + das (into the)' },
-		'zum': { lemma: 'zu', note: 'zum = zu + dem (to the, masc./neut.)' },
-		'zur': { lemma: 'zu', note: 'zur = zu + der (to the, fem.)' },
-		'vom': { lemma: 'von', note: 'vom = von + dem (from the)' },
-		'beim': { lemma: 'bei', note: 'beim = bei + dem (at/by the)' },
-		'aufs': { lemma: 'auf', note: 'aufs = auf + das (onto the)' },
-		'fürs': { lemma: 'für', note: 'fürs = für + das (for the)' },
-		'durchs': { lemma: 'durch', note: 'durchs = durch + das (through the)' },
-		'ums': { lemma: 'um', note: 'ums = um + das (around the)' },
-		'übers': { lemma: 'über', note: 'übers = über + das (over the)' },
-		'unters': { lemma: 'unter', note: 'unters = unter + das (under the)' },
-		'hinters': { lemma: 'hinter', note: 'hinters = hinter + das (behind the)' },
-		'vors': { lemma: 'vor', note: 'vors = vor + das (in front of the)' },
+		am: { lemma: 'an', note: 'am = an + dem (at/on the)' },
+		ans: { lemma: 'an', note: 'ans = an + das (to/onto the)' },
+		im: { lemma: 'in', note: 'im = in + dem (in the)' },
+		ins: { lemma: 'in', note: 'ins = in + das (into the)' },
+		zum: { lemma: 'zu', note: 'zum = zu + dem (to the, masc./neut.)' },
+		zur: { lemma: 'zu', note: 'zur = zu + der (to the, fem.)' },
+		vom: { lemma: 'von', note: 'vom = von + dem (from the)' },
+		beim: { lemma: 'bei', note: 'beim = bei + dem (at/by the)' },
+		aufs: { lemma: 'auf', note: 'aufs = auf + das (onto the)' },
+		fürs: { lemma: 'für', note: 'fürs = für + das (for the)' },
+		durchs: { lemma: 'durch', note: 'durchs = durch + das (through the)' },
+		ums: { lemma: 'um', note: 'ums = um + das (around the)' },
+		übers: { lemma: 'über', note: 'übers = über + das (over the)' },
+		unters: { lemma: 'unter', note: 'unters = unter + das (under the)' },
+		hinters: { lemma: 'hinter', note: 'hinters = hinter + das (behind the)' },
+		vors: { lemma: 'vor', note: 'vors = vor + das (in front of the)' }
 	};
 
 	// Map of common French inflected/contracted forms
 	const FRENCH_INFLECTION_MAP: Record<string, { lemma: string; note: string }> = {
 		// être (to be)
-		'suis': { lemma: 'être', note: 'je suis (I am)' },
-		'es': { lemma: 'être', note: 'tu es (you are)' },
-		'est': { lemma: 'être', note: 'il/elle/on est (he/she/it is)' },
-		'sommes': { lemma: 'être', note: 'nous sommes (we are)' },
-		'êtes': { lemma: 'être', note: 'vous êtes (you all are)' },
-		'sont': { lemma: 'être', note: 'ils/elles sont (they are)' },
-		'étais': { lemma: 'être', note: 'j\'/tu étais (I/you was/were)' },
-		'était': { lemma: 'être', note: 'il/elle était (was)' },
-		'étions': { lemma: 'être', note: 'nous étions (we were)' },
-		'étiez': { lemma: 'être', note: 'vous étiez (you all were)' },
-		'étaient': { lemma: 'être', note: 'ils/elles étaient (they were)' },
-		'serai': { lemma: 'être', note: 'je serai (I will be)' },
-		'seras': { lemma: 'être', note: 'tu seras (you will be)' },
-		'sera': { lemma: 'être', note: 'il/elle sera (will be)' },
-		'serons': { lemma: 'être', note: 'nous serons (we will be)' },
-		'serez': { lemma: 'être', note: 'vous serez (you all will be)' },
-		'seront': { lemma: 'être', note: 'ils/elles seront (they will be)' },
-		'sois': { lemma: 'être', note: 'je/tu sois (subjunctive)' },
-		'soit': { lemma: 'être', note: 'il/elle soit (subjunctive)' },
-		'soyons': { lemma: 'être', note: 'nous soyons (subjunctive)' },
-		'soyez': { lemma: 'être', note: 'vous soyez (subjunctive)' },
-		'soient': { lemma: 'être', note: 'ils/elles soient (subjunctive)' },
-		'été': { lemma: 'être', note: 'past participle of être' },
+		suis: { lemma: 'être', note: 'je suis (I am)' },
+		es: { lemma: 'être', note: 'tu es (you are)' },
+		est: { lemma: 'être', note: 'il/elle/on est (he/she/it is)' },
+		sommes: { lemma: 'être', note: 'nous sommes (we are)' },
+		êtes: { lemma: 'être', note: 'vous êtes (you all are)' },
+		sont: { lemma: 'être', note: 'ils/elles sont (they are)' },
+		étais: { lemma: 'être', note: "j'/tu étais (I/you was/were)" },
+		était: { lemma: 'être', note: 'il/elle était (was)' },
+		étions: { lemma: 'être', note: 'nous étions (we were)' },
+		étiez: { lemma: 'être', note: 'vous étiez (you all were)' },
+		étaient: { lemma: 'être', note: 'ils/elles étaient (they were)' },
+		serai: { lemma: 'être', note: 'je serai (I will be)' },
+		seras: { lemma: 'être', note: 'tu seras (you will be)' },
+		sera: { lemma: 'être', note: 'il/elle sera (will be)' },
+		serons: { lemma: 'être', note: 'nous serons (we will be)' },
+		serez: { lemma: 'être', note: 'vous serez (you all will be)' },
+		seront: { lemma: 'être', note: 'ils/elles seront (they will be)' },
+		sois: { lemma: 'être', note: 'je/tu sois (subjunctive)' },
+		soit: { lemma: 'être', note: 'il/elle soit (subjunctive)' },
+		soyons: { lemma: 'être', note: 'nous soyons (subjunctive)' },
+		soyez: { lemma: 'être', note: 'vous soyez (subjunctive)' },
+		soient: { lemma: 'être', note: 'ils/elles soient (subjunctive)' },
+		été: { lemma: 'être', note: 'past participle of être' },
 
 		// avoir (to have)
-		'ai': { lemma: 'avoir', note: 'j\'ai (I have)' },
-		'as': { lemma: 'avoir', note: 'tu as (you have)' },
-		'a': { lemma: 'avoir', note: 'il/elle a (he/she/it has)' },
-		'avons': { lemma: 'avoir', note: 'nous avons (we have)' },
-		'avez': { lemma: 'avoir', note: 'vous avez (you all have)' },
-		'ont': { lemma: 'avoir', note: 'ils/elles ont (they have)' },
-		'avais': { lemma: 'avoir', note: 'j\'/tu avais (I/you had)' },
-		'avait': { lemma: 'avoir', note: 'il/elle avait (had)' },
-		'avions': { lemma: 'avoir', note: 'nous avions (we had)' },
-		'aviez': { lemma: 'avoir', note: 'vous aviez (you all had)' },
-		'avaient': { lemma: 'avoir', note: 'ils/elles avaient (they had)' },
-		'aurai': { lemma: 'avoir', note: 'j\'aurai (I will have)' },
-		'auras': { lemma: 'avoir', note: 'tu auras (you will have)' },
-		'aura': { lemma: 'avoir', note: 'il/elle aura (will have)' },
-		'aurons': { lemma: 'avoir', note: 'nous aurons (we will have)' },
-		'aurez': { lemma: 'avoir', note: 'vous aurez (you all will have)' },
-		'auront': { lemma: 'avoir', note: 'ils/elles auront (they will have)' },
-		'aie': { lemma: 'avoir', note: 'j\'/tu aie (subjunctive)' },
-		'ait': { lemma: 'avoir', note: 'il/elle ait (subjunctive)' },
-		'ayons': { lemma: 'avoir', note: 'nous ayons (subjunctive)' },
-		'ayez': { lemma: 'avoir', note: 'vous ayez (subjunctive)' },
-		'aient': { lemma: 'avoir', note: 'ils/elles aient (subjunctive)' },
-		'eu': { lemma: 'avoir', note: 'past participle of avoir' },
+		ai: { lemma: 'avoir', note: "j'ai (I have)" },
+		as: { lemma: 'avoir', note: 'tu as (you have)' },
+		a: { lemma: 'avoir', note: 'il/elle a (he/she/it has)' },
+		avons: { lemma: 'avoir', note: 'nous avons (we have)' },
+		avez: { lemma: 'avoir', note: 'vous avez (you all have)' },
+		ont: { lemma: 'avoir', note: 'ils/elles ont (they have)' },
+		avais: { lemma: 'avoir', note: "j'/tu avais (I/you had)" },
+		avait: { lemma: 'avoir', note: 'il/elle avait (had)' },
+		avions: { lemma: 'avoir', note: 'nous avions (we had)' },
+		aviez: { lemma: 'avoir', note: 'vous aviez (you all had)' },
+		avaient: { lemma: 'avoir', note: 'ils/elles avaient (they had)' },
+		aurai: { lemma: 'avoir', note: "j'aurai (I will have)" },
+		auras: { lemma: 'avoir', note: 'tu auras (you will have)' },
+		aura: { lemma: 'avoir', note: 'il/elle aura (will have)' },
+		aurons: { lemma: 'avoir', note: 'nous aurons (we will have)' },
+		aurez: { lemma: 'avoir', note: 'vous aurez (you all will have)' },
+		auront: { lemma: 'avoir', note: 'ils/elles auront (they will have)' },
+		aie: { lemma: 'avoir', note: "j'/tu aie (subjunctive)" },
+		ait: { lemma: 'avoir', note: 'il/elle ait (subjunctive)' },
+		ayons: { lemma: 'avoir', note: 'nous ayons (subjunctive)' },
+		ayez: { lemma: 'avoir', note: 'vous ayez (subjunctive)' },
+		aient: { lemma: 'avoir', note: 'ils/elles aient (subjunctive)' },
+		eu: { lemma: 'avoir', note: 'past participle of avoir' },
 
 		// aller (to go)
-		'vais': { lemma: 'aller', note: 'je vais (I go/am going)' },
-		'vas': { lemma: 'aller', note: 'tu vas (you go)' },
-		'va': { lemma: 'aller', note: 'il/elle va (goes)' },
-		'allons': { lemma: 'aller', note: 'nous allons (we go)' },
-		'allez': { lemma: 'aller', note: 'vous allez (you all go)' },
-		'vont': { lemma: 'aller', note: 'ils/elles vont (they go)' },
-		'allais': { lemma: 'aller', note: 'j\'/tu allais (went/was going)' },
-		'allait': { lemma: 'aller', note: 'il/elle allait (went/was going)' },
-		'allions': { lemma: 'aller', note: 'nous allions (went/were going)' },
-		'alliez': { lemma: 'aller', note: 'vous alliez (went/were going)' },
-		'allaient': { lemma: 'aller', note: 'ils/elles allaient (went/were going)' },
-		'irai': { lemma: 'aller', note: 'j\'irai (I will go)' },
-		'iras': { lemma: 'aller', note: 'tu iras (you will go)' },
-		'ira': { lemma: 'aller', note: 'il/elle ira (will go)' },
-		'irons': { lemma: 'aller', note: 'nous irons (we will go)' },
-		'irez': { lemma: 'aller', note: 'vous irez (you all will go)' },
-		'iront': { lemma: 'aller', note: 'ils/elles iront (they will go)' },
-		'allé': { lemma: 'aller', note: 'past participle of aller' },
+		vais: { lemma: 'aller', note: 'je vais (I go/am going)' },
+		vas: { lemma: 'aller', note: 'tu vas (you go)' },
+		va: { lemma: 'aller', note: 'il/elle va (goes)' },
+		allons: { lemma: 'aller', note: 'nous allons (we go)' },
+		allez: { lemma: 'aller', note: 'vous allez (you all go)' },
+		vont: { lemma: 'aller', note: 'ils/elles vont (they go)' },
+		allais: { lemma: 'aller', note: "j'/tu allais (went/was going)" },
+		allait: { lemma: 'aller', note: 'il/elle allait (went/was going)' },
+		allions: { lemma: 'aller', note: 'nous allions (went/were going)' },
+		alliez: { lemma: 'aller', note: 'vous alliez (went/were going)' },
+		allaient: { lemma: 'aller', note: 'ils/elles allaient (went/were going)' },
+		irai: { lemma: 'aller', note: "j'irai (I will go)" },
+		iras: { lemma: 'aller', note: 'tu iras (you will go)' },
+		ira: { lemma: 'aller', note: 'il/elle ira (will go)' },
+		irons: { lemma: 'aller', note: 'nous irons (we will go)' },
+		irez: { lemma: 'aller', note: 'vous irez (you all will go)' },
+		iront: { lemma: 'aller', note: 'ils/elles iront (they will go)' },
+		allé: { lemma: 'aller', note: 'past participle of aller' },
 
 		// faire (to do/make)
-		'fais': { lemma: 'faire', note: 'je/tu fais (do/make)' },
-		'fait': { lemma: 'faire', note: 'il/elle fait (does/makes)' },
-		'faisons': { lemma: 'faire', note: 'nous faisons (we do/make)' },
-		'faites': { lemma: 'faire', note: 'vous faites (you all do/make)' },
-		'font': { lemma: 'faire', note: 'ils/elles font (they do/make)' },
-		'faisais': { lemma: 'faire', note: 'je/tu faisais (did/was doing)' },
-		'faisait': { lemma: 'faire', note: 'il/elle faisait (did/was doing)' },
-		'faisions': { lemma: 'faire', note: 'nous faisions (did/were doing)' },
-		'faisiez': { lemma: 'faire', note: 'vous faisiez (did/were doing)' },
-		'faisaient': { lemma: 'faire', note: 'ils/elles faisaient (did/were doing)' },
-		'ferai': { lemma: 'faire', note: 'je ferai (I will do)' },
-		'feras': { lemma: 'faire', note: 'tu feras (you will do)' },
-		'fera': { lemma: 'faire', note: 'il/elle fera (will do)' },
-		'ferons': { lemma: 'faire', note: 'nous ferons (we will do)' },
-		'ferez': { lemma: 'faire', note: 'vous ferez (you all will do)' },
-		'feront': { lemma: 'faire', note: 'ils/elles feront (they will do)' },
-		'faite': { lemma: 'faire', note: 'past participle of faire (feminine)' },
+		fais: { lemma: 'faire', note: 'je/tu fais (do/make)' },
+		fait: { lemma: 'faire', note: 'il/elle fait (does/makes)' },
+		faisons: { lemma: 'faire', note: 'nous faisons (we do/make)' },
+		faites: { lemma: 'faire', note: 'vous faites (you all do/make)' },
+		font: { lemma: 'faire', note: 'ils/elles font (they do/make)' },
+		faisais: { lemma: 'faire', note: 'je/tu faisais (did/was doing)' },
+		faisait: { lemma: 'faire', note: 'il/elle faisait (did/was doing)' },
+		faisions: { lemma: 'faire', note: 'nous faisions (did/were doing)' },
+		faisiez: { lemma: 'faire', note: 'vous faisiez (did/were doing)' },
+		faisaient: { lemma: 'faire', note: 'ils/elles faisaient (did/were doing)' },
+		ferai: { lemma: 'faire', note: 'je ferai (I will do)' },
+		feras: { lemma: 'faire', note: 'tu feras (you will do)' },
+		fera: { lemma: 'faire', note: 'il/elle fera (will do)' },
+		ferons: { lemma: 'faire', note: 'nous ferons (we will do)' },
+		ferez: { lemma: 'faire', note: 'vous ferez (you all will do)' },
+		feront: { lemma: 'faire', note: 'ils/elles feront (they will do)' },
+		faite: { lemma: 'faire', note: 'past participle of faire (feminine)' },
 
 		// pouvoir (can/be able to)
-		'peux': { lemma: 'pouvoir', note: 'je/tu peux (can)' },
-		'peut': { lemma: 'pouvoir', note: 'il/elle peut (can)' },
-		'pouvons': { lemma: 'pouvoir', note: 'nous pouvons (we can)' },
-		'pouvez': { lemma: 'pouvoir', note: 'vous pouvez (you all can)' },
-		'peuvent': { lemma: 'pouvoir', note: 'ils/elles peuvent (they can)' },
-		'pouvais': { lemma: 'pouvoir', note: 'je/tu pouvais (could/was able)' },
-		'pouvait': { lemma: 'pouvoir', note: 'il/elle pouvait (could/was able)' },
-		'pouvions': { lemma: 'pouvoir', note: 'nous pouvions (could/were able)' },
-		'pouviez': { lemma: 'pouvoir', note: 'vous pouviez (could/were able)' },
-		'pouvaient': { lemma: 'pouvoir', note: 'ils/elles pouvaient (could/were able)' },
-		'pourrai': { lemma: 'pouvoir', note: 'je pourrai (I will be able)' },
-		'pourras': { lemma: 'pouvoir', note: 'tu pourras (you will be able)' },
-		'pourra': { lemma: 'pouvoir', note: 'il/elle pourra (will be able)' },
-		'pourrons': { lemma: 'pouvoir', note: 'nous pourrons (we will be able)' },
-		'pourrez': { lemma: 'pouvoir', note: 'vous pourrez (you all will be able)' },
-		'pourront': { lemma: 'pouvoir', note: 'ils/elles pourront (they will be able)' },
-		'pu': { lemma: 'pouvoir', note: 'past participle of pouvoir' },
+		peux: { lemma: 'pouvoir', note: 'je/tu peux (can)' },
+		peut: { lemma: 'pouvoir', note: 'il/elle peut (can)' },
+		pouvons: { lemma: 'pouvoir', note: 'nous pouvons (we can)' },
+		pouvez: { lemma: 'pouvoir', note: 'vous pouvez (you all can)' },
+		peuvent: { lemma: 'pouvoir', note: 'ils/elles peuvent (they can)' },
+		pouvais: { lemma: 'pouvoir', note: 'je/tu pouvais (could/was able)' },
+		pouvait: { lemma: 'pouvoir', note: 'il/elle pouvait (could/was able)' },
+		pouvions: { lemma: 'pouvoir', note: 'nous pouvions (could/were able)' },
+		pouviez: { lemma: 'pouvoir', note: 'vous pouviez (could/were able)' },
+		pouvaient: { lemma: 'pouvoir', note: 'ils/elles pouvaient (could/were able)' },
+		pourrai: { lemma: 'pouvoir', note: 'je pourrai (I will be able)' },
+		pourras: { lemma: 'pouvoir', note: 'tu pourras (you will be able)' },
+		pourra: { lemma: 'pouvoir', note: 'il/elle pourra (will be able)' },
+		pourrons: { lemma: 'pouvoir', note: 'nous pourrons (we will be able)' },
+		pourrez: { lemma: 'pouvoir', note: 'vous pourrez (you all will be able)' },
+		pourront: { lemma: 'pouvoir', note: 'ils/elles pourront (they will be able)' },
+		pu: { lemma: 'pouvoir', note: 'past participle of pouvoir' },
 
 		// vouloir (to want)
-		'veux': { lemma: 'vouloir', note: 'je/tu veux (want)' },
-		'veut': { lemma: 'vouloir', note: 'il/elle veut (wants)' },
-		'voulons': { lemma: 'vouloir', note: 'nous voulons (we want)' },
-		'voulez': { lemma: 'vouloir', note: 'vous voulez (you all want)' },
-		'veulent': { lemma: 'vouloir', note: 'ils/elles veulent (they want)' },
-		'voulais': { lemma: 'vouloir', note: 'je/tu voulais (wanted/was wanting)' },
-		'voulait': { lemma: 'vouloir', note: 'il/elle voulait (wanted/was wanting)' },
-		'voulions': { lemma: 'vouloir', note: 'nous voulions (wanted/were wanting)' },
-		'vouliez': { lemma: 'vouloir', note: 'vous vouliez (wanted/were wanting)' },
-		'voulaient': { lemma: 'vouloir', note: 'ils/elles voulaient (wanted/were wanting)' },
-		'voudrai': { lemma: 'vouloir', note: 'je voudrai (I will want)' },
-		'voudras': { lemma: 'vouloir', note: 'tu voudras (you will want)' },
-		'voudra': { lemma: 'vouloir', note: 'il/elle voudra (will want)' },
-		'voudrons': { lemma: 'vouloir', note: 'nous voudrons (we will want)' },
-		'voudrez': { lemma: 'vouloir', note: 'vous voudrez (you all will want)' },
-		'voudront': { lemma: 'vouloir', note: 'ils/elles voudront (they will want)' },
-		'voulu': { lemma: 'vouloir', note: 'past participle of vouloir' },
+		veux: { lemma: 'vouloir', note: 'je/tu veux (want)' },
+		veut: { lemma: 'vouloir', note: 'il/elle veut (wants)' },
+		voulons: { lemma: 'vouloir', note: 'nous voulons (we want)' },
+		voulez: { lemma: 'vouloir', note: 'vous voulez (you all want)' },
+		veulent: { lemma: 'vouloir', note: 'ils/elles veulent (they want)' },
+		voulais: { lemma: 'vouloir', note: 'je/tu voulais (wanted/was wanting)' },
+		voulait: { lemma: 'vouloir', note: 'il/elle voulait (wanted/was wanting)' },
+		voulions: { lemma: 'vouloir', note: 'nous voulions (wanted/were wanting)' },
+		vouliez: { lemma: 'vouloir', note: 'vous vouliez (wanted/were wanting)' },
+		voulaient: { lemma: 'vouloir', note: 'ils/elles voulaient (wanted/were wanting)' },
+		voudrai: { lemma: 'vouloir', note: 'je voudrai (I will want)' },
+		voudras: { lemma: 'vouloir', note: 'tu voudras (you will want)' },
+		voudra: { lemma: 'vouloir', note: 'il/elle voudra (will want)' },
+		voudrons: { lemma: 'vouloir', note: 'nous voudrons (we will want)' },
+		voudrez: { lemma: 'vouloir', note: 'vous voudrez (you all will want)' },
+		voudront: { lemma: 'vouloir', note: 'ils/elles voudront (they will want)' },
+		voulu: { lemma: 'vouloir', note: 'past participle of vouloir' },
 
 		// Contractions
-		'au': { lemma: 'à', note: 'au = à + le (to the / at the)' },
-		'aux': { lemma: 'à', note: 'aux = à + les (to the / at the, plural)' },
-		'du': { lemma: 'de', note: 'du = de + le (of the / from the)' },
-		'des': { lemma: 'de', note: 'des = de + les (of the / from the, plural)' }
+		au: { lemma: 'à', note: 'au = à + le (to the / at the)' },
+		aux: { lemma: 'à', note: 'aux = à + les (to the / at the, plural)' },
+		du: { lemma: 'de', note: 'du = de + le (of the / from the)' },
+		des: { lemma: 'de', note: 'des = de + les (of the / from the, plural)' }
 	};
 
 	// Map of common French article forms
 	const FRENCH_ARTICLE_MAP: Record<string, { definite: boolean; forms: ArticleForm[] }> = {
-		'le':  { definite: true,  forms: [{ caseLabel: 'Masc. Sing.', nomArticle: 'le' }] },
-		'la':  { definite: true,  forms: [{ caseLabel: 'Fem. Sing.', nomArticle: 'la' }] },
-		'les': { definite: true,  forms: [{ caseLabel: 'Plural', nomArticle: 'les' }] },
-		'un':  { definite: false, forms: [{ caseLabel: 'Masc. Sing.', nomArticle: 'un' }] },
-		'une': { definite: false, forms: [{ caseLabel: 'Fem. Sing.', nomArticle: 'une' }] },
-		'des': { definite: false, forms: [{ caseLabel: 'Plural', nomArticle: 'des' }] },
+		le: { definite: true, forms: [{ caseLabel: 'Masc. Sing.', nomArticle: 'le' }] },
+		la: { definite: true, forms: [{ caseLabel: 'Fem. Sing.', nomArticle: 'la' }] },
+		les: { definite: true, forms: [{ caseLabel: 'Plural', nomArticle: 'les' }] },
+		un: { definite: false, forms: [{ caseLabel: 'Masc. Sing.', nomArticle: 'un' }] },
+		une: { definite: false, forms: [{ caseLabel: 'Fem. Sing.', nomArticle: 'une' }] },
+		des: { definite: false, forms: [{ caseLabel: 'Plural', nomArticle: 'des' }] }
 	};
 
 	// Maps Prisma Gender enum values to German/French article strings
-	function genderToArticle(gender: string | null | undefined, lang: string = 'German'): string | null {
+	function genderToArticle(
+		gender: string | null | undefined,
+		lang: string = 'German'
+	): string | null {
 		if (!gender) return null;
 		const g = gender.toUpperCase();
 		if (lang === 'French') {
 			if (g === 'MASCULINE' || g === 'LE') return 'le';
-			if (g === 'FEMININE'  || g === 'LA') return 'la';
+			if (g === 'FEMININE' || g === 'LA') return 'la';
 			return null;
-		} else { // default to German logic
+		} else {
+			// default to German logic
 			if (g === 'MASCULINE' || g === 'DER') return 'der';
-			if (g === 'FEMININE'  || g === 'DIE') return 'die';
-			if (g === 'NEUTER'    || g === 'DAS') return 'das';
+			if (g === 'FEMININE' || g === 'DIE') return 'die';
+			if (g === 'NEUTER' || g === 'DAS') return 'das';
 			return null;
 		}
 	}
@@ -519,26 +536,75 @@ r<script lang="ts">
 	type ArticleForm = { caseLabel: string; nomArticle: string };
 	const GERMAN_ARTICLE_MAP: Record<string, { definite: boolean; forms: ArticleForm[] }> = {
 		// Definite articles
-		'der':   { definite: true,  forms: [{ caseLabel: 'Nom. Masc.',          nomArticle: 'der' }, { caseLabel: 'Dat. Fem.',   nomArticle: 'die' }, { caseLabel: 'Gen. Fem.',  nomArticle: 'die' }] },
-		'die':   { definite: true,  forms: [{ caseLabel: 'Nom./Acc. Fem.',       nomArticle: 'die' }, { caseLabel: 'Nom./Acc. Plural', nomArticle: 'die' }] },
-		'das':   { definite: true,  forms: [{ caseLabel: 'Nom./Acc. Neut.',      nomArticle: 'das' }] },
-		'den':   { definite: true,  forms: [{ caseLabel: 'Acc. Masc.',           nomArticle: 'der' }, { caseLabel: 'Dat. Plural', nomArticle: 'die' }] },
-		'dem':   { definite: true,  forms: [{ caseLabel: 'Dat. Masc.',           nomArticle: 'der' }, { caseLabel: 'Dat. Neut.',  nomArticle: 'das' }] },
-		'des':   { definite: true,  forms: [{ caseLabel: 'Gen. Masc.',           nomArticle: 'der' }, { caseLabel: 'Gen. Neut.',  nomArticle: 'das' }] },
+		der: {
+			definite: true,
+			forms: [
+				{ caseLabel: 'Nom. Masc.', nomArticle: 'der' },
+				{ caseLabel: 'Dat. Fem.', nomArticle: 'die' },
+				{ caseLabel: 'Gen. Fem.', nomArticle: 'die' }
+			]
+		},
+		die: {
+			definite: true,
+			forms: [
+				{ caseLabel: 'Nom./Acc. Fem.', nomArticle: 'die' },
+				{ caseLabel: 'Nom./Acc. Plural', nomArticle: 'die' }
+			]
+		},
+		das: { definite: true, forms: [{ caseLabel: 'Nom./Acc. Neut.', nomArticle: 'das' }] },
+		den: {
+			definite: true,
+			forms: [
+				{ caseLabel: 'Acc. Masc.', nomArticle: 'der' },
+				{ caseLabel: 'Dat. Plural', nomArticle: 'die' }
+			]
+		},
+		dem: {
+			definite: true,
+			forms: [
+				{ caseLabel: 'Dat. Masc.', nomArticle: 'der' },
+				{ caseLabel: 'Dat. Neut.', nomArticle: 'das' }
+			]
+		},
+		des: {
+			definite: true,
+			forms: [
+				{ caseLabel: 'Gen. Masc.', nomArticle: 'der' },
+				{ caseLabel: 'Gen. Neut.', nomArticle: 'das' }
+			]
+		},
 		// Indefinite articles
-		'ein':   { definite: false, forms: [{ caseLabel: 'Nom. Masc.',           nomArticle: 'der' }, { caseLabel: 'Nom./Acc. Neut.', nomArticle: 'das' }] },
-		'eine':  { definite: false, forms: [{ caseLabel: 'Nom./Acc. Fem.',       nomArticle: 'die' }] },
-		'einen': { definite: false, forms: [{ caseLabel: 'Acc. Masc.',           nomArticle: 'der' }] },
-		'einem': { definite: false, forms: [{ caseLabel: 'Dat. Masc./Neut.',     nomArticle: 'der' }] },
-		'einer': { definite: false, forms: [{ caseLabel: 'Dat./Gen. Fem.',       nomArticle: 'die' }, { caseLabel: 'Gen. Masc./Neut.', nomArticle: 'der' }] },
-		'eines': { definite: false, forms: [{ caseLabel: 'Gen. Masc./Neut.',     nomArticle: 'der' }] },
+		ein: {
+			definite: false,
+			forms: [
+				{ caseLabel: 'Nom. Masc.', nomArticle: 'der' },
+				{ caseLabel: 'Nom./Acc. Neut.', nomArticle: 'das' }
+			]
+		},
+		eine: { definite: false, forms: [{ caseLabel: 'Nom./Acc. Fem.', nomArticle: 'die' }] },
+		einen: { definite: false, forms: [{ caseLabel: 'Acc. Masc.', nomArticle: 'der' }] },
+		einem: { definite: false, forms: [{ caseLabel: 'Dat. Masc./Neut.', nomArticle: 'der' }] },
+		einer: {
+			definite: false,
+			forms: [
+				{ caseLabel: 'Dat./Gen. Fem.', nomArticle: 'die' },
+				{ caseLabel: 'Gen. Masc./Neut.', nomArticle: 'der' }
+			]
+		},
+		eines: { definite: false, forms: [{ caseLabel: 'Gen. Masc./Neut.', nomArticle: 'der' }] },
 		// Negative articles (kein/keine/...)
-		'kein':   { definite: false, forms: [{ caseLabel: 'Nom. Masc.',           nomArticle: 'der' }, { caseLabel: 'Nom./Acc. Neut.', nomArticle: 'das' }] },
-		'keine':  { definite: false, forms: [{ caseLabel: 'Nom./Acc. Fem./Pl.',  nomArticle: 'die' }] },
-		'keinen': { definite: false, forms: [{ caseLabel: 'Acc. Masc.',           nomArticle: 'der' }] },
-		'keinem': { definite: false, forms: [{ caseLabel: 'Dat. Masc./Neut.',     nomArticle: 'der' }] },
-		'keiner': { definite: false, forms: [{ caseLabel: 'Dat./Gen. Fem.',       nomArticle: 'die' }] },
-		'keines': { definite: false, forms: [{ caseLabel: 'Gen. Masc./Neut.',     nomArticle: 'der' }] },
+		kein: {
+			definite: false,
+			forms: [
+				{ caseLabel: 'Nom. Masc.', nomArticle: 'der' },
+				{ caseLabel: 'Nom./Acc. Neut.', nomArticle: 'das' }
+			]
+		},
+		keine: { definite: false, forms: [{ caseLabel: 'Nom./Acc. Fem./Pl.', nomArticle: 'die' }] },
+		keinen: { definite: false, forms: [{ caseLabel: 'Acc. Masc.', nomArticle: 'der' }] },
+		keinem: { definite: false, forms: [{ caseLabel: 'Dat. Masc./Neut.', nomArticle: 'der' }] },
+		keiner: { definite: false, forms: [{ caseLabel: 'Dat./Gen. Fem.', nomArticle: 'die' }] },
+		keines: { definite: false, forms: [{ caseLabel: 'Gen. Masc./Neut.', nomArticle: 'der' }] }
 	};
 
 	function buildTooltipHtml(vocab: any, overrideArticle?: string, inflectionNote?: string): string {
@@ -546,7 +612,7 @@ r<script lang="ts">
 		const lemmaDisplay = isNoun
 			? vocab.lemma.charAt(0).toUpperCase() + vocab.lemma.slice(1)
 			: vocab.lemma;
-		
+
 		const activeLanguageName = data.language?.name || 'German';
 		const genderDisplay = genderToArticle(vocab.gender, activeLanguageName);
 		const isAiGenerated = typeof vocab.id === 'string' && vocab.id.startsWith('ai_');
@@ -559,20 +625,41 @@ r<script lang="ts">
 		}
 		if (overrideArticle) {
 			html += `<span class="word-tooltip-row"><strong>Noun:</strong> ${lemmaDisplay}</span>`;
-			if (genderDisplay) html += `<span class="word-tooltip-row"><strong>Gender:</strong> ${genderDisplay}</span>`;
+			if (genderDisplay)
+				html += `<span class="word-tooltip-row"><strong>Gender:</strong> ${genderDisplay}</span>`;
 		} else {
-			if (vocab.partOfSpeech) html += `<span class="word-tooltip-row"><strong>POS:</strong> ${vocab.partOfSpeech}</span>`;
-			if (isNoun && genderDisplay) html += `<span class="word-tooltip-row"><strong>Gender:</strong> ${genderDisplay}</span>`;
+			if (vocab.partOfSpeech)
+				html += `<span class="word-tooltip-row"><strong>POS:</strong> ${vocab.partOfSpeech}</span>`;
+			if (isNoun && genderDisplay)
+				html += `<span class="word-tooltip-row"><strong>Gender:</strong> ${genderDisplay}</span>`;
 		}
-		if (vocab.plural) html += `<span class="word-tooltip-row"><strong>Plural:</strong> ${vocab.plural}</span>`;
-		if (vocab.meaning) html += `<span class="word-tooltip-row"><strong>Meaning:</strong> ${vocab.meaning}</span>`;
+		if (vocab.plural)
+			html += `<span class="word-tooltip-row"><strong>Plural:</strong> ${vocab.plural}</span>`;
+		if (vocab.meaning)
+			html += `<span class="word-tooltip-row"><strong>Meaning:</strong> ${vocab.meaning}</span>`;
 		html += `</span></span>`;
 		return html;
 	}
 
 	function getBasicStems(word: string): string[] {
 		const stems: string[] = [];
-		const suffixes = ['ung', 'te', 'ten', 'tet', 'test', 'en', 'er', 'es', 'em', 'et', 'st', 'e', 't', 'n', 's'];
+		const suffixes = [
+			'ung',
+			'te',
+			'ten',
+			'tet',
+			'test',
+			'en',
+			'er',
+			'es',
+			'em',
+			'et',
+			'st',
+			'e',
+			't',
+			'n',
+			's'
+		];
 		for (const suffix of suffixes) {
 			if (word.length > suffix.length + 2 && word.endsWith(suffix)) {
 				const stem = word.slice(0, -suffix.length);
@@ -605,8 +692,15 @@ r<script lang="ts">
 		const stems: string[] = [];
 		// Plural / verb forms
 		if (word.endsWith('ies') && word.length > 4) stems.push(word.slice(0, -3) + 'y');
-		if (word.endsWith('ves') && word.length > 4) stems.push(word.slice(0, -3) + 'f', word.slice(0, -3) + 'fe');
-		if (word.endsWith('ses') || word.endsWith('xes') || word.endsWith('zes') || word.endsWith('ches') || word.endsWith('shes')) {
+		if (word.endsWith('ves') && word.length > 4)
+			stems.push(word.slice(0, -3) + 'f', word.slice(0, -3) + 'fe');
+		if (
+			word.endsWith('ses') ||
+			word.endsWith('xes') ||
+			word.endsWith('zes') ||
+			word.endsWith('ches') ||
+			word.endsWith('shes')
+		) {
 			stems.push(word.endsWith('es') ? word.slice(0, -2) : word);
 		}
 		if (word.endsWith('s') && !word.endsWith('ss')) stems.push(word.slice(0, -1));
@@ -646,12 +740,12 @@ r<script lang="ts">
 	function buildVocabMap(): Map<string, any[]> {
 		const map = new Map<string, any[]>();
 		const isEnToDe = challenge?.gameMode === 'native-to-target';
-		
+
 		const add = (key: string, v: any) => {
 			if (!key) return;
 			if (!map.has(key)) map.set(key, []);
 			// Avoid duplicate entries
-			if (!map.get(key)!.some(existing => existing.id === v.id)) {
+			if (!map.get(key)!.some((existing) => existing.id === v.id)) {
 				map.get(key)!.push(v);
 			}
 		};
@@ -675,26 +769,38 @@ r<script lang="ts">
 		return map;
 	}
 
-	function parseTextWithTooltips(text: string, isTargetedVocab: boolean, stillStreaming: boolean = false): string {
+	function parseTextWithTooltips(
+		text: string,
+		isTargetedVocab: boolean,
+		stillStreaming: boolean = false
+	): string {
 		const vocabMap = buildVocabMap();
 		const isDeToEn = challenge.gameMode === 'target-to-native';
 		// Whether this text is German (to enable article case tooltips)
 		const mode = challenge.gameMode as string;
 		const isGermanText =
-			mode === 'fill-blank' ? true :
-			mode === 'target-to-native' ? isTargetedVocab :
-			mode === 'native-to-target' ? !isTargetedVocab :
-			mode === 'multiple-choice' ? isTargetedVocab : false;
+			mode === 'fill-blank'
+				? true
+				: mode === 'target-to-native'
+					? isTargetedVocab
+					: mode === 'native-to-target'
+						? !isTargetedVocab
+						: mode === 'multiple-choice'
+							? isTargetedVocab
+							: false;
 
 		// Step 1: Replace <vocab> tags with placeholders to protect them
 		const vocabReplacements: string[] = [];
-		text = text.replace(/<vocab(?:\s+[^>]*)?id="([^"]+)"(?:[^>]*)?>([^<]*)<\/vocab>/g, (_match: string, id: string, word: string) => {
-			const vocab = challenge.targetedVocabulary?.find((v: any) => v.id === id);
-			const tooltipHtml = vocab ? buildTooltipHtml(vocab) : '';
-			const replacement = `<span class="vocab-highlight tooltip-trigger">${word}${tooltipHtml}</span>`;
-			vocabReplacements.push(replacement);
-			return `\x00VOCAB_${vocabReplacements.length - 1}\x00`;
-		});
+		text = text.replace(
+			/<vocab(?:\s+[^>]*)?id="([^"]+)"(?:[^>]*)?>([^<]*)<\/vocab>/g,
+			(_match: string, id: string, word: string) => {
+				const vocab = challenge.targetedVocabulary?.find((v: any) => v.id === id);
+				const tooltipHtml = vocab ? buildTooltipHtml(vocab) : '';
+				const replacement = `<span class="vocab-highlight tooltip-trigger">${word}${tooltipHtml}</span>`;
+				vocabReplacements.push(replacement);
+				return `\x00VOCAB_${vocabReplacements.length - 1}\x00`;
+			}
+		);
 
 		// Clean up incomplete tags from streaming
 		text = text.replace(/<vocab[^>]*>|<\/vocab>|<vocab[^>]*$/g, '');
@@ -704,12 +810,15 @@ r<script lang="ts">
 
 		// Helper: find vocab entry for a cleaned word
 		// Returns { vocab, inflectionNote? } or null
-		function findVocab(cleanWord: string, originalToken: string = ''): { vocab: any; inflectionNote?: string } | null {
+		function findVocab(
+			cleanWord: string,
+			originalToken: string = ''
+		): { vocab: any; inflectionNote?: string } | null {
 			const pickBest = (list: any[] | undefined) => {
 				if (!list || list.length === 0) return null;
 				if (list.length === 1) return list[0];
-				
-				// In German, nouns are always capitalized. 
+
+				// In German, nouns are always capitalized.
 				// For other languages (or English), we shouldn't use capitalization to heavily bias towards nouns,
 				// except maybe to deprioritize nouns if lowercase (but wait, in French/Spanish, nouns are lowercase!).
 				// So ONLY apply this capitalization logic if the text we are parsing is German.
@@ -719,14 +828,14 @@ r<script lang="ts">
 				if (parsingGerman) {
 					const isCapitalized = /^[A-ZÄÖÜ]/.test(originalToken.replace(/^[¿¡"'({\[]+/, ''));
 					if (isCapitalized) {
-						const noun = list.find(v => v.partOfSpeech?.toLowerCase() === 'noun');
+						const noun = list.find((v) => v.partOfSpeech?.toLowerCase() === 'noun');
 						if (noun) return noun;
 					} else {
-						const nonNoun = list.find(v => v.partOfSpeech?.toLowerCase() !== 'noun');
+						const nonNoun = list.find((v) => v.partOfSpeech?.toLowerCase() !== 'noun');
 						if (nonNoun) return nonNoun;
 					}
 				}
-				
+
 				return list[0]; // fallback
 			};
 
@@ -736,8 +845,9 @@ r<script lang="ts">
 			// Check the inflection map for conjugations/contractions
 			if (!isEnToDe) {
 				const activeLanguageName = data.language?.name || 'German';
-				const mapToUse = activeLanguageName === 'French' ? FRENCH_INFLECTION_MAP : GERMAN_INFLECTION_MAP;
-				
+				const mapToUse =
+					activeLanguageName === 'French' ? FRENCH_INFLECTION_MAP : GERMAN_INFLECTION_MAP;
+
 				const inflection = mapToUse[cleanWord];
 				if (inflection) {
 					vocab = pickBest(vocabMap.get(inflection.lemma.toLowerCase()));
@@ -784,12 +894,12 @@ r<script lang="ts">
 			if (cleanWord.endsWith('s') && !cleanWord.endsWith('ss')) {
 				const singular = cleanWord.slice(0, -1);
 				const list = vocabMap.get(singular);
-				if (list && list.some(v => v.partOfSpeech?.toLowerCase() === 'noun')) return true;
+				if (list && list.some((v) => v.partOfSpeech?.toLowerCase() === 'noun')) return true;
 			}
 			if (cleanWord.endsWith('ies') && cleanWord.length > 4) {
 				const singular = cleanWord.slice(0, -3) + 'y';
 				const list = vocabMap.get(singular);
-				if (list && list.some(v => v.partOfSpeech?.toLowerCase() === 'noun')) return true;
+				if (list && list.some((v) => v.partOfSpeech?.toLowerCase() === 'noun')) return true;
 			}
 			return false;
 		}
@@ -825,35 +935,39 @@ r<script lang="ts">
 				const activeLanguageName = data.language?.name || 'German';
 
 				if (nounVocab) {
-					const isPlural = upcomingWords.length > 0 && isLikelyPlural(
-						upcomingWords[0].replace(/[.,!?;:'"|()\[\]{}\-\u2014\u2013]/g, '').toLowerCase()
-					);
+					const isPlural =
+						upcomingWords.length > 0 &&
+						isLikelyPlural(
+							upcomingWords[0].replace(/[.,!?;:'"|()\[\]{}\-\u2014\u2013]/g, '').toLowerCase()
+						);
 					let article: string;
-					
+
 					if (activeLanguageName === 'French') {
 						if (cleanWord === 'the') {
 							const nomArt = genderToArticle(nounVocab.gender, activeLanguageName);
-							article = isPlural ? 'les' : (nomArt || 'le/la');
+							article = isPlural ? 'les' : nomArt || 'le/la';
 						} else {
 							// "a" / "an" — indefinite
-							const genderMap: Record<string, string> = { 'le': 'un', 'la': 'une' };
+							const genderMap: Record<string, string> = { le: 'un', la: 'une' };
 							const nomArt = genderToArticle(nounVocab.gender, activeLanguageName);
-							article = nomArt ? (genderMap[nomArt] || 'un/une') : 'un/une';
+							article = nomArt ? genderMap[nomArt] || 'un/une' : 'un/une';
 						}
 					} else {
 						if (cleanWord === 'the') {
 							const nomArt = genderToArticle(nounVocab.gender, activeLanguageName);
-							article = isPlural ? 'die' : (nomArt || 'der/die/das');
+							article = isPlural ? 'die' : nomArt || 'der/die/das';
 						} else {
 							// "a" / "an" — indefinite
-							const genderMap: Record<string, string> = { 'der': 'ein', 'die': 'eine', 'das': 'ein' };
+							const genderMap: Record<string, string> = { der: 'ein', die: 'eine', das: 'ein' };
 							const nomArt = genderToArticle(nounVocab.gender, activeLanguageName);
-							article = nomArt ? (genderMap[nomArt] || 'ein/eine') : 'ein/eine';
+							article = nomArt ? genderMap[nomArt] || 'ein/eine' : 'ein/eine';
 						}
 					}
-					
+
 					const tooltip = buildTooltipHtml(nounVocab, article);
-					result.push(`<span class="word-hover has-info tooltip-trigger">${token}${tooltip}</span>`);
+					result.push(
+						`<span class="word-hover has-info tooltip-trigger">${token}${tooltip}</span>`
+					);
 					continue;
 				}
 				// Fallback: show generic article tooltip even when noun not found
@@ -864,7 +978,9 @@ r<script lang="ts">
 					genericArticle = cleanWord === 'the' ? 'der/die/das' : 'ein/eine';
 				}
 				const genericTooltip = `<span class="word-tooltip"><span class="word-tooltip-header">${genericArticle}</span><span class="word-tooltip-body"><span class="word-tooltip-row"><strong>Article:</strong> ${cleanWord === 'the' ? 'definite' : 'indefinite'}</span></span></span>`;
-				result.push(`<span class="word-hover has-info tooltip-trigger">${token}${genericTooltip}</span>`);
+				result.push(
+					`<span class="word-hover has-info tooltip-trigger">${token}${genericTooltip}</span>`
+				);
 				continue;
 			}
 
@@ -872,7 +988,7 @@ r<script lang="ts">
 			if (isGermanText) {
 				const activeLanguageName = data.language?.name || 'German';
 				const artMap = activeLanguageName === 'French' ? FRENCH_ARTICLE_MAP : GERMAN_ARTICLE_MAP;
-				
+
 				const artEntry = artMap[cleanWord];
 				if (artEntry) {
 					const upcomingGerman = tokens.slice(i + 1).filter((t: string) => !/^\s+$/.test(t));
@@ -880,11 +996,16 @@ r<script lang="ts">
 					const nomArt = nounVocab ? genderToArticle(nounVocab.gender, activeLanguageName) : null;
 					// Narrow down possible case forms using the noun's gender
 					const matchedForms = nomArt
-						? artEntry.forms.filter(f => f.nomArticle === nomArt)
+						? artEntry.forms.filter((f) => f.nomArticle === nomArt)
 						: artEntry.forms;
 					const caseLabel = (matchedForms.length > 0 ? matchedForms : artEntry.forms)
-						.map(f => f.caseLabel).join(' / ');
-					const artType = artEntry.definite ? 'Definite' : (cleanWord.startsWith('k') ? 'Negative' : 'Indefinite');
+						.map((f) => f.caseLabel)
+						.join(' / ');
+					const artType = artEntry.definite
+						? 'Definite'
+						: cleanWord.startsWith('k')
+							? 'Negative'
+							: 'Indefinite';
 					let ttHtml = `<span class="word-tooltip">`;
 					ttHtml += `<span class="word-tooltip-header">${token}</span>`;
 					ttHtml += `<span class="word-tooltip-body">`;
@@ -894,8 +1015,10 @@ r<script lang="ts">
 						const nDisplay = nounVocab.lemma.charAt(0).toUpperCase() + nounVocab.lemma.slice(1);
 						const nGender = genderToArticle(nounVocab.gender, activeLanguageName);
 						ttHtml += `<span class="word-tooltip-row"><strong>Noun:</strong> ${nDisplay}</span>`;
-						if (nGender) ttHtml += `<span class="word-tooltip-row"><strong>Gender:</strong> ${nGender}</span>`;
-						if (nounVocab.meaning) ttHtml += `<span class="word-tooltip-row"><strong>Meaning:</strong> ${nounVocab.meaning}</span>`;
+						if (nGender)
+							ttHtml += `<span class="word-tooltip-row"><strong>Gender:</strong> ${nGender}</span>`;
+						if (nounVocab.meaning)
+							ttHtml += `<span class="word-tooltip-row"><strong>Meaning:</strong> ${nounVocab.meaning}</span>`;
 					}
 					ttHtml += `</span></span>`;
 					result.push(`<span class="word-hover has-info tooltip-trigger">${token}${ttHtml}</span>`);
@@ -917,7 +1040,9 @@ r<script lang="ts">
 					}
 					if (wordIndices.length < len) continue;
 					const phrase = wordIndices
-						.map(idx => tokens[idx].replace(/[.,!?;:'"|()\[\]{}\-\u2014\u2013]/g, '').toLowerCase())
+						.map((idx) =>
+							tokens[idx].replace(/[.,!?;:'"|()\[\]{}\-\u2014\u2013]/g, '').toLowerCase()
+						)
 						.join(' ');
 					const vList = vocabMap.get(phrase);
 					if (vList && vList.length > 0) {
@@ -927,7 +1052,9 @@ r<script lang="ts">
 				}
 				if (multiWordVocab) {
 					const combinedText = tokens.slice(i, multiWordEnd + 1).join('');
-					result.push(`<span class="word-hover has-info tooltip-trigger">${combinedText}${buildTooltipHtml(multiWordVocab)}</span>`);
+					result.push(
+						`<span class="word-hover has-info tooltip-trigger">${combinedText}${buildTooltipHtml(multiWordVocab)}</span>`
+					);
 					i = multiWordEnd;
 					continue;
 				}
@@ -935,10 +1062,14 @@ r<script lang="ts">
 
 			const vocabResult = findVocab(cleanWord, token);
 			if (vocabResult) {
-				result.push(`<span class="word-hover has-info tooltip-trigger">${token}${buildTooltipHtml(vocabResult.vocab, undefined, vocabResult.inflectionNote)}</span>`);
+				result.push(
+					`<span class="word-hover has-info tooltip-trigger">${token}${buildTooltipHtml(vocabResult.vocab, undefined, vocabResult.inflectionNote)}</span>`
+				);
 			} else if (stillStreaming) {
 				const loadingTooltip = `<span class="word-tooltip"><span class="word-tooltip-header">${token}</span><span class="word-tooltip-body"><span class="word-tooltip-row ai-magic-text"><span class="sparkle">✨</span> AI analyzing...</span></span></span>`;
-				result.push(`<span class="word-hover has-info tooltip-trigger">${token}${loadingTooltip}</span>`);
+				result.push(
+					`<span class="word-hover has-info tooltip-trigger">${token}${loadingTooltip}</span>`
+				);
 			} else {
 				result.push(`<span class="word-hover">${token}</span>`);
 			}
@@ -946,7 +1077,10 @@ r<script lang="ts">
 		text = result.join('');
 
 		// Step 3: Restore vocab placeholders
-		text = text.replace(/\x00VOCAB_(\d+)\x00/g, (_: string, idx: string) => vocabReplacements[parseInt(idx)]);
+		text = text.replace(
+			/\x00VOCAB_(\d+)\x00/g,
+			(_: string, idx: string) => vocabReplacements[parseInt(idx)]
+		);
 
 		return text;
 	}
@@ -998,7 +1132,9 @@ r<script lang="ts">
 				const statData = await statRes.json();
 				estimatedLoadMs = statData.averageMs || 9000;
 			}
-		} catch { /* use default */ }
+		} catch {
+			/* use default */
+		}
 
 		// Start progress bar
 		loadProgressPct = 0;
@@ -1021,31 +1157,31 @@ r<script lang="ts">
 		}, 3500);
 
 		generateController = new AbortController();
-		
+
 		try {
 			const res = await fetch('/api/generate-lesson', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ 
+				body: JSON.stringify({
 					gameMode,
 					assignmentId: assignment?.id ?? undefined
 				}),
 				signal: generateController.signal
 			});
-			
+
 			if (!res.ok) {
 				const error = await res.json();
 				toast.error(`Error: ${error.error}`);
 				return;
 			}
-			
+
 			const reader = res.body?.getReader();
-			if (!reader) throw new Error("No readable stream available");
+			if (!reader) throw new Error('No readable stream available');
 			const decoder = new TextDecoder();
 			let accumulatedJson = '';
 			let buffer = '';
 			let idMap: Record<string, string> = {};
-			
+
 			challenge = {
 				challengeText: '',
 				targetSentence: '',
@@ -1059,11 +1195,11 @@ r<script lang="ts">
 			while (true) {
 				const { done, value } = await reader.read();
 				if (done) break;
-				
+
 				buffer += decoder.decode(value, { stream: true });
 				const lines = buffer.split('\n');
 				buffer = lines.pop() || ''; // Keep the last incomplete line in the buffer
-				
+
 				for (const line of lines) {
 					if (!line.trim()) continue;
 					try {
@@ -1083,11 +1219,16 @@ r<script lang="ts">
 							challenge.allVocabulary = [...(challenge.allVocabulary || []), ...newVocab];
 						} else if (msg.type === 'chunk') {
 							accumulatedJson += msg.content;
-							
+
 							// Try to extract challengeText for progressive display
-							const challengeMatch = accumulatedJson.match(/"challengeText"\s*:\s*"((?:[^"\\]|\\.)*)/);
+							const challengeMatch = accumulatedJson.match(
+								/"challengeText"\s*:\s*"((?:[^"\\]|\\.)*)/
+							);
 							if (challengeMatch && challengeMatch[1]) {
-								let extractedText = challengeMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+								let extractedText = challengeMatch[1]
+									.replace(/\\n/g, '\n')
+									.replace(/\\"/g, '"')
+									.replace(/\\\\/g, '\\');
 								// Remap short vocab IDs (v0, v1, ...) to real UUIDs so tooltips work during streaming
 								if (idMap && Object.keys(idMap).length > 0) {
 									extractedText = extractedText.replace(
@@ -1096,7 +1237,7 @@ r<script lang="ts">
 									);
 								}
 								challenge.challengeText = extractedText;
-								
+
 								if (challenge.gameMode === 'fill-blank') {
 									const blanksCount = (extractedText.match(/___/g) || []).length;
 									if (blanksCount > fillBlankAnswers.length) {
@@ -1122,43 +1263,73 @@ r<script lang="ts">
 							}
 
 							// Progressive extraction of other fields to allow early submission
-							const targetMatch = accumulatedJson.match(/"targetSentence"\s*:\s*"((?:[^"\\]|\\.)*)/);
+							const targetMatch = accumulatedJson.match(
+								/"targetSentence"\s*:\s*"((?:[^"\\]|\\.)*)/
+							);
 							if (targetMatch && targetMatch[1]) {
-								challenge.targetSentence = targetMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+								challenge.targetSentence = targetMatch[1]
+									.replace(/\\n/g, '\n')
+									.replace(/\\"/g, '"')
+									.replace(/\\\\/g, '\\');
 							}
 
-							const vocabIdsMatch = accumulatedJson.match(/"targetedVocabularyIds"\s*:\s*\[([^\]]*)\]/);
+							const vocabIdsMatch = accumulatedJson.match(
+								/"targetedVocabularyIds"\s*:\s*\[([^\]]*)\]/
+							);
 							if (vocabIdsMatch && vocabIdsMatch[1]) {
-								const rawIds = vocabIdsMatch[1].split(',').map(s => s.trim().replace(/^"|"$/g, '')).filter(Boolean);
-								challenge.targetedVocabularyIds = rawIds.map(id => idMap[id] || id);
-								
+								const rawIds = vocabIdsMatch[1]
+									.split(',')
+									.map((s) => s.trim().replace(/^"|"$/g, ''))
+									.filter(Boolean);
+								challenge.targetedVocabularyIds = rawIds.map((id) => idMap[id] || id);
+
 								// Immediate filtering of vocabulary
-								if (challenge.targetedVocabularyIds.length > 0 && challenge.targetedVocabulary?.length > 0) {
+								if (
+									challenge.targetedVocabularyIds.length > 0 &&
+									challenge.targetedVocabulary?.length > 0
+								) {
 									const usedIds = new Set(challenge.targetedVocabularyIds);
 									// Store the original metadata-sourced list if we haven't yet, so we can re-filter if needed
-									if (!challenge._allMetadataVocab) challenge._allMetadataVocab = [...challenge.targetedVocabulary];
-									challenge.targetedVocabulary = challenge._allMetadataVocab.filter((v: any) => usedIds.has(v.id));
+									if (!challenge._allMetadataVocab)
+										challenge._allMetadataVocab = [...challenge.targetedVocabulary];
+									challenge.targetedVocabulary = challenge._allMetadataVocab.filter((v: any) =>
+										usedIds.has(v.id)
+									);
 								}
 							}
 
-							const grammarIdsMatch = accumulatedJson.match(/"targetedGrammarIds"\s*:\s*\[([^\]]*)\]/);
+							const grammarIdsMatch = accumulatedJson.match(
+								/"targetedGrammarIds"\s*:\s*\[([^\]]*)\]/
+							);
 							if (grammarIdsMatch && grammarIdsMatch[1]) {
-								const rawIds = grammarIdsMatch[1].split(',').map(s => s.trim().replace(/^"|"$/g, '')).filter(Boolean);
-								challenge.targetedGrammarIds = rawIds.map(id => idMap[id] || id);
+								const rawIds = grammarIdsMatch[1]
+									.split(',')
+									.map((s) => s.trim().replace(/^"|"$/g, ''))
+									.filter(Boolean);
+								challenge.targetedGrammarIds = rawIds.map((id) => idMap[id] || id);
 
 								// Immediate filtering of grammar
-								if (challenge.targetedGrammarIds.length > 0 && challenge.targetedGrammar?.length > 0) {
+								if (
+									challenge.targetedGrammarIds.length > 0 &&
+									challenge.targetedGrammar?.length > 0
+								) {
 									const usedIds = new Set(challenge.targetedGrammarIds);
 									// Store original
-									if (!challenge._allMetadataGrammar) challenge._allMetadataGrammar = [...challenge.targetedGrammar];
-									challenge.targetedGrammar = challenge._allMetadataGrammar.filter((g: any) => usedIds.has(g.id));
+									if (!challenge._allMetadataGrammar)
+										challenge._allMetadataGrammar = [...challenge.targetedGrammar];
+									challenge.targetedGrammar = challenge._allMetadataGrammar.filter((g: any) =>
+										usedIds.has(g.id)
+									);
 								}
 							}
 
 							// Progressive extraction of distractors for multiple-choice
 							const distractorsMatch = accumulatedJson.match(/"distractors"\s*:\s*\[([^\]]*)\]/);
 							if (distractorsMatch && distractorsMatch[1] && challenge.targetSentence) {
-								const distractors = distractorsMatch[1].split(',').map(s => s.trim().replace(/^"|"$/g, '')).filter(Boolean);
+								const distractors = distractorsMatch[1]
+									.split(',')
+									.map((s) => s.trim().replace(/^"|"$/g, ''))
+									.filter(Boolean);
 								if (distractors.length > 0 && (!shuffledChoices || shuffledChoices.length === 0)) {
 									const allChoices = [...distractors, challenge.targetSentence];
 									shuffledChoices = allChoices.sort(() => Math.random() - 0.5);
@@ -1187,10 +1358,10 @@ r<script lang="ts">
 						// Ignore parse errors on partial lines
 					}
 				}
-				
+
 				challenge = challenge; // trigger reactivity
 			}
-			
+
 			if (buffer.trim()) {
 				try {
 					const msg = JSON.parse(buffer);
@@ -1203,7 +1374,7 @@ r<script lang="ts">
 					}
 				} catch (e) {}
 			}
-			
+
 			// Try to parse the complete JSON at the end to get everything (targetSentence, etc)
 			try {
 				let cleaned = accumulatedJson;
@@ -1217,11 +1388,15 @@ r<script lang="ts">
 
 				// Remap short IDs (v0, g0, ...) from LLM back to real UUIDs
 				if (parsed.targetedVocabularyIds && Array.isArray(parsed.targetedVocabularyIds)) {
-					parsed.targetedVocabularyIds = parsed.targetedVocabularyIds.map((id: string) => idMap[id] || id);
+					parsed.targetedVocabularyIds = parsed.targetedVocabularyIds.map(
+						(id: string) => idMap[id] || id
+					);
 					challenge.targetedVocabularyIds = parsed.targetedVocabularyIds;
 				}
 				if (parsed.targetedGrammarIds && Array.isArray(parsed.targetedGrammarIds)) {
-					parsed.targetedGrammarIds = parsed.targetedGrammarIds.map((id: string) => idMap[id] || id);
+					parsed.targetedGrammarIds = parsed.targetedGrammarIds.map(
+						(id: string) => idMap[id] || id
+					);
 					challenge.targetedGrammarIds = parsed.targetedGrammarIds;
 				}
 				// Remap vocab tags in challengeText: <vocab id="v0"> -> <vocab id="real-uuid">
@@ -1244,13 +1419,15 @@ r<script lang="ts">
 				// Discard any vocab/grammar the LLM didn't use so they aren't graded or shown.
 				if (parsed.targetedVocabularyIds && Array.isArray(parsed.targetedVocabularyIds)) {
 					const usedVocabIds = new Set(parsed.targetedVocabularyIds);
-					challenge.targetedVocabulary = (challenge.targetedVocabulary || [])
-						.filter((v: any) => usedVocabIds.has(v.id));
+					challenge.targetedVocabulary = (challenge.targetedVocabulary || []).filter((v: any) =>
+						usedVocabIds.has(v.id)
+					);
 				}
 				if (parsed.targetedGrammarIds && Array.isArray(parsed.targetedGrammarIds)) {
 					const usedGrammarIds = new Set(parsed.targetedGrammarIds);
-					challenge.targetedGrammar = (challenge.targetedGrammar || [])
-						.filter((g: any) => usedGrammarIds.has(g.id));
+					challenge.targetedGrammar = (challenge.targetedGrammar || []).filter((g: any) =>
+						usedGrammarIds.has(g.id)
+					);
 				}
 
 				// Initialize fill-blank answers array
@@ -1259,27 +1436,34 @@ r<script lang="ts">
 				}
 
 				// Shuffle multiple-choice options
-				if (challenge.gameMode === 'multiple-choice' && challenge.distractors && challenge.targetSentence) {
+				if (
+					challenge.gameMode === 'multiple-choice' &&
+					challenge.distractors &&
+					challenge.targetSentence
+				) {
 					const allChoices = [...challenge.distractors, challenge.targetSentence];
 					shuffledChoices = allChoices.sort(() => Math.random() - 0.5);
 				}
-			} catch(e) {
-				console.error("Failed to parse final JSON", e);
+			} catch (e) {
+				console.error('Failed to parse final JSON', e);
 			}
-
 		} catch (error) {
 			if (error instanceof DOMException && error.name === 'AbortError') {
 				// Request was intentionally cancelled — don't show an error
 				return;
 			}
 			console.error(error);
-			toast.error(`Failed to generate challenge: ${error instanceof Error ? error.message : 'Unknown error'}`);
+			toast.error(
+				`Failed to generate challenge: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
 		} finally {
 			generateController = null;
 			// Complete progress bar then clean up
 			stopLoadingIntervals();
 			loadProgressPct = 100;
-			setTimeout(() => { loadProgressPct = 0; }, 500);
+			setTimeout(() => {
+				loadProgressPct = 0;
+			}, 500);
 			loading = false;
 			isStreaming = false;
 		}
@@ -1292,7 +1476,7 @@ r<script lang="ts">
 		// Build userInput based on mode
 		let effectiveInput = userInput;
 		if (mode === 'fill-blank') {
-			if (fillBlankAnswers.some(a => !a.trim())) return;
+			if (fillBlankAnswers.some((a) => !a.trim())) return;
 			effectiveInput = fillBlankAnswers.join(', ');
 		} else if (mode === 'multiple-choice') {
 			if (!selectedChoice) return;
@@ -1306,14 +1490,16 @@ r<script lang="ts">
 			console.warn('Challenge is still generating, but submission is allowed.');
 		}
 		if (!challenge?.targetSentence) {
-			toast.error('Challenge was not properly generated (missing target sentence). Please generate a new challenge.');
+			toast.error(
+				'Challenge was not properly generated (missing target sentence). Please generate a new challenge.'
+			);
 			return;
 		}
-		
+
 		if (mode === 'multiple-choice') {
 			hasSubmittedMc = true;
 		}
-		
+
 		submitting = true;
 		feedback = null;
 
@@ -1334,14 +1520,14 @@ r<script lang="ts">
 				}),
 				signal: submitController.signal
 			});
-			
+
 			if (!res.ok) {
 				const error = await res.json();
 				toast.error(`Error: ${error.error}`);
 				feedback = null;
 				return;
 			}
-			
+
 			const reader = res.body?.getReader();
 			if (!reader) throw new Error('Failed to get readable stream');
 
@@ -1387,14 +1573,17 @@ r<script lang="ts">
 				// For streaming responses, the server appends \n\nJSON_PAYLOAD:{...} at the end
 				const payloadMarker = '\n\nJSON_PAYLOAD:';
 				const payloadIdx = responseText.indexOf(payloadMarker);
-				const jsonToParse = payloadIdx >= 0
-					? responseText.slice(payloadIdx + payloadMarker.length)
-					: responseText;
+				const jsonToParse =
+					payloadIdx >= 0 ? responseText.slice(payloadIdx + payloadMarker.length) : responseText;
 				const data = JSON.parse(jsonToParse);
 				// Build grader idMap from the order of IDs we sent (same order the grader used)
 				const graderIdMap: Record<string, string> = {};
-				(challenge.targetedVocabulary || []).forEach((v: any, i: number) => { graderIdMap[`v${i}`] = v.id; });
-				(challenge.targetedGrammar || []).forEach((g: any, i: number) => { graderIdMap[`g${i}`] = g.id; });
+				(challenge.targetedVocabulary || []).forEach((v: any, i: number) => {
+					graderIdMap[`v${i}`] = v.id;
+				});
+				(challenge.targetedGrammar || []).forEach((g: any, i: number) => {
+					graderIdMap[`g${i}`] = g.id;
+				});
 				feedback = {
 					globalScore: data.globalScore ?? 0,
 					vocabularyUpdates: (data.vocabularyUpdates || []).map((u: any) => ({
@@ -1424,7 +1613,9 @@ r<script lang="ts">
 				return;
 			}
 			console.error(error);
-			toast.error(`Failed to submit answer: ${error instanceof Error ? error.message : 'Unknown error'}`);
+			toast.error(
+				`Failed to submit answer: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
 			feedback = null;
 			hasSubmittedMc = false;
 		} finally {
@@ -1434,7 +1625,7 @@ r<script lang="ts">
 	}
 </script>
 
-<svelte:head>
+r<svelte:head>
 	<title>Play - LingoLearn</title>
 </svelte:head>
 
@@ -1447,7 +1638,10 @@ r<script lang="ts">
 
 		<!-- Assignment context banner -->
 		{#if assignment && assignmentProgress}
-			<div class="card card-duo assignment-banner {assignmentProgress.passed ? 'passed' : 'active'}" in:fly={{ y: 20, duration: 400, delay: 100 }}>
+			<div
+				class="card card-duo assignment-banner {assignmentProgress.passed ? 'passed' : 'active'}"
+				in:fly={{ y: 20, duration: 400, delay: 100 }}
+			>
 				<div class="assignment-info">
 					<div class="assignment-icon">
 						{assignmentProgress.passed ? '🏆' : '📋'}
@@ -1457,6 +1651,11 @@ r<script lang="ts">
 						<div class="assignment-meta">
 							<span class="meta-badge">{assignment.class?.name ?? 'Class'}</span>
 							<span class="meta-badge gamemode">{assignment.gamemode.replace(/-/g, ' ')}</span>
+							<span class="meta-badge language">
+								{assignment.language === 'international'
+									? '🌍 International'
+									: `${data.language?.flag || '🏁'} ${data.language?.name || 'Target'}`}
+							</span>
 						</div>
 					</div>
 				</div>
@@ -1464,26 +1663,46 @@ r<script lang="ts">
 					<div class="progress-box">
 						<p class="progress-label">Progress</p>
 						<p class="progress-value {assignmentProgress.passed ? 'passed' : 'active'}">
-							{assignmentProgress.score}<span class="progress-target">/{assignmentProgress.targetScore}</span>
+							{assignmentProgress.score}<span class="progress-target"
+								>/{assignmentProgress.targetScore}</span
+							>
 						</p>
 					</div>
 					<a href="/classes/{assignment.classId}" class="btn-duo btn-secondary back-btn">
 						Back to Class
-						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="16"
+							height="16"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg
+						>
 					</a>
 				</div>
 			</div>
 		{/if}
 
 		{#if !challenge && !loading}
-			<div class="card card-duo empty-state dark:bg-slate-800 dark:border-slate-700" in:fly={{ y: 20, duration: 400 }}>
+			<div
+				class="card card-duo empty-state dark:bg-slate-800 dark:border-slate-700"
+				in:fly={{ y: 20, duration: 400 }}
+			>
 				<h2 class="dark:text-white">Ready to test your skills?</h2>
 
 				{#if isAbsoluteBeginner}
 					<div class="beginner-tip dark:bg-slate-900 dark:border-slate-700 dark:text-emerald-400">
 						<span class="tip-icon">💡</span>
 						<div>
-							<strong class="dark:text-emerald-300">Tip for beginners:</strong> Start with <strong>Multiple Choice</strong> or <strong>{data.user?.activeLanguage?.name || 'Target'} to English</strong> — these let you recognize words before producing them. Once you feel confident, try <strong>Fill in the Blank</strong> and <strong>English to {data.user?.activeLanguage?.name || 'Target'}</strong>!
+							<strong class="dark:text-emerald-300">Tip for beginners:</strong> Start with
+							<strong>Multiple Choice</strong>
+							or <strong>{data.language?.name || 'Target'} to English</strong> — these let you
+							recognize words before producing them. Once you feel confident, try
+							<strong>Fill in the Blank</strong>
+							and <strong>English to {data.language?.name || 'Target'}</strong>!
 						</div>
 					</div>
 				{/if}
@@ -1491,56 +1710,78 @@ r<script lang="ts">
 				<div class="mode-selector">
 					<span class="mode-label dark:text-slate-400">Game Mode:</span>
 					{#if assignment}
-						<p class="font-bold text-blue-600 dark:text-blue-400 capitalize">{assignment.gamemode.replace(/-/g, ' ')} <span class="text-gray-400 dark:text-gray-500 font-normal text-sm">(set by assignment)</span></p>
+						<p class="font-bold text-blue-600 dark:text-blue-400 capitalize">
+							{assignment.gamemode.replace(/-/g, ' ')}
+							<span class="text-gray-400 dark:text-gray-500 font-normal text-sm"
+								>(set by assignment)</span
+							>
+						</p>
 					{:else}
-					<div class="mode-buttons">
-						<!-- Easiest first -->
-						<button
-							class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700" class:active={gameMode === 'multiple-choice'}
-							on:click={() => gameMode = 'multiple-choice'}
-						>
-							🔘 Multiple Choice
-							<span class="mode-difficulty easy">Easiest</span>
-						</button>
-						<button
-							class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700" class:active={gameMode === 'target-to-native'}
-							on:click={() => gameMode = 'target-to-native'}
-						>
-							{data.user?.activeLanguage?.flag || '🏁'} → {englishFlag} {data.user?.activeLanguage?.name || 'Target'} to English
-							<span class="mode-difficulty easy">Easy</span>
-						</button>
-						<button
-							class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700" class:active={gameMode === 'fill-blank'}
-							on:click={() => gameMode = 'fill-blank'}
-						>
-							✏️ Fill in the Blank
-							<span class="mode-difficulty medium">Medium</span>
-						</button>
-						<button
-							class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700" class:active={gameMode === 'native-to-target'}
-							on:click={() => gameMode = 'native-to-target'}
-						>
-							{englishFlag} → {data.user?.activeLanguage?.flag || '🏁'} English to {data.user?.activeLanguage?.name || 'Target'}
-							<span class="mode-difficulty hard">Hardest</span>
-						</button>
-					</div>
+						<div class="mode-buttons">
+							<!-- Easiest first -->
+							<button
+								class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700"
+								class:active={gameMode === 'multiple-choice'}
+								on:click={() => (gameMode = 'multiple-choice')}
+							>
+								🔘 Multiple Choice
+								<span class="mode-difficulty easy">Easiest</span>
+							</button>
+							<button
+								class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700"
+								class:active={gameMode === 'target-to-native'}
+								on:click={() => (gameMode = 'target-to-native')}
+							>
+								{data.language?.flag || '🏁'} → {englishFlag}
+								{data.language?.name || 'Target'} to English
+								<span class="mode-difficulty easy">Easy</span>
+							</button>
+							<button
+								class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700"
+								class:active={gameMode === 'fill-blank'}
+								on:click={() => (gameMode = 'fill-blank')}
+							>
+								✏️ Fill in the Blank
+								<span class="mode-difficulty medium">Medium</span>
+							</button>
+							<button
+								class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700"
+								class:active={gameMode === 'native-to-target'}
+								on:click={() => (gameMode = 'native-to-target')}
+							>
+								{englishFlag} → {data.language?.flag || '🏁'} English to {data.language?.name ||
+									'Target'}
+								<span class="mode-difficulty hard">Hardest</span>
+							</button>
+						</div>
 					{/if}
 				</div>
-				<button on:click={generateChallenge} class="btn-duo btn-primary" style="margin-top: 1.5rem; width: 100%;">
+				<button
+					on:click={generateChallenge}
+					class="btn-duo btn-primary"
+					style="margin-top: 1.5rem; width: 100%;"
+				>
 					Generate Next Challenge
 				</button>
 			</div>
 		{/if}
 
 		{#if loading}
-			<div class="card card-duo loading-state dark:bg-slate-800 dark:border-slate-700" in:fade={{ duration: 300 }}>
+			<div
+				class="card card-duo loading-state dark:bg-slate-800 dark:border-slate-700"
+				in:fade={{ duration: 300 }}
+			>
 				<div class="spinner"></div>
 				<div class="load-progress-track dark:bg-slate-700">
 					<div class="load-progress-fill" style="width: {loadProgressPct}%"></div>
 				</div>
 				<div class="load-tip-container">
 					{#key loadTipIndex}
-						<p class="load-tip dark:text-slate-400" in:fade={{ duration: 350, delay: 50 }} out:fade={{ duration: 300 }}>
+						<p
+							class="load-tip dark:text-slate-400"
+							in:fade={{ duration: 350, delay: 50 }}
+							out:fade={{ duration: 300 }}
+						>
 							{loadingTips[loadTipIndex]}
 						</p>
 					{/key}
@@ -1549,7 +1790,10 @@ r<script lang="ts">
 		{/if}
 
 		{#if challenge && !loading}
-			<div class="card card-duo challenge-card dark:bg-slate-800 dark:border-slate-700" in:fly={{ y: 20, duration: 400 }}>
+			<div
+				class="card card-duo challenge-card dark:bg-slate-800 dark:border-slate-700"
+				in:fly={{ y: 20, duration: 400 }}
+			>
 				<div class="challenge-section">
 					{#if challenge.gameMode === 'fill-blank'}
 						<h3 class="dark:text-slate-400">Fill in the blanks:</h3>
@@ -1558,7 +1802,9 @@ r<script lang="ts">
 					{:else if challenge.gameMode === 'target-to-native'}
 						<h3 class="dark:text-slate-400">Translate this to English:</h3>
 					{:else}
-						<h3 class="dark:text-slate-400">Translate this to {data.user?.activeLanguage?.name || 'Target'}:</h3>
+						<h3 class="dark:text-slate-400">
+							Translate this to {data.language?.name || 'Target'}:
+						</h3>
 					{/if}
 					<p class="challenge-text dark:text-white">{@html parsedChallengeText}</p>
 				</div>
@@ -1568,7 +1814,10 @@ r<script lang="ts">
 						<h3 class="dark:text-slate-400">Hints:</h3>
 						<ul class="hint-list">
 							{#each challenge.hints as hint, i}
-								<li class="dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300"><span class="hint-number">Blank {i + 1}:</span> {hint.hint}</li>
+								<li class="dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300">
+									<span class="hint-number">Blank {i + 1}:</span>
+									{hint.hint}
+								</li>
 							{/each}
 						</ul>
 					</div>
@@ -1579,18 +1828,20 @@ r<script lang="ts">
 					{#if isStreaming}
 						<div class="ai-magic-loader">
 							<span class="sparkle">✨</span>
-							<span class="dark:text-slate-400 italic">AI is analyzing grammar & generating tooltips...</span>
+							<span class="dark:text-slate-400 italic"
+								>AI is analyzing grammar & generating tooltips...</span
+							>
 						</div>
 					{:else if challenge.targetedGrammar?.length > 0}
 						<ul class="concept-list">
 							{#each challenge.targetedGrammar as grammar}
 								<li class="dark:text-slate-300 grammar-item">
 									<div class="grammar-header">
-										<span class="concept-type dark:bg-slate-700 dark:text-slate-300">Grammar</span> 
+										<span class="concept-type dark:bg-slate-700 dark:text-slate-300">Grammar</span>
 										<span class="grammar-title">{grammar.title}</span>
 										{#if grammar.guide}
-											<button 
-												type="button" 
+											<button
+												type="button"
 												class="guide-toggle-btn dark:text-slate-400 dark:hover:text-slate-200"
 												on:click={() => toggleGrammar(grammar.id)}
 											>
@@ -1599,7 +1850,10 @@ r<script lang="ts">
 										{/if}
 									</div>
 									{#if grammar.guide && expandedGrammarId === grammar.id}
-										<div class="grammar-guide markdown-body dark:bg-slate-900 dark:border-slate-700" transition:fly={{ y: -5, duration: 200 }}>
+										<div
+											class="grammar-guide markdown-body dark:bg-slate-900 dark:border-slate-700"
+											transition:fly={{ y: -5, duration: 200 }}
+										>
 											{@html marked(grammar.guide)}
 										</div>
 									{/if}
@@ -1616,13 +1870,17 @@ r<script lang="ts">
 						<div class="fill-blank-inputs">
 							{#each fillBlankAnswers as _, i}
 								<div class="form-group">
-									<label for="blank-{i}" class="dark:text-slate-300">Blank {i + 1}{challenge.hints?.[i] ? ` (${challenge.hints[i].hint})` : ''}</label>
+									<label for="blank-{i}" class="dark:text-slate-300"
+										>Blank {i + 1}{challenge.hints?.[i]
+											? ` (${challenge.hints[i].hint})`
+											: ''}</label
+									>
 									<input
 										id="blank-{i}"
 										type="text"
 										bind:value={fillBlankAnswers[i]}
 										disabled={submitting || feedback !== null || loading}
-										placeholder="Type the missing {data.user?.activeLanguage?.name || 'Target'} word..."
+										placeholder="Type the missing {data.language?.name || 'Target'} word..."
 										class="blank-input dark:bg-slate-900 dark:text-white dark:border-slate-700"
 									/>
 								</div>
@@ -1635,10 +1893,16 @@ r<script lang="ts">
 									type="button"
 									class="mc-choice-btn dark:bg-slate-900 dark:text-slate-200 dark:border-slate-700"
 									class:selected={selectedChoice === choice}
-									class:correct={(feedback || hasSubmittedMc) && choice === challenge.targetSentence}
-									class:incorrect={(feedback || hasSubmittedMc) && selectedChoice === choice && choice !== challenge.targetSentence}
+									class:correct={(feedback || hasSubmittedMc) &&
+										choice === challenge.targetSentence}
+									class:incorrect={(feedback || hasSubmittedMc) &&
+										selectedChoice === choice &&
+										choice !== challenge.targetSentence}
 									disabled={submitting || feedback !== null || loading || hasSubmittedMc}
-									on:click={() => { selectedChoice = choice; submitAnswer(); }}
+									on:click={() => {
+										selectedChoice = choice;
+										submitAnswer();
+									}}
 								>
 									{choice.replace(/<vocab[^>]*>/g, '').replace(/<\/vocab>/g, '')}
 								</button>
@@ -1652,17 +1916,27 @@ r<script lang="ts">
 								bind:value={userInput}
 								disabled={submitting || feedback || loading}
 								rows="3"
-								placeholder={loading ? "Generating challenge..." : (challenge?.gameMode === 'target-to-native' ? "Type your English translation here..." : `Type your ${data.user?.activeLanguage?.name || 'Target'} translation here... (Or ask for help / translation in English)`)}
+								placeholder={loading
+									? 'Generating challenge...'
+									: challenge?.gameMode === 'target-to-native'
+										? 'Type your English translation here...'
+										: `Type your ${data.language?.name || 'Target'} translation here... (Or ask for help / translation in English)`}
 								class="dark:bg-slate-900 dark:text-white dark:border-slate-700"
 							></textarea>
 						</div>
 					{/if}
-					
+
 					{#if !feedback}
 						{#if challenge.gameMode !== 'multiple-choice'}
-							<button 
-								type="submit" 
-								disabled={submitting || !challenge?.targetSentence || (challenge.gameMode === 'fill-blank' ? (fillBlankAnswers.length === 0 || fillBlankAnswers.some(a => !a.trim())) : (challenge.gameMode === 'multiple-choice' ? !selectedChoice : !userInput.trim()))}
+							<button
+								type="submit"
+								disabled={submitting ||
+									!challenge?.targetSentence ||
+									(challenge.gameMode === 'fill-blank'
+										? fillBlankAnswers.length === 0 || fillBlankAnswers.some((a) => !a.trim())
+										: challenge.gameMode === 'multiple-choice'
+											? !selectedChoice
+											: !userInput.trim())}
 								class="btn-duo btn-primary submit-btn"
 								style="margin-top: 1.5rem; width: 100%;"
 							>
@@ -1682,29 +1956,41 @@ r<script lang="ts">
 		{/if}
 
 		{#if feedback}
-			<div class="card card-duo feedback-card dark:bg-slate-800 dark:border-slate-700" in:fly={{ y: 20, duration: 400 }}>
+			<div
+				class="card card-duo feedback-card dark:bg-slate-800 dark:border-slate-700"
+				in:fly={{ y: 20, duration: 400 }}
+			>
 				<div class="feedback-header">
 					<h2 class="dark:text-white">Feedback</h2>
 					{#if feedback.feedbackEnglish}
-					<label class="toggle-container">
-						<input type="checkbox" bind:checked={showEnglishFeedback}>
-						<span class="toggle-label dark:text-slate-400">Translate to English</span>
-					</label>
+						<label class="toggle-container">
+							<input type="checkbox" bind:checked={showEnglishFeedback} />
+							<span class="toggle-label dark:text-slate-400">Translate to English</span>
+						</label>
 					{/if}
 					<div class="score-display">
 						<span class="score-label dark:text-slate-400">Score:</span>
 						{#if feedback.globalScore === null}
 							<div class="score-spinner"></div>
 						{:else}
-						<span class="score-value" class:excellent={feedback.globalScore > 0.8} class:good={feedback.globalScore <= 0.8 && feedback.globalScore > 0.5} class:needs-work={feedback.globalScore <= 0.5}>
-							{Math.round(feedback.globalScore * 100)}%
-						</span>
+							<span
+								class="score-value"
+								class:excellent={feedback.globalScore > 0.8}
+								class:good={feedback.globalScore <= 0.8 && feedback.globalScore > 0.5}
+								class:needs-work={feedback.globalScore <= 0.5}
+							>
+								{Math.round(feedback.globalScore * 100)}%
+							</span>
 						{/if}
 					</div>
 				</div>
 
 				<div class="feedback-message dark:bg-slate-900 dark:border-blue-900 dark:text-blue-300">
-					<p>{showEnglishFeedback && feedback.feedbackEnglish ? feedback.feedbackEnglish : feedback.feedback}</p>
+					<p>
+						{showEnglishFeedback && feedback.feedbackEnglish
+							? feedback.feedbackEnglish
+							: feedback.feedback}
+					</p>
 				</div>
 
 				<div class="feedback-section">
@@ -1727,25 +2013,34 @@ r<script lang="ts">
 											<div class="item-row">
 												<span class="item-label">
 													{#if v}
-														{[genderToArticle(v.gender), v.lemma].filter(Boolean).join('\u00A0') + (v.plural ? '\u00A0(pl: ' + v.plural + ')' : '')}
+														{[genderToArticle(v.gender), v.lemma].filter(Boolean).join('\u00A0') +
+															(v.plural ? '\u00A0(pl: ' + v.plural + ')' : '')}
 													{:else}
 														{update.id}
 													{/if}
 												</span>
 												<span class="elo-display dark:bg-slate-900 dark:text-slate-400">
-													ELO {Math.round(showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000))}
+													ELO {Math.round(
+														showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000)
+													)}
 													{#if showAfterElo && update.eloAfter !== update.eloBefore}
 														{@const delta = Math.round(update.eloAfter - update.eloBefore)}
-														<span class="elo-delta" class:positive={delta > 0} class:negative={delta < 0}>
+														<span
+															class="elo-delta"
+															class:positive={delta > 0}
+															class:negative={delta < 0}
+														>
 															{delta > 0 ? '+' : ''}{delta}
 														</span>
 													{/if}
 												</span>
 											</div>
 											<div class="progress-bar-container dark:bg-slate-700 dark:border-slate-600">
-												<div 
-													class="progress-bar-fill" 
-													style="width: {calculateEloProgress(showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000))}%"
+												<div
+													class="progress-bar-fill"
+													style="width: {calculateEloProgress(
+														showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000)
+													)}%"
 												></div>
 											</div>
 										</div>
@@ -1765,22 +2060,31 @@ r<script lang="ts">
 										<div class="item-info">
 											<div class="item-row">
 												<span class="item-label">
-													{challenge.targetedGrammar.find((g: any) => g.id === update.id)?.title || update.id}
+													{challenge.targetedGrammar.find((g: any) => g.id === update.id)?.title ||
+														update.id}
 												</span>
 												<span class="elo-display dark:bg-slate-900 dark:text-slate-400">
-													ELO {Math.round(showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000))}
+													ELO {Math.round(
+														showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000)
+													)}
 													{#if showAfterElo && update.eloAfter !== update.eloBefore}
 														{@const delta = Math.round(update.eloAfter - update.eloBefore)}
-														<span class="elo-delta" class:positive={delta > 0} class:negative={delta < 0}>
+														<span
+															class="elo-delta"
+															class:positive={delta > 0}
+															class:negative={delta < 0}
+														>
 															{delta > 0 ? '+' : ''}{delta}
 														</span>
 													{/if}
 												</span>
 											</div>
 											<div class="progress-bar-container dark:bg-slate-700 dark:border-slate-600">
-												<div 
-													class="progress-bar-fill" 
-													style="width: {calculateEloProgress(showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000))}%"
+												<div
+													class="progress-bar-fill"
+													style="width: {calculateEloProgress(
+														showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000)
+													)}%"
 												></div>
 											</div>
 										</div>
@@ -1791,7 +2095,11 @@ r<script lang="ts">
 					{/if}
 				</div>
 
-				<button on:click={generateChallenge} class="btn-duo btn-primary next-btn" style="margin-top: 1.5rem; width: 100%;">
+				<button
+					on:click={generateChallenge}
+					class="btn-duo btn-primary next-btn"
+					style="margin-top: 1.5rem; width: 100%;"
+				>
 					Next Challenge
 				</button>
 			</div>
@@ -1802,7 +2110,15 @@ r<script lang="ts">
 <style>
 	:global(body) {
 		margin: 0;
-		font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+		font-family:
+			'Inter',
+			-apple-system,
+			BlinkMacSystemFont,
+			'Segoe UI',
+			Roboto,
+			Helvetica,
+			Arial,
+			sans-serif;
 		background-color: var(--bg-color, #f8fafc);
 		color: var(--text-color, #334155);
 	}
@@ -1846,7 +2162,9 @@ r<script lang="ts">
 	.card {
 		background: var(--card-bg, #ffffff);
 		border-radius: 12px;
-		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+		box-shadow:
+			0 4px 6px -1px rgba(0, 0, 0, 0.1),
+			0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		padding: 2rem;
 		border: 1px solid var(--card-border, #e2e8f0);
 		margin-bottom: 1.5rem;
@@ -1893,7 +2211,9 @@ r<script lang="ts">
 	}
 
 	@keyframes spin {
-		to { transform: rotate(360deg); }
+		to {
+			transform: rotate(360deg);
+		}
 	}
 
 	.loading-state p {
@@ -1943,7 +2263,9 @@ r<script lang="ts">
 		margin-bottom: 1.5rem;
 	}
 
-	.challenge-section h3, .feedback-section h3, .feedback-list-section h3 {
+	.challenge-section h3,
+	.feedback-section h3,
+	.feedback-list-section h3 {
 		font-size: 0.875rem;
 		font-weight: 600;
 		color: #64748b;
@@ -1982,7 +2304,9 @@ r<script lang="ts">
 		min-width: 140px;
 		max-width: 240px;
 		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-		transition: opacity 0.15s, visibility 0.15s;
+		transition:
+			opacity 0.15s,
+			visibility 0.15s;
 		z-index: 100;
 		pointer-events: none;
 		display: flex;
@@ -1991,7 +2315,7 @@ r<script lang="ts">
 	}
 
 	:global(.word-tooltip::after) {
-		content: "";
+		content: '';
 		position: absolute;
 		top: 100%;
 		left: 50%;
@@ -2019,8 +2343,16 @@ r<script lang="ts">
 	}
 
 	@keyframes pulse-sparkle {
-		0%, 100% { transform: scale(1); opacity: 0.8; }
-		50% { transform: scale(1.2); opacity: 1; filter: drop-shadow(0 0 4px rgba(168, 85, 247, 0.6)); }
+		0%,
+		100% {
+			transform: scale(1);
+			opacity: 0.8;
+		}
+		50% {
+			transform: scale(1.2);
+			opacity: 1;
+			filter: drop-shadow(0 0 4px rgba(168, 85, 247, 0.6));
+		}
 	}
 
 	:global(.tooltip-trigger:hover > .word-tooltip) {
@@ -2203,7 +2535,9 @@ r<script lang="ts">
 		background: var(--input-bg, #ffffff);
 		box-sizing: border-box;
 		resize: vertical;
-		transition: border-color 0.15s, box-shadow 0.15s;
+		transition:
+			border-color 0.15s,
+			box-shadow 0.15s;
 	}
 
 	.form-group textarea:focus {
@@ -2275,7 +2609,7 @@ r<script lang="ts">
 		color: #64748b;
 	}
 
-	.toggle-container input[type="checkbox"] {
+	.toggle-container input[type='checkbox'] {
 		cursor: pointer;
 		width: 1rem;
 		height: 1rem;
@@ -2292,9 +2626,15 @@ r<script lang="ts">
 		font-weight: 700;
 	}
 
-	.score-value.excellent { color: #16a34a; }
-	.score-value.good { color: #ca8a04; }
-	.score-value.needs-work { color: #dc2626; }
+	.score-value.excellent {
+		color: #16a34a;
+	}
+	.score-value.good {
+		color: #ca8a04;
+	}
+	.score-value.needs-work {
+		color: #dc2626;
+	}
 
 	.feedback-message {
 		background-color: #eff6ff;
@@ -2306,7 +2646,9 @@ r<script lang="ts">
 		line-height: 1.5;
 	}
 
-	.feedback-message p { margin: 0; }
+	.feedback-message p {
+		margin: 0;
+	}
 
 	.expected-answer {
 		background-color: #f0fdf4;
@@ -2381,8 +2723,12 @@ r<script lang="ts">
 		margin-left: 0.25rem;
 	}
 
-	.elo-delta.positive { color: #16a34a; }
-	.elo-delta.negative { color: #dc2626; }
+	.elo-delta.positive {
+		color: #16a34a;
+	}
+	.elo-delta.negative {
+		color: #dc2626;
+	}
 
 	.progress-bar-container {
 		height: 0.75rem;
@@ -2390,7 +2736,7 @@ r<script lang="ts">
 		border-radius: 9999px;
 		overflow: hidden;
 		border: 1.5px solid #cbd5e1;
-		box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+		box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
 		margin-top: 0.25rem;
 		width: 100%;
 	}
@@ -2415,8 +2761,12 @@ r<script lang="ts">
 	}
 
 	@keyframes progress-stripes {
-		from { background-position: 1rem 0; }
-		to { background-position: 0 0; }
+		from {
+			background-position: 1rem 0;
+		}
+		to {
+			background-position: 0 0;
+		}
 	}
 
 	.feedback-list-section .icon {
@@ -2488,7 +2838,9 @@ r<script lang="ts">
 		font-size: 1rem;
 		color: #0f172a;
 		box-sizing: border-box;
-		transition: border-color 0.15s, box-shadow 0.15s;
+		transition:
+			border-color 0.15s,
+			box-shadow 0.15s;
 	}
 
 	.blank-input:focus {
@@ -2653,7 +3005,7 @@ r<script lang="ts">
 		background-color: #f0fdf4;
 		border-color: #bbf7d0;
 	}
-	
+
 	.assignment-banner.active {
 		background-color: #eff6ff;
 		border-color: #bfdbfe;
@@ -2768,8 +3120,12 @@ r<script lang="ts">
 		margin: 0;
 	}
 
-	.progress-value.passed { color: #16a34a; }
-	.progress-value.active { color: #2563eb; }
+	.progress-value.passed {
+		color: #16a34a;
+	}
+	.progress-value.active {
+		color: #2563eb;
+	}
 
 	.progress-target {
 		font-size: 0.875rem;
@@ -2786,47 +3142,51 @@ r<script lang="ts">
 		padding: 0.625rem 1rem;
 		font-size: 0.875rem;
 	}
-	
+
 	/* Dark mode support for assignment banner if implemented */
 	:global(.dark) .assignment-banner.passed {
 		background-color: rgba(6, 78, 59, 0.2);
 		border-color: rgba(6, 95, 70, 0.5);
 	}
-	
+
 	:global(.dark) .assignment-banner.active {
 		background-color: rgba(30, 58, 138, 0.2);
 		border-color: rgba(30, 64, 175, 0.5);
 	}
-	
+
 	:global(.dark) .assignment-banner.passed .assignment-icon {
 		background-color: rgba(6, 78, 59, 0.5);
 	}
-	
+
 	:global(.dark) .assignment-banner.active .assignment-icon {
 		background-color: rgba(30, 58, 138, 0.5);
 	}
-	
+
 	:global(.dark) .assignment-title {
 		color: #f1f5f9;
 	}
-	
+
 	:global(.dark) .meta-badge {
 		background-color: rgba(30, 41, 59, 0.6);
 		color: #94a3b8;
 	}
-	
+
 	:global(.dark) .progress-box {
 		background-color: rgba(30, 41, 59, 0.5);
 	}
-	
+
 	@media (min-width: 640px) {
 		:global(.dark) .progress-box {
 			background-color: transparent;
 		}
 	}
-	
-	:global(.dark) .progress-value.passed { color: #34d399; }
-	:global(.dark) .progress-value.active { color: #60a5fa; }
+
+	:global(.dark) .progress-value.passed {
+		color: #34d399;
+	}
+	:global(.dark) .progress-value.active {
+		color: #60a5fa;
+	}
 
 	@media (max-width: 768px) {
 		.page-container {

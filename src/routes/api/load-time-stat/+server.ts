@@ -19,8 +19,13 @@ export async function POST({ locals, request }) {
 
 	try {
 		const { loadTimeMs } = await request.json();
-		
-		if (typeof loadTimeMs !== 'number' || isNaN(loadTimeMs) || loadTimeMs < 0 || loadTimeMs > 60000) {
+
+		if (
+			typeof loadTimeMs !== 'number' ||
+			isNaN(loadTimeMs) ||
+			loadTimeMs < 0 ||
+			loadTimeMs > 60000
+		) {
 			return json({ error: 'Invalid load time value' }, { status: 400 });
 		}
 

@@ -27,7 +27,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 
 	const vocabularies = await prisma.userVocabulary.findMany({
-		where: { 
+		where: {
 			userId: user.id,
 			vocabulary: { languageId: user.activeLanguage?.id }
 		},
@@ -36,7 +36,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	});
 
 	const grammarRules = await prisma.userGrammarRule.findMany({
-		where: { 
+		where: {
 			userId: user.id,
 			grammarRule: { languageId: user.activeLanguage?.id }
 		},

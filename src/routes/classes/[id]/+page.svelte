@@ -49,8 +49,8 @@
 
 		const targetGrammar = createAssignmentTargetGrammar
 			.split(',')
-			.map(g => g.trim())
-			.filter(g => g.length > 0);
+			.map((g) => g.trim())
+			.filter((g) => g.length > 0);
 
 		try {
 			const res = await fetch(`/api/classes/${classDetails.id}/assignments`, {
@@ -92,7 +92,7 @@
 				toast.error('Failed to promote member.');
 			}
 		} catch (e) {
-				toast.error('An error occurred.');
+			toast.error('An error occurred.');
 		}
 	}
 
@@ -138,7 +138,9 @@
 		const url = `${window.location.origin}/play?assignmentId=${assignmentId}`;
 		await navigator.clipboard.writeText(url);
 		copiedAssignmentId = assignmentId;
-		setTimeout(() => { copiedAssignmentId = null; }, 2000);
+		setTimeout(() => {
+			copiedAssignmentId = null;
+		}, 2000);
 	}
 
 	async function handleLeaveClass() {
@@ -157,7 +159,8 @@
 	}
 
 	async function handleDeleteClass() {
-		if (!confirm('Are you sure you want to delete this class? This action cannot be undone.')) return;
+		if (!confirm('Are you sure you want to delete this class? This action cannot be undone.'))
+			return;
 		try {
 			const res = await fetch(`/api/classes/${classDetails.id}`, { method: 'DELETE' });
 			if (res.ok) {
@@ -214,7 +217,9 @@
 		</div>
 		<div class="banner-actions">
 			{#if currentUserRole === 'TEACHER'}
-				<a href="/classes/{classDetails.id}/live/teacher" class="btn-duo btn-primary live-btn">Start Live Session</a>
+				<a href="/classes/{classDetails.id}/live/teacher" class="btn-duo btn-primary live-btn"
+					>Start Live Session</a
+				>
 				<div class="invite-box">
 					<p class="invite-label">Invite Code</p>
 					<p class="invite-code">{classDetails.inviteCode}</p>
@@ -226,7 +231,9 @@
 				</div>
 				<button on:click={handleDeleteClass} class="btn-duo btn-delete-class">Delete Class</button>
 			{:else}
-				<a href="/classes/{classDetails.id}/live/student" class="btn-duo btn-primary live-btn">Join Live Session</a>
+				<a href="/classes/{classDetails.id}/live/student" class="btn-duo btn-primary live-btn"
+					>Join Live Session</a
+				>
 			{/if}
 			<button on:click={handleLeaveClass} class="btn-duo btn-leave">Leave Class</button>
 		</div>
@@ -238,11 +245,13 @@
 			<div class="section-header">
 				<h2 class="section-title">Assignments</h2>
 				{#if currentUserRole === 'TEACHER'}
-					<button 
-						class="btn-duo btn-primary btn-small" 
+					<button
+						class="btn-duo btn-primary btn-small"
 						on:click={openCreateAssignmentModal}
 						disabled={classDetails.assignments.length >= 30}
-						title={classDetails.assignments.length >= 30 ? 'Assignment limit reached (30)' : 'Create new assignment'}
+						title={classDetails.assignments.length >= 30
+							? 'Assignment limit reached (30)'
+							: 'Create new assignment'}
 					>
 						+ New Assignment
 					</button>
@@ -264,7 +273,8 @@
 										{#if passed}
 											<span class="badge badge-green">&#10003; Passed</span>
 										{:else if myScore}
-											<span class="badge badge-amber">{myScore.score}/{assignment.targetScore}</span>
+											<span class="badge badge-amber">{myScore.score}/{assignment.targetScore}</span
+											>
 										{/if}
 									</div>
 									{#if assignment.description}
@@ -280,14 +290,19 @@
 										{/if}
 										{#if currentUserRole === 'TEACHER'}
 											<span class="meta-sep">&#183;</span>
-											<span class="meta-progress">{passedCount}/{classDetails.members.filter(m => m.role === 'STUDENT').length} passed</span>
+											<span class="meta-progress"
+												>{passedCount}/{classDetails.members.filter((m) => m.role === 'STUDENT')
+													.length} passed</span
+											>
 										{/if}
 									</div>
 								</div>
 								<div class="assignment-actions-row">
 									<a
 										href="/play?assignmentId={assignment.id}"
-										class="btn-duo {passed ? 'btn-secondary' : 'btn-primary'} assignment-play-btn text-center"
+										class="btn-duo {passed
+											? 'btn-secondary'
+											: 'btn-primary'} assignment-play-btn text-center"
 									>
 										{passed ? 'Play Again' : myScore ? 'Keep Playing' : 'Start'}
 									</a>
@@ -311,18 +326,22 @@
 							</div>
 
 							<!-- Teacher: per-student progress -->
-							{#if currentUserRole === 'TEACHER' && classDetails.members.filter(m => m.role === 'STUDENT').length > 0}
+							{#if currentUserRole === 'TEACHER' && classDetails.members.filter((m) => m.role === 'STUDENT').length > 0}
 								<div class="student-progress">
 									<p class="student-progress-label">Student Progress</p>
 									<div class="student-chips">
-										{#each classDetails.members.filter(m => m.role === 'STUDENT') as member}
+										{#each classDetails.members.filter((m) => m.role === 'STUDENT') as member}
 											{@const memberScore = getMemberScore(assignment, member.userId)}
 											<div class="student-chip">
-												<span class="chip-name">{(member.user.name || member.user.username).split(' ')[0]}</span>
+												<span class="chip-name"
+													>{(member.user.name || member.user.username).split(' ')[0]}</span
+												>
 												{#if memberScore?.passed}
 													<span class="chip-passed">&#10003; {memberScore.score}</span>
 												{:else if memberScore}
-													<span class="chip-in-progress">{memberScore.score}/{assignment.targetScore}</span>
+													<span class="chip-in-progress"
+														>{memberScore.score}/{assignment.targetScore}</span
+													>
 												{:else}
 													<span class="chip-pending">Pending</span>
 												{/if}
@@ -353,10 +372,20 @@
 			<h2 class="section-title">Leaderboard</h2>
 			<div class="card-duo members-card leaderboard-card" style="margin-bottom: 2rem;">
 				<ul class="members-list">
-					{#each classDetails.members.slice().sort((a, b) => (b.user.totalXp || 0) - (a.user.totalXp || 0)) as member, index}
+					{#each classDetails.members
+						.slice()
+						.sort((a, b) => (b.user.totalXp || 0) - (a.user.totalXp || 0)) as member, index}
 						<li class="member-row">
 							<div class="member-info">
-								<div class="leaderboard-rank {index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : ''}">
+								<div
+									class="leaderboard-rank {index === 0
+										? 'rank-1'
+										: index === 1
+											? 'rank-2'
+											: index === 2
+												? 'rank-3'
+												: ''}"
+								>
 									#{index + 1}
 								</div>
 								<div class="member-avatar">
@@ -395,7 +424,11 @@
 											<span class="you-tag">(you)</span>
 										{/if}
 									</p>
-									<p class="member-role {member.role === 'TEACHER' ? 'role-teacher' : 'role-student'}">
+									<p
+										class="member-role {member.role === 'TEACHER'
+											? 'role-teacher'
+											: 'role-student'}"
+									>
 										{member.role}
 									</p>
 								</div>
@@ -412,7 +445,8 @@
 										</button>
 									{/if}
 									<button
-										on:click={() => handleKickMember(member.userId, member.user.name || member.user.username)}
+										on:click={() =>
+											handleKickMember(member.userId, member.user.name || member.user.username)}
 										title="Remove from class"
 										class="action-btn action-remove"
 									>
@@ -429,13 +463,17 @@
 </div>
 
 {#if showCreateAssignmentModal}
-	<div class="modal-backdrop" on:click={closeCreateAssignmentModal} transition:fly={{ duration: 200, opacity: 0 }}>
+	<div
+		class="modal-backdrop"
+		on:click={closeCreateAssignmentModal}
+		transition:fly={{ duration: 200, opacity: 0 }}
+	>
 		<div class="modal-content card-duo" on:click|stopPropagation>
 			<div class="modal-header">
 				<h3 class="create-form-title">Create New Assignment</h3>
 				<button class="btn-close" on:click={closeCreateAssignmentModal}>&times;</button>
 			</div>
-			
+
 			<form on:submit|preventDefault={handleCreateAssignment} class="create-form">
 				<div class="create-form-row">
 					<div class="field">
@@ -455,7 +493,7 @@
 							id="desc"
 							bind:value={createAssignmentDescription}
 							placeholder="Any notes for students"
-					/>
+						/>
 					</div>
 				</div>
 
@@ -522,16 +560,12 @@
 						/>
 					</div>
 				</div>
-				
+
 				<div class="modal-actions">
 					<button type="button" class="btn-duo btn-secondary" on:click={closeCreateAssignmentModal}>
 						Cancel
 					</button>
-					<button
-						type="submit"
-						disabled={isCreatingAssignment}
-						class="btn-duo btn-primary"
-					>
+					<button type="submit" disabled={isCreatingAssignment} class="btn-duo btn-primary">
 						{isCreatingAssignment ? 'Creating...' : 'Create Assignment'}
 					</button>
 				</div>
@@ -987,7 +1021,7 @@
 		margin-top: 0.5rem;
 		min-width: 8rem;
 	}
-	
+
 	@media (min-width: 640px) {
 		.assignment-actions-row {
 			margin-top: 0;
@@ -1170,9 +1204,15 @@
 		text-align: center;
 	}
 
-	.rank-1 { color: #f59e0b; }
-	.rank-2 { color: #94a3b8; }
-	.rank-3 { color: #b45309; }
+	.rank-1 {
+		color: #f59e0b;
+	}
+	.rank-2 {
+		color: #94a3b8;
+	}
+	.rank-3 {
+		color: #b45309;
+	}
 
 	.role-teacher {
 		color: #8b5cf6;
@@ -1261,7 +1301,9 @@
 		padding: 2rem;
 		border-radius: 1.5rem;
 		position: relative;
-		box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+		box-shadow:
+			0 10px 25px -5px rgba(0, 0, 0, 0.1),
+			0 8px 10px -6px rgba(0, 0, 0, 0.1);
 	}
 
 	.modal-header {

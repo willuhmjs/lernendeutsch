@@ -13,7 +13,10 @@
 		<p class="dark:text-slate-400">Manage your account settings.</p>
 	</header>
 
-	<section class="info-card dark:bg-slate-800 dark:border-slate-700" in:fly={{ y: 20, duration: 400, delay: 100 }}>
+	<section
+		class="info-card dark:bg-slate-800 dark:border-slate-700"
+		in:fly={{ y: 20, duration: 400, delay: 100 }}
+	>
 		<h2 class="dark:text-white">Your Information</h2>
 		<div class="info-grid">
 			<div class="info-item">
@@ -35,9 +38,12 @@
 		</div>
 	</section>
 
-	<section class="theme-card dark:bg-slate-800 dark:border-slate-700" in:fly={{ y: 20, duration: 400, delay: 150 }}>
+	<section
+		class="theme-card dark:bg-slate-800 dark:border-slate-700"
+		in:fly={{ y: 20, duration: 400, delay: 150 }}
+	>
 		<h2 class="dark:text-white">Theme Settings</h2>
-		
+
 		{#if form?.themeSuccess}
 			<div class="alert alert-success">{form.themeSuccess}</div>
 		{/if}
@@ -45,18 +51,26 @@
 			<div class="alert alert-error">{form.themeError}</div>
 		{/if}
 
-		<form method="POST" action="?/updateTheme" use:enhance={() => {
-			return async ({ result, update }) => {
-				if (result.type === 'success') {
-					const select = document.getElementById('theme') as HTMLSelectElement;
-					document.documentElement.setAttribute('data-theme', select.value);
-				}
-				await update();
-			};
-		}}>
+		<form
+			method="POST"
+			action="?/updateTheme"
+			use:enhance={() => {
+				return async ({ result, update }) => {
+					if (result.type === 'success') {
+						const select = document.getElementById('theme') as HTMLSelectElement;
+						document.documentElement.setAttribute('data-theme', select.value);
+					}
+					await update();
+				};
+			}}
+		>
 			<div class="form-group">
 				<label for="theme" class="dark:text-slate-300">Select Theme</label>
-				<select id="theme" name="theme" class="theme-select dark:bg-slate-900 dark:text-white dark:border-slate-700">
+				<select
+					id="theme"
+					name="theme"
+					class="theme-select dark:bg-slate-900 dark:text-white dark:border-slate-700"
+				>
 					<option value="default" selected={data.user?.theme === 'default'}>Default</option>
 					<option value="dark" selected={data.user?.theme === 'dark'}>Dark</option>
 				</select>
@@ -66,7 +80,10 @@
 	</section>
 
 	{#if data.localLoginEnabled}
-		<section class="password-card dark:bg-slate-800 dark:border-slate-700" in:fly={{ y: 20, duration: 400, delay: 200 }}>
+		<section
+			class="password-card dark:bg-slate-800 dark:border-slate-700"
+			in:fly={{ y: 20, duration: 400, delay: 200 }}
+		>
 			<h2 class="dark:text-white">Update Password</h2>
 
 			{#if form?.error}
@@ -80,13 +97,26 @@
 				{#if data.hasPassword}
 					<div class="form-group">
 						<label for="currentPassword" class="dark:text-slate-300">Current Password</label>
-						<input type="password" id="currentPassword" name="currentPassword" required class="dark:bg-slate-900 dark:text-white dark:border-slate-700" />
+						<input
+							type="password"
+							id="currentPassword"
+							name="currentPassword"
+							required
+							class="dark:bg-slate-900 dark:text-white dark:border-slate-700"
+						/>
 					</div>
 				{/if}
 
 				<div class="form-group">
 					<label for="newPassword" class="dark:text-slate-300">New Password</label>
-					<input type="password" id="newPassword" name="newPassword" required minlength="8" class="dark:bg-slate-900 dark:text-white dark:border-slate-700" />
+					<input
+						type="password"
+						id="newPassword"
+						name="newPassword"
+						required
+						minlength="8"
+						class="dark:bg-slate-900 dark:text-white dark:border-slate-700"
+					/>
 				</div>
 
 				<button type="submit" class="submit-btn">Update Password</button>
@@ -96,16 +126,24 @@
 
 	<section class="delete-card" in:fly={{ y: 20, duration: 400, delay: 250 }}>
 		<h2>Danger Zone</h2>
-		<p class="warning-text">Deleting your account is permanent and cannot be undone. All your progress, vocabulary, and settings will be lost.</p>
-		
-		<button class="delete-btn" on:click={() => (document.getElementById('delete-modal') as HTMLDialogElement)?.showModal()}>
+		<p class="warning-text">
+			Deleting your account is permanent and cannot be undone. All your progress, vocabulary, and
+			settings will be lost.
+		</p>
+
+		<button
+			class="delete-btn"
+			on:click={() => (document.getElementById('delete-modal') as HTMLDialogElement)?.showModal()}
+		>
 			Delete Account
 		</button>
 
 		<dialog id="delete-modal" class="modal">
 			<div class="modal-box">
 				<h3 class="font-bold text-lg text-red-600">Delete Account</h3>
-				<p class="py-4">Are you absolutely sure you want to delete your account? This action cannot be undone.</p>
+				<p class="py-4">
+					Are you absolutely sure you want to delete your account? This action cannot be undone.
+				</p>
 				<div class="modal-action">
 					<form method="dialog">
 						<button class="btn">Cancel</button>
@@ -239,7 +277,9 @@
 		font-size: 0.875rem;
 		color: var(--input-text, #111827);
 		background: var(--input-bg, #ffffff);
-		transition: border-color 0.2s, box-shadow 0.2s;
+		transition:
+			border-color 0.2s,
+			box-shadow 0.2s;
 		box-sizing: border-box;
 	}
 
@@ -375,7 +415,8 @@
 			font-size: 1.75rem;
 		}
 
-		.submit-btn, .delete-btn {
+		.submit-btn,
+		.delete-btn {
 			width: 100%;
 			box-sizing: border-box;
 		}

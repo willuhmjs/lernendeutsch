@@ -6,10 +6,10 @@
 	let loading = false;
 	let error = '';
 	let completed = data?.user?.hasOnboarded || false;
-	
-	let completionData: { level?: string; feedback?: string } = { 
+
+	let completionData: { level?: string; feedback?: string } = {
 		level: data?.user?.cefrLevel,
-		feedback: completed ? "You have already completed your onboarding." : undefined
+		feedback: completed ? 'You have already completed your onboarding.' : undefined
 	};
 
 	const restartOnboarding = () => {
@@ -101,7 +101,7 @@
 
 			const reader = res.body?.getReader();
 			if (!reader) throw new Error('Failed to get readable stream');
-			
+
 			const decoder = new TextDecoder();
 			let responseText = '';
 
@@ -138,9 +138,8 @@
 					completionData = { level: data.level, feedback: data.feedback };
 				}
 			} catch (e) {
-				console.error("Failed to parse full response", e, responseText);
+				console.error('Failed to parse full response', e, responseText);
 			}
-
 		} catch (e: any) {
 			error = e.message;
 		} finally {
@@ -170,7 +169,7 @@
 			const data = await res.json();
 			if (data.success) {
 				completed = true;
-				completionData = { level: data.level, feedback: "You have manually selected your level." };
+				completionData = { level: data.level, feedback: 'You have manually selected your level.' };
 			}
 		} catch (e: any) {
 			error = e.message;
@@ -229,31 +228,51 @@
 	<title>Adaptive Onboarding | LingoLearn</title>
 </svelte:head>
 
-<main class="onboarding-container" class:chat-active={messages.length > 0 || (selectedPath === 'test' && !completed)}>
+<main
+	class="onboarding-container"
+	class:chat-active={messages.length > 0 || (selectedPath === 'test' && !completed)}
+>
 	{#if selectedPath === 'choose' && !completed}
 		<!-- Path Selection Screen -->
 		<header class="page-header" in:fly={{ y: 20, duration: 400 }}>
 			<h1 class="dark:text-white">Welcome to LingoLearn!</h1>
-			<p class="dark:text-slate-400">Let's set up your learning experience. Choose the option that best describes you:</p>
+			<p class="dark:text-slate-400">
+				Let's set up your learning experience. Choose the option that best describes you:
+			</p>
 		</header>
 
 		<div class="path-selection" in:fly={{ y: 20, duration: 400, delay: 100 }}>
-			<button class="path-card beginner-card dark:bg-slate-900 dark:border-emerald-900" on:click={handleBeginnerPath} disabled={isSubmittingBeginner}>
+			<button
+				class="path-card beginner-card dark:bg-slate-900 dark:border-emerald-900"
+				on:click={handleBeginnerPath}
+				disabled={isSubmittingBeginner}
+			>
 				<span class="path-icon">🌱</span>
 				<h2 class="dark:text-white">I'm a Complete Beginner</h2>
-				<p class="dark:text-slate-400">I have zero or almost zero language knowledge. Start me from the very basics — greetings, pronouns, simple words.</p>
+				<p class="dark:text-slate-400">
+					I have zero or almost zero language knowledge. Start me from the very basics — greetings,
+					pronouns, simple words.
+				</p>
 				<span class="path-badge beginner-badge">Recommended for new learners</span>
 			</button>
 
-			<button class="path-card test-card dark:bg-slate-900 dark:border-emerald-900" on:click={startPlacementTest}>
+			<button
+				class="path-card test-card dark:bg-slate-900 dark:border-emerald-900"
+				on:click={startPlacementTest}
+			>
 				<span class="path-icon">💬</span>
 				<h2 class="dark:text-white">I Know Some {data?.user?.activeLanguage?.name}</h2>
-				<p class="dark:text-slate-400">I have some language knowledge. Chat with our AI teacher to find my level so I don't repeat what I already know.</p>
+				<p class="dark:text-slate-400">
+					I have some language knowledge. Chat with our AI teacher to find my level so I don't
+					repeat what I already know.
+				</p>
 				<span class="path-badge test-badge">Takes 2-5 minutes</span>
 			</button>
 
 			<div class="manual-section dark:bg-slate-800 dark:border-slate-700">
-				<p class="dark:text-slate-400">Or, if you already know your CEFR level, pick it directly:</p>
+				<p class="dark:text-slate-400">
+					Or, if you already know your CEFR level, pick it directly:
+				</p>
 				<div class="level-buttons">
 					{#each ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as lvl}
 						<button
@@ -274,132 +293,167 @@
 			</div>
 		{/if}
 	{:else}
-	<!-- Placement Test / Completion -->
-	<header class="page-header" in:fly={{ y: 20, duration: 400 }}>
-		{#if completed}
-			<h1 class="dark:text-white">You're All Set!</h1>
-			<p class="dark:text-slate-400">We've prepared a personalized curriculum for you.</p>
-		{:else}
-			<h1 class="dark:text-white">Placement Test</h1>
-			<p class="dark:text-slate-400">Chat with our AI teacher to determine your starting level.</p>
-		{/if}
-	</header>
+		<!-- Placement Test / Completion -->
+		<header class="page-header" in:fly={{ y: 20, duration: 400 }}>
+			{#if completed}
+				<h1 class="dark:text-white">You're All Set!</h1>
+				<p class="dark:text-slate-400">We've prepared a personalized curriculum for you.</p>
+			{:else}
+				<h1 class="dark:text-white">Placement Test</h1>
+				<p class="dark:text-slate-400">
+					Chat with our AI teacher to determine your starting level.
+				</p>
+			{/if}
+		</header>
 
-	<div class="content-layout" in:fly={{ y: 20, duration: 400, delay: 100 }}>
-		<div class="chat-container dark:bg-slate-800 dark:border-slate-700">
-			{#if messages.length > 0 || loading || error}
-			<div class="chat-messages dark:bg-slate-900">
-				{#each messages as msg}
-					<div class="message-wrapper {msg.role === 'user' ? 'user' : 'assistant'}">
-						<span class="message-sender dark:text-slate-500">{msg.role === 'user' ? 'You' : 'Teacher'}</span>
-						<div class="message-bubble {msg.role === 'user' ? 'user' : 'assistant dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700'}">
-							{msg.content}
-						</div>
-					</div>
-				{/each}
+		<div class="content-layout" in:fly={{ y: 20, duration: 400, delay: 100 }}>
+			<div class="chat-container dark:bg-slate-800 dark:border-slate-700">
+				{#if messages.length > 0 || loading || error}
+					<div class="chat-messages dark:bg-slate-900">
+						{#each messages as msg}
+							<div class="message-wrapper {msg.role === 'user' ? 'user' : 'assistant'}">
+								<span class="message-sender dark:text-slate-500"
+									>{msg.role === 'user' ? 'You' : 'Teacher'}</span
+								>
+								<div
+									class="message-bubble {msg.role === 'user'
+										? 'user'
+										: 'assistant dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700'}"
+								>
+									{msg.content}
+								</div>
+							</div>
+						{/each}
 
-				{#if loading}
-					<div class="message-wrapper assistant">
-						<span class="message-sender dark:text-slate-500">Teacher</span>
-						<div class="message-bubble assistant loading dark:bg-slate-800 dark:text-slate-500 dark:border-slate-700">
-							Thinking...
-						</div>
+						{#if loading}
+							<div class="message-wrapper assistant">
+								<span class="message-sender dark:text-slate-500">Teacher</span>
+								<div
+									class="message-bubble assistant loading dark:bg-slate-800 dark:text-slate-500 dark:border-slate-700"
+								>
+									Thinking...
+								</div>
+							</div>
+						{/if}
+
+						{#if error}
+							<div class="error-alert">
+								<p>{error}</p>
+							</div>
+						{/if}
 					</div>
 				{/if}
 
-				{#if error}
-					<div class="error-alert">
-						<p>{error}</p>
+				{#if completed}
+					<div
+						class="completion-card dark:bg-slate-900 dark:border-emerald-900"
+						class:no-messages={messages.length === 0}
+					>
+						<h2 class="dark:text-emerald-400">Onboarding Complete!</h2>
+						<div class="level-result">
+							<span class="dark:text-emerald-500">Your assessed level:</span>
+							<strong class="level-badge dark:bg-emerald-900 dark:text-emerald-300"
+								>{completionData.level}</strong
+							>
+						</div>
+						{#if completionData.feedback}
+							<p class="feedback-text dark:text-emerald-500">
+								<strong>Feedback:</strong>
+								{completionData.feedback}
+							</p>
+						{/if}
+						<div class="completion-actions dark:border-emerald-900">
+							{#if selectedPath === 'beginner'}
+								<p class="action-note dark:text-emerald-500">
+									We've loaded essential starter vocabulary and grammar for you. Your lessons will
+									begin with the very basics — no prior language knowledge needed!
+								</p>
+							{:else}
+								<p class="action-note dark:text-emerald-500">
+									Your personalized curriculum has been bulk-generated. We've marked the basics you
+									already know as Mastered!
+								</p>
+							{/if}
+							<div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+								<button class="btn btn-success" on:click={() => (window.location.href = '/')}>
+									Go to Dashboard
+								</button>
+								<button class="btn btn-primary" on:click={() => (window.location.href = '/play')}>
+									Start Playing
+								</button>
+								<button class="btn btn-secondary" on:click={restartOnboarding}>
+									Restart Onboarding
+								</button>
+							</div>
+						</div>
 					</div>
+				{:else}
+					<form
+						class="chat-input-form dark:bg-slate-800 dark:border-slate-700"
+						on:submit|preventDefault={sendMessage}
+					>
+						<input
+							type="text"
+							bind:value={userInput}
+							disabled={loading || completed}
+							placeholder="Type your reply here..."
+							class="chat-input dark:bg-slate-900 dark:text-white dark:border-slate-700"
+						/>
+						<button
+							type="submit"
+							disabled={loading || completed || !userInput.trim()}
+							class="btn btn-primary"
+						>
+							Send
+						</button>
+						{#if messages.filter((m) => m.role === 'user').length >= 1}
+							<button
+								type="button"
+								class="btn btn-secondary"
+								disabled={loading || completed || isEndingEarly}
+								on:click={handleEndEarly}
+							>
+								End Early
+							</button>
+						{/if}
+					</form>
 				{/if}
 			</div>
-			{/if}
 
-			{#if completed}
-				<div class="completion-card dark:bg-slate-900 dark:border-emerald-900" class:no-messages={messages.length === 0}>
-					<h2 class="dark:text-emerald-400">Onboarding Complete!</h2>
-					<div class="level-result">
-						<span class="dark:text-emerald-500">Your assessed level:</span>
-						<strong class="level-badge dark:bg-emerald-900 dark:text-emerald-300">{completionData.level}</strong>
-					</div>
-					{#if completionData.feedback}
-						<p class="feedback-text dark:text-emerald-500"><strong>Feedback:</strong> {completionData.feedback}</p>
-					{/if}
-					<div class="completion-actions dark:border-emerald-900">
-							{#if selectedPath === 'beginner'}
-						<p class="action-note dark:text-emerald-500">We've loaded essential starter vocabulary and grammar for you. Your lessons will begin with the very basics — no prior language knowledge needed!</p>
-					{:else}
-						<p class="action-note dark:text-emerald-500">Your personalized curriculum has been bulk-generated. We've marked the basics you already know as Mastered!</p>
-					{/if}
-						<div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-							<button class="btn btn-success" on:click={() => window.location.href = '/'}>
-								Go to Dashboard
-							</button>
-							<button class="btn btn-primary" on:click={() => window.location.href = '/play'}>
-								Start Playing
-							</button>
-							<button class="btn btn-secondary" on:click={restartOnboarding}>
-								Restart Onboarding
-							</button>
+			{#if !completed}
+				<div class="side-panel">
+					<div class="manual-placement dark:bg-slate-800 dark:border-slate-700">
+						<p class="dark:text-slate-300">Or skip the test and choose your level manually:</p>
+						<div class="level-buttons">
+							{#each ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as lvl}
+								<button
+									class="btn btn-level dark:bg-slate-700 dark:text-slate-200"
+									disabled={isSubmittingManual || loading}
+									on:click={() => handleManualPlacement(lvl)}
+								>
+									{lvl}
+								</button>
+							{/each}
 						</div>
 					</div>
 				</div>
-			{:else}
-				<form class="chat-input-form dark:bg-slate-800 dark:border-slate-700" on:submit|preventDefault={sendMessage}>
-					<input
-						type="text"
-						bind:value={userInput}
-						disabled={loading || completed}
-						placeholder="Type your reply here..."
-						class="chat-input dark:bg-slate-900 dark:text-white dark:border-slate-700"
-					/>
-					<button
-						type="submit"
-						disabled={loading || completed || !userInput.trim()}
-						class="btn btn-primary"
-					>
-						Send
-					</button>
-					{#if messages.filter(m => m.role === 'user').length >= 1}
-						<button
-							type="button"
-							class="btn btn-secondary"
-							disabled={loading || completed || isEndingEarly}
-							on:click={handleEndEarly}
-						>
-							End Early
-						</button>
-					{/if}
-				</form>
 			{/if}
 		</div>
-
-		{#if !completed}
-			<div class="side-panel">
-				<div class="manual-placement dark:bg-slate-800 dark:border-slate-700">
-					<p class="dark:text-slate-300">Or skip the test and choose your level manually:</p>
-					<div class="level-buttons">
-						{#each ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as lvl}
-							<button 
-								class="btn btn-level dark:bg-slate-700 dark:text-slate-200" 
-								disabled={isSubmittingManual || loading}
-								on:click={() => handleManualPlacement(lvl)}
-							>
-								{lvl}
-							</button>
-						{/each}
-					</div>
-				</div>
-			</div>
-		{/if}
-	</div>
 	{/if}
 </main>
 
 <style>
 	:global(body) {
 		margin: 0;
-		font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+		font-family:
+			'Inter',
+			-apple-system,
+			BlinkMacSystemFont,
+			'Segoe UI',
+			Roboto,
+			Helvetica,
+			Arial,
+			sans-serif;
 		background-color: var(--bg-color, #f8fafc);
 		color: var(--text-color, #334155);
 	}
@@ -446,7 +500,9 @@
 		flex: 1;
 		background: var(--card-bg, #ffffff);
 		border-radius: 12px;
-		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+		box-shadow:
+			0 4px 6px -1px rgba(0, 0, 0, 0.1),
+			0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		border: 1px solid var(--card-border, #e2e8f0);
 		overflow: hidden;
 	}
@@ -486,7 +542,7 @@
 		.content-layout {
 			flex-direction: column;
 		}
-		
+
 		.side-panel {
 			flex: auto;
 		}
@@ -612,7 +668,9 @@
 		font-family: inherit;
 		color: var(--input-text, #111827);
 		background-color: var(--input-bg, #ffffff);
-		transition: border-color 0.15s, box-shadow 0.15s;
+		transition:
+			border-color 0.15s,
+			box-shadow 0.15s;
 	}
 
 	.chat-input:focus {

@@ -1,15 +1,15 @@
-import { PrismaClient } from '@prisma/client'
-import { PrismaPg } from '@prisma/adapter-pg'
-import pg from 'pg'
-import { env } from '$env/dynamic/private'
+import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import pg from 'pg';
+import { env } from '$env/dynamic/private';
 
-const connectionString = env.DATABASE_URL || process.env.DATABASE_URL
+const connectionString = env.DATABASE_URL || process.env.DATABASE_URL;
 
-const pool = new pg.Pool({ connectionString })
-const adapter = new PrismaPg(pool)
+const pool = new pg.Pool({ connectionString });
+const adapter = new PrismaPg(pool);
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
-export const prisma = globalForPrisma.prisma || new PrismaClient({ adapter })
+export const prisma = globalForPrisma.prisma || new PrismaClient({ adapter });
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;

@@ -76,7 +76,8 @@ export async function POST({ params, request, locals }) {
 			where: { id: activeSession.id },
 			data: {
 				status: status !== undefined ? status : activeSession.status,
-				currentQuestion: currentQuestion !== undefined ? currentQuestion : activeSession.currentQuestion
+				currentQuestion:
+					currentQuestion !== undefined ? currentQuestion : activeSession.currentQuestion
 			}
 		});
 

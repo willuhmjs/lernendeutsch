@@ -10,7 +10,12 @@ export async function getSiteSettings() {
 	});
 }
 
-export async function updateSiteSettings(data: { localLoginEnabled?: boolean; llmEndpoint?: string | null; llmModel?: string | null; llmApiKey?: string | null }) {
+export async function updateSiteSettings(data: {
+	localLoginEnabled?: boolean;
+	llmEndpoint?: string | null;
+	llmModel?: string | null;
+	llmApiKey?: string | null;
+}) {
 	return prisma.siteSettings.upsert({
 		where: { id: SINGLETON_ID },
 		create: { id: SINGLETON_ID, ...data },

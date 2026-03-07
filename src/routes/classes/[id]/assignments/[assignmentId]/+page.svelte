@@ -25,7 +25,9 @@
 		const url = `${window.location.origin}/play?assignmentId=${assignment.id}`;
 		await navigator.clipboard.writeText(url);
 		copied = true;
-		setTimeout(() => { copied = false; }, 2000);
+		setTimeout(() => {
+			copied = false;
+		}, 2000);
 	}
 
 	async function handleDeleteAssignment() {
@@ -119,12 +121,8 @@
 				<button type="button" class="copy-link-btn" on:click={copyLink}>
 					{#if copied}✓ Copied!{:else}🔗 Copy Link{/if}
 				</button>
-				<button type="button" class="edit-btn" on:click={openEditModal}>
-					Edit
-				</button>
-				<button type="button" class="delete-btn" on:click={handleDeleteAssignment}>
-					Delete
-				</button>
+				<button type="button" class="edit-btn" on:click={openEditModal}> Edit </button>
+				<button type="button" class="delete-btn" on:click={handleDeleteAssignment}> Delete </button>
 			</div>
 		</div>
 		<div class="pass-rate-box">
@@ -166,12 +164,18 @@
 								{:else if isPassed}
 									<div class="score-display score-passed">
 										<span class="score-check">&#10003;</span>
-										<span class="score-value">{scoreInfo.score}<span class="score-denom">/{assignment.targetScore}</span></span>
+										<span class="score-value"
+											>{scoreInfo.score}<span class="score-denom">/{assignment.targetScore}</span
+											></span
+										>
 										<span class="badge badge-green">Passed</span>
 									</div>
 								{:else}
 									<div class="score-display score-progress">
-										<span class="score-value score-amber">{scoreInfo.score}<span class="score-denom">/{assignment.targetScore}</span></span>
+										<span class="score-value score-amber"
+											>{scoreInfo.score}<span class="score-denom">/{assignment.targetScore}</span
+											></span
+										>
 										<span class="badge badge-amber">In Progress</span>
 									</div>
 								{/if}
@@ -185,13 +189,17 @@
 </div>
 
 {#if showEditModal}
-	<div class="modal-backdrop" on:click={closeEditModal} transition:fly={{ duration: 200, opacity: 0 }}>
+	<div
+		class="modal-backdrop"
+		on:click={closeEditModal}
+		transition:fly={{ duration: 200, opacity: 0 }}
+	>
 		<div class="modal-content card-duo" on:click|stopPropagation>
 			<div class="modal-header">
 				<h3 class="modal-title">Edit Assignment</h3>
 				<button class="btn-close" on:click={closeEditModal}>&times;</button>
 			</div>
-			
+
 			<form on:submit|preventDefault={handleSaveEdit} class="edit-form">
 				<div class="field">
 					<label for="title">Title <span class="required">*</span></label>
@@ -212,16 +220,10 @@
 						rows="3"
 					></textarea>
 				</div>
-				
+
 				<div class="modal-actions">
-					<button type="button" class="btn-secondary" on:click={closeEditModal}>
-						Cancel
-					</button>
-					<button
-						type="submit"
-						disabled={isSaving}
-						class="btn-primary"
-					>
+					<button type="button" class="btn-secondary" on:click={closeEditModal}> Cancel </button>
+					<button type="submit" disabled={isSaving} class="btn-primary">
 						{isSaving ? 'Saving...' : 'Save Changes'}
 					</button>
 				</div>
@@ -306,7 +308,9 @@
 		align-items: center;
 	}
 
-	.copy-link-btn, .edit-btn, .delete-btn {
+	.copy-link-btn,
+	.edit-btn,
+	.delete-btn {
 		display: inline-flex;
 		align-items: center;
 		gap: 0.35rem;
@@ -319,10 +323,13 @@
 		padding: 0.35rem 0.85rem;
 		border-radius: 0.6rem;
 		cursor: pointer;
-		transition: background 0.15s, border-color 0.15s;
+		transition:
+			background 0.15s,
+			border-color 0.15s;
 	}
 
-	.copy-link-btn:hover, .edit-btn:hover {
+	.copy-link-btn:hover,
+	.edit-btn:hover {
 		background: rgba(255, 255, 255, 0.25);
 		border-color: rgba(255, 255, 255, 0.5);
 	}
@@ -581,7 +588,9 @@
 		padding: 2rem;
 		border-radius: 1.5rem;
 		position: relative;
-		box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+		box-shadow:
+			0 10px 25px -5px rgba(0, 0, 0, 0.1),
+			0 8px 10px -6px rgba(0, 0, 0, 0.1);
 	}
 
 	.modal-header {
@@ -664,7 +673,8 @@
 		border-top: 2px solid var(--card-border, #e2e8f0);
 	}
 
-	.btn-primary, .btn-secondary {
+	.btn-primary,
+	.btn-secondary {
 		padding: 0.6rem 1.25rem;
 		border-radius: 0.75rem;
 		font-weight: 800;

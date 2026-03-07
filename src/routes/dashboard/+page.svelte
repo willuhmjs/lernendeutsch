@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import { fly } from 'svelte/transition';
+	import { marked } from 'marked';
 
 	export let data: PageData;
 
@@ -26,6 +27,20 @@
 		acc[r.srsState] = (acc[r.srsState] || 0) + 1;
 		return acc;
 	}, {} as Record<string, number>);
+
+	let selectedModalItem: { type: 'vocab' | 'grammar', data: any, color: string, eloPercent: number } | null = null;
+	
+	function openVocabModal(vocab: any, color: string, eloPercent: number) {
+		selectedModalItem = { type: 'vocab', data: vocab, color, eloPercent };
+	}
+
+	function openGrammarModal(rule: any, color: string, eloPercent: number) {
+		selectedModalItem = { type: 'grammar', data: rule, color, eloPercent };
+	}
+
+	function closeModal() {
+		selectedModalItem = null;
+	}
 </script>
 
 <div class="dashboard-container dark:text-slate-300">
@@ -115,9 +130,14 @@
 						{@const level = vocab.srsState}
 						{@const levelText = isUnseen ? 'Unseen' : level.charAt(0) + level.slice(1).toLowerCase()}
 						{@const cellColor = srsColors[level]}
+						{@const progressPct = Math.max(0, Math.min(100, level === 'LEARNING' ? ((elo - 1000) / 50) * 100 : level === 'KNOWN' ? ((elo - 1050) / 100) * 100 : 100))}
 						<div 
 							class="heatmap-cell tooltip-trigger" 
 							style="background-color: {cellColor}"
+							role="button"
+							tabindex="0"
+							on:click={() => openVocabModal(vocab, cellColor, progressPct)}
+							on:keydown={(e) => e.key === 'Enter' && openVocabModal(vocab, cellColor, progressPct)}
 						>
 							<span class="sr-only">{vocab.vocabulary.lemma}</span>
 							<div class="tooltip-content dark:bg-slate-700 dark:text-white">
@@ -130,7 +150,6 @@
 								</div>
 								<div class="tooltip-body">
 									{#if vocab.eloRating !== undefined && !isUnseen}
-										{@const progressPct = Math.max(0, Math.min(100, level === 'LEARNING' ? ((elo - 1000) / 50) * 100 : level === 'KNOWN' ? ((elo - 1050) / 100) * 100 : 100))}
 										<div class="word-tooltip-elo">
 											<div class="elo-header"><span>Mastery: {levelText}</span><span class="elo-score">ELO {elo}</span></div>
 											<div class="elo-progress-track"><div class="elo-progress-fill {levelText.toLowerCase()}" style="width: {progressPct}%"></div></div>
@@ -168,17 +187,13 @@
 				<div class="grammar-web-container dark:bg-slate-800 dark:border-slate-700">
 					<!-- Visual web lines drawing actual connections -->
 					<svg class="web-svg-lines" width="100%" height="100%">
-						{#each data.grammarRules as rule, i}
-							{#if i < data.grammarRules.length - 1}
-								<line 
-									x1="50%" 
-									y1="{100 / data.grammarRules.length * i + (100 / data.grammarRules.length / 2)}%" 
-									x2="50%" 
-									y2="{100 / data.grammarRules.length * (i + 1) + (100 / data.grammarRules.length / 2)}%" 
-									class="web-connection-line"
-								/>
-							{/if}
-						{/each}
+						<line 
+							x1="50%" 
+							y1="10%" 
+							x2="50%" 
+							y2="90%" 
+							class="web-connection-line"
+						/>
 					</svg>
 					
 					<div class="web-tree-layout">
@@ -186,30 +201,19 @@
 							{@const srsColor = srsColors[rule.srsState] || srsColors.UNSEEN}
 							{@const eloPercent = Math.max(0, Math.min(100, ((rule.eloRating - 1000) / 1000) * 100))}
 							
-							<div class="web-node-pill" style="--node-color: {srsColor}">
-								<div class="node-pill-content tooltip-trigger">
-									<div class="node-icon" style="background-color: {srsColor}">
+							<div 
+								class="web-node-pill" 
+								style="--node-color: {srsColor}; background-color: {srsColor}"
+								role="button"
+								tabindex="0"
+								on:click={() => openGrammarModal(rule, srsColor, eloPercent)}
+								on:keydown={(e) => e.key === 'Enter' && openGrammarModal(rule, srsColor, eloPercent)}
+							>
+								<div class="node-pill-content">
+									<div class="node-icon">
 										<span class="sr-only">{rule.srsState}</span>
 									</div>
-									<span class="node-title">{rule.grammarRule.title}</span>
-									
-									<div class="tooltip-content dark:bg-slate-700 dark:text-white">
-										<div class="tooltip-header dark:border-slate-600">
-											{rule.grammarRule.title}
-										</div>
-										<div class="tooltip-body">
-											<div class="word-tooltip-elo">
-												<div class="elo-header">
-													<span>Status: {rule.srsState}</span>
-													<span class="elo-score">ELO {Math.ceil(rule.eloRating)}</span>
-												</div>
-												<div class="elo-progress-track">
-													<div class="elo-progress-fill {rule.srsState.toLowerCase()}" style="width: {eloPercent}%; background-color: {srsColor}"></div>
-												</div>
-											</div>
-											<p class="node-desc">{rule.grammarRule.description || 'No description available.'}</p>
-										</div>
-									</div>
+									<span class="node-title" style="color: #0f172a;">{rule.grammarRule.title}</span>
 								</div>
 							</div>
 						{/each}
@@ -219,6 +223,100 @@
 		</section>
 	</div>
 </div>
+
+{#if selectedModalItem}
+	<div class="modal-backdrop" on:click={closeModal} on:keydown={(e) => e.key === 'Escape' && closeModal()} role="button" tabindex="0">
+		<div class="modal-content dark:bg-slate-800 dark:border-slate-700" on:click|stopPropagation role="document">
+			<button class="modal-close dark:text-slate-400 dark:hover:text-white" on:click={closeModal}>&times;</button>
+			
+			{#if selectedModalItem.type === 'vocab'}
+				{@const vocab = selectedModalItem.data}
+				{@const isUnseen = vocab.srsState === 'UNSEEN'}
+				{@const elo = vocab.eloRating !== undefined ? Math.round(vocab.eloRating) : 1000}
+				{@const levelText = isUnseen ? 'Unseen' : vocab.srsState.charAt(0) + vocab.srsState.slice(1).toLowerCase()}
+				
+				<h3 class="modal-title dark:text-white">
+					{#if vocab.vocabulary.partOfSpeech?.toLowerCase() === 'noun'}
+						{vocab.vocabulary.lemma.charAt(0).toUpperCase() + vocab.vocabulary.lemma.slice(1)}
+					{:else}
+						{vocab.vocabulary.lemma}
+					{/if}
+				</h3>
+				
+				<div class="modal-body dark:text-slate-300">
+					{#if !isUnseen}
+						<div class="modal-elo-section">
+							<div class="modal-elo-header">
+								<span class="dark:text-slate-400">Mastery: {levelText}</span>
+								<span class="modal-elo-score" style="color: {selectedModalItem.color}">ELO {elo}</span>
+							</div>
+							<div class="elo-progress-track">
+								<div class="elo-progress-fill" style="width: {selectedModalItem.eloPercent}%; background-color: {selectedModalItem.color}"></div>
+							</div>
+						</div>
+					{:else}
+						<div class="modal-elo-section">
+							<div class="modal-elo-header"><span class="dark:text-slate-400">Status: {levelText}</span></div>
+						</div>
+					{/if}
+					
+					<div class="modal-details">
+						{#if vocab.vocabulary.partOfSpeech}
+							<div class="modal-detail-row">
+								<span class="detail-label dark:text-slate-400">POS:</span>
+								<span>{vocab.vocabulary.partOfSpeech}</span>
+							</div>
+						{/if}
+						{#if vocab.vocabulary.partOfSpeech?.toLowerCase() === 'noun' && vocab.vocabulary.gender}
+							<div class="modal-detail-row">
+								<span class="detail-label dark:text-slate-400">Gender:</span>
+								<span>{vocab.vocabulary.gender}</span>
+							</div>
+						{/if}
+						{#if vocab.vocabulary.plural}
+							<div class="modal-detail-row">
+								<span class="detail-label dark:text-slate-400">Plural:</span>
+								<span>{vocab.vocabulary.plural}</span>
+							</div>
+						{/if}
+						{#if vocab.vocabulary.meaning}
+							<div class="modal-detail-row">
+								<span class="detail-label dark:text-slate-400">Meaning:</span>
+								<span>{vocab.vocabulary.meaning}</span>
+							</div>
+						{/if}
+					</div>
+				</div>
+				
+			{:else if selectedModalItem.type === 'grammar'}
+				{@const rule = selectedModalItem.data}
+				
+				<h3 class="modal-title dark:text-white">{rule.grammarRule.title}</h3>
+				
+				<div class="modal-body dark:text-slate-300">
+					<div class="modal-elo-section">
+						<div class="modal-elo-header">
+							<span class="dark:text-slate-400">Status: {rule.srsState}</span>
+							<span class="modal-elo-score" style="color: {selectedModalItem.color}">ELO {Math.ceil(rule.eloRating)}</span>
+						</div>
+						<div class="elo-progress-track">
+							<div class="elo-progress-fill" style="width: {selectedModalItem.eloPercent}%; background-color: {selectedModalItem.color}"></div>
+						</div>
+					</div>
+					
+					<div class="modal-details">
+						<p class="modal-desc">{rule.grammarRule.description || 'No description available.'}</p>
+						{#if rule.grammarRule.guide}
+							<div class="grammar-guide markdown-body dark:bg-slate-900 dark:border-slate-700">
+								{@html marked(rule.grammarRule.guide)}
+							</div>
+						{/if}
+					</div>
+				</div>
+			{/if}
+		</div>
+	</div>
+{/if}
 
 <style>
 	.dashboard-container {
@@ -459,27 +557,26 @@
 		width: 24px;
 		height: 24px;
 		border-radius: 6px;
-		cursor: help;
+		cursor: pointer;
 		transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 		box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+	}
+
+	.heatmap-cell:hover {
+		transform: scale(1.1) translateY(-2px);
+		box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);
+		z-index: 10;
 	}
 
 	.tooltip-trigger {
 		position: relative;
 	}
 
-	.tooltip-trigger:hover {
-		transform: scale(1.5) translateY(-2px);
-		z-index: 10;
-		box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
-		border-radius: 4px;
-	}
-
 	.tooltip-content {
 		visibility: hidden;
 		opacity: 0;
 		position: absolute;
-		bottom: calc(100% + 8px);
+		bottom: calc(100% + 6px);
 		left: 50%;
 		transform: translateX(-50%) translateY(5px);
 		margin-bottom: 0;
@@ -504,8 +601,8 @@
 		position: absolute;
 		top: 100%;
 		left: 50%;
-		margin-left: -5px;
-		border-width: 5px;
+		margin-left: -6px;
+		border-width: 6px;
 		border-style: solid;
 		border-color: #0f172a transparent transparent transparent;
 	}
@@ -577,6 +674,18 @@
 		color: #3b82f6;
 	}
 
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border-width: 0;
+	}
+
 	.elo-progress-track {
 		display: block;
 		width: 100%;
@@ -597,18 +706,6 @@
 	.elo-progress-fill.learning { background: linear-gradient(90deg, #facc15, #fef08a); }
 	.elo-progress-fill.known { background: linear-gradient(90deg, #34d399, #6ee7b7); }
 	.elo-progress-fill.mastered { background: linear-gradient(90deg, #10b981, #059669); }
-
-	.sr-only {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		padding: 0;
-		margin: -1px;
-		overflow: hidden;
-		clip: rect(0, 0, 0, 0);
-		white-space: nowrap;
-		border-width: 0;
-	}
 
 	/* Grammar Web Redesign */
 	.grammar-web-container {
@@ -660,23 +757,10 @@
 		position: relative;
 		display: flex;
 		align-items: center;
-		background: #ffffff;
-		border: 2px solid var(--node-color);
+		border: 2px solid rgba(0,0,0,0.1);
 		border-radius: 9999px;
 		padding: 0.5rem 1.25rem 0.5rem 0.5rem;
-		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 0 10px var(--node-color)40;
-		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-		cursor: pointer;
-	}
-
-	.dark .web-node-pill {
-		background: #1e293b;
-	}
-
-	.web-node-pill:hover {
-		transform: translateY(-2px) scale(1.05);
-		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 0 15px var(--node-color)60;
-		z-index: 10;
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 	}
 
 	.node-pill-content {
@@ -689,17 +773,13 @@
 		width: 1.5rem;
 		height: 1.5rem;
 		border-radius: 50%;
+		background-color: rgba(0,0,0,0.2);
 		box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
 	}
 
 	.node-title {
-		font-weight: 600;
+		font-weight: 700;
 		font-size: 0.95rem;
-		color: #334155;
-	}
-
-	.dark .node-title {
-		color: #f8fafc;
 	}
 
 	.node-desc {
@@ -750,5 +830,125 @@
 		.web-node-wrapper {
 			flex: 1 1 100%;
 		}
+	}
+
+	/* Modal CSS */
+	.modal-backdrop {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0, 0, 0, 0.5);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 1000;
+		backdrop-filter: blur(2px);
+	}
+
+	.modal-content {
+		position: relative;
+		background: #ffffff;
+		padding: 2rem;
+		border-radius: 1rem;
+		max-width: 90%;
+		width: 500px;
+		max-height: 90vh;
+		display: flex;
+		flex-direction: column;
+		box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	}
+
+	.modal-body {
+		font-size: 1rem;
+		color: #475569;
+		overflow-y: auto;
+		flex-grow: 1;
+	}
+
+	.modal-elo-section {
+		margin-bottom: 1.5rem;
+		padding-bottom: 1.5rem;
+		border-bottom: 1px solid rgba(0,0,0,0.05);
+	}
+
+	.dark .modal-elo-section {
+		border-bottom-color: rgba(255,255,255,0.1);
+	}
+
+	.modal-elo-header {
+		display: flex;
+		justify-content: space-between;
+		font-weight: 700;
+		margin-bottom: 0.5rem;
+		font-size: 0.9rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.modal-elo-score {
+		font-weight: 800;
+	}
+
+	.modal-details {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.modal-detail-row {
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	.detail-label {
+		font-weight: 600;
+		color: #64748b;
+		width: 70px;
+		flex-shrink: 0;
+	}
+
+	.modal-desc {
+		line-height: 1.5;
+		margin-bottom: 0.5rem;
+	}
+
+	.grammar-guide {
+		padding: 0.75rem;
+		border-radius: 0.5rem;
+		background: #f8fafc;
+		border: 1px solid #e2e8f0;
+		font-size: 0.95rem;
+		line-height: 1.5;
+		max-height: 300px;
+		overflow-y: auto;
+	}
+
+	.dark .grammar-guide {
+		background: #0f172a;
+		border-color: #1e293b;
+	}
+
+	.grammar-guide :global(h1),
+	.grammar-guide :global(h2),
+	.grammar-guide :global(h3) {
+		margin-top: 0;
+		margin-bottom: 0.25rem;
+		font-weight: 700;
+	}
+
+	.grammar-guide :global(p) {
+		margin-top: 0;
+		margin-bottom: 0.75rem;
+	}
+
+	.grammar-guide :global(p:last-child) {
+		margin-bottom: 0;
+	}
+
+	.grammar-guide :global(ul) {
+		margin-top: 0;
+		padding-left: 1.5rem;
 	}
 </style>

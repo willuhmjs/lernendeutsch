@@ -4,7 +4,9 @@ import { prisma } from '$lib/server/prisma';
 
 import type { RequestEvent } from './$types';
 
-const getSystemPrompt = (activeLangName: string) => `You are a friendly ${activeLangName} language teacher assessing a new student's proficiency level.
+const getSystemPrompt = (
+	activeLangName: string
+) => `You are a friendly ${activeLangName} language teacher assessing a new student's proficiency level.
 Your goal is to have a short conversation to determine their baseline.
 Keep your responses relatively short and conversational, but test their grammar and vocabulary.
 If the user needs help or is at a lower level, they are allowed to translate your sentences to English or ask for translations in English, and you should not penalize their level for this.
@@ -63,14 +65,14 @@ export async function POST({ request, locals }: RequestEvent) {
 		if (!user) {
 			return json({ error: 'Unauthorized' }, { status: 401 });
 		}
-		
+
 		const activeLangId = user.activeLanguage!.id;
 		const activeLangName = user.activeLanguage?.name || 'German';
 
 		if (messages.length === 0) {
 			let greeting = 'Hallo';
 			let question = 'Wie heißt du?';
-			
+
 			if (activeLangName === 'Spanish') {
 				greeting = 'Hola';
 				question = '¿Cómo te llamas?';
@@ -78,10 +80,9 @@ export async function POST({ request, locals }: RequestEvent) {
 				greeting = 'Bonjour';
 				question = "Comment t'appelles-tu ?";
 			}
-			
+
 			return json({
-				message:
-					`${greeting}! Welcome! I'm excited to find out where you are with your ${activeLangName}. Don't worry if you're just starting out — I'll adjust to your level.\n\nLet's begin: ${question} (What is your name?) Feel free to answer in ${activeLangName} or English!`,
+				message: `${greeting}! Welcome! I'm excited to find out where you are with your ${activeLangName}. Don't worry if you're just starting out — I'll adjust to your level.\n\nLet's begin: ${question} (What is your name?) Feel free to answer in ${activeLangName} or English!`,
 				completed: false,
 				currentLevelGuess: 'A1'
 			});
@@ -133,14 +134,25 @@ export async function POST({ request, locals }: RequestEvent) {
 			stream: true
 		});
 
-		const processWords = async (words: string[], state: 'MASTERED' | 'KNOWN' | 'LEARNING', userLevel: string) => {
+		const processWords = async (
+			words: string[],
+			state: 'MASTERED' | 'KNOWN' | 'LEARNING',
+			userLevel: string
+		) => {
 			if (!Array.isArray(words) || words.length === 0) return;
 			try {
-				const normalizedWords = (await normalizeWords(userId, words)).map((w: string) => w.replace(/^[.,!?;:'"()[\\]{}-]+|[.,!?;:'"()[\\]{}-]+$/g, ''));
-				
+				const normalizedWords = (await normalizeWords(userId, words)).map((w: string) =>
+					w.replace(/^[.,!?;:'"()[\\]{}-]+|[.,!?;:'"()[\\]{}-]+$/g, '')
+				);
+
 				// Map the level to base Elo
 				const levels: Record<string, number> = {
-					A1: 1000, A2: 1200, B1: 1400, B2: 1600, C1: 1800, C2: 2000
+					A1: 1000,
+					A2: 1200,
+					B1: 1400,
+					B2: 1600,
+					C1: 1800,
+					C2: 2000
 				};
 				const startingElo = levels[userLevel.toUpperCase()] || 1000;
 
@@ -179,17 +191,28 @@ export async function POST({ request, locals }: RequestEvent) {
 					});
 				}
 				const addedCount = normalizedWords.length - skippedCount;
-				console.log(`[Onboarding] Added ${addedCount} ${state} words for user ${userId} at Elo ${startingElo}${skippedCount > 0 ? ` (skipped ${skippedCount} not in dictionary)` : ''}`);
+				console.log(
+					`[Onboarding] Added ${addedCount} ${state} words for user ${userId} at Elo ${startingElo}${skippedCount > 0 ? ` (skipped ${skippedCount} not in dictionary)` : ''}`
+				);
 			} catch (wordError) {
 				console.error(`Error processing ${state} words:`, wordError);
 			}
 		};
 
-		const processGrammar = async (rules: string[], state: 'MASTERED' | 'KNOWN' | 'LEARNING', userLevel: string) => {
+		const processGrammar = async (
+			rules: string[],
+			state: 'MASTERED' | 'KNOWN' | 'LEARNING',
+			userLevel: string
+		) => {
 			if (!Array.isArray(rules) || rules.length === 0) return;
 			try {
 				const levels: Record<string, number> = {
-					A1: 1000, A2: 1200, B1: 1400, B2: 1600, C1: 1800, C2: 2000
+					A1: 1000,
+					A2: 1200,
+					B1: 1400,
+					B2: 1600,
+					C1: 1800,
+					C2: 2000
 				};
 				const startingElo = levels[userLevel.toUpperCase()] || 1000;
 
@@ -222,7 +245,9 @@ export async function POST({ request, locals }: RequestEvent) {
 						}
 					});
 				}
-				console.log(`[Onboarding] Added ${rules.length} ${state} grammar rules for user ${userId} at Elo ${startingElo}`);
+				console.log(
+					`[Onboarding] Added ${rules.length} ${state} grammar rules for user ${userId} at Elo ${startingElo}`
+				);
 			} catch (ruleError) {
 				console.error(`Error processing ${state} grammar rules:`, ruleError);
 			}
@@ -280,7 +305,7 @@ export async function POST({ request, locals }: RequestEvent) {
 											fullContent += content;
 											controller.enqueue(new TextEncoder().encode(content));
 										}
-									} catch(e) {}
+									} catch (e) {}
 								}
 							}
 						}
@@ -299,35 +324,42 @@ export async function POST({ request, locals }: RequestEvent) {
 						processWords(parsedResponse.masteredWords, 'MASTERED', parsedResponse.level || 'A1'),
 						processWords(parsedResponse.knownWords, 'KNOWN', parsedResponse.level || 'A1'),
 						processWords(parsedResponse.learningWords, 'LEARNING', parsedResponse.level || 'A1'),
-						processGrammar(parsedResponse.masteredGrammar, 'MASTERED', parsedResponse.level || 'A1'),
+						processGrammar(
+							parsedResponse.masteredGrammar,
+							'MASTERED',
+							parsedResponse.level || 'A1'
+						),
 						processGrammar(parsedResponse.knownGrammar, 'KNOWN', parsedResponse.level || 'A1'),
 						processGrammar(parsedResponse.learningGrammar, 'LEARNING', parsedResponse.level || 'A1')
-					]).then(async () => {
-						if (parsedResponse.completed) {
-							console.log(`[Onboarding Complete] User ${userId} placed at level ${parsedResponse.level}.`);
-							try {
-								await prisma.userProgress.upsert({
-					where: {
-						userId_languageId: { userId, languageId: activeLangId }
-					},
-					create: {
-						userId,
-						languageId: activeLangId,
-						hasOnboarded: true,
-						cefrLevel: parsedResponse.level || 'A1'
-					},
-					update: {
-						hasOnboarded: true,
-						cefrLevel: parsedResponse.level || 'A1'
-					}
-				});
-								console.log('Successfully completed onboarding');
-							} catch (updateError) {
-								console.error('Error in bulk update', updateError);
+					])
+						.then(async () => {
+							if (parsedResponse.completed) {
+								console.log(
+									`[Onboarding Complete] User ${userId} placed at level ${parsedResponse.level}.`
+								);
+								try {
+									await prisma.userProgress.upsert({
+										where: {
+											userId_languageId: { userId, languageId: activeLangId }
+										},
+										create: {
+											userId,
+											languageId: activeLangId,
+											hasOnboarded: true,
+											cefrLevel: parsedResponse.level || 'A1'
+										},
+										update: {
+											hasOnboarded: true,
+											cefrLevel: parsedResponse.level || 'A1'
+										}
+									});
+									console.log('Successfully completed onboarding');
+								} catch (updateError) {
+									console.error('Error in bulk update', updateError);
+								}
 							}
-						}
-					}).catch(console.error);
-
+						})
+						.catch(console.error);
 				} catch (e) {
 					console.error('Post-stream processing error:', e);
 				}

@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 	import { onMount, onDestroy } from 'svelte';
 	import { toast } from '$lib/toast';
-	
+
 	let session: any = null;
 	let interval: any;
 	let loading = true;
@@ -12,7 +12,7 @@
 		{ id: 'a', text: '', isCorrect: true },
 		{ id: 'b', text: '', isCorrect: false },
 		{ id: 'c', text: '', isCorrect: false },
-		{ id: 'd', text: '', isCorrect: false },
+		{ id: 'd', text: '', isCorrect: false }
 	];
 
 	const classId = $page.params.id;
@@ -23,7 +23,7 @@
 			const data = await res.json();
 			session = data.session;
 			loading = false;
-			
+
 			if (session) {
 				status = session.status;
 				if (session.currentQuestion) {
@@ -83,19 +83,32 @@
 		<div class="control-grid">
 			<div class="control-card">
 				<h2 class="card-title">Session Controls</h2>
-				
+
 				<div class="status-section">
 					<p class="status-label">Status: <span class="status-value">{session.status}</span></p>
-					
+
 					<div class="action-buttons">
 						{#if session.status === 'waiting'}
-							<button class="btn-primary" on:click={() => updateSession('update', { status: 'active', currentQuestion: JSON.stringify({ text: 'Question 1: What is "Apple" in German?', options: [{id: 'a', text: 'Der Apfel', isCorrect: true}, {id: 'b', text: 'Die Apfel', isCorrect: false}, {id: 'c', text: 'Das Apfel', isCorrect: false}, {id: 'd', text: 'Den Apfel', isCorrect: false}] }) })}>
+							<button
+								class="btn-primary"
+								on:click={() =>
+									updateSession('update', {
+										status: 'active',
+										currentQuestion: JSON.stringify({
+											text: 'Question 1: What is "Apple" in German?',
+											options: [
+												{ id: 'a', text: 'Der Apfel', isCorrect: true },
+												{ id: 'b', text: 'Die Apfel', isCorrect: false },
+												{ id: 'c', text: 'Das Apfel', isCorrect: false },
+												{ id: 'd', text: 'Den Apfel', isCorrect: false }
+											]
+										})
+									})}
+							>
 								Start Quiz
 							</button>
 						{/if}
-						<button class="btn-danger" on:click={() => updateSession('end')}>
-							End Session
-						</button>
+						<button class="btn-danger" on:click={() => updateSession('end')}> End Session </button>
 					</div>
 				</div>
 
@@ -103,19 +116,41 @@
 					<div class="question-section">
 						<div class="field">
 							<label for="currentQuestionText">Current Question</label>
-							<textarea id="currentQuestionText" class="textarea" bind:value={currentQuestionText}></textarea>
+							<textarea id="currentQuestionText" class="textarea" bind:value={currentQuestionText}
+							></textarea>
 						</div>
-						
+
 						<div class="options-config">
 							{#each currentOptions as option, i}
 								<div class="option-field">
-									<input type="radio" name="correctOption" value={option.id} checked={option.isCorrect} on:change={() => currentOptions.forEach(o => o.isCorrect = (o.id === option.id))} />
-									<input type="text" class="input" bind:value={option.text} placeholder={`Option ${option.id.toUpperCase()}`} />
+									<input
+										type="radio"
+										name="correctOption"
+										value={option.id}
+										checked={option.isCorrect}
+										on:change={() =>
+											currentOptions.forEach((o) => (o.isCorrect = o.id === option.id))}
+									/>
+									<input
+										type="text"
+										class="input"
+										bind:value={option.text}
+										placeholder={`Option ${option.id.toUpperCase()}`}
+									/>
 								</div>
 							{/each}
 						</div>
 
-						<button class="btn-secondary w-full" on:click={() => updateSession('update', { currentQuestion: JSON.stringify({ text: currentQuestionText, options: currentOptions }) })}>
+						<button
+							class="btn-secondary w-full"
+							on:click={() =>
+								updateSession('update', {
+									currentQuestion: JSON.stringify({
+										text: currentQuestionText,
+										options: currentOptions
+									})
+								})}
+						>
 							Push Question to Students
 						</button>
 					</div>
@@ -124,7 +159,7 @@
 
 			<div class="control-card">
 				<h2 class="card-title">Participants ({session.participants?.length || 0})</h2>
-				
+
 				{#if session.participants?.length > 0}
 					<ul class="participants-list">
 						{#each session.participants.sort((a, b) => b.score - a.score) as p}
@@ -173,7 +208,9 @@
 		background-color: #ffffff;
 		padding: 1.5rem;
 		border-radius: 1rem;
-		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+		box-shadow:
+			0 4px 6px -1px rgba(0, 0, 0, 0.1),
+			0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		border: 1px solid #e2e8f0;
 	}
 
@@ -262,14 +299,18 @@
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 	}
 
-	.btn-primary, .btn-secondary, .btn-danger {
+	.btn-primary,
+	.btn-secondary,
+	.btn-danger {
 		padding: 0.75rem 1.5rem;
 		font-size: 1rem;
 		font-weight: 700;
 		border: none;
 		border-radius: 0.5rem;
 		cursor: pointer;
-		transition: background-color 0.2s, transform 0.1s;
+		transition:
+			background-color 0.2s,
+			transform 0.1s;
 		font-family: inherit;
 	}
 

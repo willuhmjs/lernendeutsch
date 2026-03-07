@@ -9,7 +9,7 @@
 		{ word: '学ぶ', lang: '日本語', flag: '🇯🇵' },
 		{ word: 'Учить', lang: 'Русский', flag: '🇷🇺' },
 		{ word: 'Impara', lang: 'Italiano', flag: '🇮🇹' },
-		{ word: '배우다', lang: '한국어', flag: '🇰🇷' },
+		{ word: '배우다', lang: '한국어', flag: '🇰🇷' }
 	];
 
 	let currentIndex = $state(0);
@@ -30,7 +30,10 @@
 
 <svelte:head>
 	<title>LingoLearn - Master Languages with AI</title>
-	<meta name="description" content="AI-powered language learning platform. Learn German, Spanish, French, and more." />
+	<meta
+		name="description"
+		content="AI-powered language learning platform. Learn German, Spanish, French, and more."
+	/>
 </svelte:head>
 
 <section class="hero dark:text-slate-200">
@@ -49,11 +52,15 @@
 	</div>
 	<p class="subtitle dark:text-slate-400">
 		Your AI-powered platform to master new languages. Start with
-		<strong>German</strong>, <strong>Spanish</strong>, or <strong>French</strong> — personalized lessons, instant feedback, and progress tracking.
+		<strong>German</strong>, <strong>Spanish</strong>, or <strong>French</strong> — personalized lessons,
+		instant feedback, and progress tracking.
 	</p>
 	<div class="actions">
 		<a href="/signup" class="btn btn-primary">Start Learning</a>
-		<a href="/login" class="btn btn-secondary dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700">Login</a>
+		<a
+			href="/login"
+			class="btn btn-secondary dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700">Login</a
+		>
 	</div>
 
 	<div class="supported-languages">
@@ -69,19 +76,27 @@
 <section class="features">
 	<div class="feature-card dark:bg-slate-800 dark:border-slate-700">
 		<h3 class="dark:text-white">🤖 AI-Powered Lessons</h3>
-		<p class="dark:text-slate-400">Dynamically generated lessons tailored to your skill level and learning pace.</p>
+		<p class="dark:text-slate-400">
+			Dynamically generated lessons tailored to your skill level and learning pace.
+		</p>
 	</div>
 	<div class="feature-card dark:bg-slate-800 dark:border-slate-700">
 		<h3 class="dark:text-white">🌍 Multiple Languages</h3>
-		<p class="dark:text-slate-400">Learn German, Spanish, and French with dedicated vocabulary, grammar, and exercises for each.</p>
+		<p class="dark:text-slate-400">
+			Learn German, Spanish, and French with dedicated vocabulary, grammar, and exercises for each.
+		</p>
 	</div>
 	<div class="feature-card dark:bg-slate-800 dark:border-slate-700">
 		<h3 class="dark:text-white">⚡ Instant Feedback</h3>
-		<p class="dark:text-slate-400">Get real-time corrections and explanations from our intelligent grader.</p>
+		<p class="dark:text-slate-400">
+			Get real-time corrections and explanations from our intelligent grader.
+		</p>
 	</div>
 	<div class="feature-card dark:bg-slate-800 dark:border-slate-700">
 		<h3 class="dark:text-white">📈 Track Progress</h3>
-		<p class="dark:text-slate-400">Monitor your vocabulary and grammar improvements over time across all languages.</p>
+		<p class="dark:text-slate-400">
+			Monitor your vocabulary and grammar improvements over time across all languages.
+		</p>
 	</div>
 </section>
 
@@ -92,28 +107,40 @@
 			<div class="step-number">1</div>
 			<div class="step-content">
 				<h4 class="dark:text-white">Choose Your Language</h4>
-				<p class="dark:text-slate-400">Select German, Spanish, or French to start your journey. We'll assess your current level to personalize your path.</p>
+				<p class="dark:text-slate-400">
+					Select German, Spanish, or French to start your journey. We'll assess your current level
+					to personalize your path.
+				</p>
 			</div>
 		</div>
 		<div class="step-item">
 			<div class="step-number">2</div>
 			<div class="step-content">
 				<h4 class="dark:text-white">Practice Daily</h4>
-				<p class="dark:text-slate-400">Engage in short, bite-sized lessons that fit your schedule, covering grammar, vocabulary, and reading.</p>
+				<p class="dark:text-slate-400">
+					Engage in short, bite-sized lessons that fit your schedule, covering grammar, vocabulary,
+					and reading.
+				</p>
 			</div>
 		</div>
 		<div class="step-item">
 			<div class="step-number">3</div>
 			<div class="step-content">
 				<h4 class="dark:text-white">AI-Powered Feedback</h4>
-				<p class="dark:text-slate-400">Our advanced AI grades your answers instantly and provides detailed explanations to help you improve faster.</p>
+				<p class="dark:text-slate-400">
+					Our advanced AI grades your answers instantly and provides detailed explanations to help
+					you improve faster.
+				</p>
 			</div>
 		</div>
 		<div class="step-item">
 			<div class="step-number">4</div>
 			<div class="step-content">
 				<h4 class="dark:text-white">Achieve Fluency</h4>
-				<p class="dark:text-slate-400">Watch your skills grow as you unlock new achievements and tackle more complex conversations.</p>
+				<p class="dark:text-slate-400">
+					Watch your skills grow as you unlock new achievements and tackle more complex
+					conversations.
+				</p>
 			</div>
 		</div>
 	</div>
@@ -122,7 +149,9 @@
 <section class="cta-section dark:bg-slate-800 dark:border-t dark:border-slate-700">
 	<div class="cta-content">
 		<h2 class="dark:text-white">Ready to start your language journey?</h2>
-		<p class="dark:text-slate-400">Join LingoLearn today and master your next language with AI-guided lessons.</p>
+		<p class="dark:text-slate-400">
+			Join LingoLearn today and master your next language with AI-guided lessons.
+		</p>
 		<a href="/signup" class="btn btn-primary cta-btn">Create Free Account</a>
 	</div>
 </section>
@@ -306,14 +335,20 @@
 		background: var(--card-bg, #ffffff);
 		padding: 2rem;
 		border-radius: 0.75rem;
-		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+		box-shadow:
+			0 4px 6px -1px rgba(0, 0, 0, 0.1),
+			0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		text-align: center;
-		transition: transform 0.2s, box-shadow 0.2s;
+		transition:
+			transform 0.2s,
+			box-shadow 0.2s;
 	}
 
 	.feature-card:hover {
 		transform: translateY(-4px);
-		box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.12), 0 4px 8px -2px rgba(0, 0, 0, 0.06);
+		box-shadow:
+			0 12px 24px -4px rgba(0, 0, 0, 0.12),
+			0 4px 8px -2px rgba(0, 0, 0, 0.06);
 	}
 
 	.feature-card h3 {

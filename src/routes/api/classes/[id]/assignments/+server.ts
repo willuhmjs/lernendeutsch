@@ -9,10 +9,23 @@ export const POST: RequestHandler = async ({ request, params, locals }) => {
 
 	try {
 		const classId = params.id;
-		const { title, description, gamemode, language, targetScore, targetCefrLevel, dueDate, topic, targetGrammar } = await request.json();
+		const {
+			title,
+			description,
+			gamemode,
+			language,
+			targetScore,
+			targetCefrLevel,
+			dueDate,
+			topic,
+			targetGrammar
+		} = await request.json();
 
 		if (!title || !gamemode || !language || targetScore === undefined) {
-			return json({ error: 'Title, gamemode, language, and targetScore are required' }, { status: 400 });
+			return json(
+				{ error: 'Title, gamemode, language, and targetScore are required' },
+				{ status: 400 }
+			);
 		}
 
 		// Verify the user is a TEACHER in this class
@@ -35,7 +48,10 @@ export const POST: RequestHandler = async ({ request, params, locals }) => {
 		});
 
 		if (assignmentCount >= 30) {
-			return json({ error: 'Maximum assignment limit reached for this class (30)' }, { status: 403 });
+			return json(
+				{ error: 'Maximum assignment limit reached for this class (30)' },
+				{ status: 403 }
+			);
 		}
 
 		// Create the assignment

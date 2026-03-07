@@ -46,7 +46,10 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		}
 
 		if (targetClass._count.members >= 20) {
-			return json({ error: 'This class has reached the maximum number of members (20)' }, { status: 403 });
+			return json(
+				{ error: 'This class has reached the maximum number of members (20)' },
+				{ status: 403 }
+			);
 		}
 
 		const classMember = await prisma.classMember.create({

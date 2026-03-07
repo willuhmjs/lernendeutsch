@@ -19,12 +19,12 @@ metadata:
   namespace: lingolearn
 type: Opaque
 stringData:
-  AUTH_SECRET: ""
-  AUTH_GOOGLE_ID: ""
-  AUTH_GOOGLE_SECRET: ""
-  DEFAULT_LLM_BASE_URL: ""
-  DEFAULT_LLM_API_KEY: ""
-  DEFAULT_LLM_MODEL: ""
+  AUTH_SECRET: ''
+  AUTH_GOOGLE_ID: ''
+  AUTH_GOOGLE_SECRET: ''
+  DEFAULT_LLM_BASE_URL: ''
+  DEFAULT_LLM_API_KEY: ''
+  DEFAULT_LLM_MODEL: ''
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -91,19 +91,19 @@ spec:
                   optional: true
           resources:
             requests:
-              memory: "256Mi"
-              cpu: "250m"
+              memory: '256Mi'
+              cpu: '250m'
             limits:
-              memory: "512Mi"
-              cpu: "500m"
+              memory: '512Mi'
+              cpu: '500m'
 ---
 apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    traefik.ingress.kubernetes.io/service.sticky.cookie: "true"
-    traefik.ingress.kubernetes.io/service.sticky.cookie.name: "sticky-session"
-    traefik.ingress.kubernetes.io/service.sticky.cookie.secure: "true"
+    traefik.ingress.kubernetes.io/service.sticky.cookie: 'true'
+    traefik.ingress.kubernetes.io/service.sticky.cookie.name: 'sticky-session'
+    traefik.ingress.kubernetes.io/service.sticky.cookie.secure: 'true'
   labels:
     app: lingolearn
   name: lingolearn
