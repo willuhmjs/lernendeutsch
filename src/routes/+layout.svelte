@@ -644,9 +644,6 @@
 
 	.main-content {
 		flex: 1;
-		max-width: 1024px;
-		margin: 0 auto;
-		padding: 2rem 1rem;
 		width: 100%;
 		box-sizing: border-box;
 	}
@@ -778,7 +775,7 @@
 		}
 
 		.main-content {
-			padding: 1rem 0.5rem;
+			padding: 0;
 		}
 	}
 	

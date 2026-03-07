@@ -6,10 +6,33 @@
 	let sessionStarted = false;
 	let sessionId = '';
 	let persona = 'A friendly waiter at a café';
-	let language = 'German';
+	
+	let language = $derived($page.data.user?.activeLanguage?.name || 'German');
 	let message = '';
 	let isLoading = false;
 	let chatContainer: HTMLElement;
+
+	const TOPICS = [
+		'A friendly waiter at a café',
+		'A strict border control officer',
+		'A talkative taxi driver',
+		'A helpful librarian',
+		'A neighbor who lost their dog',
+		'A language teacher evaluating your skills',
+		'A confused tourist asking for directions',
+		'A seller at a local market',
+		'A coworker discussing a project',
+		'An old friend you haven\'t seen in years'
+	];
+
+	function randomizeTopic() {
+		let newTopic;
+		do {
+			const randomIndex = Math.floor(Math.random() * TOPICS.length);
+			newTopic = TOPICS[randomIndex];
+		} while (newTopic === persona && TOPICS.length > 1);
+		persona = newTopic;
+	}
 
 	interface ChatMessage {
 		id: string;
@@ -28,8 +51,8 @@
 	}
 
 	async function startSession() {
-		if (!persona.trim() || !language.trim()) {
-			toast.error('Please enter a persona and language.');
+		if (!persona.trim() || !language?.trim()) {
+			toast.error('Please select a language and enter a persona.');
 			return;
 		}
 		sessionStarted = true;
@@ -105,16 +128,14 @@
 			<h2>Start a new roleplay</h2>
 			<div class="form-group">
 				<div>
-					<label for="language">Target Language</label>
-					<input
-						type="text"
-						id="language"
-						bind:value={language}
-						placeholder="e.g. German, French, Spanish"
-					/>
-				</div>
-				<div>
-					<label for="persona">Persona / Scenario</label>
+					<div class="label-row">
+						<label for="persona">Persona / Scenario</label>
+						<button class="randomize-btn" on:click={randomizeTopic} title="Randomize Topic">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/>
+							</svg>
+						</button>
+					</div>
 					<input
 						type="text"
 						id="persona"
@@ -270,6 +291,44 @@
 		display: block;
 		font-weight: 700;
 		color: var(--text-color, #334155);
+	}
+
+	.label-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 0.5rem;
+	}
+
+	.label-row label {
+		margin-bottom: 0;
+	}
+
+	.randomize-btn {
+		background: none;
+		border: none;
+		cursor: pointer;
+		color: #64748b;
+		padding: 0.25rem;
+		border-radius: 0.375rem;
+		transition: color 0.2s, background-color 0.2s;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.randomize-btn:hover {
+		color: #3b82f6;
+		background-color: #f1f5f9;
+	}
+
+	.randomize-btn svg {
+		width: 1.25rem;
+		height: 1.25rem;
+	}
+
+	:global(html[data-theme="dark"]) .randomize-btn:hover {
+		background-color: #334155;
 	}
 
 	.form-group input {
