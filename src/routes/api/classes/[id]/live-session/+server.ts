@@ -2,10 +2,11 @@ import { json } from '@sveltejs/kit';
 import { prisma } from '$lib/server/prisma';
 
 export async function GET({ params, locals }) {
-	const user = locals.user;
-	if (!user) {
+	const session = await locals.auth();
+	if (!session?.user?.id) {
 		return json({ error: 'Unauthorized' }, { status: 401 });
 	}
+	const userId = session.user.id;
 
 	const classId = params.id;
 
@@ -15,38 +16,50 @@ export async function GET({ params, locals }) {
 		include: {
 			participants: {
 				include: { user: true }
+			},
+			game: {
+				include: {
+					questions: {
+						orderBy: { order: 'asc' }
+					}
+				}
 			}
 		}
 	});
 
 	if (!liveSession) {
-		return json({ session: null, userId: user.id });
+		return json({ session: null, userId });
 	}
 
-	return json({ session: liveSession, userId: user.id });
+	return json({ session: liveSession, userId });
 }
 
 export async function POST({ params, request, locals }) {
-	const user = locals.user;
-	if (!user) {
+	const authSession = await locals.auth();
+	if (!authSession?.user?.id) {
 		return json({ error: 'Unauthorized' }, { status: 401 });
 	}
+	const userId = authSession.user.id;
 
 	const classId = params.id;
 	const data = await request.json();
 
 	// Check if user is a teacher of this class
-	const classMember = await prisma.classMember.findUnique({
-		where: { classId_userId: { classId, userId: user.id } }
+	const classMember = await prisma.classMember.findFirst({
+		where: { classId, userId, role: 'TEACHER' }
 	});
 
-	if (!classMember || classMember.role !== 'TEACHER') {
+	if (!classMember) {
 		return json({ error: 'Forbidden' }, { status: 403 });
 	}
 
-	const { action, currentQuestion, status } = data;
+	const { action, status, currentQuestionIndex, gameId } = data;
 
 	if (action === 'start') {
+		if (!gameId) {
+			return json({ error: 'gameId is required to start a session' }, { status: 400 });
+		}
+
 		const existingSession = await prisma.liveSession.findFirst({
 			where: { classId, status: { in: ['waiting', 'active'] } }
 		});
@@ -56,7 +69,9 @@ export async function POST({ params, request, locals }) {
 		const newSession = await prisma.liveSession.create({
 			data: {
 				classId,
-				status: 'waiting'
+				gameId,
+				status: 'waiting',
+				currentQuestionIndex: 0
 			}
 		});
 		return json({ session: newSession });
@@ -76,13 +91,13 @@ export async function POST({ params, request, locals }) {
 			where: { id: activeSession.id },
 			data: {
 				status: status !== undefined ? status : activeSession.status,
-				currentQuestion:
-					currentQuestion !== undefined ? currentQuestion : activeSession.currentQuestion
+				currentQuestionIndex:
+					currentQuestionIndex !== undefined ? currentQuestionIndex : activeSession.currentQuestionIndex
 			}
 		});
 
 		// If moving to next question, reset participant answer status
-		if (currentQuestion && currentQuestion !== activeSession.currentQuestion) {
+		if (currentQuestionIndex !== undefined && currentQuestionIndex !== activeSession.currentQuestionIndex) {
 			await prisma.liveSessionParticipant.updateMany({
 				where: { sessionId: activeSession.id },
 				data: { hasAnswered: false }

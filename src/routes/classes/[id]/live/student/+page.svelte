@@ -9,7 +9,7 @@
 	let joined = false;
 	let currentUserId = '';
 
-	let currentQuestionData: any = null;
+	$: currentQuestionData = session?.game?.questions?.[session?.currentQuestionIndex || 0] || null;
 
 	const classId = $page.params.id;
 
@@ -23,14 +23,12 @@
 			if (data.session) {
 				session = data.session;
 				loading = false;
-
-				if (session.currentQuestion) {
-					try {
-						currentQuestionData = JSON.parse(session.currentQuestion);
-					} catch (e) {
-						currentQuestionData = { text: session.currentQuestion, options: [] };
-					}
+				
+				// check if joined
+				if (session.participants?.some((p: any) => p.userId === currentUserId)) {
+					joined = true;
 				}
+
 			} else {
 				session = null;
 				joined = false;
@@ -113,7 +111,7 @@
 				</div>
 
 				<h2 class="question-title">
-					{currentQuestionData?.text || session.currentQuestion || 'Get Ready!'}
+					{currentQuestionData?.question || 'Get Ready!'}
 				</h2>
 
 				{#if me?.hasAnswered}
@@ -125,16 +123,19 @@
 				{:else if currentQuestionData?.options && currentQuestionData.options.length > 0}
 					<div class="options-grid">
 						{#each currentQuestionData.options as opt, i}
+							{@const optionColors = ['a', 'b', 'c', 'd', 'a', 'b']}
 							<button
-								class={`option-btn option-${opt.id}`}
+								class={`option-btn option-${optionColors[i % optionColors.length]}`}
 								on:click={() => submitAnswer(opt.isCorrect)}
 							>
-								{opt.id.toUpperCase()}: {opt.text}
+								{opt.text}
 							</button>
 						{/each}
 					</div>
 
-					<p class="hint-text">Select the correct translation. Faster answers give more points!</p>
+					<p class="hint-text">Select the correct answer. Faster answers give more points!</p>
+				{:else}
+					<p class="hint-text">Waiting for the next question...</p>
 				{/if}
 			{/if}
 		</div>
@@ -297,8 +298,9 @@
 	}
 
 	.option-btn {
-		height: 8rem;
-		font-size: 1.5rem;
+		min-height: 8rem;
+		padding: 1rem;
+		font-size: 1.25rem;
 		font-weight: 700;
 		color: white;
 		border: none;
@@ -308,6 +310,9 @@
 			0 4px 6px -1px rgba(0, 0, 0, 0.1),
 			0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		transition: transform 0.2s;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 
 	.option-btn:hover {

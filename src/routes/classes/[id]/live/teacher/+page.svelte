@@ -2,42 +2,27 @@
 	import { page } from '$app/stores';
 	import { onMount, onDestroy } from 'svelte';
 	import { toast } from '$lib/toast';
+	import type { PageData } from './$types';
+
+	export let data: PageData;
 
 	let session: any = null;
 	let interval: any;
 	let loading = true;
-	let status = 'waiting';
-	let currentQuestionText = '';
-	let currentOptions = [
-		{ id: 'a', text: '', isCorrect: true },
-		{ id: 'b', text: '', isCorrect: false },
-		{ id: 'c', text: '', isCorrect: false },
-		{ id: 'd', text: '', isCorrect: false }
-	];
+	let selectedGameId = '';
 
 	const classId = $page.params.id;
+
+	$: currentGame = session?.game;
+	$: currentQuestion = currentGame?.questions?.[session?.currentQuestionIndex || 0];
+	$: totalQuestions = currentGame?.questions?.length || 0;
 
 	async function fetchSession() {
 		try {
 			const res = await fetch(`/api/classes/${classId}/live-session`);
-			const data = await res.json();
-			session = data.session;
+			const result = await res.json();
+			session = result.session;
 			loading = false;
-
-			if (session) {
-				status = session.status;
-				if (session.currentQuestion) {
-					try {
-						const parsed = JSON.parse(session.currentQuestion);
-						currentQuestionText = parsed.text || '';
-						if (parsed.options) {
-							currentOptions = parsed.options;
-						}
-					} catch (e) {
-						currentQuestionText = session.currentQuestion;
-					}
-				}
-			}
 		} catch (error) {
 			console.error(error);
 		}
@@ -50,10 +35,33 @@
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ action, ...updates })
 			});
-			if (!res.ok) throw new Error('Failed to update session');
+			if (!res.ok) {
+				const errorData = await res.json();
+				throw new Error(errorData.error || 'Failed to update session');
+			}
 			fetchSession();
 		} catch (error: any) {
 			toast.error(error.message);
+		}
+	}
+
+	function startSession() {
+		if (!selectedGameId) {
+			toast.error('Please select a game first');
+			return;
+		}
+		updateSession('start', { gameId: selectedGameId });
+	}
+
+	function nextQuestion() {
+		if (session && session.currentQuestionIndex < totalQuestions - 1) {
+			updateSession('update', { currentQuestionIndex: session.currentQuestionIndex + 1 });
+		}
+	}
+
+	function previousQuestion() {
+		if (session && session.currentQuestionIndex > 0) {
+			updateSession('update', { currentQuestionIndex: session.currentQuestionIndex - 1 });
 		}
 	}
 
@@ -75,9 +83,20 @@
 	{:else if !session || session.status === 'finished'}
 		<div class="control-card center-text">
 			<h2 class="card-title">No Active Session</h2>
-			<button class="btn-primary" on:click={() => updateSession('start')}>
-				Start Live Session
-			</button>
+			<div class="start-session-form">
+				<div class="field">
+					<label for="gameSelect">Select a Game to Start:</label>
+					<select id="gameSelect" class="input" bind:value={selectedGameId}>
+						<option value="" disabled>-- Select a Game --</option>
+						{#each data.games as game}
+							<option value={game.id}>{game.title} ({game._count.questions} questions)</option>
+						{/each}
+					</select>
+				</div>
+				<button class="btn-primary" on:click={startSession}>
+					Start Live Session
+				</button>
+			</div>
 		</div>
 	{:else}
 		<div class="control-grid">
@@ -91,19 +110,7 @@
 						{#if session.status === 'waiting'}
 							<button
 								class="btn-primary"
-								on:click={() =>
-									updateSession('update', {
-										status: 'active',
-										currentQuestion: JSON.stringify({
-											text: 'Question 1: What is "Apple" in German?',
-											options: [
-												{ id: 'a', text: 'Der Apfel', isCorrect: true },
-												{ id: 'b', text: 'Die Apfel', isCorrect: false },
-												{ id: 'c', text: 'Das Apfel', isCorrect: false },
-												{ id: 'd', text: 'Den Apfel', isCorrect: false }
-											]
-										})
-									})}
+								on:click={() => updateSession('update', { status: 'active' })}
 							>
 								Start Quiz
 							</button>
@@ -112,47 +119,46 @@
 					</div>
 				</div>
 
-				{#if session.status === 'active'}
+				{#if session.status === 'active' && currentQuestion}
 					<div class="question-section">
-						<div class="field">
-							<label for="currentQuestionText">Current Question</label>
-							<textarea id="currentQuestionText" class="textarea" bind:value={currentQuestionText}
-							></textarea>
+						<div class="question-header">
+							<h3>Question {session.currentQuestionIndex + 1} of {totalQuestions}</h3>
+							<div class="nav-buttons">
+								<button 
+									class="btn-secondary small" 
+									disabled={session.currentQuestionIndex === 0}
+									on:click={previousQuestion}
+								>
+									Previous
+								</button>
+								<button 
+									class="btn-secondary small" 
+									disabled={session.currentQuestionIndex >= totalQuestions - 1}
+									on:click={nextQuestion}
+								>
+									Next
+								</button>
+							</div>
 						</div>
-
-						<div class="options-config">
-							{#each currentOptions as option, i}
-								<div class="option-field">
-									<input
-										type="radio"
-										name="correctOption"
-										value={option.id}
-										checked={option.isCorrect}
-										on:change={() =>
-											currentOptions.forEach((o) => (o.isCorrect = o.id === option.id))}
-									/>
-									<input
-										type="text"
-										class="input"
-										bind:value={option.text}
-										placeholder={`Option ${option.id.toUpperCase()}`}
-									/>
-								</div>
-							{/each}
+						
+						<div class="current-question-display">
+							<p class="question-text">{currentQuestion.question}</p>
+							
+							<div class="options-display">
+								{#each currentQuestion.options as option}
+									<div class="option-item {option.isCorrect ? 'correct' : ''}">
+										<span class="option-text">{option.text}</span>
+										{#if option.isCorrect}
+											<span class="correct-badge">✓ Correct</span>
+										{/if}
+									</div>
+								{/each}
+							</div>
 						</div>
-
-						<button
-							class="btn-secondary w-full"
-							on:click={() =>
-								updateSession('update', {
-									currentQuestion: JSON.stringify({
-										text: currentQuestionText,
-										options: currentOptions
-									})
-								})}
-						>
-							Push Question to Students
-						</button>
+					</div>
+				{:else if session.status === 'active'}
+					<div class="question-section">
+						<p>No questions found for this game.</p>
 					</div>
 				{/if}
 			</div>
@@ -226,6 +232,15 @@
 		color: #0f172a;
 	}
 
+	.start-session-form {
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+		max-width: 24rem;
+		margin: 0 auto;
+		text-align: left;
+	}
+
 	.control-grid {
 		display: grid;
 		grid-template-columns: 1fr;
@@ -269,6 +284,69 @@
 		padding-top: 1.5rem;
 	}
 
+	.question-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 0.5rem;
+	}
+
+	.question-header h3 {
+		margin: 0;
+		color: #1e293b;
+	}
+
+	.nav-buttons {
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	.current-question-display {
+		background-color: #f8fafc;
+		border: 1px solid #e2e8f0;
+		border-radius: 0.75rem;
+		padding: 1.5rem;
+	}
+
+	.question-text {
+		font-size: 1.25rem;
+		font-weight: 600;
+		margin-top: 0;
+		margin-bottom: 1.5rem;
+		color: #0f172a;
+	}
+
+	.options-display {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.option-item {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0.75rem 1rem;
+		border-radius: 0.5rem;
+		background-color: white;
+		border: 1px solid #cbd5e1;
+	}
+
+	.option-item.correct {
+		border-color: #22c55e;
+		background-color: #f0fdf4;
+	}
+
+	.option-text {
+		font-size: 1rem;
+	}
+
+	.correct-badge {
+		font-size: 0.75rem;
+		font-weight: 700;
+		color: #16a34a;
+	}
+
 	.field {
 		display: flex;
 		flex-direction: column;
@@ -281,19 +359,17 @@
 		color: #475569;
 	}
 
-	.textarea {
+	.input {
 		width: 100%;
-		min-height: 8rem;
 		padding: 0.75rem;
 		border: 1px solid #cbd5e1;
 		border-radius: 0.5rem;
 		font-family: inherit;
 		font-size: 1rem;
-		resize: vertical;
 		box-sizing: border-box;
 	}
 
-	.textarea:focus {
+	.input:focus {
 		outline: none;
 		border-color: #3b82f6;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
@@ -312,6 +388,16 @@
 			background-color 0.2s,
 			transform 0.1s;
 		font-family: inherit;
+	}
+
+	.btn-secondary.small {
+		padding: 0.5rem 1rem;
+		font-size: 0.875rem;
+	}
+
+	.btn-secondary:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
 	}
 
 	.btn-primary {
@@ -337,11 +423,11 @@
 		box-shadow: 0 2px 0 #cbd5e1;
 	}
 
-	.btn-secondary:hover {
+	.btn-secondary:hover:not(:disabled) {
 		background-color: #e2e8f0;
 	}
 
-	.btn-secondary:active {
+	.btn-secondary:active:not(:disabled) {
 		transform: translateY(2px);
 		box-shadow: none;
 	}
@@ -360,11 +446,6 @@
 	.btn-danger:active {
 		transform: translateY(2px);
 		box-shadow: 0 2px 0 #dc2626;
-	}
-
-	.w-full {
-		width: 100%;
-		box-sizing: border-box;
 	}
 
 	.participants-list {
@@ -424,34 +505,5 @@
 		color: #64748b;
 		font-style: italic;
 		margin: 0;
-	}
-	.options-config {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-		margin-top: 1rem;
-		margin-bottom: 1rem;
-	}
-
-	.option-field {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-	}
-
-	.input {
-		flex: 1;
-		padding: 0.75rem;
-		border: 1px solid #cbd5e1;
-		border-radius: 0.5rem;
-		font-family: inherit;
-		font-size: 1rem;
-		box-sizing: border-box;
-	}
-
-	.input:focus {
-		outline: none;
-		border-color: #3b82f6;
-		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 	}
 </style>
