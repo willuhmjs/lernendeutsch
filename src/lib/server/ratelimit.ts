@@ -1,8 +1,8 @@
 import { RateLimiter } from 'sveltekit-rate-limiter/server';
 
 export const apiRateLimiter = new RateLimiter({
-	IP: [100, 'm'], // 100 requests per minute per IP
-	IPUA: [200, 'm']
+	IP: [1000, 'm'], // 1000 requests per minute per IP
+	IPUA: [2000, 'm']
 });
 
 export const authRateLimiter = new RateLimiter({
@@ -16,8 +16,8 @@ export const generateLessonRateLimiter = new RateLimiter({
 });
 
 export const submitAnswerRateLimiter = new RateLimiter({
-	IP: [15, 'm'],
-	IPUA: [300, 'd']
+	IP: [500, 'm'],
+	IPUA: [10000, 'd']
 });
 
 export const llmDictionaryRateLimiter = new RateLimiter({
