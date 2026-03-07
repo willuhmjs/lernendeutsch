@@ -97,112 +97,114 @@
 
 			<div class="nav-links">
 				{#if user}
-					<a
-						href="/dashboard"
-						class="nav-item {$page.url.pathname.startsWith('/dashboard') ? 'active' : ''}"
-					>
-						<svg
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							><rect x="3" y="3" width="7" height="7" rx="1" /><rect
-								x="14"
-								y="3"
-								width="7"
-								height="7"
-								rx="1"
-							/><rect x="3" y="14" width="7" height="7" rx="1" /><rect
-								x="14"
-								y="14"
-								width="7"
-								height="7"
-								rx="1"
-							/></svg
+					{#if user.hasOnboarded}
+						<a
+							href="/dashboard"
+							class="nav-item {$page.url.pathname.startsWith('/dashboard') ? 'active' : ''}"
 						>
-						<span class="nav-text">Dashboard</span>
-					</a>
-					<a href="/play" class="nav-item {$page.url.pathname.startsWith('/play') ? 'active' : ''}">
-						<svg
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3" /></svg
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								><rect x="3" y="3" width="7" height="7" rx="1" /><rect
+									x="14"
+									y="3"
+									width="7"
+									height="7"
+									rx="1"
+								/><rect x="3" y="14" width="7" height="7" rx="1" /><rect
+									x="14"
+									y="14"
+									width="7"
+									height="7"
+									rx="1"
+								/></svg
+							>
+							<span class="nav-text">Dashboard</span>
+						</a>
+						<a href="/play" class="nav-item {$page.url.pathname.startsWith('/play') ? 'active' : ''}">
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3" /></svg
+							>
+							<span class="nav-text">Play</span>
+						</a>
+						<a
+							href="/classes"
+							class="nav-item {$page.url.pathname.startsWith('/classes') ? 'active' : ''}"
 						>
-						<span class="nav-text">Play</span>
-					</a>
-					<a
-						href="/classes"
-						class="nav-item {$page.url.pathname.startsWith('/classes') ? 'active' : ''}"
-					>
-						<svg
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle
-								cx="9"
-								cy="7"
-								r="4"
-							/><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle
+									cx="9"
+									cy="7"
+									r="4"
+								/><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg
+							>
+							<span class="nav-text">Classes</span>
+						</a>
+						<a
+							href="/dictionary"
+							class="nav-item {$page.url.pathname.startsWith('/dictionary') ? 'active' : ''}"
 						>
-						<span class="nav-text">Classes</span>
-					</a>
-					<a
-						href="/dictionary"
-						class="nav-item {$page.url.pathname.startsWith('/dictionary') ? 'active' : ''}"
-					>
-						<svg
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path
-								d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
-							></path></svg
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path
+									d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
+								></path></svg
+							>
+							<span class="nav-text">Dictionary</span>
+						</a>
+						<a
+							href="/practice/chat"
+							class="nav-item {$page.url.pathname.startsWith('/practice/chat') ? 'active' : ''}"
 						>
-						<span class="nav-text">Dictionary</span>
-					</a>
-					<a
-						href="/practice/chat"
-						class="nav-item {$page.url.pathname.startsWith('/practice/chat') ? 'active' : ''}"
-					>
-						<svg
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg
+							>
+							<span class="nav-text">Chat</span>
+						</a>
+						<a
+							href="/review"
+							class="nav-item {$page.url.pathname.startsWith('/review') ? 'active' : ''}"
 						>
-						<span class="nav-text">Chat</span>
-					</a>
-					<a
-						href="/review"
-						class="nav-item {$page.url.pathname.startsWith('/review') ? 'active' : ''}"
-					>
-						<svg
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path
-								d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
-							></path></svg
-						>
-						<span class="nav-text">Review</span>
-					</a>
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path
+									d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
+								></path></svg
+							>
+							<span class="nav-text">Review</span>
+						</a>
+					{/if}
 					<a
 						href="/onboarding"
 						class="nav-item {$page.url.pathname.startsWith('/onboarding') ? 'active' : ''}"
@@ -219,25 +221,6 @@
 							/></svg
 						>
 						<span class="nav-text">Onboarding</span>
-					</a>
-					<a
-						href="/profile"
-						class="nav-item {$page.url.pathname.startsWith('/profile') ? 'active' : ''}"
-					>
-						<svg
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle
-								cx="12"
-								cy="7"
-								r="4"
-							/></svg
-						>
-						<span class="nav-text">Profile</span>
 					</a>
 					{#if user.role === 'ADMIN'}
 						<a
@@ -376,6 +359,25 @@
 							<span class="nav-text">Logout</span>
 						</button>
 					</form>
+					<a
+						href="/profile"
+						class="nav-item {$page.url.pathname.startsWith('/profile') ? 'active' : ''}"
+					>
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle
+								cx="12"
+								cy="7"
+								r="4"
+							/></svg
+						>
+						<span class="nav-text">Profile</span>
+					</a>
 				</div>
 			{/if}
 		</nav>
