@@ -70,7 +70,7 @@
 	}
 
 	const GENERAL_TIPS = [
-		"Originally, LingoLearn was called 'LernenDeutsch' -- but we let the other languages stick around!",
+		"Originally, LingoLearn was called 'LernenDeutsch' — but we let the other languages stick around!",
 		'Spaced repetition (SRS) is proven to make vocabulary stick up to 3× faster.',
 		'Reading just 15 minutes a day in your target language dramatically speeds up fluency.',
 		'Context beats memorization — learning words in sentences helps retention by ~40%.',
