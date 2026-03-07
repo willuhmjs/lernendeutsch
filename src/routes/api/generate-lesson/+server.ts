@@ -265,6 +265,14 @@ export async function POST(event) {
 			? `Generate EXACTLY ONE simple, natural ${activeLangName} sentence (no run-ons/semi-colons) as a challenge.`
 			: `Generate a natural ${activeLangName} challenge (complex sentence or exactly 2 STRICTLY related, narrative sentences forming a micro-story) suitable for ${userLevel}.`;
 
+		const qualityConstraint = `
+CRITICAL STYLE & TONE CONSTRAINT:
+- The sentences MUST NOT be mundane, robotic, or nonsensical.
+- They MUST be engaging, thought-provoking, and highly relevant for everyday use.
+- Emulate the style, depth, and conversational realism of AP Language classes.
+- Cover real-world situations, nuanced day-to-day communication, and engaging scenarios.
+- Whether short or long, the sentence(s) must make complete sense, sound highly natural, and actively engage the user.`;
+
 		const topicConstraint = assignmentTopic ? `\nCRITICAL THEMATIC CONSTRAINT: The sentence(s) MUST be about the topic: "${assignmentTopic}". This is a mandatory requirement.` : '';
 		const grammarConstraint = assignmentTargetGrammar.length > 0 ? `\nCRITICAL GRAMMAR CONSTRAINT: The sentence(s) MUST incorporate the following grammar rule(s): ${assignmentTargetGrammar.join(', ')}. This is a mandatory requirement.` : '';
 
@@ -397,7 +405,9 @@ MULTI-WORD MEANINGS: If a ${activeLangName} word's English meaning contains mult
 		const systemPrompt = `Act as an expert ${activeLangName} tutor for a ${userLevel} student. Output ONLY strictly valid JSON, no markdown or extra text.
 ${beginnerGuidance}
 
-${sentenceConstraint}${topicConstraint}${grammarConstraint}
+${sentenceConstraint}
+${qualityConstraint}
+${topicConstraint}${grammarConstraint}
 Compose the ${activeLangName} text focusing on the "Mastered" and "Learning" concepts provided below. You are ALLOWED to use other natural ${activeLangName} vocabulary appropriate for a ${userLevel} student, even if it is not in the provided lists. However, you MUST ABSOLUTELY AVOID using any custom or user-provided words that are not explicitly present in the provided vocabulary lists below. If you think the user might have learned a specific obscure word elsewhere but it is not in these lists, do not use it.
 CRITICAL THEMATIC INJECTION: The "Learning Vocabulary" list below is a POOL of words. You MUST choose ONE word from it to establish a central theme. Then, try to incorporate other words from the Learning Vocabulary list ONLY if they fit naturally within that theme.
 CRITICAL GRAMMAR INJECTION: The "Learning Grammar" section is NOT a pool. You MUST structurally incorporate the active grammar rule (e.g., ID: g0) into the sentence. This is mandatory.

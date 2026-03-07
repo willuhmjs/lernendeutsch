@@ -366,4 +366,23 @@
 	.btn-error:hover {
 		background: #dc2626;
 	}
+
+	@media (max-width: 768px) {
+		.profile-container {
+			padding: 1rem 0.5rem;
+		}
+
+		.profile-header h1 {
+			font-size: 1.75rem;
+		}
+
+		.submit-btn, .delete-btn {
+			width: 100%;
+			box-sizing: border-box;
+		}
+
+		.info-grid {
+			grid-template-columns: 1fr;
+		}
+	}
 </style>

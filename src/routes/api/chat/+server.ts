@@ -1,15 +1,21 @@
 import { json } from '@sveltejs/kit';
 import { prisma } from '$lib/server/prisma';
 import { generateChatCompletion, type ChatMessage } from '$lib/server/llm';
+import { chatPracticeRateLimiter } from '$lib/server/ratelimit';
 
-export async function POST({ request, locals }) {
-	const session = await locals.auth();
+export async function POST(event) {
+	// Apply rate limiting
+	if (await chatPracticeRateLimiter.isLimited(event)) {
+		return json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
+	}
+
+	const session = await event.locals.auth();
 	if (!session?.user?.id) {
 		return json({ error: 'Unauthorized' }, { status: 401 });
 	}
 
 	const userId = session.user.id;
-	const { sessionId, message, persona, language } = await request.json();
+	const { sessionId, message, persona, language } = await event.request.json();
 
 	if (!message) {
 		return json({ error: 'Message is required' }, { status: 400 });

@@ -651,4 +651,19 @@
 		margin: 0;
 		font-size: 0.95rem;
 	}
+
+	@media (max-width: 768px) {
+		.classes-container {
+			padding: 1rem 0.5rem;
+		}
+
+		.classes-header h1 {
+			font-size: 2rem;
+		}
+
+		.btn-duo {
+			width: 100%;
+			box-sizing: border-box;
+		}
+	}
 </style>

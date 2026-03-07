@@ -24,3 +24,8 @@ export const llmDictionaryRateLimiter = new RateLimiter({
 	IP: [5, 'm'],
 	IPUA: [20, 'h']
 });
+
+export const chatPracticeRateLimiter = new RateLimiter({
+	IP: [10, 'm'],
+	IPUA: [50, 'h']
+});

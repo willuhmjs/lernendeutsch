@@ -603,4 +603,30 @@
 		border: 1px dashed var(--card-border, #cbd5e1);
 		color: #64748b;
 	}
+
+	@media (max-width: 768px) {
+		.dashboard-container {
+			padding: 1rem;
+		}
+
+		.dashboard-header h1 {
+			font-size: 2rem;
+		}
+
+		.dashboard-header .btn-duo {
+			width: 100%;
+			box-sizing: border-box;
+		}
+
+		.heatmap-grid {
+			padding: 1rem;
+			gap: 4px;
+			justify-content: center;
+		}
+
+		.heatmap-cell {
+			width: 14px;
+			height: 14px;
+		}
+	}
 </style>

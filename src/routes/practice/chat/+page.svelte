@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import toast from 'svelte-french-toast';
 
 	let sessionStarted = false;
@@ -9,6 +9,7 @@
 	let language = 'German';
 	let message = '';
 	let isLoading = false;
+	let chatContainer: HTMLElement;
 
 	interface ChatMessage {
 		id: string;
@@ -19,6 +20,13 @@
 
 	let messages: ChatMessage[] = [];
 
+	async function scrollToBottom() {
+		await tick();
+		if (chatContainer) {
+			chatContainer.scrollTop = chatContainer.scrollHeight;
+		}
+	}
+
 	async function startSession() {
 		if (!persona.trim() || !language.trim()) {
 			toast.error('Please enter a persona and language.');
@@ -27,6 +35,7 @@
 		sessionStarted = true;
 		messages = [];
 		// Add an initial empty state or we can just let the user send the first message.
+		scrollToBottom();
 	}
 
 	async function sendMessage() {
@@ -41,6 +50,7 @@
 			content: userMessageText
 		};
 		messages = [...messages, tempUserMessage];
+		scrollToBottom();
 		isLoading = true;
 
 		try {
@@ -66,6 +76,7 @@
 			}
 			
 			messages = [...messages, data.message];
+			scrollToBottom();
 		} catch (error: any) {
 			console.error(error);
 			toast.error(error.message || 'An error occurred.');
@@ -84,104 +95,492 @@
 	}
 </script>
 
-<div class="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
-	<div class="flex items-center justify-between mb-8">
-		<h1 class="text-3xl font-bold text-gray-900 dark:text-white">Conversational Practice</h1>
+<div class="chat-container">
+	<div class="chat-header-main">
+		<h1>AI Chat Practice</h1>
 	</div>
 
 	{#if !sessionStarted}
-		<div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-			<h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Start a new roleplay</h2>
-			<div class="space-y-4">
+		<div class="card-duo setup-card">
+			<h2>Start a new roleplay</h2>
+			<div class="form-group">
 				<div>
-					<label for="language" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Language</label>
+					<label for="language">Target Language</label>
 					<input
 						type="text"
 						id="language"
 						bind:value={language}
-						class="w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
 						placeholder="e.g. German, French, Spanish"
 					/>
 				</div>
 				<div>
-					<label for="persona" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Persona / Scenario</label>
+					<label for="persona">Persona / Scenario</label>
 					<input
 						type="text"
 						id="persona"
 						bind:value={persona}
-						class="w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
 						placeholder="e.g. A friendly waiter at a café"
 					/>
 				</div>
 				<button
 					on:click={startSession}
-					class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+					class="btn-duo btn-primary start-btn"
 				>
 					Start Conversation
 				</button>
 			</div>
 		</div>
 	{:else}
-		<div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col h-[600px]">
-			<div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-900/50 rounded-t-lg">
-				<div>
-					<span class="font-medium text-gray-900 dark:text-white">{persona}</span>
-					<span class="text-sm text-gray-500 dark:text-gray-400 ml-2">({language})</span>
+		<div class="card-duo chat-box">
+			<!-- Header -->
+			<div class="chat-header">
+				<div class="persona-info">
+					<span class="persona-name">{persona}</span>
+					<span class="persona-lang">{language}</span>
 				</div>
 				<button
 					on:click={() => { sessionStarted = false; sessionId = ''; }}
-					class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+					class="end-session-btn"
 				>
 					End Session
 				</button>
 			</div>
 			
-			<div class="flex-1 overflow-y-auto p-4 space-y-4">
-				{#if messages.length === 0}
-					<div class="text-center text-gray-500 dark:text-gray-400 mt-10">
-						Start the conversation! Introduce yourself or say hello.
-					</div>
-				{/if}
-				{#each messages as msg}
-					<div class="flex flex-col {msg.role === 'user' ? 'items-end' : 'items-start'}">
-						<div class="max-w-[80%] rounded-lg px-4 py-2 {msg.role === 'user' ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'}">
-							<p class="whitespace-pre-wrap">{msg.content}</p>
+			<!-- Messages Area -->
+			<div class="messages-area" bind:this={chatContainer}>
+				<div class="messages-list">
+					{#if messages.length === 0}
+						<div class="empty-state">
+							<div class="wave">👋</div>
+							<p>Start the conversation! Introduce yourself or say hello.</p>
 						</div>
-						{#if msg.correction}
-							<div class="mt-1 max-w-[80%] text-sm bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 border border-amber-200 dark:border-amber-800 rounded px-3 py-2">
-								<span class="font-medium">Correction:</span> {msg.correction}
+					{/if}
+					
+					{#each messages as msg}
+						<div class="message-row {msg.role === 'user' ? 'row-user' : 'row-assistant'}">
+							<div class="message-content {msg.role === 'user' ? 'content-user' : 'content-assistant'}">
+								<div class="bubble {msg.role === 'user' ? 'bubble-user' : 'bubble-assistant'}">
+									<p>{msg.content}</p>
+								</div>
+								
+								{#if msg.correction}
+									<div class="correction-box">
+										<div class="correction-header">
+											<svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+												<path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+											</svg>
+											Correction
+										</div>
+										<p>{msg.correction}</p>
+									</div>
+								{/if}
 							</div>
-						{/if}
-					</div>
-				{/each}
-				{#if isLoading}
-					<div class="flex justify-start">
-						<div class="bg-gray-100 dark:bg-gray-700 rounded-lg px-4 py-2 text-gray-500 dark:text-gray-400">
-							<span class="animate-pulse">Typing...</span>
 						</div>
-					</div>
-				{/if}
+					{/each}
+					
+					{#if isLoading}
+						<div class="message-row row-assistant">
+							<div class="bubble bubble-assistant typing-indicator">
+								<div class="dot"></div>
+								<div class="dot"></div>
+								<div class="dot"></div>
+							</div>
+						</div>
+					{/if}
+				</div>
 			</div>
 
-			<div class="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-lg">
-				<div class="flex space-x-2">
-					<textarea
-						bind:value={message}
-						on:keydown={handleKeydown}
-						placeholder="Type your message..."
-						class="flex-1 resize-none rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 min-h-[44px] max-h-32"
-						rows="1"
-						disabled={isLoading}
-					></textarea>
+			<!-- Input Area -->
+			<div class="input-area">
+				<div class="input-wrapper">
+					<div class="textarea-container">
+						<textarea
+							bind:value={message}
+							on:keydown={handleKeydown}
+							placeholder="Type your message... (Enter to send)"
+							rows="1"
+							disabled={isLoading}
+						></textarea>
+					</div>
 					<button
 						on:click={sendMessage}
 						disabled={isLoading || !message.trim()}
-						class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+						class="send-btn"
 					>
-						Send
+						<svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+							<path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+						</svg>
 					</button>
 				</div>
 			</div>
 		</div>
 	{/if}
 </div>
+
+<style>
+	.chat-container {
+		max-width: 56rem;
+		margin: 0 auto;
+		padding: 1rem;
+	}
+
+	@media (min-width: 768px) {
+		.chat-container {
+			padding: 2rem;
+		}
+	}
+
+	.chat-header-main {
+		margin-bottom: 2rem;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.chat-header-main h1 {
+		font-size: 1.875rem;
+		font-weight: 800;
+		letter-spacing: -0.025em;
+	}
+
+	.setup-card {
+		padding: 1.5rem;
+	}
+
+	@media (min-width: 768px) {
+		.setup-card {
+			padding: 2rem;
+		}
+	}
+
+	.setup-card h2 {
+		margin-bottom: 1.5rem;
+		font-size: 1.5rem;
+		font-weight: 700;
+	}
+
+	.form-group {
+		display: flex;
+		flex-direction: column;
+		gap: 1.25rem;
+	}
+
+	.form-group label {
+		margin-bottom: 0.5rem;
+		display: block;
+		font-weight: 700;
+		color: var(--text-color, #334155);
+	}
+
+	.form-group input {
+		width: 100%;
+		border-radius: 0.75rem;
+		border: 2px solid var(--input-border, #e2e8f0);
+		background-color: var(--input-bg, #ffffff);
+		padding: 0.75rem 1rem;
+		font-size: 1.125rem;
+		font-weight: 500;
+		color: var(--input-text, #0f172a);
+		outline: none;
+		transition: border-color 0.2s;
+		box-sizing: border-box;
+	}
+
+	.form-group input:focus {
+		border-color: #3b82f6;
+	}
+
+	.start-btn {
+		margin-top: 1rem;
+		width: 100%;
+		padding-top: 1rem;
+		padding-bottom: 1rem;
+		font-size: 1.125rem;
+	}
+
+	.chat-box {
+		display: flex;
+		height: 600px;
+		flex-direction: column;
+		overflow: hidden;
+		padding: 0;
+	}
+
+	.chat-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		border-bottom: 2px solid var(--card-border, #f1f5f9);
+		background-color: var(--header-bg, #f8fafc);
+		padding: 1rem 1.5rem;
+	}
+
+	.persona-info {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.persona-name {
+		font-weight: 700;
+	}
+
+	.persona-lang {
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: #64748b;
+	}
+
+	.end-session-btn {
+		border-radius: 9999px;
+		background-color: #e2e8f0;
+		padding: 0.5rem 1rem;
+		font-size: 0.875rem;
+		font-weight: 700;
+		color: #475569;
+		transition: background-color 0.2s;
+		border: none;
+		cursor: pointer;
+	}
+
+	.end-session-btn:hover {
+		background-color: #cbd5e1;
+	}
+
+	.messages-area {
+		flex: 1;
+		overflow-y: auto;
+		padding: 1.5rem;
+	}
+
+	.messages-list {
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+	}
+
+	.empty-state {
+		margin-top: 2.5rem;
+		text-align: center;
+		font-weight: 500;
+		color: #64748b;
+	}
+
+	.wave {
+		margin-bottom: 1rem;
+		font-size: 3.75rem;
+	}
+
+	.message-row {
+		display: flex;
+		width: 100%;
+	}
+
+	.row-user {
+		justify-content: flex-end;
+	}
+
+	.row-assistant {
+		justify-content: flex-start;
+	}
+
+	.message-content {
+		display: flex;
+		max-width: 85%;
+		flex-direction: column;
+	}
+
+	.content-user {
+		align-items: flex-end;
+	}
+
+	.content-assistant {
+		align-items: flex-start;
+	}
+
+	.bubble {
+		position: relative;
+		border-radius: 1rem;
+		padding: 0.875rem 1.25rem;
+		font-size: 0.9375rem;
+		line-height: 1.625;
+		box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+	}
+
+	.bubble p {
+		margin: 0;
+		white-space: pre-wrap;
+	}
+
+	.bubble-user {
+		border-bottom-right-radius: 0.125rem;
+		background-color: #3b82f6;
+		color: white;
+	}
+
+	.bubble-assistant {
+		border-bottom-left-radius: 0.125rem;
+		border: 1px solid var(--card-border, #e2e8f0);
+		background-color: var(--card-bg, #ffffff);
+	}
+
+	.correction-box {
+		margin-top: 0.5rem;
+		border-radius: 0.75rem;
+		border: 2px solid #fed7aa;
+		background-color: #fff7ed;
+		padding: 0.75rem 1rem;
+		font-size: 0.875rem;
+		font-weight: 500;
+		color: #7c2d12;
+		box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+		animation: fadeIn 0.3s ease-in-out;
+	}
+
+	.correction-header {
+		margin-bottom: 0.25rem;
+		display: flex;
+		align-items: center;
+		gap: 0.375rem;
+		font-weight: 700;
+		color: #ea580c;
+	}
+
+	.correction-header .icon {
+		height: 1rem;
+		width: 1rem;
+	}
+
+	.correction-box p {
+		margin: 0;
+	}
+
+	@keyframes fadeIn {
+		from { opacity: 0; transform: translateY(-10px); }
+		to { opacity: 1; transform: translateY(0); }
+	}
+
+	.typing-indicator {
+		display: flex;
+		gap: 0.375rem;
+		padding: 1rem 1.25rem;
+	}
+
+	.dot {
+		height: 0.5rem;
+		width: 0.5rem;
+		border-radius: 9999px;
+		background-color: #94a3b8;
+		animation: bounce 1s infinite;
+	}
+
+	.dot:nth-child(2) { animation-delay: 0.15s; }
+	.dot:nth-child(3) { animation-delay: 0.3s; }
+
+	@keyframes bounce {
+		0%, 100% { transform: translateY(0); }
+		50% { transform: translateY(-25%); }
+	}
+
+	.input-area {
+		border-top: 2px solid var(--card-border, #f1f5f9);
+		background-color: var(--card-bg, #ffffff);
+		padding: 1rem;
+	}
+
+	.input-wrapper {
+		display: flex;
+		align-items: flex-end;
+		gap: 0.75rem;
+	}
+
+	.textarea-container {
+		position: relative;
+		flex: 1;
+	}
+
+	.textarea-container textarea {
+		display: block;
+		width: 100%;
+		resize: none;
+		border-radius: 0.75rem;
+		border: 2px solid var(--input-border, #e2e8f0);
+		background-color: var(--input-bg, #f8fafc);
+		padding: 0.75rem 1rem;
+		padding-right: 3rem;
+		font-size: 0.9375rem;
+		font-weight: 500;
+		color: var(--input-text, #0f172a);
+		outline: none;
+		transition: border-color 0.2s, background-color 0.2s;
+		min-height: 52px;
+		max-height: 8rem;
+		box-sizing: border-box;
+		font-family: inherit;
+	}
+
+	.textarea-container textarea:focus {
+		border-color: #3b82f6;
+		background-color: var(--card-bg, #ffffff);
+	}
+
+	.textarea-container textarea:disabled {
+		opacity: 0.7;
+		cursor: not-allowed;
+	}
+
+	.send-btn {
+		display: flex;
+		height: 52px;
+		width: 52px;
+		flex-shrink: 0;
+		align-items: center;
+		justify-content: center;
+		border-radius: 0.75rem;
+		background-color: #3b82f6;
+		color: white;
+		box-shadow: 0 4px 0 #2563eb;
+		transition: transform 0.1s, box-shadow 0.1s, background-color 0.2s;
+		border: none;
+		cursor: pointer;
+	}
+
+	.send-btn:hover:not(:disabled) {
+		background-color: #60a5fa;
+		box-shadow: 0 4px 0 #2563eb;
+	}
+
+	.send-btn:active:not(:disabled) {
+		transform: translateY(4px);
+		box-shadow: 0 0 0 #2563eb;
+	}
+
+	.send-btn:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+		pointer-events: none;
+	}
+
+	.send-btn .icon {
+		height: 1.5rem;
+		width: 1.5rem;
+	}
+	
+	:global(html[data-theme="dark"]) .end-session-btn {
+		background-color: #334155;
+		color: #cbd5e1;
+	}
+	
+	:global(html[data-theme="dark"]) .end-session-btn:hover {
+		background-color: #475569;
+	}
+	
+	:global(html[data-theme="dark"]) .correction-box {
+		border-color: rgba(124, 45, 18, 0.5);
+		background-color: rgba(124, 45, 18, 0.2);
+		color: #fed7aa;
+	}
+	
+	:global(html[data-theme="dark"]) .correction-header {
+		color: #fb923c;
+	}
+</style>

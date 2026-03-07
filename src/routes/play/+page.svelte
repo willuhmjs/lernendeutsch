@@ -2802,4 +2802,42 @@ r<script lang="ts">
 	
 	:global(.dark) .progress-value.passed { color: #34d399; }
 	:global(.dark) .progress-value.active { color: #60a5fa; }
+
+	@media (max-width: 768px) {
+		.page-container {
+			padding: 1rem 0.5rem;
+		}
+
+		.card {
+			padding: 1rem;
+		}
+
+		.page-header h1 {
+			font-size: 2rem;
+		}
+
+		.mode-buttons {
+			flex-direction: column;
+		}
+
+		.mode-btn {
+			width: 100%;
+			box-sizing: border-box;
+		}
+
+		.btn-duo {
+			width: 100%;
+			box-sizing: border-box;
+		}
+
+		.feedback-header {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 1rem;
+		}
+
+		.assignment-banner {
+			padding: 1rem;
+		}
+	}
 </style>

@@ -1273,4 +1273,23 @@
 		padding-top: 1rem;
 		border-top: 2px solid var(--card-border, #e2e8f0);
 	}
+
+	@media (max-width: 768px) {
+		.class-detail-container {
+			padding: 1rem 0.5rem;
+		}
+
+		.btn-duo {
+			width: 100%;
+			box-sizing: border-box;
+		}
+
+		.assignment-play-btn {
+			width: 100%;
+		}
+
+		.modal-actions {
+			flex-direction: column;
+		}
+	}
 </style>

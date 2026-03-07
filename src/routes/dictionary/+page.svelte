@@ -627,4 +627,30 @@
 		margin-top: 2rem;
 		padding-bottom: 2rem;
 	}
+
+	@media (max-width: 768px) {
+		.dictionary-container {
+			padding: 1rem 0.5rem;
+		}
+
+		.title {
+			font-size: 1.5rem;
+		}
+
+		.result-content {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 1rem;
+		}
+
+		.result-action {
+			margin-left: 0;
+			width: 100%;
+		}
+
+		.btn-add, .btn-added {
+			width: 100%;
+			justify-content: center;
+		}
+	}
 </style>
