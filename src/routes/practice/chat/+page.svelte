@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import { toast } from '$lib/toast';
+	import toast from 'svelte-french-toast';
 
 	let sessionStarted = false;
 	let sessionId = '';
