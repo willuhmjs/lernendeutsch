@@ -41,6 +41,13 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 			}
 		});
 
+		if (game.isPublished) {
+			await prisma.game.update({
+				where: { id: params.id },
+				data: { isPublished: false }
+			});
+		}
+
 		return json({ question: updatedQuestion });
 	} catch (error) {
 		console.error('Failed to update question:', error);
@@ -78,6 +85,13 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
 		await prisma.gameQuestion.delete({
 			where: { id: params.questionId }
 		});
+
+		if (game.isPublished) {
+			await prisma.game.update({
+				where: { id: params.id },
+				data: { isPublished: false }
+			});
+		}
 
 		return json({ success: true });
 	} catch (error) {

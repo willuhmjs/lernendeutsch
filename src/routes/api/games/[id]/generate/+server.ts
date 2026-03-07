@@ -66,7 +66,7 @@ Example:
 			const jsonString = match ? match[0] : content;
 			questionsData = JSON.parse(jsonString);
 		} catch (e) {
-			console.error('Failed to parse LLM response:', response);
+			console.error('Failed to parse LLM response:', e);
 			return json({ error: 'Failed to parse generated questions' }, { status: 500 });
 		}
 
@@ -94,6 +94,13 @@ Example:
 				});
 				createdQuestions.push(created);
 			}
+		}
+
+		if (createdQuestions.length > 0 && game.isPublished) {
+			await prisma.game.update({
+				where: { id: params.id },
+				data: { isPublished: false }
+			});
 		}
 
 		return json({ questions: createdQuestions });

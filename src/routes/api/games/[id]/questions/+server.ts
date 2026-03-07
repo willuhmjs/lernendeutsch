@@ -40,6 +40,13 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 			}
 		});
 
+		if (game.isPublished) {
+			await prisma.game.update({
+				where: { id: params.id },
+				data: { isPublished: false }
+			});
+		}
+
 		return json({ question: gameQuestion });
 	} catch (error) {
 		console.error('Failed to create question:', error);

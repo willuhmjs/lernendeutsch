@@ -28,7 +28,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 			data: {
 				title: title !== undefined ? title : game.title,
 				description: description !== undefined ? description : game.description,
-				isPublished: isPublished !== undefined ? isPublished : game.isPublished,
+				isPublished: (title !== undefined || description !== undefined) ? false : (isPublished !== undefined ? isPublished : game.isPublished),
 			}
 		});
 

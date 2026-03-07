@@ -1,0 +1,68 @@
+import { json } from '@sveltejs/kit';
+import { prisma } from '$lib/server/prisma';
+import { publishGameRateLimiter } from '$lib/server/ratelimit';
+import { generateChatCompletion } from '$lib/server/llm';
+import type { RequestEvent } from '@sveltejs/kit';
+
+export async function POST(event: RequestEvent) {
+	const { locals, params } = event;
+
+	if (!locals.user) {
+		return json({ error: 'Unauthorized' }, { status: 401 });
+	}
+
+	const gameId = params.id;
+
+	if (await publishGameRateLimiter.isLimited(event)) {
+		return json({ error: 'Rate limit exceeded. Try again later.' }, { status: 429 });
+	}
+
+	const game = await prisma.game.findUnique({
+		where: { id: gameId },
+		include: { questions: true }
+	});
+
+	if (!game) {
+		return json({ error: 'Game not found' }, { status: 404 });
+	}
+
+	if (game.creatorId !== locals.user.id && locals.user.role !== 'ADMIN') {
+		return json({ error: 'Unauthorized' }, { status: 403 });
+	}
+
+	// LLM Review
+	const systemPrompt = `You are a helpful assistant reviewing a language learning game for safety, appropriateness, and quality.
+The game is titled "${game.title}" with description "${game.description}".
+It has ${game.questions.length} questions.
+Here are the questions and answers:
+${game.questions.map((q: {question: string, answer: string}, i: number) => `${i + 1}. Q: ${q.question} | A: ${q.answer}`).join('\n')}
+
+Is this game appropriate to be published to a public community? Respond in JSON format:
+{ "approved": boolean, "reason": "short explanation" }`;
+
+	try {
+		const llmResponse = await generateChatCompletion({
+			userId: locals.user.id,
+			messages: [{ role: 'user', content: 'Please review this game.' }],
+			systemPrompt,
+			jsonMode: true,
+			temperature: 0.1
+		});
+
+		const result = JSON.parse(llmResponse.choices[0].message.content);
+
+		if (!result.approved) {
+			return json({ error: `Game review failed: ${result.reason}` }, { status: 400 });
+		}
+
+		const updatedGame = await prisma.game.update({
+			where: { id: gameId },
+			data: { isPublished: true }
+		});
+
+		return json(updatedGame);
+	} catch (error) {
+		console.error('Error during LLM review:', error);
+		return json({ error: 'Failed to complete game review.' }, { status: 500 });
+	}
+}

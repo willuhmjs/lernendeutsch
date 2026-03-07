@@ -137,21 +137,6 @@
 							<span class="nav-text">Play</span>
 						</a>
 						<a
-							href="/games"
-							class="nav-item {$page.url.pathname.startsWith('/games') ? 'active' : ''}"
-						>
-							<svg
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="2"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								><rect x="2" y="6" width="20" height="12" rx="2" /><path d="M6 12h4" /><path d="M8 10v4" /><circle cx="15" cy="13" r="1" /><circle cx="18" cy="11" r="1" /></svg
-							>
-							<span class="nav-text">Games</span>
-						</a>
-						<a
 							href="/classes"
 							class="nav-item {$page.url.pathname.startsWith('/classes') ? 'active' : ''}"
 						>
@@ -168,7 +153,7 @@
 									r="4"
 								/><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg
 							>
-							<span class="nav-text">Classes</span>
+							<span class="nav-text">Classes & Games</span>
 						</a>
 						<a
 							href="/dictionary"
