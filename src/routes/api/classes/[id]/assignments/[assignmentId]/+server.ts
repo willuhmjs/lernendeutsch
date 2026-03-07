@@ -21,7 +21,7 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
 			}
 		});
 
-		if (!member || member.role !== 'TEACHER') {
+		if ((!member || member.role !== 'TEACHER') && locals.user.role !== 'ADMIN') {
 			return json({ error: 'Forbidden' }, { status: 403 });
 		}
 
@@ -60,7 +60,7 @@ export const PATCH: RequestHandler = async ({ params, request, locals }) => {
 			}
 		});
 
-		if (!member || member.role !== 'TEACHER') {
+		if ((!member || member.role !== 'TEACHER') && locals.user.role !== 'ADMIN') {
 			return json({ error: 'Forbidden' }, { status: 403 });
 		}
 

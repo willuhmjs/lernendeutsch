@@ -25,7 +25,7 @@ export const POST: RequestHandler = async ({ request, params, locals }) => {
 			}
 		});
 
-		if (!member || member.role !== 'TEACHER') {
+		if ((!member || member.role !== 'TEACHER') && locals.user.role !== 'ADMIN') {
 			return json({ error: 'Forbidden' }, { status: 403 });
 		}
 

@@ -26,8 +26,8 @@ export const POST: RequestHandler = async ({ params, locals }) => {
 			}
 		});
 
-		if (!member || member.role !== 'TEACHER') {
-			return json({ error: 'Forbidden: Only teachers can reset the invite code' }, { status: 403 });
+		if ((!member || member.role !== 'TEACHER') && locals.user.role !== 'ADMIN') {
+			return json({ error: 'Forbidden: Only teachers or admins can reset the invite code' }, { status: 403 });
 		}
 
 		// Generate a new unique code
