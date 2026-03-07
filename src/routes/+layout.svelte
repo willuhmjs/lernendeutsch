@@ -71,7 +71,8 @@
 	<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 </svelte:head>
 
-<div class="app-container">
+<div class="app-container" class:no-sidebar={$page.url.pathname === '/'}>
+	{#if $page.url.pathname !== '/'}
 	<nav class="sidebar">
 		<div class="sidebar-header">
 			<a href="/" class="brand">
@@ -176,6 +177,7 @@
 			</div>
 		{/if}
 	</nav>
+	{/if}
 
 	<div class="content-wrapper">
 		<header class="mobile-header">
@@ -615,6 +617,10 @@
 		min-height: 100vh;
 	}
 
+	.no-sidebar .content-wrapper {
+		margin-left: 0;
+	}
+
 	.desktop-topbar {
 		display: flex;
 		justify-content: flex-end;
@@ -769,6 +775,10 @@
 			margin-bottom: 70px; /* Space for bottom nav */
 		}
 
+		.no-sidebar .content-wrapper {
+			margin-bottom: 0;
+		}
+
 		.mobile-header {
 			display: flex;
 			justify-content: flex-end;
@@ -833,6 +843,10 @@
 		
 		.content-wrapper {
 			margin-left: 80px;
+		}
+
+		.no-sidebar .content-wrapper {
+			margin-left: 0;
 		}
 		
 		.dropdown-menu {
