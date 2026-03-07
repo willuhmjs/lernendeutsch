@@ -45,7 +45,7 @@ export async function generateChatCompletion({
 
 	// 2. Resolve Base URL and API Key (User custom OR Site Settings OR fallback to environment variables)
 	const baseUrl = (user?.llmBaseUrl || settings.llmEndpoint || env.DEFAULT_LLM_BASE_URL || '').replace(/^["']|["']$/g, '');
-	const apiKey = (user?.llmApiKey || env.DEFAULT_LLM_API_KEY || '').replace(/^["']|["']$/g, '');
+	const apiKey = (user?.llmApiKey || settings.llmApiKey || env.DEFAULT_LLM_API_KEY || '').replace(/^["']|["']$/g, '');
 	const resolvedModel = (model || settings.llmModel || env.DEFAULT_LLM_MODEL || 'gpt-3.5-turbo').replace(/^["']|["']$/g, '');
 
 	if (!baseUrl) {

@@ -21,6 +21,7 @@
 
 	// LLM config state
 	let llmEndpoint = data.llmEndpoint || '';
+	let llmApiKey = data.llmApiKey || '';
 	let llmModel = data.llmModel || '';
 	let availableModels: string[] = [];
 	let isFetchingModels = false;
@@ -42,7 +43,12 @@
 				fetchUrl = fetchUrl.replace(/\/+$/, '') + '/v1/models';
 			}
 
-			const res = await fetch(fetchUrl);
+			const headers: Record<string, string> = {};
+			if (llmApiKey) {
+				headers['Authorization'] = `Bearer ${llmApiKey}`;
+			}
+
+			const res = await fetch(fetchUrl, { headers });
 			if (res.ok) {
 				const data = await res.json();
 				if (data && data.data && Array.isArray(data.data)) {
@@ -441,6 +447,17 @@
 						{isFetchingModels ? 'Fetching...' : 'Fetch Models'}
 					</button>
 				</div>
+			</div>
+
+			<div class="form-group" style="margin-bottom: 0;">
+				<label for="llmApiKey">API Key (Optional depending on provider)</label>
+				<input 
+					type="password" 
+					id="llmApiKey" 
+					name="llmApiKey" 
+					bind:value={llmApiKey} 
+					placeholder="sk-..."
+				/>
 			</div>
 
 			<div class="form-group" style="margin-bottom: 0;">

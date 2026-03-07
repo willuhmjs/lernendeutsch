@@ -193,6 +193,7 @@ model SiteSettings {
   loadTimeSamples   Int[]
   llmEndpoint       String?
   llmModel          String?
+  llmApiKey         String?
 }
 
 enum ClassRole {

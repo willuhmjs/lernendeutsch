@@ -59,6 +59,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		users,
 		localLoginEnabled: settings.localLoginEnabled,
 		llmEndpoint: settings.llmEndpoint || '',
+		llmApiKey: settings.llmApiKey || '',
 		llmModel: settings.llmModel || '',
 		languages,
 		pendingVocab,
@@ -109,11 +110,13 @@ export const actions: Actions = {
 		
 		const data = await request.formData();
 		const llmEndpoint = data.get('llmEndpoint')?.toString() || '';
+		const llmApiKey = data.get('llmApiKey')?.toString() || '';
 		const llmModel = data.get('llmModel')?.toString() || '';
 		
 		try {
 			await updateSiteSettings({ 
 				llmEndpoint: llmEndpoint || null, 
+				llmApiKey: llmApiKey || null,
 				llmModel: llmModel || null 
 			});
 			return { success: true, message: 'LLM settings updated.' };
