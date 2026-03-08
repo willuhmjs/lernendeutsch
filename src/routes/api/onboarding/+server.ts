@@ -223,12 +223,12 @@ export async function POST({ request, locals }: RequestEvent) {
 
 				for (const rule of rules) {
 					let grammarRule = await prisma.grammarRule.findFirst({
-						where: { title: rule }
+						where: { title: rule, languageId: activeLangId }
 					});
 
 					if (!grammarRule) {
 						grammarRule = await prisma.grammarRule.create({
-							data: { title: rule }
+							data: { title: rule, languageId: activeLangId }
 						});
 					}
 
