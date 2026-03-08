@@ -1110,7 +1110,12 @@
 	let showAfterElo = false;
 
 	function calculateEloProgress(elo: number) {
-		return Math.max(0, Math.min(100, ((elo - 1000) / 1000) * 100));
+		const level = elo < 1050 ? 'LEARNING' : elo < 1150 ? 'KNOWN' : 'MASTERED';
+		return Math.max(0, Math.min(100, level === 'LEARNING' ? ((elo - 1000) / 50) * 100 : level === 'KNOWN' ? ((elo - 1050) / 100) * 100 : 100));
+	}
+
+	function getEloLevelClass(elo: number) {
+		return elo < 1050 ? 'learning' : elo < 1150 ? 'known' : 'mastered';
 	}
 
 	$: if (feedback) {
@@ -2055,7 +2060,9 @@ r<svelte:head>
 											</div>
 											<div class="progress-bar-container dark:bg-slate-700 dark:border-slate-600">
 												<div
-													class="progress-bar-fill"
+													class="progress-bar-fill {getEloLevelClass(
+														showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000)
+													)}"
 													style="width: {calculateEloProgress(
 														showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000)
 													)}%"
@@ -2099,7 +2106,9 @@ r<svelte:head>
 											</div>
 											<div class="progress-bar-container dark:bg-slate-700 dark:border-slate-600">
 												<div
-													class="progress-bar-fill"
+													class="progress-bar-fill {getEloLevelClass(
+														showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000)
+													)}"
 													style="width: {calculateEloProgress(
 														showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000)
 													)}%"
@@ -2897,21 +2906,27 @@ r<svelte:head>
 
 	.progress-bar-fill {
 		height: 100%;
-		background-color: #3b82f6; /* blue-500 */
-		background-image: linear-gradient(
-			45deg,
-			rgba(255, 255, 255, 0.15) 25%,
-			transparent 25%,
-			transparent 50%,
-			rgba(255, 255, 255, 0.15) 50%,
-			rgba(255, 255, 255, 0.15) 75%,
-			transparent 75%,
-			transparent
-		);
-		background-size: 1rem 1rem;
 		border-radius: 9999px;
 		transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 		animation: progress-stripes 1s linear infinite;
+	}
+
+	.progress-bar-fill.learning {
+		background-color: #facc15;
+		background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+		background-size: 1rem 1rem;
+	}
+
+	.progress-bar-fill.known {
+		background-color: #34d399;
+		background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+		background-size: 1rem 1rem;
+	}
+
+	.progress-bar-fill.mastered {
+		background-color: #10b981;
+		background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+		background-size: 1rem 1rem;
 	}
 
 	@keyframes progress-stripes {

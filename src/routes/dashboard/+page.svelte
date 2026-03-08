@@ -203,7 +203,7 @@
 					<div class="web-tree-layout">
 						{#each data.grammarRules as rule}
 							{@const srsColor = srsColors[rule.srsState] || srsColors.UNSEEN}
-							{@const eloPercent = Math.max(0, Math.min(100, ((rule.eloRating - 1000) / 1000) * 100))}
+							{@const eloPercent = Math.max(0, Math.min(100, rule.srsState === 'LEARNING' ? ((rule.eloRating - 1000) / 50) * 100 : rule.srsState === 'KNOWN' ? ((rule.eloRating - 1050) / 100) * 100 : 100))}
 							
 							<div 
 								class="web-node-pill" 
