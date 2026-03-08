@@ -29,12 +29,16 @@ Please evaluate each word in the provided JSON array. Return a JSON object with 
 
 Format: { "results": { "uuid1": true, "uuid2": false } }`;
 
-		const wordsData = words.map((w: Record<string, unknown>) => ({
-			id: w.id,
-			language: (w.language as Record<string, unknown>)?.name,
-			lemma: w.lemma,
-			meaning: w.meaning
-		}));
+		const wordsData = words.map((w: Record<string, unknown>) => {
+			const meaningsArray = w.meanings as Array<{ value: string }> | undefined;
+			const meaning = meaningsArray && meaningsArray.length > 0 ? meaningsArray[0].value : null;
+			return {
+				id: w.id,
+				language: (w.language as Record<string, unknown>)?.name,
+				lemma: w.lemma,
+				meaning: meaning
+			};
+		});
 
 		const response = await generateChatCompletion({
 			userId: locals.user.id,

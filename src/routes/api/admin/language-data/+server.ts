@@ -96,25 +96,39 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		for (const v of vocabulary) {
 			if (!v.lemma) continue;
 			const existing = await prisma.vocabulary.findFirst({
-				where: { lemma: v.lemma, languageId }
+				where: { lemma: v.lemma, languageId },
+				include: { meanings: true }
 			});
 			if (existing) {
-				await prisma.vocabulary.update({
-					where: { id: existing.id },
-					data: {
-						meaning: v.meaning ?? existing.meaning,
-						partOfSpeech: v.partOfSpeech ?? existing.partOfSpeech,
-						gender: v.gender ?? existing.gender,
-						plural: v.plural ?? existing.plural,
-						isBeginner: v.isBeginner ?? existing.isBeginner
-					}
-				});
+				const hasMeaning = existing.meanings && existing.meanings.length > 0;
+				if (v.meaning && !hasMeaning) {
+					await prisma.vocabulary.update({
+						where: { id: existing.id },
+						data: {
+							meanings: { create: [{ value: v.meaning, partOfSpeech: v.partOfSpeech ?? existing.partOfSpeech }] },
+							partOfSpeech: v.partOfSpeech ?? existing.partOfSpeech,
+							gender: v.gender ?? existing.gender,
+							plural: v.plural ?? existing.plural,
+							isBeginner: v.isBeginner ?? existing.isBeginner
+						}
+					});
+				} else {
+					await prisma.vocabulary.update({
+						where: { id: existing.id },
+						data: {
+							partOfSpeech: v.partOfSpeech ?? existing.partOfSpeech,
+							gender: v.gender ?? existing.gender,
+							plural: v.plural ?? existing.plural,
+							isBeginner: v.isBeginner ?? existing.isBeginner
+						}
+					});
+				}
 				vocabUpdated++;
 			} else {
 				await prisma.vocabulary.create({
 					data: {
 						lemma: v.lemma,
-						meaning: v.meaning ?? null,
+						meanings: v.meaning ? { create: [{ value: v.meaning, partOfSpeech: v.partOfSpeech ?? null }] } : undefined,
 						partOfSpeech: v.partOfSpeech ?? null,
 						gender: v.gender ?? null,
 						plural: v.plural ?? null,
