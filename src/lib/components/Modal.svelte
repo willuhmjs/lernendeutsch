@@ -7,31 +7,31 @@
 
 {#if modalState}
 	<div
-		class="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+		class="modal-backdrop"
 		transition:fade={{ duration: 200 }}
 		on:click={() => modalState?.type === 'alert' || modalState?.type === 'confirm' ? null : modal.close(false)}
 	>
 		<div
-			class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full overflow-hidden flex flex-col items-center text-center mx-auto absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+			class="modal-container"
 			transition:scale={{ duration: 200, start: 0.95 }}
 			on:click|stopPropagation
 		>
-			<div class="p-6">
+			<div class="modal-content">
 				{#if modalState.title}
-					<h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+					<h3 class="modal-title">
 						{modalState.title}
 					</h3>
 				{/if}
-				<p class="text-gray-600 dark:text-gray-300">
+				<p class="modal-message">
 					{modalState.message}
 				</p>
 			</div>
 
-			<div class="bg-gray-50 dark:bg-gray-700/50 px-6 py-4 flex justify-end gap-3 w-full">
+			<div class="modal-actions">
 				{#if modalState.type === 'confirm'}
 					<button
 						type="button"
-						class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition-colors"
+						class="modal-btn-cancel"
 						on:click={() => modal.close(false)}
 					>
 						{modalState.cancelText || 'Cancel'}
@@ -40,7 +40,7 @@
 
 				<button
 					type="button"
-					class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors shadow-sm"
+					class="modal-btn-confirm"
 					on:click={() => modal.close(true)}
 				>
 					{modalState.confirmText || 'OK'}
@@ -49,3 +49,93 @@
 		</div>
 	</div>
 {/if}
+
+<style>
+	.modal-backdrop {
+		position: fixed;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		z-index: 1000;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 1rem;
+		background-color: rgba(0, 0, 0, 0.5);
+		backdrop-filter: blur(4px);
+	}
+
+	.modal-container {
+		background-color: #ffffff;
+		border-radius: 0.5rem;
+		box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+		max-width: 28rem;
+		width: 100%;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+		text-align: center;
+		margin: 0 auto;
+	}
+
+	.modal-content {
+		padding: 1.5rem;
+	}
+
+	.modal-title {
+		font-size: 1.125rem;
+		font-weight: 600;
+		color: #111827;
+		margin-top: 0;
+		margin-bottom: 0.5rem;
+	}
+
+	.modal-message {
+		color: #4b5563;
+		margin: 0;
+	}
+
+	.modal-actions {
+		background-color: #f9fafb;
+		padding: 1rem 1.5rem;
+		display: flex;
+		justify-content: flex-end;
+		gap: 0.75rem;
+		width: 100%;
+		box-sizing: border-box;
+	}
+
+	.modal-btn-cancel {
+		padding: 0.5rem 1rem;
+		font-size: 0.875rem;
+		font-weight: 500;
+		color: #374151;
+		background-color: transparent;
+		border: 1px solid transparent;
+		border-radius: 0.375rem;
+		cursor: pointer;
+		transition: background-color 0.2s;
+	}
+
+	.modal-btn-cancel:hover {
+		background-color: #f3f4f6;
+	}
+
+	.modal-btn-confirm {
+		padding: 0.5rem 1rem;
+		font-size: 0.875rem;
+		font-weight: 500;
+		color: #ffffff;
+		background-color: #2563eb;
+		border: 1px solid transparent;
+		border-radius: 0.375rem;
+		cursor: pointer;
+		transition: background-color 0.2s;
+		box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+	}
+
+	.modal-btn-confirm:hover {
+		background-color: #1d4ed8;
+	}
+</style>

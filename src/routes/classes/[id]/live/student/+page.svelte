@@ -13,6 +13,9 @@
 	let lastAnswerCorrect: boolean | null = null;
 
 	$: currentQuestionData = session?.game?.questions?.[session?.currentQuestionIndex || 0] || null;
+	$: me = session?.participants?.find((p: any) => p.userId === currentUserId) || null;
+	$: hasAnswered = me?.hasAnswered || false;
+	$: myScore = me?.score || 0;
 
 	$: if (currentQuestionData && currentQuestionData.id !== lastQuestionId) {
 		lastQuestionId = currentQuestionData.id;
@@ -130,10 +133,8 @@
 				<p class="card-desc mb-large">Get ready!</p>
 				<div class="spinner"></div>
 			{:else if session.status === 'active' || session.status === 'showing_answer'}
-				{@const me = session.participants?.find((p: any) => p.userId === currentUserId)}
-
 				<div class="score-board">
-					<p class="score-text">My Score: <span class="score-value">{me?.score || 0}</span></p>
+					<p class="score-text">My Score: <span class="score-value">{myScore}</span></p>
 				</div>
 
 				<h2 class="question-title">
@@ -141,11 +142,11 @@
 				</h2>
 
 				{#if session.status === 'showing_answer'}
-					<div class="reveal-state {me?.hasAnswered && lastAnswerCorrect ? 'correct' : 'incorrect'}">
-						<h3>{me?.hasAnswered ? (lastAnswerCorrect ? 'Correct!' : 'Incorrect!') : 'Time is up!'}</h3>
+					<div class="reveal-state {hasAnswered && lastAnswerCorrect ? 'correct' : 'incorrect'}">
+						<h3>{hasAnswered ? (lastAnswerCorrect ? 'Correct!' : 'Incorrect!') : 'Time is up!'}</h3>
 						<p>The correct answer is: <strong>{currentQuestionData?.answer}</strong></p>
 					</div>
-				{:else if me?.hasAnswered}
+				{:else if hasAnswered}
 					<div class="answered-state">
 						<h3>Answer submitted!</h3>
 						<p>Waiting for the next question...</p>
