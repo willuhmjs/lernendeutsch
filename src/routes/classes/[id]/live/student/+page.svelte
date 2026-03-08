@@ -10,6 +10,7 @@
 	let currentUserId = '';
 	let shuffledOptions = [];
 	let lastQuestionId = '';
+	let lastAnswerCorrect: boolean | null = null;
 
 	$: currentQuestionData = session?.game?.questions?.[session?.currentQuestionIndex || 0] || null;
 
@@ -79,6 +80,7 @@
 
 	async function submitAnswer(isCorrect: boolean) {
 		try {
+			lastAnswerCorrect = isCorrect;
 			const res = await fetch(`/api/classes/${classId}/live-session/student`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -127,7 +129,7 @@
 				<h2 class="card-title">Waiting for teacher to start...</h2>
 				<p class="card-desc mb-large">Get ready!</p>
 				<div class="spinner"></div>
-			{:else if session.status === 'active'}
+			{:else if session.status === 'active' || session.status === 'showing_answer'}
 				{@const me = session.participants?.find((p: any) => p.userId === currentUserId)}
 
 				<div class="score-board">
@@ -138,7 +140,12 @@
 					{currentQuestionData?.question || 'Get Ready!'}
 				</h2>
 
-				{#if me?.hasAnswered}
+				{#if session.status === 'showing_answer'}
+					<div class="reveal-state {me?.hasAnswered && lastAnswerCorrect ? 'correct' : 'incorrect'}">
+						<h3>{me?.hasAnswered ? (lastAnswerCorrect ? 'Correct!' : 'Incorrect!') : 'Time is up!'}</h3>
+						<p>The correct answer is: <strong>{currentQuestionData?.answer}</strong></p>
+					</div>
+				{:else if me?.hasAnswered}
 					<div class="answered-state">
 						<h3>Answer submitted!</h3>
 						<p>Waiting for the next question...</p>
@@ -431,5 +438,46 @@
 	.answered-state p {
 		margin: 0;
 		color: #15803d;
+	}
+
+	.reveal-state {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 1rem;
+		padding: 2rem;
+		border-radius: 1rem;
+		margin-bottom: 2rem;
+		position: relative;
+		z-index: 1;
+	}
+
+	.reveal-state.correct {
+		background-color: #f0fdf4;
+		border: 2px solid #22c55e;
+	}
+
+	.reveal-state.correct h3 {
+		color: #16a34a;
+		font-size: 2rem;
+		margin: 0;
+	}
+
+	.reveal-state.incorrect {
+		background-color: #fef2f2;
+		border: 2px solid #ef4444;
+	}
+
+	.reveal-state.incorrect h3 {
+		color: #dc2626;
+		font-size: 2rem;
+		margin: 0;
+	}
+
+	.reveal-state p {
+		margin: 0;
+		font-size: 1.25rem;
+		color: #1f2937;
 	}
 </style>

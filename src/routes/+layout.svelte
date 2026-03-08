@@ -1,6 +1,7 @@
 <script lang="ts">
 	import favicon from '$lib/assets/favicon.svg';
 	import { Toaster } from 'svelte-french-toast';
+	import Modal from '$lib/components/Modal.svelte';
 	import { invalidateAll } from '$app/navigation';
 	import { page } from '$app/stores';
 
@@ -64,6 +65,7 @@
 <svelte:window onclick={closeDropdown} />
 
 <Toaster />
+<Modal />
 
 <svelte:head>
 	<link rel="icon" href={favicon} />

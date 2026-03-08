@@ -1,0 +1,31 @@
+node_modules
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Build output
+dist
+build
+.svelte-kit
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Git and IDE
+.git
+.gitignore
+.github
+.vscode
+
+# Project specific
+flutter_client
+docs
+README.md
+
+# Docker files
+Dockerfile
+docker-compose.yml
+.dockerignore
+kubernetes.yaml

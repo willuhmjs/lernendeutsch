@@ -2,6 +2,7 @@
 	import { invalidateAll } from '$app/navigation';
 	import { fly } from 'svelte/transition';
 	import toast from 'svelte-french-toast';
+	import { modal } from '$lib/modal.svelte';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -127,7 +128,7 @@
 	}
 
 	async function handleKickMember(userId: string, name: string) {
-		if (!confirm(`Remove ${name} from the class?`)) return;
+		if (!(await modal.confirm(`Remove ${name} from the class?`))) return;
 		try {
 			const res = await fetch(`/api/classes/${classDetails.id}/members/${userId}/kick`, {
 				method: 'POST'
@@ -174,7 +175,7 @@
 	}
 
 	async function handleLeaveClass() {
-		if (!confirm('Leave this class? You will need the invite code to rejoin.')) return;
+		if (!(await modal.confirm('Leave this class? You will need the invite code to rejoin.'))) return;
 		try {
 			const res = await fetch(`/api/classes/${classDetails.id}/leave`, { method: 'POST' });
 			if (res.ok) {
@@ -189,7 +190,11 @@
 	}
 
 	async function handleDeleteClass() {
-		if (!confirm('Are you sure you want to delete this class? This action cannot be undone.'))
+		if (
+			!(await modal.confirm(
+				'Are you sure you want to delete this class? This action cannot be undone.'
+			))
+		)
 			return;
 		try {
 			const res = await fetch(`/api/classes/${classDetails.id}`, { method: 'DELETE' });
@@ -206,7 +211,7 @@
 	}
 
 	async function handleResetCode() {
-		if (!confirm('Reset the invite code? The old code will no longer work.')) return;
+		if (!(await modal.confirm('Reset the invite code? The old code will no longer work.'))) return;
 		try {
 			const res = await fetch(`/api/classes/${classDetails.id}/reset-code`, { method: 'POST' });
 			if (res.ok) {

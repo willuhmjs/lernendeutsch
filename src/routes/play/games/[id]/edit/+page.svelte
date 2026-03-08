@@ -1,5 +1,6 @@
 <script lang="ts">
 	import toast from 'svelte-french-toast';
+	import { modal } from '$lib/modal.svelte';
 	import { invalidateAll } from '$app/navigation';
 
 	let { data } = $props();
@@ -154,7 +155,8 @@
 	}
 
 	async function deleteGame() {
-		if (!confirm('Are you sure you want to delete this game? This cannot be undone.')) return;
+		if (!(await modal.confirm('Are you sure you want to delete this game? This cannot be undone.')))
+			return;
 		try {
 			const res = await fetch(`/api/games/${game.id}`, { method: 'DELETE' });
 			if (res.ok) {
@@ -237,7 +239,7 @@
 	}
 
 	async function deleteQuestion(questionId: string) {
-		if (!confirm('Delete this question?')) return;
+		if (!(await modal.confirm('Delete this question?'))) return;
 		try {
 			const res = await fetch(`/api/games/${game.id}/questions/${questionId}`, {
 				method: 'DELETE'

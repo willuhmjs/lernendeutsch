@@ -2,6 +2,7 @@
 	import type { PageData } from './$types';
 	import { fly } from 'svelte/transition';
 	import toast from 'svelte-french-toast';
+	import { modal } from '$lib/modal.svelte';
 
 	export let data: PageData;
 
@@ -31,7 +32,7 @@
 	}
 
 	async function handleDeleteAssignment() {
-		if (!confirm('Are you sure you want to delete this assignment?')) return;
+		if (!(await modal.confirm('Are you sure you want to delete this assignment?'))) return;
 		try {
 			const res = await fetch(`/api/classes/${classDetails.id}/assignments/${assignment.id}`, {
 				method: 'DELETE'

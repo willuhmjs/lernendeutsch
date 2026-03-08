@@ -268,7 +268,7 @@ model LiveSession {
   updatedAt            DateTime @updatedAt
 
   class        Class                    @relation(fields: [classId], references: [id], onDelete: Cascade)
-  game         Game                     @relation(fields: [gameId], references: [id])
+  game         Game                     @relation(fields: [gameId], references: [id], onDelete: Cascade)
   participants LiveSessionParticipant[]
 }
 

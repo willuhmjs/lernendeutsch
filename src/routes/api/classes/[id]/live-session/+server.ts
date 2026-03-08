@@ -79,7 +79,7 @@ export async function POST({ params, request, locals }) {
 
 	if (action === 'update') {
 		const activeSession = await prisma.liveSession.findFirst({
-			where: { classId, status: { in: ['waiting', 'active'] } },
+			where: { classId, status: { in: ['waiting', 'active', 'showing_answer'] } },
 			orderBy: { createdAt: 'desc' }
 		});
 
@@ -109,7 +109,7 @@ export async function POST({ params, request, locals }) {
 
 	if (action === 'end') {
 		const activeSession = await prisma.liveSession.findFirst({
-			where: { classId, status: { in: ['waiting', 'active'] } },
+			where: { classId, status: { in: ['waiting', 'active', 'showing_answer'] } },
 			orderBy: { createdAt: 'desc' }
 		});
 

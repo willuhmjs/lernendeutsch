@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
+	import { modal } from '$lib/modal.svelte';
 	import { fly } from 'svelte/transition';
 	import type { PageData, ActionData } from './$types';
 	export let data: PageData;
@@ -65,7 +66,7 @@
 					aiCheckResult = `Checking in progress... ${totalApproved} approved, ${totalRejected} rejected so far.`;
 				} else {
 					console.error('Batch error:', result.error);
-					alert(`Error on batch ${i / batchSize + 1}: ${result.error || 'Failed to run AI check.'}`);
+					await modal.alert(`Error on batch ${i / batchSize + 1}: ${result.error || 'Failed to run AI check.'}`);
 					break; // Stop on error
 				}
 			}
@@ -74,7 +75,7 @@
 			await invalidateAll();
 		} catch (error) {
 			console.error('AI check error:', error);
-			alert('An error occurred during AI check.');
+			await modal.alert('An error occurred during AI check.');
 		} finally {
 			isCheckingAI = false;
 			aiCheckProgress = '';
@@ -340,9 +341,9 @@
 	async function resetProgress(languageId: string) {
 		if (!editingUser) return;
 		if (
-			!confirm(
+			!(await modal.confirm(
 				'Are you sure you want to reset all progress for this language? This cannot be undone.'
-			)
+			))
 		)
 			return;
 
@@ -355,13 +356,13 @@
 
 			if (res.ok) {
 				await invalidateAll();
-				alert('Progress reset successfully.');
+				await modal.alert('Progress reset successfully.');
 			} else {
 				const data = await res.json();
-				alert(data.error || 'Failed to reset progress.');
+				await modal.alert(data.error || 'Failed to reset progress.');
 			}
 		} catch (error) {
-			alert('An error occurred.');
+			await modal.alert('An error occurred.');
 		}
 	}
 
@@ -371,38 +372,40 @@
 			if (res.ok) {
 				await invalidateAll();
 			} else {
-				alert('Failed to approve vocabulary.');
+				await modal.alert('Failed to approve vocabulary.');
 			}
 		} catch {
-			alert('An error occurred.');
+			await modal.alert('An error occurred.');
 		}
 	}
 
 	async function deleteVocab(vocabId: string) {
-		if (!confirm('Are you sure you want to delete this auto-generated vocabulary?')) return;
+		if (!(await modal.confirm('Are you sure you want to delete this auto-generated vocabulary?')))
+			return;
 		try {
 			const res = await fetch(`/api/admin/vocabulary/${vocabId}`, { method: 'DELETE' });
 			if (res.ok) {
 				await invalidateAll();
 			} else {
-				alert('Failed to delete vocabulary.');
+				await modal.alert('Failed to delete vocabulary.');
 			}
 		} catch {
-			alert('An error occurred.');
+			await modal.alert('An error occurred.');
 		}
 	}
 
 	async function deleteClass(classId: string) {
-		if (!confirm('Are you sure you want to delete this class? This cannot be undone.')) return;
+		if (!(await modal.confirm('Are you sure you want to delete this class? This cannot be undone.')))
+			return;
 		try {
 			const res = await fetch(`/api/admin/classes/${classId}`, { method: 'DELETE' });
 			if (res.ok) {
 				await invalidateAll();
 			} else {
-				alert('Failed to delete class.');
+				await modal.alert('Failed to delete class.');
 			}
 		} catch {
-			alert('An error occurred.');
+			await modal.alert('An error occurred.');
 		}
 	}
 </script>

@@ -13,7 +13,7 @@ export async function POST({ params, request, locals }) {
 	const { action, isCorrect } = data;
 
 	const activeSession = await prisma.liveSession.findFirst({
-		where: { classId, status: { in: ['waiting', 'active'] } },
+		where: { classId, status: { in: ['waiting', 'active', 'showing_answer'] } },
 		orderBy: { createdAt: 'desc' }
 	});
 
@@ -36,6 +36,10 @@ export async function POST({ params, request, locals }) {
 	}
 
 	if (action === 'answer') {
+		if (activeSession.status !== 'active') {
+			return json({ error: 'Cannot answer right now' }, { status: 400 });
+		}
+
 		const participant = await prisma.liveSessionParticipant.findUnique({
 			where: { sessionId_userId: { sessionId: activeSession.id, userId } }
 		});

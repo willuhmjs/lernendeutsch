@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import { onMount, onDestroy } from 'svelte';
 	import { toast } from '$lib/toast';
+	import { modal } from '$lib/modal.svelte';
 
 	export let data: any;
 
@@ -52,7 +53,7 @@
 	}
 
 	async function endSession() {
-		if (!confirm('Are you sure you want to end this live session?')) return;
+		if (!(await modal.confirm('Are you sure you want to end this live session?'))) return;
 		try {
 			const res = await fetch(`/api/classes/${classId}/live-session`, {
 				method: 'POST',
@@ -72,11 +73,14 @@
 	}
 
 	function nextQuestion() {
-		if (session.currentQuestionIndex < totalQuestions - 1) {
-			updateSession({ currentQuestionIndex: session.currentQuestionIndex + 1 });
-		} else {
-			endSession();
-		}
+		updateSession({ status: 'showing_answer' });
+		setTimeout(() => {
+			if (session.currentQuestionIndex < totalQuestions - 1) {
+				updateSession({ currentQuestionIndex: session.currentQuestionIndex + 1, status: 'active' });
+			} else {
+				updateSession({ status: 'finished' });
+			}
+		}, 5000);
 	}
 
 	onMount(() => {
@@ -119,7 +123,7 @@
 				<button class="btn-primary w-full btn-large mt-large" on:click={startGame} disabled={students.length === 0}>
 					Start Game
 				</button>
-			{:else if session.status === 'active'}
+			{:else if session.status === 'active' || session.status === 'showing_answer'}
 				<div class="progress-info">
 					Question {session.currentQuestionIndex + 1} of {totalQuestions}
 				</div>
@@ -128,12 +132,19 @@
 					{currentQuestionData?.question || '...'}
 				</h2>
 
-				<div class="status-board">
-					<div class="stat-box">
-						<span class="stat-label">Answers Received</span>
-						<span class="stat-value">{answeredCount} / {students.length}</span>
+				{#if session.status === 'showing_answer'}
+					<div class="correct-answer-board">
+						<h3>Correct Answer:</h3>
+						<div class="correct-answer-text">{currentQuestionData?.answer || '...'}</div>
 					</div>
-				</div>
+				{:else}
+					<div class="status-board">
+						<div class="stat-box">
+							<span class="stat-label">Answers Received</span>
+							<span class="stat-value">{answeredCount} / {students.length}</span>
+						</div>
+					</div>
+				{/if}
 
 				<div class="participants-list">
 					{#each students as student}
@@ -144,9 +155,13 @@
 					{/each}
 				</div>
 
-				<button class="btn-primary w-full btn-large mt-large" on:click={nextQuestion}>
-					{session.currentQuestionIndex < totalQuestions - 1 ? 'Next Question' : 'Finish Game'}
-				</button>
+				{#if session.status === 'active'}
+					<button class="btn-primary w-full btn-large mt-large" on:click={nextQuestion}>
+						Reveal Answer
+					</button>
+				{:else}
+					<p class="mt-large card-desc">Showing answer for 5 seconds...</p>
+				{/if}
 			{/if}
 		</div>
 	{/if}
@@ -335,5 +350,26 @@
 		font-size: 2rem;
 		font-weight: 800;
 		color: #0f172a;
+	}
+
+	.correct-answer-board {
+		background-color: #f0fdf4;
+		border: 2px solid #22c55e;
+		border-radius: 0.75rem;
+		padding: 1.5rem;
+		margin-bottom: 2rem;
+	}
+
+	.correct-answer-board h3 {
+		margin-top: 0;
+		color: #16a34a;
+		font-size: 1.25rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.correct-answer-text {
+		font-size: 2rem;
+		font-weight: 800;
+		color: #15803d;
 	}
 </style>
