@@ -256,16 +256,24 @@
 						<button on:click={handleResetCode} class="invite-btn">Reset</button>
 					</div>
 				</div>
-				<a href="/play?tab=games&classId={classDetails.id}" class="btn-duo btn-primary live-btn"
-					>Start Live Session</a
-				>
-				<button on:click={handleLeaveClass} class="btn-duo btn-leave">Leave Class</button>
-				<button on:click={handleDeleteClass} class="btn-duo btn-delete-class">Delete Class</button>
+				<div class="action-stack">
+					<a href="/play?tab=games&classId={classDetails.id}" class="btn-duo btn-primary live-btn"
+						>Start Live Session</a
+					>
+					<div class="action-row">
+						<button on:click={handleLeaveClass} class="btn-duo btn-leave">Leave Class</button>
+						<button on:click={handleDeleteClass} class="btn-duo btn-delete-class">Delete Class</button>
+					</div>
+				</div>
 			{:else}
-				<a href="/classes/{classDetails.id}/live/student" class="btn-duo btn-primary live-btn"
-					>Join Live Session</a
-				>
-				<button on:click={handleLeaveClass} class="btn-duo btn-leave">Leave Class</button>
+				<div class="action-stack">
+					<a href="/classes/{classDetails.id}/live/student" class="btn-duo btn-primary live-btn"
+						>Join Live Session</a
+					>
+					<div class="action-row">
+						<button on:click={handleLeaveClass} class="btn-duo btn-leave">Leave Class</button>
+					</div>
+				</div>
 			{/if}
 		</div>
 	</div>
@@ -719,7 +727,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 1rem;
+		gap: 1.5rem;
 	}
 
 	@media (min-width: 640px) {
@@ -727,6 +735,35 @@
 			flex-direction: row;
 			flex-wrap: wrap;
 			justify-content: flex-end;
+		}
+	}
+
+	.action-stack {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		width: 100%;
+	}
+
+	@media (min-width: 640px) {
+		.action-stack {
+			width: auto;
+			align-items: stretch;
+		}
+	}
+
+	.action-row {
+		display: flex;
+		gap: 0.5rem;
+		width: 100%;
+		flex-direction: column;
+	}
+
+	@media (min-width: 640px) {
+		.action-row {
+			width: auto;
+			justify-content: flex-end;
+			flex-direction: row;
 		}
 	}
 
