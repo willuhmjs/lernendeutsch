@@ -10,6 +10,7 @@
 	let editTitle = $state(game.title);
 	let editDescription = $state(game.description || '');
 	let isPublished = $state(game.isPublished);
+	let isPublishing = $state(false);
 
 	// Generating State
 	let isGenerating = $state(false);
@@ -130,6 +131,7 @@
 			}
 		} else {
 			// Publish (triggers LLM review)
+			isPublishing = true;
 			toast.loading('Reviewing game...', { id: 'publish' });
 			try {
 				const res = await fetch(`/api/games/${game.id}/publish`, {
@@ -145,6 +147,8 @@
 				}
 			} catch (error) {
 				toast.error('Error publishing game', { id: 'publish' });
+			} finally {
+				isPublishing = false;
 			}
 		}
 	}
@@ -261,23 +265,23 @@
 			<h1>Game Editor</h1>
 		</div>
 		<div class="header-actions">
-			<button onclick={togglePublish} class="btn-toggle {isPublished ? 'published' : 'draft'}">
-				{isPublished ? 'Published' : 'Draft'}
+			<button onclick={togglePublish} disabled={isPublishing} class="btn-toggle {isPublished ? 'published' : 'draft'} {isPublishing ? 'publishing' : ''}">
+				{isPublishing ? 'Publishing...' : (isPublished ? 'Published' : 'Draft')}
 			</button>
-			<button onclick={deleteGame} class="btn-delete">
+			<button onclick={deleteGame} disabled={isPublishing} class="btn-delete">
 				Delete Game
 			</button>
 		</div>
 	</div>
 
 	<!-- Game Details Section -->
-	<div class="card-duo details-card">
+	<div class="card-duo details-card" style={isPublishing ? "opacity: 0.6; pointer-events: none;" : ""}>
 		<div class="card-header-flex">
 			<h2>
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
 				Game Details
 			</h2>
-			<button onclick={() => isEditingDetails = !isEditingDetails} class="link-btn">
+			<button onclick={() => isEditingDetails = !isEditingDetails} disabled={isPublishing} class="link-btn">
 				{isEditingDetails ? 'Cancel' : 'Edit'}
 			</button>
 		</div>
@@ -286,13 +290,13 @@
 			<div class="edit-form">
 				<div class="field">
 					<label for="title">Title</label>
-					<input type="text" id="title" bind:value={editTitle} class="form-input" />
+					<input type="text" id="title" bind:value={editTitle} disabled={isPublishing} class="form-input" />
 				</div>
 				<div class="field">
 					<label for="description">Description</label>
-					<textarea id="description" bind:value={editDescription} rows="2" class="form-input"></textarea>
+					<textarea id="description" bind:value={editDescription} disabled={isPublishing} rows="2" class="form-input"></textarea>
 				</div>
-				<button onclick={saveGameDetails} class="btn-primary save-btn">Save Details</button>
+				<button onclick={saveGameDetails} disabled={isPublishing} class="btn-primary save-btn">Save Details</button>
 			</div>
 		{:else}
 			<div class="game-info">
@@ -308,7 +312,7 @@
 	</div>
 
 	<!-- AI Generation Section -->
-	<div class="card-duo ai-card">
+	<div class="card-duo ai-card" style={isPublishing ? "opacity: 0.6; pointer-events: none;" : ""}>
 		<h2>
 			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
 			Auto-Generate Questions
@@ -322,17 +326,17 @@
 				bind:value={generateTopic} 
 				placeholder="Topic (e.g., 'Food and drinks', 'Past tense verbs')" 
 				class="form-input ai-input"
-				disabled={isGenerating}
+				disabled={isGenerating || isPublishing}
 			/>
 			<div class="ai-actions">
-				<select bind:value={generateCount} disabled={isGenerating} class="form-input count-select">
+				<select bind:value={generateCount} disabled={isGenerating || isPublishing} class="form-input count-select">
 					<option value={5}>5 Qs</option>
 					<option value={10}>10 Qs</option>
 					<option value={15}>15 Qs</option>
 				</select>
 				<button 
 					onclick={generateQuestions} 
-					disabled={isGenerating || !generateTopic}
+					disabled={isGenerating || !generateTopic || isPublishing}
 					class="btn-primary generate-btn {isGenerating ? 'submitting' : ''}"
 				>
 					{isGenerating ? 'Generating...' : 'Generate AI'}
@@ -347,32 +351,32 @@
 			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
 			Questions ({game.questions.length})
 		</h2>
-		<button onclick={() => isAddingQuestion = !isAddingQuestion} class="link-btn add-btn">
+		<button onclick={() => isAddingQuestion = !isAddingQuestion} disabled={isPublishing} class="link-btn add-btn">
 			{isAddingQuestion ? 'Cancel' : '+ Add Manual Question'}
 		</button>
 	</div>
 
 	{#if isAddingQuestion}
-		<div class="card-duo add-question-card">
+		<div class="card-duo add-question-card" style={isPublishing ? "opacity: 0.6; pointer-events: none;" : ""}>
 			<h3>New Question</h3>
 			<div class="edit-form">
 				<div class="field">
 					<label>Question prompt <span class="required">*</span></label>
-					<input type="text" bind:value={newQuestion} placeholder="e.g. Translate 'Hello'" class="form-input" />
+					<input type="text" bind:value={newQuestion} disabled={isPublishing} placeholder="e.g. Translate 'Hello'" class="form-input" />
 				</div>
 				<div class="field">
 					<label>Correct Answer <span class="required">*</span></label>
-					<input type="text" bind:value={newAnswer} placeholder="e.g. Bonjour" class="form-input answer-input" />
+					<input type="text" bind:value={newAnswer} disabled={isPublishing} placeholder="e.g. Bonjour" class="form-input answer-input" />
 				</div>
 				<div class="field">
 					<label>Incorrect Options (Optional)</label>
 					<div class="options-grid">
-						<input type="text" bind:value={newOptions[0]} placeholder="Distractor 1" class="form-input" />
-						<input type="text" bind:value={newOptions[1]} placeholder="Distractor 2" class="form-input" />
-						<input type="text" bind:value={newOptions[2]} placeholder="Distractor 3" class="form-input" />
+						<input type="text" bind:value={newOptions[0]} disabled={isPublishing} placeholder="Distractor 1" class="form-input" />
+						<input type="text" bind:value={newOptions[1]} disabled={isPublishing} placeholder="Distractor 2" class="form-input" />
+						<input type="text" bind:value={newOptions[2]} disabled={isPublishing} placeholder="Distractor 3" class="form-input" />
 					</div>
 				</div>
-				<button onclick={addQuestion} class="btn-primary save-btn mt-2">Save Question</button>
+				<button onclick={addQuestion} disabled={isPublishing} class="btn-primary save-btn mt-2">Save Question</button>
 			</div>
 		</div>
 	{/if}
@@ -386,7 +390,7 @@
 		{/if}
 
 		{#each game.questions as question, i}
-			<div class="card-duo question-card">
+			<div class="card-duo question-card" style={isPublishing ? "opacity: 0.6; pointer-events: none;" : ""}>
 				{#if editingQuestionId === question.id}
 					<div class="edit-form" style="width: 100%;">
 						<div class="field">
@@ -534,6 +538,13 @@
 	.btn-toggle.draft {
 		background-color: #e2e8f0;
 		color: #334155;
+	}
+
+	.btn-toggle.publishing {
+		background-color: #fef08a;
+		color: #854d0e;
+		cursor: not-allowed;
+		opacity: 0.8;
 	}
 
 	.btn-delete {
