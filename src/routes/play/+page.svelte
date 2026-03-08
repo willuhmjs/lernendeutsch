@@ -754,8 +754,10 @@
 		}
 		if (vocab.plural)
 			html += `<span class="word-tooltip-row"><strong>Plural:</strong> ${vocab.plural}</span>`;
-		if (vocab.meaning)
-			html += `<span class="word-tooltip-row"><strong>Meaning:</strong> ${vocab.meaning}</span>`;
+		
+		const displayMeaning = vocab.meaning || vocab.meanings?.[0]?.value;
+		if (displayMeaning)
+			html += `<span class="word-tooltip-row"><strong>Meaning:</strong> ${displayMeaning}</span>`;
 		html += `</span></span>`;
 		return html;
 	}

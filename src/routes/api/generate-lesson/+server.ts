@@ -756,7 +756,8 @@ ${jsonFormatBlock}`;
 									languageId: activeLanguageId,
 									lemma: { in: Array.from(candidates) },
 									id: { notIn: Array.from(existingIds) }
-								}
+								},
+								include: { meanings: true }
 							});
 
 							if (enrichmentVocab.length > 0) {
