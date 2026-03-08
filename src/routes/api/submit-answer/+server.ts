@@ -146,71 +146,27 @@ export async function POST(event) {
 			messages: [{ role: 'user', content: userMessage }],
 			systemPrompt,
 			jsonMode: true,
-			stream: true,
+			stream: false,
 			signal: request.signal
 		});
 
-		let upstreamReader: ReadableStreamDefaultReader<Uint8Array> | null = null;
+		const data = llmResponse;
+		let fullContent = data.choices?.[0]?.message?.content || '';
+
+		// Strip markdown JSON block if present
+		const firstBrace = fullContent.indexOf('{');
+		const lastBrace = fullContent.lastIndexOf('}');
+		if (firstBrace !== -1 && lastBrace !== -1) {
+			fullContent = fullContent.slice(firstBrace, lastBrace + 1);
+		} else {
+			console.error("No JSON braces found in LLM response:", fullContent);
+		}
 
 		const stream = new ReadableStream({
 			async start(controller) {
-				if (!llmResponse.body) {
-					controller.close();
-					return;
-				}
-				const reader = llmResponse.body.getReader();
-				upstreamReader = reader;
-				const decoder = new TextDecoder();
-				let fullContent = '';
-				let buffer = '';
-
 				try {
-					while (true) {
-						const { done, value } = await reader.read();
-						if (done) break;
-
-						buffer += decoder.decode(value, { stream: true });
-						const lines = buffer.split('\n');
-						buffer = lines.pop() || '';
-
-						for (const line of lines) {
-							if (line.trim() === '' || line.startsWith(':')) continue;
-							if (line.startsWith('data:')) {
-								const dataStr = line.slice(5).trim();
-								if (dataStr === '[DONE]') continue;
-								try {
-									const data = JSON.parse(dataStr);
-									const content = data.choices[0]?.delta?.content || data.choices[0]?.message?.content;
-									if (content) {
-										fullContent += content;
-										controller.enqueue(new TextEncoder().encode(content));
-									}
-								} catch {
-									// partial SSE parse error
-								}
-							}
-						}
-					}
-					// Process remaining buffer
-					if (buffer) {
-						const lines = buffer.split('\n');
-						for (const line of lines) {
-							if (line.startsWith('data:')) {
-								const dataStr = line.slice(5).trim();
-								if (dataStr !== '[DONE]') {
-									try {
-										const data = JSON.parse(dataStr);
-										const content = data.choices[0]?.delta?.content || data.choices[0]?.message?.content;
-										if (content) {
-											fullContent += content;
-											controller.enqueue(new TextEncoder().encode(content));
-										}
-									} catch {
-										// partial SSE parse error
-									}
-								}
-							}
-						}
+					if (fullContent) {
+						controller.enqueue(new TextEncoder().encode(fullContent));
 					}
 				} catch (err) {
 					console.error('Stream read error in submit-answer', err);
@@ -256,8 +212,7 @@ export async function POST(event) {
 				controller.close();
 			},
 			cancel() {
-				// Client disconnected — cancel upstream LLM reader
-				upstreamReader?.cancel();
+				// Stream cancelled by client
 			}
 		});
 

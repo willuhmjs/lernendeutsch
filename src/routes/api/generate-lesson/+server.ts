@@ -506,18 +506,30 @@ ${jsonFormatBlock}`;
 			],
 			systemPrompt,
 			jsonSchema: jsonSchemaObj,
-			stream: true,
+			stream: false,
 			signal: request.signal
 		});
 
-		// Calculate targeted concepts beforehand, assuming LLM will use all of them if fallback is needed.
-		// Since we're streaming, we send the full learning lists as the targeted concepts immediately.
-		// The client could filter them at the end based on targetedIds, but sending them all is safe
-		// because we only gave it 1-2 learning concepts anyway.
 		const targetedVocabulary = learningVocab;
 		const targetedGrammar = learningGrammar;
 
-		let upstreamReader: ReadableStreamDefaultReader<Uint8Array> | null = null;
+		const data = llmResponse;
+		let fullContent = data.choices?.[0]?.message?.content || '';
+
+		if (!fullContent) {
+			console.error('LLM returned empty content. Full response:', JSON.stringify(data));
+			return json({ error: 'LLM returned an empty response. Please try again.' }, { status: 502 });
+		}
+
+		// Strip markdown JSON block if present
+		const firstBrace = fullContent.indexOf('{');
+		const lastBrace = fullContent.lastIndexOf('}');
+		if (firstBrace !== -1 && lastBrace !== -1) {
+			fullContent = fullContent.slice(firstBrace, lastBrace + 1);
+		} else {
+			console.error("No JSON braces found in LLM response:", fullContent);
+			return json({ error: 'LLM response was not valid JSON. Please try again.' }, { status: 502 });
+		}
 
 		const stream = new ReadableStream({
 			async start(controller) {
@@ -540,63 +552,11 @@ ${jsonFormatBlock}`;
 					)
 				);
 
-				const reader = llmResponse.body?.getReader();
-				if (!reader) {
-					controller.close();
-					return;
-				}
-
-				// Store reader reference for cancel handler
-				upstreamReader = reader;
-
-				const decoder = new TextDecoder();
-				let buffer = '';
-				let fullContent = '';
-
 				try {
-					while (true) {
-						const { done, value } = await reader.read();
-						if (done) break;
-
-						buffer += decoder.decode(value, { stream: true });
-						const lines = buffer.split('\n');
-						buffer = lines.pop() || '';
-
-						for (const line of lines) {
-							const trimmedLine = line.trim();
-							if (trimmedLine.startsWith('data:') && !trimmedLine.includes('[DONE]')) {
-								try {
-									const dataStr = trimmedLine.slice(5).trim();
-									const data = JSON.parse(dataStr);
-									const content = data.choices[0]?.delta?.content || data.choices[0]?.message?.content || '';
-									if (content) {
-										fullContent += content;
-										controller.enqueue(
-											new TextEncoder().encode(JSON.stringify({ type: 'chunk', content }) + '\n')
-										);
-									}
-								} catch {
-									// ignore partial JSON parse errors
-								}
-							}
-						}
-					}
-
-					const finalBufferTrimmed = buffer.trim();
-					if (finalBufferTrimmed.startsWith('data:') && !finalBufferTrimmed.includes('[DONE]')) {
-						try {
-							const dataStr = finalBufferTrimmed.slice(5).trim();
-							const data = JSON.parse(dataStr);
-							const content = data.choices[0]?.delta?.content || '';
-							if (content) {
-								fullContent += content;
-								controller.enqueue(
-									new TextEncoder().encode(JSON.stringify({ type: 'chunk', content }) + '\n')
-								);
-							}
-						} catch {
-							// ignore parse errors
-						}
+					if (fullContent) {
+						controller.enqueue(
+							new TextEncoder().encode(JSON.stringify({ type: 'chunk', content: fullContent }) + '\n')
+						);
 					}
 
 					// Vocab enrichment: look up words from generated text in the full Vocabulary table
@@ -1291,8 +1251,7 @@ ${jsonFormatBlock}`;
 				}
 			},
 			cancel() {
-				// Client disconnected — cancel upstream LLM reader
-				upstreamReader?.cancel();
+				// Stream cancelled by client
 			}
 		});
 

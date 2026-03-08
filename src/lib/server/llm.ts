@@ -1,6 +1,7 @@
 import { env } from '$env/dynamic/private';
 import { prisma } from '$lib/server/prisma';
 import { getSiteSettings } from '$lib/server/settings';
+import OpenAI from 'openai';
 
 export interface ChatMessage {
 	role: 'system' | 'user' | 'assistant';
@@ -20,7 +21,7 @@ export interface GenerateChatCompletionOptions {
 }
 
 /**
- * Calls an OpenAI-compatible /v1/chat/completions endpoint using standard fetch.
+ * Calls an OpenAI-compatible /v1/chat/completions endpoint using the OpenAI SDK.
  * Looks up custom base URL and API key from the User record, falling back to env vars.
  */
 export async function generateChatCompletion({
@@ -33,7 +34,8 @@ export async function generateChatCompletion({
 	temperature = 0.3,
 	stream = false,
 	signal
-}: GenerateChatCompletionOptions) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+}: GenerateChatCompletionOptions): Promise<any> {
 	// 1. Fetch user credentials from database and site settings
 	const [user, settings] = await Promise.all([
 		prisma.user.findUnique({
@@ -44,12 +46,13 @@ export async function generateChatCompletion({
 	]);
 
 	// 2. Resolve Base URL and API Key (User custom OR Site Settings OR fallback to environment variables)
-	const baseUrl = (
+	const rawBaseUrl = (
 		user?.llmBaseUrl ||
 		settings.llmEndpoint ||
 		env.DEFAULT_LLM_BASE_URL ||
 		''
 	).replace(/^["']|["']$/g, '');
+	
 	const apiKey = (user?.llmApiKey || settings.llmApiKey || env.DEFAULT_LLM_API_KEY || '').replace(
 		/^["']|["']$/g,
 		''
@@ -61,13 +64,27 @@ export async function generateChatCompletion({
 		'gpt-3.5-turbo'
 	).replace(/^["']|["']$/g, '');
 
-	if (!baseUrl) {
+	if (!rawBaseUrl) {
 		throw new Error('LLM Base URL is not configured.');
 	}
 
 	if (!apiKey) {
 		throw new Error('LLM API Key is not configured.');
 	}
+
+	let baseUrl = rawBaseUrl.replace(/\/$/, '');
+	if (!baseUrl.endsWith('/v1')) {
+		if (baseUrl.endsWith('/openai')) {
+			// Some endpoints might be /openai
+		} else {
+			baseUrl += '/v1';
+		}
+	}
+
+	const openai = new OpenAI({
+		baseURL: baseUrl,
+		apiKey: apiKey,
+	});
 
 	// 3. Prepare messages payload
 	const payloadMessages = [...messages];
@@ -91,59 +108,67 @@ export async function generateChatCompletion({
 		payloadMessages.unshift({ role: 'system', content: constraintPrompt });
 	}
 
-	// 4. Construct request payload
-	const payload: Record<string, unknown> = {
-		model: resolvedModel,
-		messages: payloadMessages,
-		temperature
-	};
-
-	if (jsonMode) {
-		payload.response_format = { type: 'json_object' };
-	} else if (jsonSchema) {
-		payload.response_format = {
-			type: 'json_schema',
-			json_schema: {
-				name: 'response',
-				strict: true,
-				schema: jsonSchema
+	if (jsonSchema || jsonMode) {
+		// OpenAI requires the word "JSON" to be in the prompt when using json_object
+		// Even without response_format, we still want to clearly ask for JSON
+		const hasJsonPrompt = payloadMessages.some(m => 
+			typeof m.content === 'string' && m.content.toLowerCase().includes('json')
+		);
+		
+		if (!hasJsonPrompt) {
+			if (payloadMessages.length > 0 && payloadMessages[0].role === 'system') {
+				payloadMessages[0].content += '\n\nPlease return your response ONLY as valid JSON. Do not include any other text.';
+			} else {
+				payloadMessages.unshift({ role: 'system', content: 'Please return your response ONLY as valid JSON. Do not include any other text.' });
 			}
-		};
+		}
 	}
 
-	if (stream) {
-		payload.stream = true;
+	try {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const response = await openai.chat.completions.create({
+			model: resolvedModel,
+			messages: payloadMessages as OpenAI.Chat.Completions.ChatCompletionMessageParam[],
+			temperature,
+			stream: stream as boolean,
+		} as OpenAI.Chat.Completions.ChatCompletionCreateParams, { signal });
+
+		if (stream) {
+			return response;
+		}
+
+		const completion = response as OpenAI.Chat.Completions.ChatCompletion;
+
+		// Extract JSON payload if the model output special tokens or markdown around the JSON block
+		if ((jsonMode || jsonSchema) && completion.choices?.[0]?.message?.content) {
+			const content = completion.choices[0].message.content;
+			const firstBrace = content.indexOf('{');
+			const lastBrace = content.lastIndexOf('}');
+			const firstBracket = content.indexOf('[');
+			const lastBracket = content.lastIndexOf(']');
+
+			let startIndex = -1;
+			let endIndex = -1;
+
+			if (firstBrace !== -1 && lastBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) {
+				startIndex = firstBrace;
+				endIndex = lastBrace;
+			} else if (firstBracket !== -1 && lastBracket !== -1 && (firstBrace === -1 || firstBracket < firstBrace)) {
+				startIndex = firstBracket;
+				endIndex = lastBracket;
+			}
+
+			if (startIndex !== -1 && endIndex !== -1 && endIndex >= startIndex) {
+				completion.choices[0].message.content = content.substring(startIndex, endIndex + 1);
+			}
+		}
+
+		return completion;
+	} catch (e) {
+		const error = e as Error;
+		console.error(`LLM API Error: ${error.message}`, error);
+		throw new Error(`LLM API Error: ${error.message}`);
 	}
-
-	// 5. Make the fetch request to the OpenAI-compatible endpoint
-	// Ensure no double slashes if baseUrl has a trailing slash
-	const cleanBaseUrl = baseUrl.replace(/\/$/, '');
-	const endpoint =
-		cleanBaseUrl.endsWith('/v1') || cleanBaseUrl.endsWith('/openai')
-			? `${cleanBaseUrl}/chat/completions`
-			: `${cleanBaseUrl}/v1/chat/completions`;
-
-	const response = await fetch(endpoint, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${apiKey}`
-		},
-		body: JSON.stringify(payload),
-		signal
-	});
-
-	if (!response.ok) {
-		const errorText = await response.text();
-		throw new Error(`LLM API Error (${response.status}): ${errorText}`);
-	}
-
-	if (stream) {
-		return response;
-	}
-
-	// 6. Return the JSON response
-	return await response.json();
 }
 
 /**
