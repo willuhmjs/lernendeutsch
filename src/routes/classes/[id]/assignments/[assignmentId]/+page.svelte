@@ -22,7 +22,7 @@
 	let copied = false;
 
 	async function copyLink() {
-		const url = `${window.location.origin}/learn?assignmentId=${assignment.id}`;
+		const url = `${window.location.origin}/play?assignmentId=${assignment.id}`;
 		await navigator.clipboard.writeText(url);
 		copied = true;
 		setTimeout(() => {
@@ -48,15 +48,42 @@
 		}
 	}
 
+	import { invalidateAll } from '$app/navigation';
+
+	$: currentLang = data.languages?.find((l: any) => l.code === editLanguage);
+	$: availableRules = currentLang ? currentLang.grammarRules : [];
+
 	// Edit Assignment
 	let showEditModal = false;
 	let editTitle = '';
 	let editDescription = '';
+	let editMode = 'multiple-choice';
+	let editTargetScore = 10;
+	let editPassThreshold = 50;
+	let editLanguage = '';
+	let editTargetCefrLevel = '';
+	let editTopic = '';
+	let selectedGrammarRules: string[] = [];
+	let targetVocabList: string[] = [];
+	let vocabInput = '';
+	let grammarSearchQuery = '';
 	let isSaving = false;
+	let assignmentError = '';
 
 	function openEditModal() {
 		editTitle = assignment.title;
 		editDescription = assignment.description || '';
+		editMode = assignment.gamemode || 'multiple-choice';
+		editTargetScore = assignment.targetScore || 10;
+		editPassThreshold = assignment.passThreshold || 50;
+		editLanguage = assignment.language || data.classDetails.primaryLanguage;
+		editTargetCefrLevel = assignment.targetCefrLevel || '';
+		editTopic = assignment.topic || '';
+		selectedGrammarRules = assignment.targetGrammar ? [...assignment.targetGrammar] : [];
+		targetVocabList = assignment.targetVocab ? [...assignment.targetVocab] : [];
+		vocabInput = '';
+		grammarSearchQuery = '';
+		assignmentError = '';
 		showEditModal = true;
 	}
 
@@ -64,35 +91,67 @@
 		showEditModal = false;
 	}
 
+	function handleVocabKeydown(e: KeyboardEvent) {
+		if (e.key === 'Enter') {
+			e.preventDefault();
+			const val = vocabInput.trim();
+			if (val && !targetVocabList.includes(val)) {
+				targetVocabList = [...targetVocabList, val];
+			}
+			vocabInput = '';
+		}
+	}
+
+	function removeVocab(word: string) {
+		targetVocabList = targetVocabList.filter((w) => w !== word);
+	}
+
+	function toggleGrammarRule(ruleId: string) {
+		if (selectedGrammarRules.includes(ruleId)) {
+			selectedGrammarRules = selectedGrammarRules.filter((id) => id !== ruleId);
+		} else {
+			selectedGrammarRules = [...selectedGrammarRules, ruleId];
+		}
+	}
+
 	async function handleSaveEdit() {
 		if (!editTitle.trim()) {
-			toast.error('Title is required');
+			assignmentError = 'Title is required';
 			return;
 		}
 
 		isSaving = true;
+		assignmentError = '';
 		try {
 			const res = await fetch(`/api/classes/${classDetails.id}/assignments/${assignment.id}`, {
 				method: 'PATCH',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					title: editTitle,
-					description: editDescription || null
+					description: editDescription || undefined,
+					gamemode: editMode,
+					targetScore: editTargetScore,
+					passThreshold: editPassThreshold,
+					language: editLanguage,
+					targetCefrLevel: editTargetCefrLevel || undefined,
+					topic: editTopic || undefined,
+					targetGrammar: selectedGrammarRules.length > 0 ? selectedGrammarRules : [],
+					targetVocab: targetVocabList.length > 0 ? targetVocabList : []
 				})
 			});
 
 			if (res.ok) {
 				const updatedAssignment = await res.json();
-				assignment.title = updatedAssignment.title;
-				assignment.description = updatedAssignment.description;
+				assignment = { ...assignment, ...updatedAssignment };
 				toast.success('Assignment updated');
 				closeEditModal();
+				await invalidateAll();
 			} else {
 				const result = await res.json();
-				toast.error(result.error || 'Failed to update assignment');
+				assignmentError = result.error || 'Failed to update assignment';
 			}
 		} catch (e) {
-			toast.error('An error occurred.');
+			assignmentError = 'An error occurred';
 		} finally {
 			isSaving = false;
 		}
@@ -200,25 +259,156 @@
 				<button class="btn-close" on:click={closeEditModal}>&times;</button>
 			</div>
 
-			<form on:submit|preventDefault={handleSaveEdit} class="edit-form">
-				<div class="field">
-					<label for="title">Title <span class="required">*</span></label>
-					<input
-						type="text"
-						id="title"
-						bind:value={editTitle}
-						placeholder="e.g. Verb practice week 3"
-						required
-					/>
+			<form on:submit|preventDefault={handleSaveEdit} class="create-form">
+				<div class="create-form-row">
+					<div class="field">
+						<label for="title">Title <span class="required">*</span></label>
+						<input
+							type="text"
+							id="title"
+							bind:value={editTitle}
+							placeholder="e.g. Verb practice week 3"
+							required
+						/>
+					</div>
+					<div class="field">
+						<label for="desc">Description (optional)</label>
+						<input
+							type="text"
+							id="desc"
+							bind:value={editDescription}
+							placeholder="Any notes for students"
+						/>
+					</div>
 				</div>
-				<div class="field">
-					<label for="desc">Description</label>
-					<textarea
-						id="desc"
-						bind:value={editDescription}
-						placeholder="Any notes for students"
-						rows="3"
-					></textarea>
+
+				<div class="create-form-row">
+					<div class="field">
+						<label for="topic">Topic (optional)</label>
+						<input
+							type="text"
+							id="topic"
+							bind:value={editTopic}
+							placeholder="e.g. Ordering food, Traveling"
+						/>
+					</div>
+					<div class="field">
+						<label for="vocab">Target Vocabulary (optional)</label>
+						<div class="vocab-input-container">
+							<div class="vocab-tags">
+								{#each targetVocabList as word}
+									<span class="vocab-tag">
+										{word}
+										<button type="button" class="remove-vocab" on:click={() => removeVocab(word)}>&times;</button>
+									</span>
+								{/each}
+								<input
+									type="text"
+									id="vocab"
+									bind:value={vocabInput}
+									on:keydown={handleVocabKeydown}
+									placeholder={targetVocabList.length === 0 ? "Type a word and press Enter" : ""}
+									class="vocab-inline-input"
+								/>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="field grammar-rules-field">
+					<label>Target Grammar Rules (optional)</label>
+					<div class="grammar-rules-container">
+						{#if availableRules.length > 0}
+							<div class="grammar-search">
+								<input 
+									type="text" 
+									bind:value={grammarSearchQuery} 
+									placeholder="Search grammar rules..." 
+									class="grammar-search-input"
+								/>
+							</div>
+							<div class="grammar-rules-list">
+								{#each availableRules.filter((r: any) => r.title.toLowerCase().includes(grammarSearchQuery.toLowerCase())) as rule}
+									<label class="grammar-rule-item" class:selected={selectedGrammarRules.includes(rule.id)}>
+										<input 
+											type="checkbox" 
+											checked={selectedGrammarRules.includes(rule.id)}
+											on:change={() => toggleGrammarRule(rule.id)}
+										/>
+										<div class="grammar-rule-info">
+											<span class="grammar-rule-title">{rule.title}</span>
+											<span class="badge grammar-rule-badge">{rule.level}</span>
+										</div>
+									</label>
+								{/each}
+							</div>
+						{:else}
+							<p class="no-grammar-rules">No grammar rules available for this language.</p>
+						{/if}
+					</div>
+				</div>
+
+				<div class="create-form-bottom">
+					<div class="field">
+						<label for="gamemode">Game Mode</label>
+						<select id="gamemode" bind:value={editMode}>
+							<option value="multiple-choice">Multiple Choice</option>
+							<option value="native-to-target">Native to Target</option>
+							<option value="target-to-native">Target to Native</option>
+							<option value="fill-blank">Fill in the Blank</option>
+							<option value="chat">Chat</option>
+						</select>
+					</div>
+					<div class="field field-small">
+						<label for="language">Language</label>
+						<select id="language" bind:value={editLanguage}>
+							<option value="international">International</option>
+							<option value="de">German</option>
+							<option value="es">Spanish</option>
+							<option value="fr">French</option>
+						</select>
+					</div>
+					<div class="field field-small">
+						<label for="targetCefrLevel">CEFR Level</label>
+						<select id="targetCefrLevel" bind:value={editTargetCefrLevel}>
+							<option value="">Use Student's Level</option>
+							<option value="A1">A1</option>
+							<option value="A2">A2</option>
+							<option value="B1">B1</option>
+							<option value="B2">B2</option>
+							<option value="C1">C1</option>
+							<option value="C2">C2</option>
+						</select>
+					</div>
+					<div class="field field-small">
+						<label for="targetScore">
+							{#if editMode === 'chat'}
+								Target Turns
+							{:else}
+								Pass Score
+							{/if}
+						</label>
+						<input
+							type="number"
+							id="targetScore"
+							bind:value={editTargetScore}
+							min="1"
+							max="100"
+						/>
+						{#if editMode === 'chat'}
+							<span style="font-size: 0.7rem; color: #64748b; margin-top: 0.25rem; display: block;">Number of turns for chat</span>
+						{/if}
+					</div>
+					<div class="field field-small">
+						<label for="passThreshold">Threshold (%)</label>
+						<input
+							type="number"
+							id="passThreshold"
+							bind:value={editPassThreshold}
+							min="1"
+							max="100"
+						/>
+					</div>
 				</div>
 
 				<div class="modal-actions">
@@ -228,6 +418,9 @@
 					</button>
 				</div>
 			</form>
+			{#if assignmentError}
+				<p class="form-error">{assignmentError}</p>
+			{/if}
 		</div>
 	</div>
 {/if}
@@ -581,7 +774,7 @@
 
 	.modal-content {
 		width: 100%;
-		max-width: 500px;
+		max-width: 800px;
 		max-height: 90vh;
 		overflow-y: auto;
 		background: var(--card-bg, #ffffff);
@@ -643,6 +836,7 @@
 	}
 
 	.field input,
+	.field select,
 	.field textarea {
 		width: 100%;
 		padding: 0.7rem 1rem;
@@ -660,6 +854,7 @@
 	}
 
 	.field input:focus,
+	.field select:focus,
 	.field textarea:focus {
 		border-color: #22c55e;
 	}
@@ -722,4 +917,207 @@
 		opacity: 0.7;
 		cursor: not-allowed;
 	}
+
+	.create-form {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.create-form-row {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 1rem;
+	}
+
+	@media (min-width: 640px) {
+		.create-form-row {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
+
+	.create-form-bottom {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		align-items: stretch;
+	}
+
+	@media (min-width: 640px) {
+		.create-form-bottom {
+			flex-direction: row;
+			align-items: flex-end;
+		}
+		.create-form-bottom .field {
+			flex: 1;
+		}
+	}
+
+	.field-small {
+		max-width: 140px;
+	}
+
+	.vocab-input-container {
+		background-color: var(--input-bg, #ffffff);
+		border: 2px solid var(--card-border, #e5e7eb);
+		border-radius: 1rem;
+		padding: 0.5rem;
+		min-height: 44px;
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		transition: border-color 0.2s;
+	}
+
+	.vocab-input-container:focus-within {
+		border-color: #22c55e;
+	}
+
+	.vocab-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		width: 100%;
+	}
+
+	.vocab-tag {
+		background-color: #e0f2fe;
+		color: #0369a1;
+		padding: 0.25rem 0.5rem;
+		border-radius: 0.5rem;
+		font-size: 0.85rem;
+		font-weight: 700;
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+	}
+
+	.remove-vocab {
+		background: none;
+		border: none;
+		color: #0369a1;
+		cursor: pointer;
+		font-size: 1rem;
+		line-height: 1;
+		padding: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.remove-vocab:hover {
+		color: #0c4a6e;
+	}
+
+	.vocab-inline-input {
+		flex: 1;
+		min-width: 120px;
+		border: none !important;
+		padding: 0.25rem !important;
+		font-size: 0.95rem !important;
+		border-radius: 0 !important;
+		background: transparent !important;
+	}
+
+	.vocab-inline-input:focus {
+		box-shadow: none !important;
+	}
+
+	.grammar-rules-field {
+		margin-top: 1rem;
+	}
+
+	.grammar-rules-container {
+		border: 2px solid var(--card-border, #e5e7eb);
+		border-radius: 1rem;
+		overflow: hidden;
+		background: var(--input-bg, #ffffff);
+	}
+
+	.grammar-search {
+		padding: 0.5rem;
+		border-bottom: 1px solid var(--card-border, #e5e7eb);
+	}
+
+	.grammar-search-input {
+		width: 100%;
+		padding: 0.5rem 1rem !important;
+		border: 1px solid var(--card-border, #e5e7eb) !important;
+		border-radius: 0.5rem !important;
+		font-size: 0.85rem !important;
+	}
+
+	.grammar-rules-list {
+		max-height: 200px;
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.grammar-rule-item {
+		display: flex;
+		align-items: center;
+		padding: 0.75rem 1rem;
+		gap: 0.75rem;
+		cursor: pointer;
+		border-bottom: 1px solid #f1f5f9;
+		transition: background-color 0.15s;
+		margin: 0 !important;
+	}
+
+	.grammar-rule-item input[type='checkbox'] {
+		display: none;
+	}
+
+	.grammar-rule-item:last-child {
+		border-bottom: none;
+	}
+
+	.grammar-rule-item:hover {
+		background-color: #f8fafc;
+	}
+
+	.grammar-rule-item.selected {
+		background-color: #f0fdf4;
+	}
+
+	.grammar-rule-info {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		flex: 1;
+	}
+
+	.grammar-rule-title {
+		font-size: 0.9rem;
+		font-weight: 600;
+		color: #1e293b;
+	}
+
+	.grammar-rule-badge {
+		font-size: 0.65rem;
+		padding: 0.15rem 0.4rem;
+	}
+
+	.no-grammar-rules {
+		padding: 1rem;
+		text-align: center;
+		color: #64748b;
+		font-size: 0.85rem;
+		font-weight: 600;
+		margin: 0;
+	}
+
+	.form-error {
+		background-color: #fef2f2;
+		color: #ef4444;
+		font-weight: 700;
+		font-size: 0.875rem;
+		padding: 0.75rem 1rem;
+		border-radius: 0.75rem;
+		border: 2px solid #fecaca;
+		margin: 1rem 0 0;
+	}
+
 </style>

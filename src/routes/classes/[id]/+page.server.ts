@@ -51,8 +51,20 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		error(403, 'You are not a member of this class');
 	}
 
+	let languages: any[] = [];
+	if (currentUserMember.role === 'TEACHER') {
+		languages = await prisma.language.findMany({
+			include: {
+				grammarRules: {
+					orderBy: [{ level: 'asc' }, { title: 'asc' }]
+				}
+			}
+		});
+	}
+
 	return {
 		classDetails,
-		currentUserRole: currentUserMember.role
+		currentUserRole: currentUserMember.role,
+		languages
 	};
 };

@@ -31,11 +31,12 @@
 				body: JSON.stringify({
 					title: editTitle,
 					description: editDescription,
-					isPublished
+					isPublished: false // Always reset to draft when editing details
 				})
 			});
 			if (res.ok) {
-				toast.success('Game details updated!');
+				isPublished = false;
+				toast.success('Game details updated! Game set to Draft status.');
 				isEditingDetails = false;
 				await invalidateAll();
 			} else {
@@ -91,7 +92,7 @@
 		try {
 			const res = await fetch(`/api/games/${game.id}`, { method: 'DELETE' });
 			if (res.ok) {
-				window.location.href = '/classes/games';
+				window.location.href = '/play?tab=games';
 			} else {
 				toast.error('Failed to delete game');
 			}
@@ -120,7 +121,8 @@
 			});
 
 			if (res.ok) {
-				toast.success('Questions generated successfully!', { id: 'gen' });
+				isPublished = false; // Reset to draft when generating questions
+				toast.success('Questions generated! Game set to Draft status.', { id: 'gen' });
 				generateTopic = '';
 				await invalidateAll();
 			} else {
@@ -153,7 +155,8 @@
 			});
 
 			if (res.ok) {
-				toast.success('Question added!');
+				isPublished = false; // Reset to draft when adding a question
+				toast.success('Question added! Game set to Draft status.');
 				newQuestion = '';
 				newAnswer = '';
 				newOptions = ['', '', ''];
@@ -174,7 +177,8 @@
 				method: 'DELETE'
 			});
 			if (res.ok) {
-				toast.success('Question deleted');
+				isPublished = false; // Reset to draft when deleting a question
+				toast.success('Question deleted. Game set to Draft status.');
 				await invalidateAll();
 			} else {
 				toast.error('Failed to delete question');
@@ -188,7 +192,7 @@
 <div class="editor-container">
 	<div class="header-section">
 		<div>
-			<a href="/classes/games" class="back-link">
+			<a href="/play?tab=games" class="back-link">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
 				Back to Games
 			</a>

@@ -16,11 +16,11 @@ export const load = async ({ params, locals }) => {
 	});
 
 	if (!game) {
-		throw redirect(302, '/classes/games');
+		throw redirect(302, '/play?tab=games');
 	}
 
-	if (game.creatorId !== locals.user.id && locals.user.role !== 'ADMIN' && !game.isPublished) {
-		throw redirect(302, '/classes/games');
+	if (game.creatorId !== locals.user.id && locals.user.role !== 'ADMIN') {
+		throw redirect(302, '/play?tab=games');
 	}
 
 	return {

@@ -64,8 +64,17 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		error(404, 'Assignment not found');
 	}
 
+	const languages = await prisma.language.findMany({
+		include: {
+			grammarRules: {
+				orderBy: [{ level: 'asc' }, { title: 'asc' }]
+			}
+		}
+	});
+
 	return {
 		assignment,
-		classDetails
+		classDetails,
+		languages
 	};
 };

@@ -87,10 +87,46 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		throw redirect(302, '/onboarding');
 	}
 
+	const myGames = await prisma.game.findMany({
+		where: { creatorId: locals.user.id },
+		orderBy: { createdAt: 'desc' },
+		include: {
+			_count: { select: { questions: true } }
+		}
+	});
+
+	const communityGames = await prisma.game.findMany({
+		where: { isPublished: true },
+		orderBy: { createdAt: 'desc' },
+		include: {
+			_count: { select: { questions: true } },
+			creator: { select: { username: true } }
+		}
+	});
+
+	const teacherClasses = await prisma.class.findMany({
+		where: {
+			members: {
+				some: {
+					userId: locals.user.id,
+					role: 'TEACHER'
+				}
+			}
+		},
+		select: {
+			id: true,
+			name: true
+		}
+	});
+
 	return {
 		cefrLevel,
 		language: activeLanguage,
 		assignment,
-		assignmentScore
+		assignmentScore,
+		myGames,
+		communityGames,
+		teacherClasses,
+		userRole: locals.user.role
 	};
 };

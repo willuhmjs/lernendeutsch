@@ -7,7 +7,90 @@
 
 	export let data: PageData;
 
-	type GameMode = 'native-to-target' | 'target-to-native' | 'fill-blank' | 'multiple-choice';
+	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
+	let activeTab: 'learn' | 'games' = 'learn';
+
+	$: {
+		const tabParam = $page.url.searchParams.get('tab');
+		if (tabParam === 'games') {
+			activeTab = 'games';
+		} else if (tabParam === 'learn') {
+			activeTab = 'learn';
+		}
+	}
+	let myGames = data.myGames;
+	let communityGames = data.communityGames;
+	let teacherClasses = data.teacherClasses;
+
+	// Modal state for selecting a class
+	let showClassModal = false;
+	let selectedGameIdForLive: string | null = null;
+
+	// No longer dependent on classId in the URL
+	$: canPlayLive = data.userRole === 'ADMIN' || data.userRole === 'TEACHER';
+
+	async function startLiveSession(gameId: string, targetClassId: string) {
+		try {
+			const res = await fetch(`/api/classes/${targetClassId}/live-session`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ action: 'start', gameId })
+			});
+			if (res.ok) {
+				toast.success('Live session started! Students can now join.');
+				window.location.href = `/classes/${targetClassId}`;
+			} else {
+				const err = await res.json();
+				toast.error(err.error || 'Failed to start live session');
+			}
+		} catch (e) {
+			toast.error('An error occurred');
+		}
+	}
+
+	function handlePlayLive(gameId: string) {
+		if (teacherClasses.length === 0) {
+			toast.error('You need to create a class first.');
+			return;
+		}
+		
+		const urlClassId = $page.url.searchParams.get('classId');
+		if (urlClassId) {
+			startLiveSession(gameId, urlClassId);
+			return;
+		}
+
+		if (teacherClasses.length === 1) {
+			startLiveSession(gameId, teacherClasses[0].id);
+		} else {
+			selectedGameIdForLive = gameId;
+			showClassModal = true;
+		}
+	}
+
+	$: {
+		myGames = data.myGames;
+		communityGames = data.communityGames;
+	}
+
+	function getFlagEmoji(language: string) {
+		if (!language) return '🌍';
+		const lang = language.toLowerCase();
+		if (lang === 'german' || lang === 'de') return '🇩🇪';
+		if (lang === 'french' || lang === 'fr') return '🇫🇷';
+		if (lang === 'spanish' || lang === 'es') return '🇪🇸';
+		if (lang === 'english' || lang === 'en') return '🇺🇸';
+		if (lang === 'italian' || lang === 'it') return '🇮🇹';
+		if (lang === 'portuguese' || lang === 'pt') return '🇵🇹';
+		if (lang === 'russian' || lang === 'ru') return '🇷🇺';
+		if (lang === 'japanese' || lang === 'ja') return '🇯🇵';
+		if (lang === 'korean' || lang === 'ko') return '🇰🇷';
+		if (lang === 'chinese' || lang === 'zh') return '🇨🇳';
+		return '🌍';
+	}
+
+	type GameMode = 'native-to-target' | 'target-to-native' | 'fill-blank' | 'multiple-choice' | 'chat';
 
 	let englishFlag = '🇬🇧';
 
@@ -1111,7 +1194,17 @@
 
 	function calculateEloProgress(elo: number) {
 		const level = elo < 1050 ? 'LEARNING' : elo < 1150 ? 'KNOWN' : 'MASTERED';
-		return Math.max(0, Math.min(100, level === 'LEARNING' ? ((elo - 1000) / 50) * 100 : level === 'KNOWN' ? ((elo - 1050) / 100) * 100 : 100));
+		return Math.max(
+			0,
+			Math.min(
+				100,
+				level === 'LEARNING'
+					? ((elo - 1000) / 50) * 100
+					: level === 'KNOWN'
+						? ((elo - 1050) / 100) * 100
+						: 100
+			)
+		);
 	}
 
 	function getEloLevelClass(elo: number) {
@@ -1465,7 +1558,7 @@
 				console.error('Failed to parse final JSON', e);
 				throw new Error('Incomplete response from AI.');
 			}
-			
+
 			if (!challenge.challengeText || !challenge.targetSentence) {
 				throw new Error('AI failed to generate a complete challenge.');
 			}
@@ -1653,488 +1746,1077 @@ r<svelte:head>
 </svelte:head>
 
 <div class="page-container">
-	<div class="content-wrapper">
+	<div class="content-wrapper" class:games-active={activeTab === 'games'}>
 		<header class="page-header" in:fly={{ y: 20, duration: 400 }}>
 			<h1 class="dark:text-white">Play Mode</h1>
 			<p class="dark:text-slate-400">Test your skills with personalized challenges.</p>
 		</header>
 
-		<!-- Assignment context banner -->
-		{#if assignment && assignmentProgress}
-			<div
-				class="card card-duo assignment-banner {assignmentProgress.passed ? 'passed' : 'active'}"
-				in:fly={{ y: 20, duration: 400, delay: 100 }}
-			>
-				<div class="assignment-info">
-					<div class="assignment-icon">
-						{assignmentProgress.passed ? '🏆' : '📋'}
-					</div>
-					<div class="assignment-details">
-						<h2 class="assignment-title">{assignment.title}</h2>
-						<div class="assignment-meta">
-							<span class="meta-badge">{assignment.class?.name ?? 'Class'}</span>
-							<span class="meta-badge gamemode">{assignment.gamemode.replace(/-/g, ' ')}</span>
-							<span class="meta-badge language">
-								{assignment.language === 'international'
-									? '🌍 International'
-									: `${data.language?.flag || '🏁'} ${data.language?.name || 'Target'}`}
-							</span>
-						</div>
-					</div>
-				</div>
-				<div class="assignment-actions">
-					<div class="progress-box">
-						<p class="progress-label">Progress</p>
-						<p class="progress-value {assignmentProgress.passed ? 'passed' : 'active'}">
-							{assignmentProgress.score}<span class="progress-target"
-								>/{assignmentProgress.targetScore}</span
-							>
-						</p>
-					</div>
-					<a href="/classes/{assignment.classId}" class="btn-duo btn-secondary back-btn">
-						Back to Class
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="16"
-							height="16"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg
-						>
-					</a>
-				</div>
-			</div>
-		{/if}
-
-		{#if !challenge && !loading}
-			<div
-				class="card card-duo empty-state dark:bg-slate-800 dark:border-slate-700"
-				in:fly={{ y: 20, duration: 400 }}
-			>
-				<h2 class="dark:text-white">Ready to test your skills?</h2>
-
-				{#if isAbsoluteBeginner}
-					<div class="beginner-tip dark:bg-slate-900 dark:border-slate-700 dark:text-emerald-400">
-						<span class="tip-icon">💡</span>
-						<div>
-							<strong class="dark:text-emerald-300">Tip for beginners:</strong> Start with
-							<strong>Multiple Choice</strong>
-							or <strong>{data.language?.name || 'Target'} to English</strong> — these let you
-							recognize words before producing them. Once you feel confident, try
-							<strong>Fill in the Blank</strong>
-							and <strong>English to {data.language?.name || 'Target'}</strong>!
-						</div>
-					</div>
-				{/if}
-
-				<div class="mode-selector">
-					<span class="mode-label dark:text-slate-400">Game Mode:</span>
-					{#if assignment}
-						<p class="font-bold text-blue-600 dark:text-blue-400 capitalize">
-							{assignment.gamemode.replace(/-/g, ' ')}
-							<span class="text-gray-400 dark:text-gray-500 font-normal text-sm"
-								>(set by assignment)</span
-							>
-						</p>
-					{:else}
-						<div class="mode-buttons">
-							<!-- Easiest first -->
-							<button
-								class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700"
-								class:active={gameMode === 'multiple-choice'}
-								on:click={() => (gameMode = 'multiple-choice')}
-							>
-								🔘 Multiple Choice
-								<span class="mode-difficulty easy">Easiest</span>
-							</button>
-							<button
-								class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700"
-								class:active={gameMode === 'target-to-native'}
-								on:click={() => (gameMode = 'target-to-native')}
-							>
-								{data.language?.flag || '🏁'} → {englishFlag}
-								{data.language?.name || 'Target'} to English
-								<span class="mode-difficulty easy">Easy</span>
-							</button>
-							<button
-								class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700"
-								class:active={gameMode === 'fill-blank'}
-								on:click={() => (gameMode = 'fill-blank')}
-							>
-								✏️ Fill in the Blank
-								<span class="mode-difficulty medium">Medium</span>
-							</button>
-							<button
-								class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700"
-								class:active={gameMode === 'native-to-target'}
-								on:click={() => (gameMode = 'native-to-target')}
-							>
-								{englishFlag} → {data.language?.flag || '🏁'} English to {data.language?.name ||
-									'Target'}
-								<span class="mode-difficulty hard">Hardest</span>
-							</button>
-						</div>
-					{/if}
-				</div>
+		<div class="tabs-container" in:fly={{ y: 20, duration: 400 }}>
+			<div class="tabs">
 				<button
-					on:click={generateChallenge}
-					class="btn-duo btn-primary"
-					style="margin-top: 1.5rem; width: 100%;"
+					class="tab-btn"
+					class:active={activeTab === 'learn'}
+					on:click={() => (activeTab = 'learn')}
 				>
-					Generate Next Challenge
+					Learn
+				</button>
+				<button
+					class="tab-btn"
+					class:active={activeTab === 'games'}
+					on:click={() => (activeTab = 'games')}
+				>
+					Games
 				</button>
 			</div>
-		{/if}
+		</div>
 
-		{#if loading}
-			<div
-				class="card card-duo loading-state dark:bg-slate-800 dark:border-slate-700"
-				in:fade={{ duration: 300 }}
-			>
-				<div class="spinner"></div>
-				<div class="load-progress-track dark:bg-slate-700">
-					<div class="load-progress-fill" style="width: {loadProgressPct}%"></div>
-				</div>
-				<div class="load-tip-container">
-					{#key loadTipIndex}
-						<p
-							class="load-tip dark:text-slate-400"
-							in:fade={{ duration: 350, delay: 50 }}
-							out:fade={{ duration: 300 }}
-						>
-							{loadingTips[loadTipIndex]}
-						</p>
-					{/key}
-				</div>
-			</div>
-		{/if}
-
-		{#if challenge && !loading}
-			<div
-				class="card card-duo challenge-card dark:bg-slate-800 dark:border-slate-700"
-				in:fly={{ y: 20, duration: 400 }}
-			>
-				<div class="challenge-section">
-					{#if challenge.gameMode === 'fill-blank'}
-						<h3 class="dark:text-slate-400">Fill in the blanks:</h3>
-					{:else if challenge.gameMode === 'multiple-choice'}
-						<h3 class="dark:text-slate-400">Choose the correct English translation:</h3>
-					{:else if challenge.gameMode === 'target-to-native'}
-						<h3 class="dark:text-slate-400">Translate this to English:</h3>
-					{:else}
-						<h3 class="dark:text-slate-400">
-							Translate this to {data.language?.name || 'Target'}:
-						</h3>
-					{/if}
-					<p class="challenge-text dark:text-white">{@html parsedChallengeText}</p>
-				</div>
-
-				{#if challenge.gameMode === 'fill-blank' && challenge.hints?.length > 0}
-					<div class="challenge-section">
-						<h3 class="dark:text-slate-400">Hints:</h3>
-						<ul class="hint-list">
-							{#each challenge.hints as hint, i}
-								<li class="dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300">
-									<span class="hint-number">Blank {i + 1}:</span>
-									{hint.hint}
-								</li>
-							{/each}
-						</ul>
-					</div>
-				{/if}
-
-				<div class="challenge-section">
-					<h3 class="dark:text-slate-400">Grammar Reference:</h3>
-					{#if isStreaming}
-						<div class="ai-magic-loader">
-							<span class="sparkle">✨</span>
-							<span class="dark:text-slate-400 italic"
-								>AI is analyzing grammar & generating tooltips...</span
-							>
+		{#if activeTab === 'learn'}
+			<div class="learn-container">
+			<!-- Assignment context banner -->
+			{#if assignment && assignmentProgress}
+				<div
+					class="card card-duo assignment-banner {assignmentProgress.passed ? 'passed' : 'active'}"
+					in:fly={{ y: 20, duration: 400, delay: 100 }}
+				>
+					<div class="assignment-info">
+						<div class="assignment-icon">
+							{assignmentProgress.passed ? '🏆' : '📋'}
 						</div>
-					{:else if challenge.targetedGrammar?.length > 0}
-						<ul class="concept-list">
-							{#each challenge.targetedGrammar as grammar}
-								<li class="dark:text-slate-300 grammar-item">
-									<div class="grammar-header">
-										<span class="concept-type dark:bg-slate-700 dark:text-slate-300">Grammar</span>
-										<span class="grammar-title">{grammar.title}</span>
-										{#if grammar.guide}
+						<div class="assignment-details">
+							<h2 class="assignment-title">{assignment.title}</h2>
+							<div class="assignment-meta">
+								<span class="meta-badge">{assignment.class?.name ?? 'Class'}</span>
+								<span class="meta-badge gamemode">{assignment.gamemode.replace(/-/g, ' ')}</span>
+								<span class="meta-badge language">
+									{assignment.language === 'international'
+										? '🌍 International'
+										: `${data.language?.flag || '🏁'} ${data.language?.name || 'Target'}`}
+								</span>
+							</div>
+						</div>
+					</div>
+					<div class="assignment-actions">
+						<div class="progress-box">
+							<p class="progress-label">Progress</p>
+							<p class="progress-value {assignmentProgress.passed ? 'passed' : 'active'}">
+								{assignmentProgress.score}<span class="progress-target"
+									>/{assignmentProgress.targetScore}</span
+								>
+							</p>
+						</div>
+						<a href="/classes/{assignment.classId}" class="btn-duo btn-secondary back-btn">
+							Back to Class
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="16"
+								height="16"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg
+							>
+						</a>
+					</div>
+				</div>
+			{/if}
+
+			{#if !challenge && !loading}
+				<div
+					class="card card-duo empty-state dark:bg-slate-800 dark:border-slate-700"
+					in:fly={{ y: 20, duration: 400 }}
+				>
+					<h2 class="dark:text-white">Ready to test your skills?</h2>
+
+					{#if isAbsoluteBeginner}
+						<div class="beginner-tip dark:bg-slate-900 dark:border-slate-700 dark:text-emerald-400">
+							<span class="tip-icon">💡</span>
+							<div>
+								<strong class="dark:text-emerald-300">Tip for beginners:</strong> Start with
+								<strong>Multiple Choice</strong>
+								or <strong>{data.language?.name || 'Target'} to English</strong> — these let you
+								recognize words before producing them. Once you feel confident, try
+								<strong>Fill in the Blank</strong>
+								and <strong>English to {data.language?.name || 'Target'}</strong>!
+							</div>
+						</div>
+					{/if}
+
+					<div class="mode-selector">
+						<span class="mode-label dark:text-slate-400">Game Mode:</span>
+						{#if assignment}
+							<p class="font-bold text-blue-600 dark:text-blue-400 capitalize">
+								{assignment.gamemode.replace(/-/g, ' ')}
+								<span class="text-gray-400 dark:text-gray-500 font-normal text-sm"
+									>(set by assignment)</span
+								>
+							</p>
+						{:else}
+							<div class="mode-buttons">
+								<!-- Easiest first -->
+								<button
+									class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700"
+									class:active={gameMode === 'multiple-choice'}
+									on:click={() => (gameMode = 'multiple-choice')}
+								>
+									🔘 Multiple Choice
+									<span class="mode-difficulty easy">Easiest</span>
+								</button>
+								<button
+									class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700"
+									class:active={gameMode === 'target-to-native'}
+									on:click={() => (gameMode = 'target-to-native')}
+								>
+									{data.language?.flag || '🏁'} → {englishFlag}
+									{data.language?.name || 'Target'} to English
+									<span class="mode-difficulty easy">Easy</span>
+								</button>
+								<button
+									class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700"
+									class:active={gameMode === 'fill-blank'}
+									on:click={() => (gameMode = 'fill-blank')}
+								>
+									✏️ Fill in the Blank
+									<span class="mode-difficulty medium">Medium</span>
+								</button>
+								<button
+									class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700"
+									class:active={gameMode === 'native-to-target'}
+									on:click={() => (gameMode = 'native-to-target')}
+								>
+									{englishFlag} → {data.language?.flag || '🏁'} English to {data.language?.name ||
+										'Target'}
+									<span class="mode-difficulty hard">Hardest</span>
+								</button>
+								<button
+									class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700"
+									class:active={gameMode === 'chat'}
+									on:click={() => (gameMode = 'chat')}
+									style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 28rem;"
+								>
+									💬 AI Chat Practice
+									<span class="mode-difficulty medium">Conversational</span>
+								</button>
+							</div>
+						{/if}
+					</div>
+					<button
+						on:click={() => gameMode === 'chat' ? goto('/play/chat') : generateChallenge()}
+						class="btn-duo btn-primary"
+						style="margin-top: 1.5rem; width: 100%;"
+					>
+						{gameMode === 'chat' ? 'Start Chat Session' : 'Generate Next Challenge'}
+					</button>
+				</div>
+			{/if}
+
+			{#if loading}
+				<div
+					class="card card-duo loading-state dark:bg-slate-800 dark:border-slate-700"
+					in:fade={{ duration: 300 }}
+				>
+					<div class="spinner"></div>
+					<div class="load-progress-track dark:bg-slate-700">
+						<div class="load-progress-fill" style="width: {loadProgressPct}%"></div>
+					</div>
+					<div class="load-tip-container">
+						{#key loadTipIndex}
+							<p
+								class="load-tip dark:text-slate-400"
+								in:fade={{ duration: 350, delay: 50 }}
+								out:fade={{ duration: 300 }}
+							>
+								{loadingTips[loadTipIndex]}
+							</p>
+						{/key}
+					</div>
+				</div>
+			{/if}
+
+			{#if challenge && !loading}
+				<div
+					class="card card-duo challenge-card dark:bg-slate-800 dark:border-slate-700"
+					in:fly={{ y: 20, duration: 400 }}
+				>
+					<div class="challenge-section">
+						{#if challenge.gameMode === 'fill-blank'}
+							<h3 class="dark:text-slate-400">Fill in the blanks:</h3>
+						{:else if challenge.gameMode === 'multiple-choice'}
+							<h3 class="dark:text-slate-400">Choose the correct English translation:</h3>
+						{:else if challenge.gameMode === 'target-to-native'}
+							<h3 class="dark:text-slate-400">Translate this to English:</h3>
+						{:else}
+							<h3 class="dark:text-slate-400">
+								Translate this to {data.language?.name || 'Target'}:
+							</h3>
+						{/if}
+						<p class="challenge-text dark:text-white">{@html parsedChallengeText}</p>
+					</div>
+
+					{#if challenge.gameMode === 'fill-blank' && challenge.hints?.length > 0}
+						<div class="challenge-section">
+							<h3 class="dark:text-slate-400">Hints:</h3>
+							<ul class="hint-list">
+								{#each challenge.hints as hint, i}
+									<li class="dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300">
+										<span class="hint-number">Blank {i + 1}:</span>
+										{hint.hint}
+									</li>
+								{/each}
+							</ul>
+						</div>
+					{/if}
+
+					<div class="challenge-section">
+						<h3 class="dark:text-slate-400">Grammar Reference:</h3>
+						{#if isStreaming}
+							<div class="ai-magic-loader">
+								<span class="sparkle">✨</span>
+								<span class="dark:text-slate-400 italic"
+									>AI is analyzing grammar & generating tooltips...</span
+								>
+							</div>
+						{:else if challenge.targetedGrammar?.length > 0}
+							<ul class="concept-list">
+								{#each challenge.targetedGrammar as grammar}
+									<li class="dark:text-slate-300 grammar-item">
+										<div class="grammar-header">
+											<span class="concept-type dark:bg-slate-700 dark:text-slate-300">Grammar</span
+											>
+											<span class="grammar-title">{grammar.title}</span>
+											{#if grammar.guide}
+												<button
+													type="button"
+													class="guide-toggle-btn dark:text-slate-400 dark:hover:text-slate-200"
+													on:click={() => toggleGrammar(grammar.id)}
+												>
+													{expandedGrammarId === grammar.id ? 'Hide Guide' : 'Show Guide'}
+												</button>
+											{/if}
+										</div>
+										{#if grammar.guide && expandedGrammarId === grammar.id}
+											<div
+												class="grammar-guide markdown-body dark:bg-slate-900 dark:border-slate-700"
+												transition:fly={{ y: -5, duration: 200 }}
+											>
+												{@html marked(grammar.guide)}
+											</div>
+										{/if}
+									</li>
+								{/each}
+							</ul>
+						{:else}
+							<p class="dark:text-slate-400 italic">None found</p>
+						{/if}
+					</div>
+
+					<form on:submit|preventDefault={submitAnswer} class="answer-form">
+						{#if challenge.gameMode === 'fill-blank'}
+							<div class="fill-blank-inputs">
+								{#each fillBlankAnswers as _, i}
+									<div class="form-group">
+										<label for="blank-{i}" class="dark:text-slate-300"
+											>Blank {i + 1}{challenge.hints?.[i]
+												? ` (${challenge.hints[i].hint})`
+												: ''}</label
+										>
+										<input
+											id="blank-{i}"
+											type="text"
+											bind:value={fillBlankAnswers[i]}
+											disabled={submitting || feedback !== null || loading}
+											placeholder="Type the missing {data.language?.name || 'Target'} word..."
+											class="blank-input dark:bg-slate-900 dark:text-white dark:border-slate-700"
+										/>
+									</div>
+								{/each}
+							</div>
+						{:else if challenge.gameMode === 'multiple-choice'}
+							<div class="mc-choices">
+								{#each shuffledChoices as choice}
+									<button
+										type="button"
+										class="mc-choice-btn dark:bg-slate-900 dark:text-slate-200 dark:border-slate-700"
+										class:selected={selectedChoice === choice}
+										class:correct={(feedback || hasSubmittedMc) &&
+											choice === challenge.targetSentence}
+										class:incorrect={(feedback || hasSubmittedMc) &&
+											selectedChoice === choice &&
+											choice !== challenge.targetSentence}
+										disabled={submitting || feedback !== null || loading || hasSubmittedMc}
+										on:click={() => {
+											selectedChoice = choice;
+											submitAnswer();
+										}}
+									>
+										{choice.replace(/<vocab[^>]*>/g, '').replace(/<\/vocab>/g, '')}
+									</button>
+								{/each}
+							</div>
+						{:else}
+							<div class="form-group">
+								<label for="answer" class="dark:text-slate-300">Your Translation</label>
+								<textarea
+									id="answer"
+									bind:value={userInput}
+									disabled={submitting || feedback || loading}
+									rows="3"
+									placeholder={loading
+										? 'Generating challenge...'
+										: challenge?.gameMode === 'target-to-native'
+											? 'Type your English translation here...'
+											: `Type your ${data.language?.name || 'Target'} translation here... (Or ask for help / translation in English)`}
+									class="dark:bg-slate-900 dark:text-white dark:border-slate-700"
+								></textarea>
+							</div>
+						{/if}
+
+						{#if !feedback}
+							{#if challenge.gameMode !== 'multiple-choice'}
+								<button
+									type="submit"
+									disabled={submitting ||
+										!challenge?.targetSentence ||
+										(challenge.gameMode === 'fill-blank'
+											? fillBlankAnswers.length === 0 || fillBlankAnswers.some((a) => !a.trim())
+											: challenge.gameMode === 'multiple-choice'
+												? !selectedChoice
+												: !userInput.trim())}
+									class="btn-duo btn-primary submit-btn"
+									style="margin-top: 1.5rem; width: 100%;"
+								>
+									{submitting ? 'Evaluating...' : 'Submit Answer'}
+								</button>
+							{/if}
+						{/if}
+					</form>
+				</div>
+			{/if}
+
+			{#if submitting}
+				<div class="card card-duo loading-state" in:fly={{ y: 20, duration: 400 }}>
+					<div class="spinner"></div>
+					<p>Evaluating your answer...</p>
+				</div>
+			{/if}
+
+			{#if feedback}
+				<div
+					class="card card-duo feedback-card dark:bg-slate-800 dark:border-slate-700"
+					in:fly={{ y: 20, duration: 400 }}
+				>
+					<div class="feedback-header">
+						<h2 class="dark:text-white">Feedback</h2>
+						{#if feedback.feedbackEnglish}
+							<label class="toggle-container">
+								<input type="checkbox" bind:checked={showEnglishFeedback} />
+								<span class="toggle-label dark:text-slate-400">Translate to English</span>
+							</label>
+						{/if}
+						<div class="score-display">
+							<span class="score-label dark:text-slate-400">Score:</span>
+							{#if feedback.globalScore === null}
+								<div class="score-spinner"></div>
+							{:else}
+								<span
+									class="score-value"
+									class:excellent={feedback.globalScore > 0.8}
+									class:good={feedback.globalScore <= 0.8 && feedback.globalScore > 0.5}
+									class:needs-work={feedback.globalScore <= 0.5}
+								>
+									{Math.round(feedback.globalScore * 100)}%
+								</span>
+							{/if}
+						</div>
+					</div>
+
+					<div class="feedback-message dark:bg-slate-900 dark:border-blue-900 dark:text-blue-300">
+						<p>
+							{showEnglishFeedback && feedback.feedbackEnglish
+								? feedback.feedbackEnglish
+								: feedback.feedback}
+						</p>
+					</div>
+
+					<div class="feedback-section">
+						<h3 class="dark:text-slate-400">Expected Answer:</h3>
+						<div class="expected-answer dark:bg-slate-900 dark:border-emerald-900">
+							<p class="dark:text-emerald-400">{@html parsedTargetSentence}</p>
+						</div>
+					</div>
+
+					<div class="feedback-grid">
+						{#if feedback.vocabularyUpdates?.length > 0}
+							<div class="feedback-list-section">
+								<h3 class="dark:text-slate-400">Vocabulary Used</h3>
+								<ul>
+									{#each feedback.vocabularyUpdates as update}
+										{@const v = challenge.targetedVocabulary.find((v: any) => v.id === update.id)}
+										<li class="dark:text-slate-300">
+											<span class="icon">{(update.score ?? 0) >= 0.5 ? '✅' : '❌'}</span>
+											<div class="item-info">
+												<div class="item-row">
+													<span class="item-label">
+														{#if v}
+															{[genderToArticle(v.gender), v.lemma].filter(Boolean).join('\u00A0') +
+																(v.plural ? '\u00A0(pl: ' + v.plural + ')' : '')}
+														{:else}
+															{update.id}
+														{/if}
+													</span>
+													<span class="elo-display dark:bg-slate-900 dark:text-slate-400">
+														ELO {Math.round(
+															showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000)
+														)}
+														{#if showAfterElo && update.eloAfter !== update.eloBefore}
+															{@const delta = Math.round(update.eloAfter - update.eloBefore)}
+															<span
+																class="elo-delta"
+																class:positive={delta > 0}
+																class:negative={delta < 0}
+															>
+																{delta > 0 ? '+' : ''}{delta}
+															</span>
+														{/if}
+													</span>
+												</div>
+												<div class="progress-bar-container dark:bg-slate-700 dark:border-slate-600">
+													<div
+														class="progress-bar-fill {getEloLevelClass(
+															showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000)
+														)}"
+														style="width: {calculateEloProgress(
+															showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000)
+														)}%"
+													></div>
+												</div>
+											</div>
+										</li>
+									{/each}
+								</ul>
+							</div>
+						{/if}
+
+						{#if feedback.grammarUpdates?.length > 0}
+							<div class="feedback-list-section">
+								<h3 class="dark:text-slate-400">Grammar Rules Followed</h3>
+								<ul>
+									{#each feedback.grammarUpdates as update}
+										<li class="dark:text-slate-300">
+											<span class="icon">{(update.score ?? 0) >= 0.5 ? '✅' : '❌'}</span>
+											<div class="item-info">
+												<div class="item-row">
+													<span class="item-label">
+														{challenge.targetedGrammar.find((g: any) => g.id === update.id)
+															?.title || update.id}
+													</span>
+													<span class="elo-display dark:bg-slate-900 dark:text-slate-400">
+														ELO {Math.round(
+															showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000)
+														)}
+														{#if showAfterElo && update.eloAfter !== update.eloBefore}
+															{@const delta = Math.round(update.eloAfter - update.eloBefore)}
+															<span
+																class="elo-delta"
+																class:positive={delta > 0}
+																class:negative={delta < 0}
+															>
+																{delta > 0 ? '+' : ''}{delta}
+															</span>
+														{/if}
+													</span>
+												</div>
+												<div class="progress-bar-container dark:bg-slate-700 dark:border-slate-600">
+													<div
+														class="progress-bar-fill {getEloLevelClass(
+															showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000)
+														)}"
+														style="width: {calculateEloProgress(
+															showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000)
+														)}%"
+													></div>
+												</div>
+											</div>
+										</li>
+									{/each}
+								</ul>
+							</div>
+						{/if}
+					</div>
+
+					<button
+						on:click={generateChallenge}
+						class="btn-duo btn-primary next-btn"
+						style="margin-top: 1.5rem; width: 100%;"
+					>
+						Next Challenge
+					</button>
+				</div>
+			{/if}
+			</div>
+		{:else}
+			<div class="games-wrapper" in:fly={{ y: 20, duration: 400, delay: 100 }}>
+				<div class="header-section">
+					<h2>Games Gallery</h2>
+					<a href="/play/games/create" class="btn-primary create-btn"> + Create Game </a>
+				</div>
+
+				<div class="games-section">
+					<h2>
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+							/>
+						</svg>
+						My Games
+					</h2>
+
+					{#if myGames.length === 0}
+						<div class="empty-state">
+							<p>You haven't created any games yet.</p>
+							<a href="/play/games/create" class="link">Create your first game</a>
+						</div>
+					{:else}
+						<div class="games-grid">
+							{#each myGames as game}
+								<div class="card-duo game-card">
+									<div class="game-card-content">
+										<div class="game-card-header">
+											<h3>{game.title}</h3>
+											<span class="language-badge" title={game.language}>
+												{getFlagEmoji(game.language)}
+											</span>
+										</div>
+										<p class="game-description">
+											{game.description || 'No description provided.'}
+										</p>
+										<div class="game-meta">
+											<span>
+												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+													><path
+														stroke-linecap="round"
+														stroke-linejoin="round"
+														stroke-width="2"
+														d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+													/></svg
+												>
+												{game._count.questions} questions
+											</span>
+											<span>
+												{#if game.isPublished}
+													<span class="status-published"
+														><span class="status-dot published-dot"></span> Published</span
+													>
+												{:else}
+													<span class="status-draft"
+														><span class="status-dot draft-dot"></span> Draft</span
+													>
+												{/if}
+											</span>
+										</div>
+									</div>
+									<div class="game-actions">
+										{#if canPlayLive}
 											<button
 												type="button"
-												class="guide-toggle-btn dark:text-slate-400 dark:hover:text-slate-200"
-												on:click={() => toggleGrammar(grammar.id)}
+												class="btn-action live-btn"
+												on:click={() => handlePlayLive(game.id)}
 											>
-												{expandedGrammarId === grammar.id ? 'Hide Guide' : 'Show Guide'}
+												Play Live
 											</button>
 										{/if}
+										<a href="/play/games/{game.id}/play" class="btn-action"> Play </a>
+										<a href="/play/games/{game.id}/edit" class="btn-action"> Edit </a>
 									</div>
-									{#if grammar.guide && expandedGrammarId === grammar.id}
-										<div
-											class="grammar-guide markdown-body dark:bg-slate-900 dark:border-slate-700"
-											transition:fly={{ y: -5, duration: 200 }}
-										>
-											{@html marked(grammar.guide)}
-										</div>
-									{/if}
-								</li>
-							{/each}
-						</ul>
-					{:else}
-						<p class="dark:text-slate-400 italic">None found</p>
-					{/if}
-				</div>
-
-				<form on:submit|preventDefault={submitAnswer} class="answer-form">
-					{#if challenge.gameMode === 'fill-blank'}
-						<div class="fill-blank-inputs">
-							{#each fillBlankAnswers as _, i}
-								<div class="form-group">
-									<label for="blank-{i}" class="dark:text-slate-300"
-										>Blank {i + 1}{challenge.hints?.[i]
-											? ` (${challenge.hints[i].hint})`
-											: ''}</label
-									>
-									<input
-										id="blank-{i}"
-										type="text"
-										bind:value={fillBlankAnswers[i]}
-										disabled={submitting || feedback !== null || loading}
-										placeholder="Type the missing {data.language?.name || 'Target'} word..."
-										class="blank-input dark:bg-slate-900 dark:text-white dark:border-slate-700"
-									/>
 								</div>
 							{/each}
 						</div>
-					{:else if challenge.gameMode === 'multiple-choice'}
-						<div class="mc-choices">
-							{#each shuffledChoices as choice}
-								<button
-									type="button"
-									class="mc-choice-btn dark:bg-slate-900 dark:text-slate-200 dark:border-slate-700"
-									class:selected={selectedChoice === choice}
-									class:correct={(feedback || hasSubmittedMc) &&
-										choice === challenge.targetSentence}
-									class:incorrect={(feedback || hasSubmittedMc) &&
-										selectedChoice === choice &&
-										choice !== challenge.targetSentence}
-									disabled={submitting || feedback !== null || loading || hasSubmittedMc}
-									on:click={() => {
-										selectedChoice = choice;
-										submitAnswer();
-									}}
-								>
-									{choice.replace(/<vocab[^>]*>/g, '').replace(/<\/vocab>/g, '')}
-								</button>
-							{/each}
+					{/if}
+				</div>
+
+				<div class="games-section">
+					<h2>
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
+							/>
+						</svg>
+						Community Games
+					</h2>
+
+					{#if communityGames.length === 0}
+						<div class="empty-state">
+							<p>No community games available right now.</p>
 						</div>
 					{:else}
-						<div class="form-group">
-							<label for="answer" class="dark:text-slate-300">Your Translation</label>
-							<textarea
-								id="answer"
-								bind:value={userInput}
-								disabled={submitting || feedback || loading}
-								rows="3"
-								placeholder={loading
-									? 'Generating challenge...'
-									: challenge?.gameMode === 'target-to-native'
-										? 'Type your English translation here...'
-										: `Type your ${data.language?.name || 'Target'} translation here... (Or ask for help / translation in English)`}
-								class="dark:bg-slate-900 dark:text-white dark:border-slate-700"
-							></textarea>
-						</div>
-					{/if}
-
-					{#if !feedback}
-						{#if challenge.gameMode !== 'multiple-choice'}
-							<button
-								type="submit"
-								disabled={submitting ||
-									!challenge?.targetSentence ||
-									(challenge.gameMode === 'fill-blank'
-										? fillBlankAnswers.length === 0 || fillBlankAnswers.some((a) => !a.trim())
-										: challenge.gameMode === 'multiple-choice'
-											? !selectedChoice
-											: !userInput.trim())}
-								class="btn-duo btn-primary submit-btn"
-								style="margin-top: 1.5rem; width: 100%;"
-							>
-								{submitting ? 'Evaluating...' : 'Submit Answer'}
-							</button>
-						{/if}
-					{/if}
-				</form>
-			</div>
-		{/if}
-
-		{#if submitting}
-			<div class="card card-duo loading-state" in:fly={{ y: 20, duration: 400 }}>
-				<div class="spinner"></div>
-				<p>Evaluating your answer...</p>
-			</div>
-		{/if}
-
-		{#if feedback}
-			<div
-				class="card card-duo feedback-card dark:bg-slate-800 dark:border-slate-700"
-				in:fly={{ y: 20, duration: 400 }}
-			>
-				<div class="feedback-header">
-					<h2 class="dark:text-white">Feedback</h2>
-					{#if feedback.feedbackEnglish}
-						<label class="toggle-container">
-							<input type="checkbox" bind:checked={showEnglishFeedback} />
-							<span class="toggle-label dark:text-slate-400">Translate to English</span>
-						</label>
-					{/if}
-					<div class="score-display">
-						<span class="score-label dark:text-slate-400">Score:</span>
-						{#if feedback.globalScore === null}
-							<div class="score-spinner"></div>
-						{:else}
-							<span
-								class="score-value"
-								class:excellent={feedback.globalScore > 0.8}
-								class:good={feedback.globalScore <= 0.8 && feedback.globalScore > 0.5}
-								class:needs-work={feedback.globalScore <= 0.5}
-							>
-								{Math.round(feedback.globalScore * 100)}%
-							</span>
-						{/if}
-					</div>
-				</div>
-
-				<div class="feedback-message dark:bg-slate-900 dark:border-blue-900 dark:text-blue-300">
-					<p>
-						{showEnglishFeedback && feedback.feedbackEnglish
-							? feedback.feedbackEnglish
-							: feedback.feedback}
-					</p>
-				</div>
-
-				<div class="feedback-section">
-					<h3 class="dark:text-slate-400">Expected Answer:</h3>
-					<div class="expected-answer dark:bg-slate-900 dark:border-emerald-900">
-						<p class="dark:text-emerald-400">{@html parsedTargetSentence}</p>
-					</div>
-				</div>
-
-				<div class="feedback-grid">
-					{#if feedback.vocabularyUpdates?.length > 0}
-						<div class="feedback-list-section">
-							<h3 class="dark:text-slate-400">Vocabulary Used</h3>
-							<ul>
-								{#each feedback.vocabularyUpdates as update}
-									{@const v = challenge.targetedVocabulary.find((v: any) => v.id === update.id)}
-									<li class="dark:text-slate-300">
-										<span class="icon">{(update.score ?? 0) >= 0.5 ? '✅' : '❌'}</span>
-										<div class="item-info">
-											<div class="item-row">
-												<span class="item-label">
-													{#if v}
-														{[genderToArticle(v.gender), v.lemma].filter(Boolean).join('\u00A0') +
-															(v.plural ? '\u00A0(pl: ' + v.plural + ')' : '')}
-													{:else}
-														{update.id}
-													{/if}
-												</span>
-												<span class="elo-display dark:bg-slate-900 dark:text-slate-400">
-													ELO {Math.round(
-														showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000)
-													)}
-													{#if showAfterElo && update.eloAfter !== update.eloBefore}
-														{@const delta = Math.round(update.eloAfter - update.eloBefore)}
-														<span
-															class="elo-delta"
-															class:positive={delta > 0}
-															class:negative={delta < 0}
-														>
-															{delta > 0 ? '+' : ''}{delta}
-														</span>
-													{/if}
-												</span>
-											</div>
-											<div class="progress-bar-container dark:bg-slate-700 dark:border-slate-600">
-												<div
-													class="progress-bar-fill {getEloLevelClass(
-														showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000)
-													)}"
-													style="width: {calculateEloProgress(
-														showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000)
-													)}%"
-												></div>
-											</div>
+						<div class="games-grid">
+							{#each communityGames as game}
+								<div class="card-duo game-card">
+									<div class="game-card-content">
+										<div class="game-card-header">
+											<h3>{game.title}</h3>
+											<span class="language-badge" title={game.language}>
+												{getFlagEmoji(game.language)}
+											</span>
 										</div>
-									</li>
-								{/each}
-							</ul>
-						</div>
-					{/if}
-
-					{#if feedback.grammarUpdates?.length > 0}
-						<div class="feedback-list-section">
-							<h3 class="dark:text-slate-400">Grammar Rules Followed</h3>
-							<ul>
-								{#each feedback.grammarUpdates as update}
-									<li class="dark:text-slate-300">
-										<span class="icon">{(update.score ?? 0) >= 0.5 ? '✅' : '❌'}</span>
-										<div class="item-info">
-											<div class="item-row">
-												<span class="item-label">
-													{challenge.targetedGrammar.find((g: any) => g.id === update.id)?.title ||
-														update.id}
-												</span>
-												<span class="elo-display dark:bg-slate-900 dark:text-slate-400">
-													ELO {Math.round(
-														showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000)
-													)}
-													{#if showAfterElo && update.eloAfter !== update.eloBefore}
-														{@const delta = Math.round(update.eloAfter - update.eloBefore)}
-														<span
-															class="elo-delta"
-															class:positive={delta > 0}
-															class:negative={delta < 0}
-														>
-															{delta > 0 ? '+' : ''}{delta}
-														</span>
-													{/if}
-												</span>
-											</div>
-											<div class="progress-bar-container dark:bg-slate-700 dark:border-slate-600">
-												<div
-													class="progress-bar-fill {getEloLevelClass(
-														showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000)
-													)}"
-													style="width: {calculateEloProgress(
-														showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000)
-													)}%"
-												></div>
-											</div>
+										<p class="game-author">by {game.creator?.username || 'Unknown'}</p>
+										<p class="game-description">
+											{game.description || 'No description provided.'}
+										</p>
+										<div class="game-meta">
+											<span>
+												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+													><path
+														stroke-linecap="round"
+														stroke-linejoin="round"
+														stroke-width="2"
+														d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+													/></svg
+												>
+												{game._count.questions} questions
+											</span>
 										</div>
-									</li>
-								{/each}
-							</ul>
+									</div>
+									<div class="game-actions">
+										{#if canPlayLive}
+											<button
+												type="button"
+												class="btn-action live-btn"
+												on:click={() => handlePlayLive(game.id)}
+											>
+												Play Live
+											</button>
+										{/if}
+										<a href="/play/games/{game.id}/play" class="btn-action"> Play </a>
+									</div>
+								</div>
+							{/each}
 						</div>
 					{/if}
 				</div>
-
-				<button
-					on:click={generateChallenge}
-					class="btn-duo btn-primary next-btn"
-					style="margin-top: 1.5rem; width: 100%;"
-				>
-					Next Challenge
-				</button>
 			</div>
 		{/if}
 	</div>
 </div>
 
+{#if showClassModal}
+	<div class="modal-backdrop" transition:fade={{ duration: 200 }} on:click={() => showClassModal = false}>
+		<div class="modal" on:click|stopPropagation>
+			<div class="modal-header">
+				<h2>Select a Class</h2>
+				<button class="close-btn" on:click={() => showClassModal = false}>×</button>
+			</div>
+			<div class="modal-body">
+				<p class="dark:text-slate-400">Which class do you want to start this live session for?</p>
+				<div class="class-list">
+					{#each teacherClasses as c}
+						<button class="class-btn dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200" on:click={() => {
+							showClassModal = false;
+							if (selectedGameIdForLive) startLiveSession(selectedGameIdForLive, c.id);
+						}}>
+							{c.name}
+						</button>
+					{/each}
+				</div>
+			</div>
+		</div>
+	</div>
+{/if}
+
 <style>
+	.modal-backdrop {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0, 0, 0, 0.5);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 1000;
+	}
+
+	.modal {
+		background: var(--card-bg, #ffffff);
+		border-radius: 12px;
+		padding: 1.5rem;
+		width: 90%;
+		max-width: 400px;
+		box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+	}
+
+	:global(html[data-theme='dark']) .modal {
+		background: #1e293b;
+	}
+
+	.modal-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 1rem;
+	}
+
+	.modal-header h2 {
+		margin: 0;
+		font-size: 1.25rem;
+		color: var(--text-color, #0f172a);
+	}
+
+	:global(html[data-theme='dark']) .modal-header h2 {
+		color: #f8fafc;
+	}
+
+	.close-btn {
+		background: transparent;
+		border: none;
+		font-size: 1.5rem;
+		cursor: pointer;
+		color: #64748b;
+	}
+
+	.class-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		margin-top: 1rem;
+	}
+
+	.class-btn {
+		padding: 0.75rem 1rem;
+		border-radius: 8px;
+		border: 1px solid #e2e8f0;
+		background: #f8fafc;
+		text-align: left;
+		cursor: pointer;
+		font-weight: 500;
+		transition: all 0.2s;
+	}
+
+	.class-btn:hover {
+		border-color: #3b82f6;
+		background: #eff6ff;
+	}
+
+	:global(html[data-theme='dark']) .class-btn:hover {
+		border-color: #60a5fa;
+		background: #334155;
+	}
+
+	.tabs-container {
+		display: flex;
+		justify-content: center;
+		margin-bottom: 2rem;
+	}
+
+	.tabs {
+		display: flex;
+		background: #f1f5f9;
+		padding: 0.5rem;
+		border-radius: 1rem;
+		gap: 0.5rem;
+	}
+
+	:global(html[data-theme='dark']) .tabs {
+		background: #1e293b;
+	}
+
+	.tab-btn {
+		padding: 0.75rem 2rem;
+		border-radius: 0.75rem;
+		font-weight: bold;
+		font-size: 1rem;
+		color: #64748b;
+		background: transparent;
+		border: none;
+		cursor: pointer;
+		transition: all 0.2s;
+	}
+
+	.tab-btn:hover {
+		color: #1e293b;
+		background: #e2e8f0;
+	}
+
+	:global(html[data-theme='dark']) .tab-btn:hover {
+		color: #f8fafc;
+		background: #334155;
+	}
+
+	.tab-btn.active {
+		background: white;
+		color: #3b82f6;
+		box-shadow:
+			0 4px 6px -1px rgba(0, 0, 0, 0.1),
+			0 2px 4px -1px rgba(0, 0, 0, 0.06);
+	}
+
+	:global(html[data-theme='dark']) .tab-btn.active {
+		background: #0f172a;
+		color: #60a5fa;
+	}
+
+	.games-wrapper {
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+	}
+
+	.header-section {
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		align-items: flex-start;
+		gap: 1rem;
+	}
+
+	@media (min-width: 768px) {
+		.header-section {
+			flex-direction: row;
+			align-items: center;
+		}
+	}
+
+	.header-section h2 {
+		font-size: 2rem;
+		color: var(--text-color, #0f172a);
+		margin: 0;
+		font-weight: 800;
+	}
+
+	.create-btn {
+		padding: 0.75rem 1.5rem;
+		border-radius: 0.75rem;
+		font-weight: bold;
+		text-decoration: none;
+		display: inline-block;
+	}
+
+	.games-section {
+		margin-bottom: 1rem;
+	}
+
+	.games-section h2 {
+		font-size: 1.5rem;
+		color: var(--text-color, #1e293b);
+		margin: 0 0 1.5rem;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.games-section h2 svg {
+		width: 1.5rem;
+		height: 1.5rem;
+		color: #3b82f6;
+	}
+
+	.link {
+		color: #3b82f6;
+		font-weight: bold;
+		text-decoration: none;
+	}
+
+	.link:hover {
+		text-decoration: underline;
+	}
+
+	.games-grid {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 2rem;
+	}
+
+	@media (min-width: 640px) {
+		.games-grid {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
+
+	@media (min-width: 1024px) {
+		.games-grid {
+			grid-template-columns: 1fr 1fr 1fr;
+		}
+	}
+
+	.game-card {
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		transition:
+			transform 0.2s,
+			box-shadow 0.2s;
+	}
+
+	.game-card:hover {
+		transform: translateY(-4px);
+		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+	}
+
+	.game-card-content {
+		flex: 1;
+		padding: 1.5rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.game-card-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		margin-bottom: 0.25rem;
+	}
+
+	.game-card-header h3 {
+		font-size: 1.25rem;
+		font-weight: bold;
+		margin: 0;
+		color: var(--text-color, #1e293b);
+		display: -webkit-box;
+		-webkit-line-clamp: 1;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	.language-badge {
+		background: transparent;
+		font-size: 1.5rem;
+		line-height: 1;
+		cursor: help;
+	}
+
+	:global(html[data-theme='dark']) .language-badge {
+		background: transparent;
+	}
+
+	.game-author {
+		font-size: 0.875rem;
+		font-weight: bold;
+		color: #3b82f6;
+		margin: 0;
+	}
+
+	.game-description {
+		color: #64748b;
+		font-size: 0.875rem;
+		margin: 0;
+		flex-grow: 1;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	.game-meta {
+		display: flex;
+		gap: 1rem;
+		font-size: 0.875rem;
+		font-weight: bold;
+		color: #64748b;
+		margin-top: auto;
+	}
+
+	.game-meta span {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+	}
+
+	.game-meta svg {
+		width: 1rem;
+		height: 1rem;
+	}
+
+	.status-published {
+		color: #22c55e;
+	}
+
+	.status-draft {
+		color: #94a3b8;
+	}
+
+	.status-dot {
+		width: 0.5rem;
+		height: 0.5rem;
+		border-radius: 50%;
+		display: inline-block;
+	}
+
+	.published-dot {
+		background-color: #22c55e;
+	}
+
+	.draft-dot {
+		background-color: #94a3b8;
+	}
+
+	.game-actions {
+		padding: 1rem;
+		border-top: 1px solid var(--card-border, #f1f5f9);
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+	}
+
+	.btn-action {
+		flex: 1;
+		min-width: calc(50% - 0.75rem);
+		background: #eff6ff;
+		color: #1d4ed8;
+		font-weight: bold;
+		padding: 0.5rem 1rem;
+		border-radius: 0.75rem;
+		border: none;
+		text-align: center;
+		text-decoration: none;
+		transition: background-color 0.2s;
+		cursor: pointer;
+		font-family: inherit;
+		font-size: 1rem;
+		box-sizing: border-box;
+	}
+
+	.btn-action:hover {
+		background: #dbeafe;
+	}
+
+	.btn-action.live-btn {
+		flex: 1 1 100%;
+		background: #f97316;
+		color: #ffffff;
+	}
+
+	.btn-action.live-btn:hover {
+		background: #ea580c;
+	}
+
+	:global(html[data-theme='dark']) .btn-action {
+		background: #1e3a8a;
+		color: #bfdbfe;
+	}
+
+	:global(html[data-theme='dark']) .btn-action:hover {
+		background: #1e40af;
+	}
+
+	:global(html[data-theme='dark']) .btn-action.live-btn {
+		background: #ea580c;
+		color: #ffffff;
+	}
+
+	:global(html[data-theme='dark']) .btn-action.live-btn:hover {
+		background: #c2410c;
+	}
+
 	:global(body) {
 		margin: 0;
 		font-family:
@@ -2167,7 +2849,14 @@ r<svelte:head>
 
 	.content-wrapper {
 		width: 100%;
+		max-width: 1200px;
+		transition: max-width 0.3s ease;
+	}
+
+	.learn-container {
 		max-width: 800px;
+		margin: 0 auto;
+		width: 100%;
 	}
 
 	.page-header {
@@ -2508,7 +3197,7 @@ r<svelte:head>
 		background: #f8fafc;
 		border: 1px solid #e2e8f0;
 		color: #334155;
-		box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+		box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
 	}
 
 	:global(.dark) .grammar-guide {
@@ -2541,12 +3230,24 @@ r<svelte:head>
 		margin-top: 0;
 	}
 
-	.grammar-guide :global(h1) { font-size: 1.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem; }
-	.grammar-guide :global(h2) { font-size: 1.25rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.3rem; }
-	.grammar-guide :global(h3) { font-size: 1.1rem; }
+	.grammar-guide :global(h1) {
+		font-size: 1.5rem;
+		border-bottom: 1px solid #e2e8f0;
+		padding-bottom: 0.5rem;
+	}
+	.grammar-guide :global(h2) {
+		font-size: 1.25rem;
+		border-bottom: 1px solid #e2e8f0;
+		padding-bottom: 0.3rem;
+	}
+	.grammar-guide :global(h3) {
+		font-size: 1.1rem;
+	}
 
 	:global(.dark) .grammar-guide :global(h1),
-	:global(.dark) .grammar-guide :global(h2) { border-color: #1e293b; }
+	:global(.dark) .grammar-guide :global(h2) {
+		border-color: #1e293b;
+	}
 
 	.grammar-guide :global(p) {
 		margin-top: 0;
@@ -2913,19 +3614,46 @@ r<svelte:head>
 
 	.progress-bar-fill.learning {
 		background-color: #facc15;
-		background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+		background-image: linear-gradient(
+			45deg,
+			rgba(255, 255, 255, 0.15) 25%,
+			transparent 25%,
+			transparent 50%,
+			rgba(255, 255, 255, 0.15) 50%,
+			rgba(255, 255, 255, 0.15) 75%,
+			transparent 75%,
+			transparent
+		);
 		background-size: 1rem 1rem;
 	}
 
 	.progress-bar-fill.known {
 		background-color: #34d399;
-		background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+		background-image: linear-gradient(
+			45deg,
+			rgba(255, 255, 255, 0.15) 25%,
+			transparent 25%,
+			transparent 50%,
+			rgba(255, 255, 255, 0.15) 50%,
+			rgba(255, 255, 255, 0.15) 75%,
+			transparent 75%,
+			transparent
+		);
 		background-size: 1rem 1rem;
 	}
 
 	.progress-bar-fill.mastered {
 		background-color: #10b981;
-		background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+		background-image: linear-gradient(
+			45deg,
+			rgba(255, 255, 255, 0.15) 25%,
+			transparent 25%,
+			transparent 50%,
+			rgba(255, 255, 255, 0.15) 50%,
+			rgba(255, 255, 255, 0.15) 75%,
+			transparent 75%,
+			transparent
+		);
 		background-size: 1rem 1rem;
 	}
 

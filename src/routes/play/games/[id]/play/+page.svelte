@@ -50,7 +50,7 @@
 			<p class="score-text">
 				Your Score: {score} / {questions.length}
 			</p>
-			<a href="/classes/games" class="btn-primary link-btn-primary">Return to Games</a>
+			<a href="/play?tab=games" class="btn-primary link-btn-primary">Return to Games</a>
 		</div>
 	{:else if currentQuestion}
 		<div class="game-header">
@@ -91,7 +91,7 @@
 	{:else}
 		<div class="card-duo empty-card">
 			<h1>No questions available for this game.</h1>
-			<a href="/classes/games" class="btn-primary link-btn-primary mt-4">Return to Games</a>
+			<a href="/play?tab=games" class="btn-primary link-btn-primary mt-4">Return to Games</a>
 		</div>
 	{/if}
 </div>

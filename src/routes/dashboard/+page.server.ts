@@ -44,8 +44,18 @@ export const load: PageServerLoad = async ({ locals }) => {
 		orderBy: { eloRating: 'desc' }
 	});
 
+	const dueReviewCount = await prisma.userVocabularyProgress.count({
+		where: {
+			userId: user.id,
+			nextReviewDate: {
+				lte: new Date()
+			}
+		}
+	});
+
 	return {
 		vocabularies,
-		grammarRules
+		grammarRules,
+		dueReviewCount
 	};
 };

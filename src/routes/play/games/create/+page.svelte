@@ -25,7 +25,7 @@
 			
 			if (res.ok) {
 				const data = await res.json();
-				window.location.href = `/classes/games/${data.game.id}/edit`;
+				window.location.href = `/play/games/${data.game.id}/edit`;
 			} else {
 				console.error('Failed to create game');
 				isSubmitting = false;
@@ -39,7 +39,7 @@
 
 <div class="create-container">
 	<div class="header-section">
-		<a href="/classes/games" class="back-link">
+		<a href="/play?tab=games" class="back-link">
 			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
 			Back to Games
 		</a>

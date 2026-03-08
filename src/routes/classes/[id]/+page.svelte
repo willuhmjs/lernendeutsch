@@ -8,6 +8,8 @@
 
 	$: classDetails = data.classDetails;
 	$: currentUserRole = data.currentUserRole;
+	$: currentLang = data.languages?.find((l) => l.code === createAssignmentLanguage);
+	$: availableRules = currentLang ? currentLang.grammarRules : [];
 
 	// Assignment Creation
 	let showCreateAssignmentModal = false;
@@ -15,10 +17,14 @@
 	let createAssignmentDescription = '';
 	let createAssignmentMode = 'multiple-choice';
 	let createAssignmentTargetScore = 10;
+	let createAssignmentPassThreshold = 50;
 	let createAssignmentLanguage = data.classDetails.primaryLanguage;
 	let createAssignmentTargetCefrLevel = '';
 	let createAssignmentTopic = '';
-	let createAssignmentTargetGrammar = '';
+	let selectedGrammarRules: string[] = [];
+	let targetVocabList: string[] = [];
+	let vocabInput = '';
+	let grammarSearchQuery = '';
 	let isCreatingAssignment = false;
 	let assignmentError = '';
 
@@ -28,15 +34,42 @@
 		createAssignmentDescription = '';
 		createAssignmentMode = 'multiple-choice';
 		createAssignmentTargetScore = 10;
+		createAssignmentPassThreshold = 50;
 		createAssignmentLanguage = data.classDetails.primaryLanguage;
 		createAssignmentTargetCefrLevel = '';
 		createAssignmentTopic = '';
-		createAssignmentTargetGrammar = '';
+		selectedGrammarRules = [];
+		targetVocabList = [];
+		vocabInput = '';
+		grammarSearchQuery = '';
 		assignmentError = '';
 	}
 
 	function closeCreateAssignmentModal() {
 		showCreateAssignmentModal = false;
+	}
+
+	function handleVocabKeydown(e: KeyboardEvent) {
+		if (e.key === 'Enter') {
+			e.preventDefault();
+			const val = vocabInput.trim();
+			if (val && !targetVocabList.includes(val)) {
+				targetVocabList = [...targetVocabList, val];
+			}
+			vocabInput = '';
+		}
+	}
+
+	function removeVocab(word: string) {
+		targetVocabList = targetVocabList.filter((w) => w !== word);
+	}
+
+	function toggleGrammarRule(ruleId: string) {
+		if (selectedGrammarRules.includes(ruleId)) {
+			selectedGrammarRules = selectedGrammarRules.filter((id) => id !== ruleId);
+		} else {
+			selectedGrammarRules = [...selectedGrammarRules, ruleId];
+		}
 	}
 
 	async function handleCreateAssignment() {
@@ -47,11 +80,6 @@
 		isCreatingAssignment = true;
 		assignmentError = '';
 
-		const targetGrammar = createAssignmentTargetGrammar
-			.split(',')
-			.map((g) => g.trim())
-			.filter((g) => g.length > 0);
-
 		try {
 			const res = await fetch(`/api/classes/${classDetails.id}/assignments`, {
 				method: 'POST',
@@ -61,10 +89,12 @@
 					description: createAssignmentDescription || undefined,
 					gamemode: createAssignmentMode,
 					targetScore: createAssignmentTargetScore,
+					passThreshold: createAssignmentPassThreshold,
 					language: createAssignmentLanguage,
 					targetCefrLevel: createAssignmentTargetCefrLevel || undefined,
 					topic: createAssignmentTopic || undefined,
-					targetGrammar: targetGrammar.length > 0 ? targetGrammar : undefined
+					targetGrammar: selectedGrammarRules.length > 0 ? selectedGrammarRules : undefined,
+					targetVocab: targetVocabList.length > 0 ? targetVocabList : undefined
 				})
 			});
 			const result = await res.json();
@@ -135,7 +165,7 @@
 	let copiedAssignmentId: string | null = null;
 
 	async function copyAssignmentLink(assignmentId: string) {
-		const url = `${window.location.origin}/learn?assignmentId=${assignmentId}`;
+		const url = `${window.location.origin}/play?assignmentId=${assignmentId}`;
 		await navigator.clipboard.writeText(url);
 		copiedAssignmentId = assignmentId;
 		setTimeout(() => {
@@ -217,7 +247,7 @@
 		</div>
 		<div class="banner-actions">
 			{#if currentUserRole === 'TEACHER'}
-				<a href="/classes/{classDetails.id}/live/teacher" class="btn-duo btn-primary live-btn"
+				<a href="/play?tab=games&classId={classDetails.id}" class="btn-duo btn-primary live-btn"
 					>Start Live Session</a
 				>
 				<div class="invite-box">
@@ -229,13 +259,14 @@
 						<button on:click={handleResetCode} class="invite-btn">Reset</button>
 					</div>
 				</div>
+				<button on:click={handleLeaveClass} class="btn-duo btn-leave">Leave Class</button>
 				<button on:click={handleDeleteClass} class="btn-duo btn-delete-class">Delete Class</button>
 			{:else}
 				<a href="/classes/{classDetails.id}/live/student" class="btn-duo btn-primary live-btn"
 					>Join Live Session</a
 				>
+				<button on:click={handleLeaveClass} class="btn-duo btn-leave">Leave Class</button>
 			{/if}
-			<button on:click={handleLeaveClass} class="btn-duo btn-leave">Leave Class</button>
 		</div>
 	</div>
 
@@ -299,7 +330,7 @@
 								</div>
 								<div class="assignment-actions-row">
 									<a
-										href="/learn?assignmentId={assignment.id}"
+										href="/play?assignmentId={assignment.id}"
 										class="btn-duo {passed
 											? 'btn-secondary'
 											: 'btn-primary'} assignment-play-btn text-center"
@@ -508,13 +539,58 @@
 						/>
 					</div>
 					<div class="field">
-						<label for="grammar">Target Grammar Rules (optional)</label>
-						<input
-							type="text"
-							id="grammar"
-							bind:value={createAssignmentTargetGrammar}
-							placeholder="e.g. Past tense, Dative case (comma separated)"
-						/>
+						<label for="vocab">Target Vocabulary (optional)</label>
+						<div class="vocab-input-container">
+							<div class="vocab-tags">
+								{#each targetVocabList as word}
+									<span class="vocab-tag">
+										{word}
+										<button type="button" class="remove-vocab" on:click={() => removeVocab(word)}>&times;</button>
+									</span>
+								{/each}
+								<input
+									type="text"
+									id="vocab"
+									bind:value={vocabInput}
+									on:keydown={handleVocabKeydown}
+									placeholder={targetVocabList.length === 0 ? "Type a word and press Enter" : ""}
+									class="vocab-inline-input"
+								/>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="field grammar-rules-field">
+					<label>Target Grammar Rules (optional)</label>
+					<div class="grammar-rules-container">
+						{#if availableRules.length > 0}
+							<div class="grammar-search">
+								<input 
+									type="text" 
+									bind:value={grammarSearchQuery} 
+									placeholder="Search grammar rules..." 
+									class="grammar-search-input"
+								/>
+							</div>
+							<div class="grammar-rules-list">
+								{#each availableRules.filter(r => r.title.toLowerCase().includes(grammarSearchQuery.toLowerCase())) as rule}
+									<label class="grammar-rule-item" class:selected={selectedGrammarRules.includes(rule.id)}>
+										<input 
+											type="checkbox" 
+											checked={selectedGrammarRules.includes(rule.id)}
+											on:change={() => toggleGrammarRule(rule.id)}
+										/>
+										<div class="grammar-rule-info">
+											<span class="grammar-rule-title">{rule.title}</span>
+											<span class="badge grammar-rule-badge">{rule.level}</span>
+										</div>
+									</label>
+								{/each}
+							</div>
+						{:else}
+							<p class="no-grammar-rules">No grammar rules available for this language.</p>
+						{/if}
 					</div>
 				</div>
 
@@ -526,6 +602,7 @@
 							<option value="native-to-target">Native to Target</option>
 							<option value="target-to-native">Target to Native</option>
 							<option value="fill-blank">Fill in the Blank</option>
+							<option value="chat">Chat</option>
 						</select>
 					</div>
 					<div class="field field-small">
@@ -550,11 +627,30 @@
 						</select>
 					</div>
 					<div class="field field-small">
-						<label for="targetScore">Pass Score</label>
+						<label for="targetScore">
+							{#if createAssignmentMode === 'chat'}
+								Target Turns
+							{:else}
+								Pass Score
+							{/if}
+						</label>
 						<input
 							type="number"
 							id="targetScore"
 							bind:value={createAssignmentTargetScore}
+							min="1"
+							max="100"
+						/>
+						{#if createAssignmentMode === 'chat'}
+							<span style="font-size: 0.7rem; color: #64748b; margin-top: 0.25rem; display: block;">Number of turns for chat</span>
+						{/if}
+					</div>
+					<div class="field field-small">
+						<label for="passThreshold">Threshold (%)</label>
+						<input
+							type="number"
+							id="passThreshold"
+							bind:value={createAssignmentPassThreshold}
 							min="1"
 							max="100"
 						/>
@@ -852,6 +948,158 @@
 
 	.field-small {
 		max-width: 140px;
+	}
+
+	.vocab-input-container {
+		background-color: var(--input-bg, #ffffff);
+		border: 2px solid var(--card-border, #e5e7eb);
+		border-radius: 1rem;
+		padding: 0.5rem;
+		min-height: 44px;
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		transition: border-color 0.2s;
+	}
+
+	.vocab-input-container:focus-within {
+		border-color: #22c55e;
+	}
+
+	.vocab-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		width: 100%;
+	}
+
+	.vocab-tag {
+		background-color: #e0f2fe;
+		color: #0369a1;
+		padding: 0.25rem 0.5rem;
+		border-radius: 0.5rem;
+		font-size: 0.85rem;
+		font-weight: 700;
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+	}
+
+	.remove-vocab {
+		background: none;
+		border: none;
+		color: #0369a1;
+		cursor: pointer;
+		font-size: 1rem;
+		line-height: 1;
+		padding: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.remove-vocab:hover {
+		color: #0c4a6e;
+	}
+
+	.vocab-inline-input {
+		flex: 1;
+		min-width: 120px;
+		border: none !important;
+		padding: 0.25rem !important;
+		font-size: 0.95rem !important;
+		border-radius: 0 !important;
+		background: transparent !important;
+	}
+
+	.vocab-inline-input:focus {
+		box-shadow: none !important;
+	}
+
+	.grammar-rules-field {
+		margin-top: 1rem;
+	}
+
+	.grammar-rules-container {
+		border: 2px solid var(--card-border, #e5e7eb);
+		border-radius: 1rem;
+		overflow: hidden;
+		background: var(--input-bg, #ffffff);
+	}
+
+	.grammar-search {
+		padding: 0.5rem;
+		border-bottom: 1px solid var(--card-border, #e5e7eb);
+	}
+
+	.grammar-search-input {
+		width: 100%;
+		padding: 0.5rem 1rem !important;
+		border: 1px solid var(--card-border, #e5e7eb) !important;
+		border-radius: 0.5rem !important;
+		font-size: 0.85rem !important;
+	}
+
+	.grammar-rules-list {
+		max-height: 200px;
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.grammar-rule-item {
+		display: flex;
+		align-items: center;
+		padding: 0.75rem 1rem;
+		gap: 0.75rem;
+		cursor: pointer;
+		border-bottom: 1px solid #f1f5f9;
+		transition: background-color 0.15s;
+		margin: 0 !important;
+	}
+
+	.grammar-rule-item input[type='checkbox'] {
+		display: none;
+	}
+
+	.grammar-rule-item:last-child {
+		border-bottom: none;
+	}
+
+	.grammar-rule-item:hover {
+		background-color: #f8fafc;
+	}
+
+	.grammar-rule-item.selected {
+		background-color: #f0fdf4;
+	}
+
+	.grammar-rule-info {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		flex: 1;
+	}
+
+	.grammar-rule-title {
+		font-size: 0.9rem;
+		font-weight: 600;
+		color: #1e293b;
+	}
+
+	.grammar-rule-badge {
+		font-size: 0.65rem;
+		padding: 0.15rem 0.4rem;
+	}
+
+	.no-grammar-rules {
+		padding: 1rem;
+		text-align: center;
+		color: #64748b;
+		font-size: 0.85rem;
+		font-weight: 600;
+		margin: 0;
 	}
 
 	.form-error {

@@ -47,7 +47,13 @@
 	<header class="dashboard-header" in:fly={{ y: 20, duration: 400 }}>
 		<h1 class="dark:text-white">Proficiency Dashboard</h1>
 		<p class="dark:text-slate-400">Track your language learning progress.</p>
-		<a href="/onboarding" class="btn-duo btn-secondary">Retake Placement Test</a>
+		<div class="header-actions">
+			<a href="/play" class="btn-duo btn-primary">Start Lesson</a>
+			{#if data.dueReviewCount > 0}
+				<a href="/review" class="btn-duo btn-secondary">Review Vocabulary</a>
+			{/if}
+			<a href="/play?tab=games" class="btn-duo btn-secondary">Play Game</a>
+		</div>
 	</header>
 
 	<section class="summary-section">
@@ -374,6 +380,13 @@
 		max-width: 600px;
 		margin-left: auto;
 		margin-right: auto;
+	}
+
+	.header-actions {
+		display: flex;
+		justify-content: center;
+		gap: 1rem;
+		flex-wrap: wrap;
 	}
 
 	.re-onboard-link {

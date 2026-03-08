@@ -3,10 +3,27 @@
 	import { onMount, tick } from 'svelte';
 	import toast from 'svelte-french-toast';
 	import { fly } from 'svelte/transition';
+	import { goto } from '$app/navigation';
+
+	export let data;
 
 	let sessionStarted = false;
 	let sessionId = '';
+	
+	// Assignment state
+	$: assignment = data.assignment;
+	$: assignmentScore = data.assignmentScore;
+	$: isAssignment = !!assignment;
+	$: isPassed = assignmentScore?.passed || false;
+	$: targetScore = assignment?.targetScore || 10;
+	$: messagesSent = assignmentScore?.score || 0;
+
 	let persona = 'A friendly waiter at a café';
+	$: {
+		if (isAssignment && assignment?.topic) {
+			persona = assignment.topic;
+		}
+	}
 
 	$: language = $page.data.user?.activeLanguage?.name || 'German';
 	let message = '';
@@ -40,6 +57,8 @@
 		role: string;
 		content: string;
 		correction?: string | null;
+		feedbackEnglish?: string;
+		eloUpdates?: boolean;
 	}
 
 	let messages: ChatMessage[] = [];
@@ -85,7 +104,8 @@
 					sessionId: sessionId || undefined,
 					message: userMessageText,
 					persona,
-					language
+					language,
+					assignmentId: isAssignment ? assignment.id : undefined
 				})
 			});
 
@@ -127,12 +147,11 @@
 						} else if (event.type === 'chunk') {
 							fullContent += event.content;
 
-							// Try to extract just the reply part if we can see it
-							// The JSON looks like {"reply": "something", "correction": null}
-							const replyMatch = fullContent.match(/"reply"\s*:\s*"([^]*)/);
-							if (replyMatch && replyMatch[1]) {
-								// Get everything after "reply": " up to the next unescaped quote, or end of string
-								let extracted = replyMatch[1];
+							// Try to extract just the message part if we can see it
+							// The JSON stream from new API looks like {"message": "something", "feedbackEnglish": ...}
+							const messageMatch = fullContent.match(/"message"\s*:\s*"([^]*)/);
+							if (messageMatch && messageMatch[1]) {
+								let extracted = messageMatch[1];
 								const endQuoteIdx = extracted.indexOf('",');
 								if (endQuoteIdx !== -1) {
 									extracted = extracted.substring(0, endQuoteIdx);
@@ -154,11 +173,27 @@
 								scrollToBottom();
 							}
 						} else if (event.type === 'done') {
+							const hasEloUpdates = (event.message.vocabularyUpdates && event.message.vocabularyUpdates.length > 0) || 
+												(event.message.extraVocabLemmas && event.message.extraVocabLemmas.length > 0);
+							
 							messages = messages.map((m) =>
 								m.id === assistantMessage.id
-									? { ...m, content: event.message.content, correction: event.message.correction }
+									? { 
+											...m, 
+											content: event.message.message || event.message.content || m.content, 
+											correction: event.message.correction,
+											feedbackEnglish: event.message.feedbackEnglish,
+											eloUpdates: hasEloUpdates
+										}
 									: m
 							);
+							
+							if (event.message.assignmentCompleted) {
+								isPassed = true;
+							}
+							if (isAssignment) {
+								messagesSent += 1;
+							}
 							scrollToBottom();
 						}
 					} catch (err) {
@@ -172,11 +207,25 @@
 				try {
 					const event = JSON.parse(buffer.trim());
 					if (event.type === 'done') {
+						const hasEloUpdates = (event.message.vocabularyUpdates && event.message.vocabularyUpdates.length > 0) || 
+											(event.message.extraVocabLemmas && event.message.extraVocabLemmas.length > 0);
 						messages = messages.map((m) =>
 							m.id === assistantMessage.id
-								? { ...m, content: event.message.content, correction: event.message.correction }
+								? { 
+										...m, 
+										content: event.message.message || event.message.content || m.content, 
+										correction: event.message.correction,
+										feedbackEnglish: event.message.feedbackEnglish,
+										eloUpdates: hasEloUpdates
+									}
 								: m
 						);
+						if (event.message.assignmentCompleted) {
+							isPassed = true;
+						}
+						if (isAssignment) {
+							messagesSent += 1;
+						}
 						scrollToBottom();
 					}
 				} catch (err) {}
@@ -312,9 +361,39 @@
 </script>
 
 <div class="chat-container">
+	{#if isAssignment}
+		<div class="assignment-banner {isPassed ? 'passed' : ''}">
+			<div class="banner-content">
+				<div class="banner-info">
+					<h3>Assignment: {assignment?.title || 'Chat Practice'}</h3>
+					<p>Topic: {assignment?.topic || persona}</p>
+				</div>
+				<div class="banner-progress">
+					{#if isPassed}
+						<div class="success-badge">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+							Passed
+						</div>
+						<button class="back-btn" on:click={() => goto(`/classes/${assignment.classId}`)}>Back to Class</button>
+					{:else}
+						<div class="progress-text">Messages: {messagesSent} / {targetScore}</div>
+						<div class="progress-bar-bg">
+							<div class="progress-bar-fill" style="width: {Math.min(100, Math.round((messagesSent / targetScore) * 100))}%"></div>
+						</div>
+					{/if}
+				</div>
+			</div>
+		</div>
+	{/if}
+	
 	<div class="chat-header-main" in:fly={{ y: 20, duration: 400 }}>
+		<a href="/play" class="back-link dark:text-slate-400" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+			<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+			Back to Play
+		</a>
 		<h1>AI Chat Practice</h1>
 	</div>
+
 
 	{#if !sessionStarted}
 		<div class="card-duo setup-card" in:fly={{ y: 20, duration: 400, delay: 100 }}>
@@ -358,6 +437,7 @@
 					<span class="persona-name">{persona}</span>
 					<span class="persona-lang">{language}</span>
 				</div>
+				{#if !isAssignment}
 				<button
 					on:click={() => {
 						sessionStarted = false;
@@ -367,6 +447,7 @@
 				>
 					End Session
 				</button>
+				{/if}
 			</div>
 
 			<!-- Messages Area -->
@@ -391,7 +472,15 @@
 									<p>{msg.content}</p>
 								</div>
 
-								{#if msg.correction}
+								{#if msg.feedbackEnglish}
+								<div class="feedback-box">
+									<p>{msg.feedbackEnglish}</p>
+								</div>
+							{/if}
+							{#if msg.eloUpdates}
+								<div class="elo-badge">+ ELO Updated</div>
+							{/if}
+							{#if msg.correction}
 									<div class="correction-box">
 										<div class="correction-header">
 											<svg
@@ -437,10 +526,10 @@
 							on:keydown={handleKeydown}
 							placeholder="Type your message... (Enter to send)"
 							rows="1"
-							disabled={isLoading}
+							disabled={isLoading || isPassed}
 						></textarea>
 					</div>
-					<button on:click={sendMessage} disabled={isLoading || !message.trim()} class="send-btn">
+					<button on:click={sendMessage} disabled={isLoading || !message.trim() || isPassed} class="send-btn">
 						<svg
 							class="icon"
 							fill="none"
@@ -919,4 +1008,101 @@
 	:global(html[data-theme='dark']) .correction-header {
 		color: #fb923c;
 	}
+
+	.assignment-banner {
+		background-color: var(--card-bg, #ffffff);
+		border-bottom: 1px solid var(--card-border, #e2e8f0);
+		padding: 1rem 1.5rem;
+		border-radius: 0.75rem 0.75rem 0 0;
+		margin-bottom: 0;
+	}
+	.assignment-banner.passed {
+		background-color: #f0fdf4;
+		border-color: #bbf7d0;
+	}
+	:global(html[data-theme='dark']) .assignment-banner.passed {
+		background-color: rgba(22, 101, 52, 0.2);
+		border-color: rgba(21, 128, 61, 0.5);
+	}
+	.banner-content {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 1rem;
+	}
+	.banner-info h3 {
+		margin: 0 0 0.25rem 0;
+		font-size: 1.125rem;
+		font-weight: 700;
+	}
+	.banner-info p {
+		margin: 0;
+		font-size: 0.875rem;
+		color: #64748b;
+	}
+	.banner-progress {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+	}
+	.success-badge {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		color: #16a34a;
+		font-weight: 700;
+	}
+	.back-btn {
+		padding: 0.5rem 1rem;
+		background-color: #16a34a;
+		color: white;
+		border-radius: 0.5rem;
+		border: none;
+		font-weight: 600;
+		cursor: pointer;
+	}
+	.progress-text {
+		font-size: 0.875rem;
+		font-weight: 600;
+	}
+	.progress-bar-bg {
+		width: 100px;
+		height: 8px;
+		background-color: #e2e8f0;
+		border-radius: 4px;
+		overflow: hidden;
+	}
+	.progress-bar-fill {
+		height: 100%;
+		background-color: #3b82f6;
+		transition: width 0.3s ease;
+	}
+	.feedback-box {
+		margin-top: 0.5rem;
+		font-size: 0.875rem;
+		color: #475569;
+		background: #f1f5f9;
+		padding: 0.5rem 0.75rem;
+		border-radius: 0.5rem;
+	}
+	:global(html[data-theme='dark']) .feedback-box {
+		background: #334155;
+		color: #cbd5e1;
+	}
+	.elo-badge {
+		display: inline-block;
+		margin-top: 0.5rem;
+		font-size: 0.75rem;
+		font-weight: 700;
+		color: #059669;
+		background: #d1fae5;
+		padding: 0.25rem 0.5rem;
+		border-radius: 1rem;
+	}
+	:global(html[data-theme='dark']) .elo-badge {
+		background: rgba(5, 150, 105, 0.2);
+		color: #34d399;
+	}
+
 </style>

@@ -15,10 +15,12 @@ export const POST: RequestHandler = async ({ request, params, locals }) => {
 			gamemode,
 			language,
 			targetScore,
+			passThreshold,
 			targetCefrLevel,
 			dueDate,
 			topic,
-			targetGrammar
+			targetGrammar,
+			targetVocab
 		} = await request.json();
 
 		if (!title || !gamemode || !language || targetScore === undefined) {
@@ -63,10 +65,12 @@ export const POST: RequestHandler = async ({ request, params, locals }) => {
 				gamemode,
 				language,
 				targetScore: Number(targetScore),
+				passThreshold: passThreshold !== undefined ? Number(passThreshold) : 50,
 				targetCefrLevel: targetCefrLevel || null,
 				dueDate: dueDate ? new Date(dueDate) : null,
 				topic: topic || null,
-				targetGrammar: Array.isArray(targetGrammar) ? targetGrammar : []
+				targetGrammar: Array.isArray(targetGrammar) ? targetGrammar : [],
+				targetVocab: Array.isArray(targetVocab) ? targetVocab : []
 			}
 		});
 

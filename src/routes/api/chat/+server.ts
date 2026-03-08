@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import { prisma } from '$lib/server/prisma';
 import { generateChatCompletion, type ChatMessage } from '$lib/server/llm';
 import { chatPracticeRateLimiter } from '$lib/server/ratelimit';
+import { updateEloRatings } from '$lib/server/grader';
 
 export async function POST(event) {
 	// Apply rate limiting
@@ -15,7 +16,7 @@ export async function POST(event) {
 	}
 
 	const userId = session.user.id;
-	const { sessionId, message, persona, language } = await event.request.json();
+	const { sessionId, message, persona, language, assignmentId } = await event.request.json();
 
 	if (!message) {
 		return json({ error: 'Message is required' }, { status: 400 });
@@ -46,7 +47,8 @@ export async function POST(event) {
 			data: {
 				userId,
 				language,
-				persona
+				persona,
+				assignmentId: assignmentId || null
 			}
 		});
 		currentSessionId = currentSession.id;
@@ -57,6 +59,43 @@ export async function POST(event) {
 		if (!currentSession) {
 			return json({ error: 'Session not found' }, { status: 404 });
 		}
+	}
+
+	let assignmentTopic = null;
+	let assignmentGoalTurns = null;
+	if (currentSession.assignmentId) {
+		const assignment = await prisma.assignment.findUnique({
+			where: { id: currentSession.assignmentId }
+		});
+		if (assignment) {
+			assignmentTopic = assignment.topic;
+			assignmentGoalTurns = assignment.targetScore || 5;
+		}
+	}
+
+	// Fetch user's vocabulary that needs review
+	const activeLanguageName = language || currentSession.language;
+	const activeLanguage = await prisma.language.findFirst({
+		where: { name: { equals: activeLanguageName, mode: 'insensitive' } }
+	});
+
+	let userVocabList = '';
+	const vocabIdMap: Record<string, string> = {};
+	if (activeLanguage) {
+		const userVocabs = await prisma.userVocabulary.findMany({
+			where: {
+				userId,
+				vocabulary: { languageId: activeLanguage.id }
+			},
+			include: { vocabulary: true },
+			take: 20, // get some recent/active vocab
+			orderBy: { nextReviewDate: 'asc' }
+		});
+
+		userVocabs.forEach((uv, i) => {
+			vocabIdMap[`v${i}`] = uv.vocabulary.id;
+			userVocabList += `- ${uv.vocabulary.lemma} (ID: v${i})\n`;
+		});
 	}
 
 	// Save the user's message
@@ -79,14 +118,36 @@ export async function POST(event) {
 		content: m.content
 	}));
 
+	const userMessageCount = history.filter(m => m.role === 'user').length;
+	
+	let assignmentPrompt = '';
+	if (currentSession.assignmentId && assignmentTopic) {
+		assignmentPrompt = `\nIMPORTANT ASSIGNMENT INSTRUCTIONS:
+The user is completing an assignment. The required topic of conversation is: "${assignmentTopic}".
+You must steer the conversation towards this topic naturally.
+The user has completed ${userMessageCount} out of ${assignmentGoalTurns} required turns.
+Set "assignmentCompleted" to true if the user has reached at least ${assignmentGoalTurns} turns and has successfully discussed the topic. Otherwise set it to false.\n`;
+	}
+
 	const systemPrompt = `You are an AI fully immersed in a live-action roleplay (LARP). You are completely taking on the persona of a "${currentSession.persona}". The user is practicing the "${currentSession.language}" language.
 You must embody this character completely, down to your personality, quirks, and worldview. NEVER break character, never refer to yourself as an AI, and respond exactly as this character naturally would in ${currentSession.language}. 
 Keep your responses relatively short, realistic, and conversational, suitable for an authentic dialogue.
-If the user makes significant grammar or vocabulary mistakes in their message, you may optionally provide a brief correction in the "correction" field, but your main "reply" must remain 100% in character and focused on the natural flow of the conversation.
+
+In addition to your reply, you must act as a grader. Evaluate the user's last message.
+Provide brief feedback in English ("feedbackEnglish") on their grammar and vocabulary usage.
+If the user correctly used any of their targeted vocabulary, or if you can evaluate words they used, provide a score (0.0 to 1.0) for them in "vocabularyUpdates".
+If they used OTHER ${currentSession.language} words correctly by coincidence, list their base forms (lemmas) in lowercase in "extraVocabLemmas".
+${assignmentPrompt}
+
+Targeted Vocabulary the user is learning:
+${userVocabList || '(None currently active)'}
+
 Return your response as a JSON object with the following structure:
 {
-  "reply": "Your response as the persona in ${currentSession.language}",
-  "correction": "Optional string: Brief correction of the user's last message if needed, otherwise null"
+  "message": "Your response as the persona in ${currentSession.language}",
+  "feedbackEnglish": "Brief English feedback on the user's grammar/vocabulary usage in their last message",
+  "vocabularyUpdates": [ { "id": "<vocabulary ID from the list>", "score": <number (0.0 to 1.0)> } ],
+  "extraVocabLemmas": ["<lemma1>", "<lemma2>"]${currentSession.assignmentId ? ',\n  "assignmentCompleted": <boolean>' : ''}
 }`;
 
 	try {
@@ -172,20 +233,62 @@ Return your response as a JSON object with the following structure:
 						parsedResponse = JSON.parse(fullContent);
 					} catch (error) {
 						console.error('Failed to parse LLM response as JSON:', fullContent, error);
-						parsedResponse = { reply: fullContent, correction: null };
+						parsedResponse = { message: fullContent, feedbackEnglish: null, vocabularyUpdates: [], extraVocabLemmas: [] };
 					}
 
+					// Update DB based on parsed response
+					const replyMessage = parsedResponse.message || parsedResponse.reply || '';
 					const aiMessage = await prisma.message.create({
 						data: {
 							sessionId: currentSessionId,
 							role: 'assistant',
-							content: parsedResponse.reply,
-							correction: parsedResponse.correction
+							content: replyMessage,
+							correction: parsedResponse.feedbackEnglish
 						}
 					});
 
+					// Map vocabulary IDs back
+					const mappedVocabUpdates = (parsedResponse.vocabularyUpdates || []).map((u: { id: string, score: number }) => ({
+						id: vocabIdMap[u.id] || u.id,
+						score: u.score
+					}));
+
+					const evaluationPayload = {
+						globalScore: 1.0,
+						vocabularyUpdates: mappedVocabUpdates,
+						grammarUpdates: [],
+						extraVocabLemmas: parsedResponse.extraVocabLemmas || [],
+						feedback: '',
+						feedbackEnglish: parsedResponse.feedbackEnglish || ''
+					};
+
+					if (mappedVocabUpdates.length > 0 || evaluationPayload.extraVocabLemmas.length > 0) {
+						await updateEloRatings(userId, evaluationPayload, 'native-to-target');
+					}
+
+					if (currentSession.assignmentId && parsedResponse.assignmentCompleted) {
+						await prisma.assignmentScore.upsert({
+							where: {
+								assignmentId_userId: {
+									assignmentId: currentSession.assignmentId,
+									userId
+								}
+							},
+							create: {
+								assignmentId: currentSession.assignmentId,
+								userId,
+								score: 100,
+								passed: true
+							},
+							update: {
+								score: 100,
+								passed: true
+							}
+						});
+					}
+
 					controller.enqueue(
-						new TextEncoder().encode(JSON.stringify({ type: 'done', message: aiMessage }) + '\n')
+						new TextEncoder().encode(JSON.stringify({ type: 'done', message: aiMessage, grading: parsedResponse }) + '\n')
 					);
 
 					controller.close();

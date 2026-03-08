@@ -34,26 +34,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		}
 	});
 
-	const myGames = await prisma.game.findMany({
-		where: { creatorId: locals.user.id },
-		orderBy: { createdAt: 'desc' },
-		include: {
-			_count: { select: { questions: true } }
-		}
-	});
-
-	const communityGames = await prisma.game.findMany({
-		where: { isPublished: true },
-		orderBy: { createdAt: 'desc' },
-		include: {
-			_count: { select: { questions: true } },
-			creator: { select: { username: true } }
-		}
-	});
-
 	return {
-		classes,
-		myGames,
-		communityGames
+		classes
 	};
 };

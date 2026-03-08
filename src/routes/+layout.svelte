@@ -125,7 +125,7 @@
 							>
 							<span class="nav-text">Dashboard</span>
 						</a>
-						<a href="/learn" class="nav-item {$page.url.pathname.startsWith('/learn') ? 'active' : ''}">
+						<a href="/play" class="nav-item {$page.url.pathname.startsWith('/play') ? 'active' : ''}">
 							<svg
 								viewBox="0 0 24 24"
 								fill="none"
@@ -134,7 +134,7 @@
 								stroke-linecap="round"
 								stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3" /></svg
 							>
-							<span class="nav-text">Learn</span>
+							<span class="nav-text">Play</span>
 						</a>
 						<a
 							href="/classes"
@@ -153,7 +153,7 @@
 									r="4"
 								/><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg
 							>
-							<span class="nav-text">Classes & Games</span>
+							<span class="nav-text">Classes</span>
 						</a>
 						<a
 							href="/dictionary"
@@ -171,21 +171,6 @@
 								></path></svg
 							>
 							<span class="nav-text">Dictionary</span>
-						</a>
-						<a
-							href="/practice/chat"
-							class="nav-item {$page.url.pathname.startsWith('/practice/chat') ? 'active' : ''}"
-						>
-							<svg
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="2"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg
-							>
-							<span class="nav-text">Chat</span>
 						</a>
 						<a
 							href="/review"
@@ -588,6 +573,7 @@
 		transition:
 			transform 0.2s,
 			box-shadow 0.2s;
+		box-sizing: border-box;
 	}
 
 	:global(.card-duo:hover) {
@@ -640,18 +626,18 @@
 	}
 
 	:global(html[data-theme='dark']) {
-		--bg-color: #121212;
-		--text-color: #e5e5e5;
-		--header-bg: #1e1e1e;
-		--header-border: #2c2c2c;
-		--card-bg: #1e1e1e;
-		--card-border: #2c2c2c;
-		--link-color: #a0a0a0;
-		--link-hover-bg: #2c2c2c;
+		--bg-color: #000000;
+		--text-color: #f9fafb;
+		--header-bg: #111827;
+		--header-border: #374151;
+		--card-bg: #111827;
+		--card-border: #374151;
+		--link-color: #60a5fa;
+		--link-hover-bg: #1f2937;
 		--brand-color: #3b82f6;
-		--input-bg: #2c2c2c;
-		--input-border: #3f3f3f;
-		--input-text: #e5e5e5;
+		--input-bg: #1f2937;
+		--input-border: #4b5563;
+		--input-text: #f9fafb;
 	}
 
 	:global(html[data-theme='dark'] .info-card),
