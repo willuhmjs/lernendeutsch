@@ -55,7 +55,8 @@ export async function POST(event) {
 			targetedVocabularyIds,
 			targetedGrammarIds,
 			gameMode: bodyGameMode,
-			assignmentId
+			assignmentId,
+			activeLanguageName: bodyLanguageName
 		} = body;
 		const userId = locals.user.id;
 		const gameMode = bodyGameMode || 'native-to-target';
@@ -110,7 +111,7 @@ export async function POST(event) {
 
 		// Build prompt and call LLM with streaming
 		let userLevel = locals.user.cefrLevel || 'A1';
-		let activeLanguageName = locals.user.activeLanguage?.name || 'German';
+		let activeLanguageName = bodyLanguageName || locals.user.activeLanguage?.name || 'German';
 
 		if (assignmentId) {
 			const assignment = await prisma.assignment.findUnique({

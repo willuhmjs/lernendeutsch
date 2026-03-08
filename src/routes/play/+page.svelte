@@ -159,6 +159,9 @@
 	let selectedChoice: string | null = null;
 	let shuffledChoices: string[] = [];
 	let hasSubmittedMc = false;
+	
+	let currentLessonLanguage: any = null;
+	$: lessonLanguage = currentLessonLanguage || data.language;
 
 	// Assignment context
 	const assignment = data.assignment ?? null;
@@ -264,7 +267,7 @@
 	let loadingTips: string[] = [];
 
 	$: {
-		const langName = data.language?.name;
+		const langName = lessonLanguage?.name;
 		const specificTips = langName && LANG_TIPS[langName] ? LANG_TIPS[langName] : [];
 		loadingTips = [...specificTips, ...GENERAL_TIPS];
 	}
@@ -732,7 +735,7 @@
 			? vocab.lemma.charAt(0).toUpperCase() + vocab.lemma.slice(1)
 			: vocab.lemma;
 
-		const activeLanguageName = data.language?.name || 'German';
+		const activeLanguageName = lessonLanguage?.name || 'German';
 		const genderDisplay = genderToArticle(vocab.gender, activeLanguageName);
 		const isAiGenerated = typeof vocab.id === 'string' && vocab.id.startsWith('ai_');
 		let html = `<span class="word-tooltip">`;
@@ -892,16 +895,18 @@
 
 		for (const v of challenge?.allVocabulary || []) {
 			add(v.lemma.toLowerCase(), v);
-			if (isEnToDe && v.meaning) {
-				for (const m of v.meaning.split(',')) {
+			const meaningsStr = v.meaning || v.meanings?.[0]?.value;
+			if (isEnToDe && meaningsStr) {
+				for (const m of meaningsStr.split(',')) {
 					add(m.trim().toLowerCase(), v);
 				}
 			}
 		}
 		for (const v of challenge?.targetedVocabulary || []) {
 			add(v.lemma.toLowerCase(), v);
-			if (isEnToDe && v.meaning) {
-				for (const m of v.meaning.split(',')) {
+			const meaningsStr = v.meaning || v.meanings?.[0]?.value;
+			if (isEnToDe && meaningsStr) {
+				for (const m of meaningsStr.split(',')) {
 					add(m.trim().toLowerCase(), v);
 				}
 			}
@@ -934,7 +939,8 @@
 		text = text.replace(
 			/<vocab(?:\s+[^>]*)?id="([^"]+)"(?:[^>]*)?>([^<]*)<\/vocab>/g,
 			(_match: string, id: string, word: string) => {
-				const vocab = challenge.targetedVocabulary?.find((v: any) => v.id === id);
+				const vocab = challenge.targetedVocabulary?.find((v: any) => v.id === id) 
+					|| challenge.allVocabulary?.find((v: any) => v.id === id);
 				const tooltipHtml = vocab ? buildTooltipHtml(vocab) : '';
 				const replacement = `<span class="vocab-highlight tooltip-trigger">${word}${tooltipHtml}</span>`;
 				vocabReplacements.push(replacement);
@@ -962,7 +968,7 @@
 				// For other languages (or English), we shouldn't use capitalization to heavily bias towards nouns,
 				// except maybe to deprioritize nouns if lowercase (but wait, in French/Spanish, nouns are lowercase!).
 				// So ONLY apply this capitalization logic if the text we are parsing is German.
-				const activeLanguageName = data.language?.name || 'German';
+				const activeLanguageName = lessonLanguage?.name || 'German';
 				const parsingGerman = isGermanText && activeLanguageName === 'German';
 
 				if (parsingGerman) {
@@ -984,7 +990,7 @@
 
 			// Check the inflection map for conjugations/contractions
 			if (!isEnToDe) {
-				const activeLanguageName = data.language?.name || 'German';
+				const activeLanguageName = lessonLanguage?.name || 'German';
 				const mapToUse =
 					activeLanguageName === 'French' ? FRENCH_INFLECTION_MAP : GERMAN_INFLECTION_MAP;
 
@@ -1095,7 +1101,7 @@
 				// Get only non-whitespace tokens ahead
 				const upcomingWords = tokens.slice(i + 1).filter((t: string) => !/^\s+$/.test(t));
 				const nounVocab = findNextNoun(upcomingWords, 0);
-				const activeLanguageName = data.language?.name || 'German';
+				const activeLanguageName = lessonLanguage?.name || 'German';
 
 				if (nounVocab) {
 					const isPlural =
@@ -1149,7 +1155,7 @@
 
 			// Handle German/French article forms — show case + gender tooltip
 			if (isGermanText) {
-				const activeLanguageName = data.language?.name || 'German';
+				const activeLanguageName = lessonLanguage?.name || 'German';
 				const artMap = activeLanguageName === 'French' ? FRENCH_ARTICLE_MAP : GERMAN_ARTICLE_MAP;
 
 				const artEntry = artMap[cleanWord];
@@ -1180,8 +1186,9 @@
 						ttHtml += `<span class="word-tooltip-row"><strong>Noun:</strong> ${nDisplay}</span>`;
 						if (nGender)
 							ttHtml += `<span class="word-tooltip-row"><strong>Gender:</strong> ${nGender}</span>`;
-						if (nounVocab.meaning)
-							ttHtml += `<span class="word-tooltip-row"><strong>Meaning:</strong> ${nounVocab.meaning}</span>`;
+						const nMeaning = nounVocab.meaning || nounVocab.meanings?.[0]?.value;
+						if (nMeaning)
+							ttHtml += `<span class="word-tooltip-row"><strong>Meaning:</strong> ${nMeaning}</span>`;
 					}
 					ttHtml += `</span></span>`;
 					result.push(`<span class="word-hover has-info tooltip-trigger">${token}${ttHtml}</span>`);
@@ -1194,7 +1201,7 @@
 			if (isEnToDe) {
 				let multiWordVocab: any = null;
 				let multiWordEnd = i;
-				for (let len = 3; len >= 2 && !multiWordVocab; len--) {
+				for (let len = 5; len >= 2 && !multiWordVocab; len--) {
 					const wordIndices: number[] = [i];
 					for (let j = i + 1; j < tokens.length && wordIndices.length < len; j++) {
 						if (!/^\s+$/.test(tokens[j]) && !tokens[j].match(/\x00VOCAB_\d+\x00/)) {
@@ -1304,6 +1311,7 @@
 		// Cancel any in-flight requests before starting a new one
 		cancelAllRequests();
 
+		currentLessonLanguage = data.language;
 		loading = true;
 		isStreaming = true;
 		feedback = null;
@@ -1712,7 +1720,8 @@
 					targetedVocabularyIds: challenge.targetedVocabulary?.map((v: any) => v.id) || [],
 					targetedGrammarIds: challenge.targetedGrammar?.map((g: any) => g.id) || [],
 					gameMode: challenge.gameMode || 'native-to-target',
-					assignmentId: assignment?.id ?? null
+					assignmentId: assignment?.id ?? null,
+					activeLanguageName: lessonLanguage?.name || 'German'
 				}),
 				signal: submitController.signal
 			});
@@ -1871,7 +1880,7 @@ r<svelte:head>
 								<span class="meta-badge language">
 									{assignment.language === 'international'
 										? '🌍 International'
-										: `${data.language?.flag || '🏁'} ${data.language?.name || 'Target'}`}
+										: `${lessonLanguage?.flag || '🏁'} ${lessonLanguage?.name || 'Target'}`}
 								</span>
 							</div>
 						</div>
@@ -1916,10 +1925,10 @@ r<svelte:head>
 							<div>
 								<strong class="dark:text-emerald-300">Tip for beginners:</strong> Start with
 								<strong>Multiple Choice</strong>
-								or <strong>{data.language?.name || 'Target'} to English</strong> — these let you
+								or <strong>{lessonLanguage?.name || 'Target'} to English</strong> — these let you
 								recognize words before producing them. Once you feel confident, try
 								<strong>Fill in the Blank</strong>
-								and <strong>English to {data.language?.name || 'Target'}</strong>!
+								and <strong>English to {lessonLanguage?.name || 'Target'}</strong>!
 							</div>
 						</div>
 					{/if}
@@ -1949,8 +1958,8 @@ r<svelte:head>
 									class:active={gameMode === 'target-to-native'}
 									on:click={() => (gameMode = 'target-to-native')}
 								>
-									{data.language?.flag || '🏁'} → {englishFlag}
-									{data.language?.name || 'Target'} to English
+									{lessonLanguage?.flag || '🏁'} → {englishFlag}
+									{lessonLanguage?.name || 'Target'} to English
 									<span class="mode-difficulty easy">Easy</span>
 								</button>
 								<button
@@ -1966,7 +1975,7 @@ r<svelte:head>
 									class:active={gameMode === 'native-to-target'}
 									on:click={() => (gameMode = 'native-to-target')}
 								>
-									{englishFlag} → {data.language?.flag || '🏁'} English to {data.language?.name ||
+									{englishFlag} → {lessonLanguage?.flag || '🏁'} English to {lessonLanguage?.name ||
 										'Target'}
 									<span class="mode-difficulty hard">Hardest</span>
 								</button>
@@ -2029,7 +2038,7 @@ r<svelte:head>
 							<h3 class="dark:text-slate-400">Translate this to English:</h3>
 						{:else}
 							<h3 class="dark:text-slate-400">
-								Translate this to {data.language?.name || 'Target'}:
+								Translate this to {lessonLanguage?.name || 'Target'}:
 							</h3>
 						{/if}
 						<p class="challenge-text dark:text-white">{@html parsedChallengeText}</p>
@@ -2107,7 +2116,7 @@ r<svelte:head>
 											type="text"
 											bind:value={fillBlankAnswers[i]}
 											disabled={submitting || feedback !== null || loading}
-											placeholder="Type the missing {data.language?.name || 'Target'} word..."
+											placeholder="Type the missing {lessonLanguage?.name || 'Target'} word..."
 											class="blank-input dark:bg-slate-900 dark:text-white dark:border-slate-700"
 										/>
 									</div>
@@ -2147,7 +2156,7 @@ r<svelte:head>
 										? 'Generating challenge...'
 										: challenge?.gameMode === 'target-to-native'
 											? 'Type your English translation here...'
-											: `Type your ${data.language?.name || 'Target'} translation here... (Or ask for help / translation in English)`}
+											: `Type your ${lessonLanguage?.name || 'Target'} translation here... (Or ask for help / translation in English)`}
 									class="dark:bg-slate-900 dark:text-white dark:border-slate-700"
 								></textarea>
 							</div>
