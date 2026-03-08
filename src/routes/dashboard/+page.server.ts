@@ -3,6 +3,15 @@ import { prisma } from '$lib/server/prisma';
 import { redirect } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ locals }) => {
+	// ONE-TIME CLEANUP for orphaned empty grammar rules that caused "No description available"
+	try {
+		await prisma.grammarRule.deleteMany({
+			where: { description: null }
+		});
+	} catch (error) {
+		console.error('Failed to cleanup empty grammar rules:', error);
+	}
+
 	if (!locals.user) {
 		throw redirect(302, '/login');
 	}
