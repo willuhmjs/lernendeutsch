@@ -83,15 +83,21 @@ export async function POST(event) {
 			const score = isCorrect ? 1.0 : 0.0;
 			const evaluation = {
 				globalScore: score,
-				vocabularyUpdates: targetedVocabulary.map((v: { id: string }) => ({ id: v.id, score })),
-				grammarUpdates: targetedGrammar.map((g: { id: string }) => ({ id: g.id, score })),
+				vocabularyUpdates: targetedVocabulary.map((v: any, i: number) => ({ id: `v${i}`, score })),
+				grammarUpdates: targetedGrammar.map((g: any, i: number) => ({ id: `g${i}`, score })),
 				extraVocabLemmas: [],
 				feedback: isCorrect ? 'Correct!' : 'Incorrect.',
 				feedbackEnglish: isCorrect ? 'Correct!' : 'Incorrect.'
 			};
 
-			console.log('Sending payload to updateEloRatings:', JSON.stringify(evaluation, null, 2));
-			await updateEloRatings(userId, evaluation, gameMode);
+			const remappedEvaluation = {
+				...evaluation,
+				vocabularyUpdates: targetedVocabulary.map((v: any) => ({ id: v.id, score })),
+				grammarUpdates: targetedGrammar.map((g: any) => ({ id: g.id, score }))
+			};
+
+			console.log('Sending payload to updateEloRatings:', JSON.stringify(remappedEvaluation, null, 2));
+			await updateEloRatings(userId, remappedEvaluation, gameMode);
 
 			let assignmentProgress = null;
 			if (assignmentId) {
@@ -180,17 +186,21 @@ export async function POST(event) {
 				// Post-stream processing: parse response, update Elo/SRS, then send final payload, then close
 				try {
 					const evaluation = parseEvaluationResponse(fullContent);
-					// Remap short IDs (v0, g0, ...) back to real UUIDs
-					evaluation.vocabularyUpdates = evaluation.vocabularyUpdates.map((u) => ({
-						...u,
-						id: idMap[u.id] || u.id
-					}));
-					evaluation.grammarUpdates = evaluation.grammarUpdates.map((u) => ({
-						...u,
-						id: idMap[u.id] || u.id
-					}));
-					console.log('Sending payload to updateEloRatings:', JSON.stringify(evaluation, null, 2));
-					await updateEloRatings(userId, evaluation, gameMode);
+					// Remap short IDs (v0, g0, ...) back to real UUIDs for DB updates
+					const remappedEvaluation = {
+						...evaluation,
+						vocabularyUpdates: evaluation.vocabularyUpdates.map((u: any) => ({
+							...u,
+							id: idMap[u.id] || u.id
+						})),
+						grammarUpdates: evaluation.grammarUpdates.map((u: any) => ({
+							...u,
+							id: idMap[u.id] || u.id
+						}))
+					};
+
+					console.log('Sending payload to updateEloRatings:', JSON.stringify(remappedEvaluation, null, 2));
+					await updateEloRatings(userId, remappedEvaluation, gameMode);
 
 					// Track assignment score if applicable
 					let assignmentProgress = null;
@@ -211,6 +221,7 @@ export async function POST(event) {
 					}
 
 					// Send the final evaluation payload before closing the stream
+					// We return the ORIGINAL evaluation with short IDs to the client
 					controller.enqueue(
 						new TextEncoder().encode(
 							`\n\nJSON_PAYLOAD:${JSON.stringify({ ...evaluation, assignmentProgress, levelUp })}`

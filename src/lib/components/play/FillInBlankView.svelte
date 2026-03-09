@@ -4,7 +4,7 @@
 	export let feedback: any;
 	export let loading: boolean;
 	export let fillBlankAnswers: string[];
-	export let lessonLanguage: any;
+	export let lessonLanguage: { name: string } | null | undefined;
 	export let submitAnswer: () => void;
 </script>
 

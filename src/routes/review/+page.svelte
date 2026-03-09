@@ -165,7 +165,7 @@
 								</div>
 							{:else}
 								<div class="typing-section">
-									<label class="typing-label">
+									<label class="typing-label" for="review-input">
 										Type your answer (optional)
 									</label>
 									{#if requiresSpecialKeyboard(currentReview.vocabulary.lemma, $page.data.user?.activeLanguage?.name || 'en')}
@@ -176,6 +176,7 @@
 										/>
 									{/if}
 									<input
+										id="review-input"
 										bind:this={reviewInputRef}
 										bind:value={typedAnswer}
 										type="text"

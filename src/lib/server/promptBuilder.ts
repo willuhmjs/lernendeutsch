@@ -61,8 +61,8 @@ CRITICAL STYLE & TONE CONSTRAINT:
   "challengeText": "<${activeLangName} sentence with ___ for blanked words>",
   "targetSentence": "<Complete ${activeLangName} sentence>",
   "hints": [{ "vocabId": "<id>", "hint": "<English meaning>" }],
-  "targetedVocabularyIds": ["<id1>"],
-  "targetedGrammarIds": ["<id1>"]
+  "targetedVocabularyIds": ["v0"],
+  "targetedGrammarIds": ["g0"]
 }`;
 		jsonSchemaObj = {
 			type: 'object',
@@ -105,8 +105,8 @@ CRITICAL STYLE & TONE CONSTRAINT:
   "challengeText": "<${activeLangName} sentence with vocab tags>",
   "targetSentence": "<Correct English translation>",
   "distractors": ["<wrong1>", "<wrong2>", "<wrong3>"],
-  "targetedVocabularyIds": ["<id1>"],
-  "targetedGrammarIds": ["<id1>"]
+  "targetedVocabularyIds": ["v0", "v1"],
+  "targetedGrammarIds": ["g0"]
 }`;
 		jsonSchemaObj = {
 			type: 'object',
@@ -137,8 +137,8 @@ CRITICAL STYLE & TONE CONSTRAINT:
 {
   "challengeText": "<${activeLangName} text>",
   "targetSentence": "<English translation>",
-  "targetedVocabularyIds": ["<id1>", "<id2>"],
-  "targetedGrammarIds": ["<id1>"]
+  "targetedVocabularyIds": ["v0", "v1"],
+  "targetedGrammarIds": ["g0"]
 }`;
 		jsonSchemaObj = {
 			type: 'object',
@@ -168,8 +168,8 @@ CRITICAL STYLE & TONE CONSTRAINT:
 {
   "challengeText": "<English text>",
   "targetSentence": "<${activeLangName} translation>",
-  "targetedVocabularyIds": ["<id1>", "<id2>"],
-  "targetedGrammarIds": ["<id1>"]
+  "targetedVocabularyIds": ["v0", "v1"],
+  "targetedGrammarIds": ["g0"]
 }`;
 		jsonSchemaObj = {
 			type: 'object',
@@ -206,10 +206,10 @@ ${beginnerGuidance}
 ${sentenceConstraint}
 ${qualityConstraint}
 ${topicConstraint}${grammarConstraint}
-Compose the ${activeLangName} text by prioritizing the "Mastered" and "Learning" vocabulary provided below. You should focus on creating a natural, realistic sentence first. While you should prioritize the provided vocabulary, you ARE encouraged to use other natural ${activeLangName} words appropriate for a ${userLevel} student to ensure the sentence flows naturally and makes sense. Avoid using highly obscure words that are neither in the lists nor common at the ${userLevel} level.
-CRITICAL THEMATIC INJECTION: Use words from the "Learning Vocabulary" list below to establish a central theme. You are encouraged to use multiple words from this list if they fit together naturally, but prioritize creating a high-quality, authentic sentence over maximizing word count.
+Compose the ${activeLangName} text by HEAVILY prioritizing the "Learning Vocabulary" provided below. These are the target words the student is currently focusing on.
+CRITICAL THEMATIC INJECTION: Your primary goal is to teach the words in the "Learning Vocabulary" list. You MUST use at least one word from this list, and are strongly encouraged to use 2-3 if they can fit together naturally. Build a realistic, high-quality scenario around these target words. You may also use words from the "Mastered" list or other common ${activeLangName} words appropriate for a ${userLevel} student to ensure natural flow.
 CRITICAL GRAMMAR INJECTION: You MUST structurally incorporate the requested grammar rule(s) (either from the critical grammar constraint above, or from the Learning Grammar section) into the sentence. This is mandatory. Ensure the grammar rule is naturally applied. You MUST identify the rule used and return its ID (e.g., "g0") in the "targetedGrammarIds" array. If the sentence uses multiple grammar rules from the list, include all relevant IDs.
-CRITICAL QUALITY INSTRUCTION: Prioritize sentence quality, natural flow, and logic over using every single word provided in the lists. Do NOT try to force or jam words together if they don't make sense. You DO NOT have to use all the words provided, just pick the ones that fit naturally and make logical sense.
+CRITICAL QUALITY INSTRUCTION: Prioritize sentence quality, natural flow, and logic. While using "Learning Vocabulary" is the priority, do NOT force words together if they don't make sense. The sentence must be authentic and pedagogically useful.
 ${modeInstruction}
 
 ${vocabTagInstruction}

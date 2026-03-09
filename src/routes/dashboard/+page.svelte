@@ -7,11 +7,24 @@
 
 	// SrsState enum values from Prisma schema
 	const srsColors = {
+		LOCKED: 'var(--color-locked, #94a3b8)', // gray-400
 		UNSEEN: 'var(--color-unseen, #e2e8f0)', // gray-200
 		LEARNING: 'var(--color-learning, #fef08a)', // yellow-200
 		KNOWN: 'var(--color-known, #6ee7b7)', // emerald-300
 		MASTERED: 'var(--color-mastered, #10b981)' // emerald-500
 	};
+
+	// Merge user progress with all possible rules for the grammar web
+	const grammarWebNodes = (data.allGrammarRules || []).map((rule: any) => {
+		const userProgress = data.grammarRules.find((ur: any) => ur.grammarRuleId === rule.id);
+		return {
+			...userProgress,
+			grammarRule: rule,
+			srsState: userProgress?.srsState || 'LOCKED',
+			eloRating: userProgress?.eloRating || 1000,
+			isLocked: !userProgress
+		};
+	});
 
 	// Summary Statistics Calculations
 	const totalVocab = data.vocabularies.length;
@@ -48,18 +61,18 @@
 		<h1 class="dark:text-white">Proficiency Dashboard</h1>
 		<p class="dark:text-slate-400">Track your language learning progress.</p>
 
-		{#if data.cefrProgress}
+		{#if (data as any).cefrProgress}
 			<div class="cefr-progress-container">
 				<div class="cefr-labels">
-					<span class="current-level">{data.cefrProgress.currentLevel}</span>
-					<span class="next-level">{data.cefrProgress.nextLevel || 'MAX'}</span>
+					<span class="current-level">{(data as any).cefrProgress.currentLevel}</span>
+					<span class="next-level">{(data as any).cefrProgress.nextLevel || 'MAX'}</span>
 				</div>
 				<div class="cefr-bar-track">
-					<div class="cefr-bar-fill" style="width: {data.cefrProgress.percentComplete}%">
-						<span class="cefr-percent">{data.cefrProgress.percentComplete}%</span>
+					<div class="cefr-bar-fill" style="width: {(data as any).cefrProgress.percentComplete}%">
+						<span class="cefr-percent">{(data as any).cefrProgress.percentComplete}%</span>
 					</div>
 				</div>
-				<p class="cefr-subtext">Overall Progress to {data.cefrProgress.nextLevel || 'Mastery'}</p>
+				<p class="cefr-subtext">Overall Progress to {(data as any).cefrProgress.nextLevel || 'Mastery'}</p>
 			</div>
 		{/if}
 
@@ -189,8 +202,8 @@
 									{#if vocab.vocabulary.plural}
 										<div><strong>Plural:</strong> {vocab.vocabulary.plural}</div>
 									{/if}
-									{#if vocab.vocabulary.meaning}
-										<div><strong>Meaning:</strong> {vocab.vocabulary.meaning}</div>
+									{#if (vocab.vocabulary as any).meaning}
+										<div><strong>Meaning:</strong> {(vocab.vocabulary as any).meaning}</div>
 									{/if}
 								</div>
 							</div>
@@ -202,19 +215,19 @@
 
 		<section class="grammar-section">
 			<h2 class="dark:text-white dark:border-slate-700">Grammar Web</h2>
-			{#if data.grammarRules.length === 0}
-				<p class="empty-state dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400">No grammar data available yet. Start learning!</p>
+			{#if grammarWebNodes.length === 0}
+				<p class="empty-state dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400">No grammar rules available for this language.</p>
 			{:else}
 				<div class="grammar-web-container dark:bg-slate-800 dark:border-slate-700">
 					<!-- Visual web lines drawing actual connections -->
 					<svg class="web-svg-lines" width="100%" height="100%">
-						{#each data.grammarRules as rule, i}
-							{#if i < data.grammarRules.length - 1}
+						{#each grammarWebNodes as rule, i}
+							{#if i < grammarWebNodes.length - 1}
 								<line 
 									x1="50%" 
-									y1="{100 / data.grammarRules.length * i + (100 / data.grammarRules.length / 2)}%" 
+									y1="{100 / grammarWebNodes.length * i + (100 / grammarWebNodes.length / 2)}%" 
 									x2="50%" 
-									y2="{100 / data.grammarRules.length * (i + 1) + (100 / data.grammarRules.length / 2)}%" 
+									y2="{100 / grammarWebNodes.length * (i + 1) + (100 / grammarWebNodes.length / 2)}%" 
 									class="web-connection-line"
 								/>
 							{/if}
@@ -222,12 +235,13 @@
 					</svg>
 					
 					<div class="web-tree-layout">
-						{#each data.grammarRules as rule}
-							{@const srsColor = srsColors[rule.srsState] || srsColors.UNSEEN}
-							{@const eloPercent = Math.max(0, Math.min(100, rule.srsState === 'LEARNING' ? ((rule.eloRating - 1000) / 50) * 100 : rule.srsState === 'KNOWN' ? ((rule.eloRating - 1050) / 100) * 100 : 100))}
+						{#each grammarWebNodes as rule}
+							{@const srsColor = (srsColors as any)[rule.srsState] || srsColors.LOCKED}
+							{@const eloPercent = rule.isLocked ? 0 : Math.max(0, Math.min(100, rule.srsState === 'LEARNING' ? ((rule.eloRating - 1000) / 50) * 100 : rule.srsState === 'KNOWN' ? ((rule.eloRating - 1050) / 100) * 100 : 100))}
 							
 							<button 
 								class="web-node-pill" 
+								class:locked={rule.isLocked}
 								style="--node-color: {srsColor}"
 								on:click={() => openGrammarModal(rule, srsColor, eloPercent)}
 								on:keydown={(e) => e.key === 'Enter' && openGrammarModal(rule, srsColor, eloPercent)}
@@ -247,11 +261,15 @@
 											<div class="word-tooltip-elo">
 												<div class="elo-header">
 													<span>Status: {rule.srsState}</span>
-													<span class="elo-score">ELO {Math.ceil(rule.eloRating)}</span>
+													{#if !rule.isLocked}
+														<span class="elo-score">ELO {Math.ceil(rule.eloRating)}</span>
+													{/if}
 												</div>
-												<div class="elo-progress-track">
-													<div class="elo-progress-fill {rule.srsState.toLowerCase()}" style="width: {eloPercent}%; background-color: {srsColor}"></div>
-												</div>
+												{#if !rule.isLocked}
+													<div class="elo-progress-track">
+														<div class="elo-progress-fill {rule.srsState.toLowerCase()}" style="width: {eloPercent}%; background-color: {srsColor}"></div>
+													</div>
+												{/if}
 											</div>
 											<p class="node-desc">{rule.grammarRule.description || 'No description available.'}</p>
 										</div>
@@ -321,10 +339,10 @@
 								<span>{vocab.vocabulary.plural}</span>
 							</div>
 						{/if}
-						{#if vocab.vocabulary.meaning}
+						{#if (vocab.vocabulary as any).meaning}
 							<div class="modal-detail-row">
 								<span class="detail-label dark:text-slate-400">Meaning:</span>
-								<span>{vocab.vocabulary.meaning}</span>
+								<span>{(vocab.vocabulary as any).meaning}</span>
 							</div>
 						{/if}
 					</div>
@@ -878,6 +896,16 @@
 		transform: translateY(-2px) scale(1.05);
 		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 0 15px var(--node-color)60;
 		z-index: 10;
+	}
+
+	.web-node-pill.locked {
+		opacity: 0.7;
+		border-style: dashed;
+		background-color: #f1f5f9;
+	}
+
+	.dark .web-node-pill.locked {
+		background-color: #0f172a;
 	}
 
 	.node-pill-content {

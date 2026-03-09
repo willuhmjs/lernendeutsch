@@ -133,7 +133,7 @@
 
 				// Try to extract just the conversational message from the streaming JSON
 				const match = responseText.match(/"message"\s*:\s*"((?:[^"\\]|\\.)*)/);
-				if (match) {
+				if (match && match[1]) {
 					try {
 						// parse securely if it represents a closed string
 						messages[assistantIndex].content = JSON.parse(`"${match[1]}"`);

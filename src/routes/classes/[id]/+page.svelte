@@ -587,7 +587,7 @@
 								/>
 							</div>
 							<div class="grammar-rules-list">
-								{#each availableRules.filter(r => r.title.toLowerCase().includes(grammarSearchQuery.toLowerCase())) as rule}
+									{#each availableRules.filter((r: any) => r.title.toLowerCase().includes(grammarSearchQuery.toLowerCase())) as rule}
 									<label class="grammar-rule-item" class:selected={selectedGrammarRules.includes(rule.id)}>
 										<input 
 											type="checkbox" 

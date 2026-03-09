@@ -45,6 +45,12 @@ export const load: PageServerLoad = async ({ locals }) => {
 		orderBy: { eloRating: 'desc' }
 	});
 
+	const allGrammarRules = await prisma.grammarRule.findMany({
+		where: { languageId: user.activeLanguage?.id },
+		include: { dependencies: true },
+		orderBy: { level: 'asc' }
+	});
+
 	const dueReviewCount = await prisma.userVocabularyProgress.count({
 		where: {
 			userId: user.id,
@@ -61,6 +67,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	return {
 		vocabularies,
 		grammarRules,
+		allGrammarRules,
 		dueReviewCount,
 		cefrProgress
 	};

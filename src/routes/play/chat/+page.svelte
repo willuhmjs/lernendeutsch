@@ -109,7 +109,7 @@
 					message: userMessageText,
 					persona,
 					language,
-					assignmentId: isAssignment ? assignment.id : undefined
+					assignmentId: isAssignment && assignment ? assignment.id : undefined
 				})
 			});
 
@@ -386,7 +386,7 @@
 							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
 							Passed
 						</div>
-						<button class="back-btn" on:click={() => goto(`/classes/${assignment.classId}`)}>Back to Class</button>
+						<button class="back-btn" on:click={() => assignment && goto(`/classes/${assignment.classId}`)}>Back to Class</button>
 					{:else}
 						<div class="progress-text">Messages: {messagesSent} / {targetScore}</div>
 						<div class="progress-bar-bg">
@@ -541,11 +541,11 @@
 
 			<!-- Input Area -->
 			<div class="input-area">
-				<SpecialCharKeyboard
-					bind:value={message}
-					inputElement={chatInputRef}
-					language={language}
-				/>
+					<SpecialCharKeyboard
+						bind:value={message}
+						inputElement={chatInputRef}
+						language={language}
+					/>
 				<div class="input-wrapper">
 					<div class="textarea-container">
 						<textarea

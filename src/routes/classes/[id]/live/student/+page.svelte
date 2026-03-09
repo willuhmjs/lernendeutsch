@@ -8,7 +8,7 @@
 	let loading = true;
 	let joined = false;
 	let currentUserId = '';
-	let shuffledOptions = [];
+	let shuffledOptions: any[] = [];
 	let lastQuestionId = '';
 	let lastAnswerCorrect: boolean | null = null;
 

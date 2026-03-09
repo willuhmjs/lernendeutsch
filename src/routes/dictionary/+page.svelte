@@ -286,9 +286,9 @@
 			
 			<div class="keyboard-wrapper">
 				<SpecialCharKeyboard 
-					languageName={currentLanguage} 
-					onChar={(char) => {
-						query += char;
+					language={currentLanguage} 
+					on:char={(event) => {
+						query += event.detail;
 						searchInputEl?.focus();
 						handleInput();
 					}} 
@@ -496,7 +496,7 @@
 									<div class="conjugation-tense">
 										<h4 class="tense-title">{tense}</h4>
 										<ul class="conjugation-list">
-											{#each Object.entries(forms) as [person, conjugation]}
+											{#each Object.entries(forms as Record<string, string>) as [person, conjugation]}
 												<li><span class="person">{person}:</span> {conjugation}</li>
 											{/each}
 										</ul>
@@ -514,7 +514,7 @@
 									<div class="declension-case">
 										<h4 class="case-title">{caseName}</h4>
 										<ul class="declension-list">
-											{#each Object.entries(forms) as [gender, declension]}
+											{#each Object.entries(forms as Record<string, string>) as [gender, declension]}
 												<li><span class="gender">{gender}:</span> {declension}</li>
 											{/each}
 										</ul>

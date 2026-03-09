@@ -8,10 +8,18 @@
 
 	// Game Details Editing State
 	let isEditingDetails = $state(false);
-	let editTitle = $state(game.title);
-	let editDescription = $state(game.description || '');
-	let isPublished = $state(game.isPublished);
+	let editTitle = $state('');
+	let editDescription = $state('');
+	let isPublished = $state(false);
 	let isPublishing = $state(false);
+
+	$effect(() => {
+		if (!isEditingDetails) {
+			editTitle = game.title;
+			editDescription = game.description || '';
+			isPublished = game.isPublished;
+		}
+	});
 
 	// Generating State
 	let isGenerating = $state(false);
@@ -363,12 +371,12 @@
 			<h3>New Question</h3>
 			<div class="edit-form">
 				<div class="field">
-					<label>Question prompt <span class="required">*</span></label>
-					<input type="text" bind:value={newQuestion} disabled={isPublishing} placeholder="e.g. Translate 'Hello'" class="form-input" />
+					<label for="new-question">Question prompt <span class="required">*</span></label>
+					<input id="new-question" type="text" bind:value={newQuestion} disabled={isPublishing} placeholder="e.g. Translate 'Hello'" class="form-input" />
 				</div>
 				<div class="field">
-					<label>Correct Answer <span class="required">*</span></label>
-					<input type="text" bind:value={newAnswer} disabled={isPublishing} placeholder="e.g. Bonjour" class="form-input answer-input" />
+					<label for="new-answer">Correct Answer <span class="required">*</span></label>
+					<input id="new-answer" type="text" bind:value={newAnswer} disabled={isPublishing} placeholder="e.g. Bonjour" class="form-input answer-input" />
 				</div>
 				<div class="field">
 					<label>Incorrect Options (Optional)</label>
@@ -396,12 +404,12 @@
 				{#if editingQuestionId === question.id}
 					<div class="edit-form" style="width: 100%;">
 						<div class="field">
-							<label>Question prompt <span class="required">*</span></label>
-							<input type="text" bind:value={editQuestionText} class="form-input" />
+							<label for="edit-question">Question prompt <span class="required">*</span></label>
+							<input id="edit-question" type="text" bind:value={editQuestionText} class="form-input" />
 						</div>
 						<div class="field">
-							<label>Correct Answer <span class="required">*</span></label>
-							<input type="text" bind:value={editAnswer} class="form-input answer-input" />
+							<label for="edit-answer">Correct Answer <span class="required">*</span></label>
+							<input id="edit-answer" type="text" bind:value={editAnswer} class="form-input answer-input" />
 						</div>
 						<div class="field">
 							<label>Incorrect Options (Optional)</label>

@@ -9,6 +9,8 @@ type Vocabulary = {
 	gender: 'der' | 'die' | 'das' | null;
 	plural: string | null;
 	metadata: import('@prisma/client').Prisma.JsonValue | null;
+	cefrLevel: string;
+	isBeginner: boolean;
 	createdAt: Date;
 	updatedAt: Date;
 };
@@ -310,8 +312,8 @@ function calculateNewElo(
 
 export function deriveSrsState(eloRating: number, baseDifficulty: number): SrsState {
 	const competence = eloRating - baseDifficulty;
-	if (competence < 50) return 'LEARNING';
-	if (competence < 150) return 'KNOWN';
+	if (competence < 100) return 'LEARNING';
+	if (competence < 300) return 'KNOWN';
 	return 'MASTERED';
 }
 
@@ -398,7 +400,7 @@ export async function updateEloRatings(
 			});
 
 			// Use the CEFR level of the vocabulary item to determine base difficulty
-			const baseDifficulty = mapLevelToElo(vocab.cefrLevel || 'A1');
+			const baseDifficulty = mapLevelToElo((vocab as { cefrLevel?: string }).cefrLevel || 'A1');
 
 			const userVocab = await prisma.userVocabulary.findUnique({
 				where: { userId_vocabularyId: { userId, vocabularyId: vocab.id } }
@@ -444,12 +446,8 @@ export async function updateEloRatings(
 			});
 
 			if (!grammarExists) {
-				await prisma.grammarRule.create({
-					data: {
-						id: grammarUpdate.id,
-						title: grammarUpdate.id // Fallback to id if title isn't available
-					}
-				});
+				console.warn(`Attempted to update non-existent grammar rule: ${grammarUpdate.id}`);
+				continue;
 			}
 
 			const baseDifficulty = mapLevelToElo(grammarExists?.level || 'A1');
@@ -498,7 +496,7 @@ export async function updateEloRatings(
 				data: { lemma: lemma }
 			});
 
-			const baseDifficulty = mapLevelToElo(vocab.cefrLevel || 'A1');
+			const baseDifficulty = mapLevelToElo((vocab as { cefrLevel?: string }).cefrLevel || 'A1');
 
 			const userVocab = await prisma.userVocabulary.findUnique({
 				where: { userId_vocabularyId: { userId, vocabularyId: vocab.id } }

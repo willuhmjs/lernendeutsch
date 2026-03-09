@@ -1342,13 +1342,14 @@ export async function runSeed(client: PrismaClient = prisma, override: boolean =
 		const existing = await client.grammarRule.findFirst({
 			where: { title: rule.name, languageId: french.id }
 		});
+		const level = rule.difficulty === 1 ? 'A1' : rule.difficulty === 2 ? 'A2' : 'B1';
 		if (existing) {
 			await client.grammarRule.update({
 				where: { id: existing.id },
 				data: {
 					description: rule.description,
 					guide: rule.description,
-					level: rule.difficulty.toString()
+					level
 				}
 			});
 		} else {
@@ -1357,7 +1358,7 @@ export async function runSeed(client: PrismaClient = prisma, override: boolean =
 					title: rule.name,
 					description: rule.description,
 					guide: rule.description,
-					level: rule.difficulty.toString(),
+					level,
 					languageId: french.id
 				}
 			});

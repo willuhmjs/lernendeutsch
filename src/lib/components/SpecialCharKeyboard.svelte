@@ -19,21 +19,23 @@
 	$: displayChars = isShift ? activeChars.map((c) => c.toUpperCase()) : activeChars;
 
 	function insertChar(char: string) {
-		if (!inputElement) {
-			value += char;
+		const c: string = char;
+		const input: any = inputElement;
+		if (!input) {
+			value += c;
 			return;
 		}
 
-		const start = inputElement.selectionStart || 0;
-		const end = inputElement.selectionEnd || 0;
+		const start = input.selectionStart || 0;
+		const end = input.selectionEnd || 0;
 
-		value = value.substring(0, start) + char + value.substring(end);
+		value = value.substring(0, start) + c + value.substring(end);
 
 		// Restore cursor position after Svelte updates the DOM
 		requestAnimationFrame(() => {
-			if (inputElement) {
-				inputElement.focus();
-				inputElement.setSelectionRange(start + char.length, start + char.length);
+			if (input) {
+				input.focus();
+				input.setSelectionRange(start + c.length, start + c.length);
 			}
 		});
 	}

@@ -59,53 +59,123 @@ export async function POST(event) {
 		const userLevelIndex = cefrLevels.indexOf(targetCefrLevel);
 		const allowedLevels = cefrLevels.slice(0, userLevelIndex + 1);
 
-		// Target a larger pool (10-15 words) so the LLM has choices for thematic coherence
-		const targetLearningCount = Math.min(15, Math.max(10, 5 + userLevelIndex * 2));
-
 		const now = new Date();
+		const nearDue = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
-		// 1 & 2 & 3. Fetch Mastered and Learning Vocabulary and Grammar concurrently
-		// Fetch a larger pool, then we will shuffle and select a subset
-		let [masteredVocabDb, learningVocabDb, masteredGrammarDb, allMasteredGrammarIdsQuery] =
-			await Promise.all([
-				prisma.userVocabulary.findMany({
+		// 1. Get current LEARNING pool (regardless of due date)
+		const learningPool = await prisma.userVocabulary.findMany({
+			where: {
+				userId,
+				srsState: SrsState.LEARNING,
+				vocabulary: { languageId: activeLanguageId } as any
+			},
+			include: { vocabulary: { include: { meanings: true } } }
+		});
+
+		// 2. If pool < 3, replenish to 6
+		if (learningPool.length < 3) {
+			const needed = 6 - learningPool.length;
+
+			const knownVocabIds = await prisma.userVocabulary.findMany({
+				where: { userId },
+				select: { vocabularyId: true }
+			});
+			const knownIdsArray = knownVocabIds.map((v) => v.vocabularyId);
+
+			// Try to find level-appropriate words, prioritizing beginner words first if at A1
+			let unseenVocabs: any[] = [];
+			if (targetCefrLevel === 'A1') {
+				unseenVocabs = await prisma.vocabulary.findMany({
 					where: {
-						userId,
-						srsState: { in: [SrsState.KNOWN, SrsState.MASTERED] },
-						OR: [{ nextReviewDate: null }, { nextReviewDate: { lte: now } }],
-						vocabulary: { meanings: { some: {} }, languageId: activeLanguageId } as any
-					},
-					include: { vocabulary: { include: { meanings: true } } },
-					take: 100
-				}),
-				prisma.userVocabulary.findMany({
+						id: { notIn: knownIdsArray },
+						meanings: { some: {} },
+						languageId: activeLanguageId,
+						cefrLevel: { in: allowedLevels },
+						isBeginner: true
+					} as any,
+					take: needed
+				});
+			}
+
+			if (unseenVocabs.length < needed) {
+				const additionalUnseen = await prisma.vocabulary.findMany({
 					where: {
+						id: { notIn: [...knownIdsArray, ...unseenVocabs.map((v) => v.id)] },
+						meanings: { some: {} },
+						languageId: activeLanguageId,
+						cefrLevel: { in: allowedLevels }
+					} as any,
+					take: needed - unseenVocabs.length
+				});
+				unseenVocabs = [...unseenVocabs, ...additionalUnseen];
+			}
+
+			for (const vocab of unseenVocabs) {
+				const newUserVocab = await prisma.userVocabulary.create({
+					data: {
 						userId,
-						srsState: { in: [SrsState.UNSEEN, SrsState.LEARNING] },
-						OR: [{ nextReviewDate: null }, { nextReviewDate: { lte: now } }],
-						vocabulary: { meanings: { some: {} }, languageId: activeLanguageId } as any
+						vocabularyId: vocab.id,
+						srsState: SrsState.LEARNING,
+						eloRating: 1000,
+						nextReviewDate: now // Make it due immediately
 					},
-					include: { vocabulary: { include: { meanings: true } } },
-					take: 100
-				}),
-				prisma.userGrammarRule.findMany({
-					where: {
-						userId,
-						srsState: { in: [SrsState.KNOWN, SrsState.MASTERED] },
-						OR: [{ nextReviewDate: null }, { nextReviewDate: { lte: now } }]
-					},
-					orderBy: [{ eloRating: 'asc' }, { nextReviewDate: 'asc' }],
-					include: { grammarRule: true },
-					take: 5
-				}),
-				prisma.userGrammarRule.findMany({
-					where: {
-						userId,
-						srsState: { in: [SrsState.KNOWN, SrsState.MASTERED] }
-					},
-					select: { grammarRuleId: true }
-				})
-			]);
+					include: { vocabulary: { include: { meanings: true } } }
+				});
+				learningPool.push(newUserVocab as any);
+			}
+		}
+
+		// 3. Select due/near-due words from the pool for THIS lesson
+		let selectedLearning = learningPool.filter(
+			(uv) => !uv.nextReviewDate || uv.nextReviewDate <= now
+		);
+
+		if (selectedLearning.length < 3) {
+			// Relax filter: include near-due words (within 24 hours)
+			const nearDueLearning = learningPool.filter(
+				(uv) => uv.nextReviewDate && uv.nextReviewDate > now && uv.nextReviewDate <= nearDue
+			);
+			selectedLearning = [...selectedLearning, ...nearDueLearning];
+		}
+
+		// If still too few, just take anything from the pool to ensure we have content
+		if (selectedLearning.length < 3) {
+			selectedLearning = learningPool;
+		}
+
+		// Final selection for the lesson (shuffled)
+		let learningVocabDb = selectedLearning.sort(() => 0.5 - Math.random()).slice(0, 6);
+
+		// 4. Fetch Mastered Vocabulary and Grammar
+		let [masteredVocabDb, masteredGrammarDb, allMasteredGrammarIdsQuery] = await Promise.all([
+			prisma.userVocabulary.findMany({
+				where: {
+					userId,
+					srsState: { in: [SrsState.KNOWN, SrsState.MASTERED] },
+					OR: [{ nextReviewDate: null }, { nextReviewDate: { lte: now } }],
+					vocabulary: { meanings: { some: {} }, languageId: activeLanguageId } as any
+				},
+				include: { vocabulary: { include: { meanings: true } } },
+				take: 20
+			}),
+			prisma.userGrammarRule.findMany({
+				where: {
+					userId,
+					srsState: { in: [SrsState.KNOWN, SrsState.MASTERED] },
+					OR: [{ nextReviewDate: null }, { nextReviewDate: { lte: now } }]
+				},
+				orderBy: [{ eloRating: 'asc' }, { nextReviewDate: 'asc' }],
+				include: { grammarRule: true },
+				take: 5
+			}),
+			prisma.userGrammarRule.findMany({
+				where: {
+					userId,
+					srsState: { in: [SrsState.KNOWN, SrsState.MASTERED] }
+				},
+				select: { grammarRuleId: true }
+			})
+		]);
 
 		const masteredGrammarIds = new Set(allMasteredGrammarIdsQuery.map((g) => g.grammarRuleId));
 
@@ -130,71 +200,7 @@ export async function POST(event) {
 			})
 			.slice(0, 1);
 
-		// Shuffle and take a random subset of words for the prompt to ensure diversity
-		masteredVocabDb = masteredVocabDb.sort(() => 0.5 - Math.random()).slice(0, 10);
-		learningVocabDb = learningVocabDb.sort(() => 0.5 - Math.random()).slice(0, targetLearningCount);
-
-		// Always try to inject 1-2 new random words to keep the user learning
-		const knownVocabIds = await prisma.userVocabulary.findMany({
-			where: { userId },
-			select: { vocabularyId: true }
-		});
-
-		const knownIdsArray = knownVocabIds.map((v) => v.vocabularyId);
-
-		// To get random unseen words, we can't easily order by random in standard Prisma findMany without fetching all.
-		// A fast approximation is getting a random offset using count.
-		const unseenCount = await prisma.vocabulary.count({
-			where: { id: { notIn: knownIdsArray }, meanings: { some: {} }, languageId: activeLanguageId } as any
-		});
-
-		if (unseenCount > 0 && learningVocabDb.length < targetLearningCount) {
-			const needed = targetLearningCount - learningVocabDb.length;
-			const randomSkip = Math.max(0, Math.floor(Math.random() * unseenCount) - needed);
-			const unseenVocabs = await prisma.vocabulary.findMany({
-				where: {
-					id: { notIn: knownIdsArray },
-					meanings: { some: {} },
-					languageId: activeLanguageId
-				},
-				skip: randomSkip,
-				take: needed
-			});
-
-			// Push these directly into learning list so they get taught
-			for (const uv of unseenVocabs) {
-				// @ts-expect-error type inference
-				learningVocabDb.push({ vocabulary: uv });
-			}
-		}
-
-		// Fallback for new users: if no UserVocabulary exists, pick random Vocabulary
-		if (masteredVocabDb.length === 0 && learningVocabDb.length === 0) {
-			const allVocabs = await prisma.vocabulary.findMany({
-				where: { meanings: { some: {} }, languageId: activeLanguageId } as any,
-				take: 22
-			});
-			// @ts-expect-error type inference
-			masteredVocabDb = allVocabs.slice(0, 20).map((v) => ({ vocabulary: v }));
-			// @ts-expect-error type inference
-			learningVocabDb = allVocabs.slice(20, 22).map((v) => ({ vocabulary: v }));
-		}
-
-		// If we still have no learning vocabulary, pick some unseen ones from the global list
-		if (learningVocabDb.length === 0) {
-			const unseenVocabs = await prisma.vocabulary.findMany({
-				where: {
-					id: { notIn: knownVocabIds.map((v) => v.vocabularyId) },
-					meanings: { some: {} },
-					languageId: activeLanguageId
-				},
-				take: 2
-			});
-			// @ts-expect-error type inference
-			learningVocabDb = unseenVocabs.map((v) => ({ vocabulary: v }));
-		}
-
-		// 3. Same for Grammar
+		// Grammar fallback logic
 		if (masteredGrammarDb.length === 0 && learningGrammarDb.length === 0) {
 			const potentialNewGrammars = await prisma.grammarRule.findMany({
 				where: { level: { in: allowedLevels }, languageId: activeLanguageId },
@@ -219,7 +225,6 @@ export async function POST(event) {
 			}
 		}
 
-		// If we still have no learning grammar, pick some unseen ones from the global list
 		if (learningGrammarDb.length === 0) {
 			const knownGrammarIds = await prisma.userGrammarRule.findMany({
 				where: { userId },
@@ -257,8 +262,8 @@ export async function POST(event) {
 			eloRating: uv.eloRating ?? 1000,
 			srsState: uv.srsState ?? 'UNSEEN'
 		}));
-		const masteredGrammar = masteredGrammarDb.map((ug) => ug.grammarRule);
-		const learningGrammar = learningGrammarDb.map((ug) => ug.grammarRule);
+		const masteredGrammar = masteredGrammarDb.map((ug: any) => ug.grammarRule);
+		const learningGrammar = learningGrammarDb.map((ug: any) => ug.grammarRule);
 
 		// Build short ID maps for LLM (saves tokens & prevents UUID garbling)
 		const idMap: Record<string, string> = {}; // short -> real UUID
@@ -286,10 +291,10 @@ export async function POST(event) {
 			)
 			.join('\n');
 		const masteredGrammarList = masteredGrammar
-			.map((g) => `- ${g.title} (${g.description})`)
+			.map((g: any) => `- ${g.title} (${g.description})`)
 			.join('\n');
 		const learningGrammarList = learningGrammar
-			.map((g, i) => `- ${g.title} (${g.description}) - ID: g${i}`)
+			.map((g: any, i) => `- ${g.title} (${g.description}) - ID: g${i}`)
 			.join('\n');
 
 		const userLevel = locals.user.cefrLevel || 'A1';

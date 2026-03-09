@@ -867,22 +867,26 @@
 	}
 
 	function levenshteinDistance(a: string, b: string): number {
-		if (a.length === 0) return b.length;
-		if (b.length === 0) return a.length;
-		const matrix = Array(b.length + 1).fill(null).map(() => Array(a.length + 1).fill(null));
-		for (let i = 0; i <= a.length; i += 1) matrix[0][i] = i;
-		for (let j = 0; j <= b.length; j += 1) matrix[j][0] = j;
-		for (let j = 1; j <= b.length; j += 1) {
-			for (let i = 1; i <= a.length; i += 1) {
-				const indicator = a[i - 1] === b[j - 1] ? 0 : 1;
+		const s1 = a;
+		const s2 = b;
+		if (s1.length === 0) return s2.length;
+		if (s2.length === 0) return s1.length;
+		const matrix: (number | null)[][] = Array(s2.length + 1)
+			.fill(null)
+			.map(() => Array(s1.length + 1).fill(null));
+		for (let i = 0; i <= s1.length; i += 1) matrix[0][i] = i;
+		for (let j = 0; j <= s2.length; j += 1) matrix[j][0] = j;
+		for (let j = 1; j <= s2.length; j += 1) {
+			for (let i = 1; i <= s1.length; i += 1) {
+				const indicator = s1[i - 1] === s2[j - 1] ? 0 : 1;
 				matrix[j][i] = Math.min(
-					matrix[j][i - 1] + 1, // insertion
-					matrix[j - 1][i] + 1, // deletion
-					matrix[j - 1][i - 1] + indicator // substitution
+					(matrix[j][i - 1] as number) + 1,
+					(matrix[j - 1][i] as number) + 1,
+					(matrix[j - 1][i - 1] as number) + indicator
 				);
 			}
 		}
-		return matrix[b.length][a.length];
+		return matrix[s2.length][s1.length] as number;
 	}
 
 	function buildVocabMap(): Map<string, any[]> {
@@ -1022,7 +1026,7 @@
 				const maxDistance = cleanWord.length <= 5 ? 1 : 2;
 				let bestMatch: { vocab: any; distance: number } | null = null;
 				
-				for (const [key, vList] of vocabMap.entries()) {
+		for (const [key, vList] of (vocabMap.entries() as IterableIterator<[string, any[]]>)) {
 					// Quick length filter to avoid calculating Levenshtein on vastly different strings
 					if (Math.abs(key.length - cleanWord.length) > maxDistance) continue;
 					
@@ -1299,8 +1303,12 @@
 		);
 	}
 
-	function getEloLevelClass(elo: number) {
-		return elo < 1050 ? 'learning' : elo < 1150 ? 'known' : 'mastered';
+	function getEloLevelClass(elo: number): string {
+		const levels: Record<string, string> = { LOCKED: 'locked', UNSEEN: 'unseen', LEARNING: 'learning', KNOWN: 'known', MASTERED: 'mastered' };
+		const e = Number(elo);
+		if (e < 1050) return levels['LEARNING'] || 'learning';
+		if (e < 1150) return levels['KNOWN'] || 'known';
+		return levels['MASTERED'] || 'mastered';
 	}
 
 	$: if (feedback) {
@@ -2453,50 +2461,50 @@ r<svelte:head>
 						</div>
 					{:else}
 						<div class="games-grid">
-							{#each communityGames as game}
-								<div class="card-duo game-card">
-									<div class="game-card-content">
-										<div class="game-card-header">
-											<h3>{game.title}</h3>
-											<span class="language-badge" title={game.language}>
-												{getFlagEmoji(game.language)}
-											</span>
-										</div>
-										<p class="game-author">by {game.creator?.username || 'Unknown'}</p>
-										<p class="game-description">
-											{game.description || 'No description provided.'}
-										</p>
-										<div class="game-meta" style="justify-content: space-between; align-items: center;">
-											<span>
-												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-													><path
-														stroke-linecap="round"
-														stroke-linejoin="round"
-														stroke-width="2"
-														d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-													/></svg
-												>
-												{game._count?.questions || 0} questions
-											</span>
-											{#if game.category && game.category !== 'General'}
-												<span class="meta-badge">{game.category}</span>
-											{/if}
-										</div>
-									</div>
-									<div class="game-actions">
-										{#if canPlayLive}
-											<button
-												type="button"
-												class="btn-action live-btn"
-												on:click={() => handlePlayLive(game.id)}
-											>
-												Play Live
-											</button>
-										{/if}
-										<a href="/play/games/{game.id}/play" class="btn-action"> Play </a>
-									</div>
+					{#each data.communityGames as game}
+						<div class="card-duo game-card">
+							<div class="game-card-content">
+								<div class="game-card-header">
+									<h3>{game.title}</h3>
+									<span class="language-badge" title={game.language}>
+										{getFlagEmoji(game.language)}
+									</span>
 								</div>
-							{/each}
+								<p class="game-author">by {game.creator?.username || 'Unknown'}</p>
+								<p class="game-description">
+									{game.description || 'No description provided.'}
+								</p>
+								<div class="game-meta" style="justify-content: space-between; align-items: center;">
+									<span>
+										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+											><path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+											/></svg
+										>
+										{(game as { _count?: { questions: number } })._count?.questions || 0} questions
+									</span>
+									{#if game.category && game.category !== 'General'}
+										<span class="meta-badge">{game.category}</span>
+									{/if}
+								</div>
+							</div>
+							<div class="game-actions">
+								{#if canPlayLive}
+									<button
+										type="button"
+										class="btn-action live-btn"
+										on:click={() => handlePlayLive(game.id)}
+									>
+										Play Live
+									</button>
+								{/if}
+								<a href="/play/games/{game.id}/play" class="btn-action"> Play </a>
+							</div>
+						</div>
+					{/each}
 						</div>
 						
 						{#if communityGames.length < totalCommunityGames}

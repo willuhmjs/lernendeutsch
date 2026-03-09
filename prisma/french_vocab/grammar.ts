@@ -15,7 +15,7 @@ export const frenchGrammarRules = [
 			'Most French nouns add an -s to form the plural. Articles and adjectives must agree in number.',
 		difficulty: 1,
 		isEnabled: true,
-		dependencies: ['french_gender']
+		dependencies: ['Gender of Nouns']
 	},
 	{
 		id: 'french_present_er',
@@ -32,6 +32,6 @@ export const frenchGrammarRules = [
 			'Adjectives must agree in gender and number with the noun they modify, and usually follow the noun.',
 		difficulty: 2,
 		isEnabled: true,
-		dependencies: ['french_gender', 'french_number']
+		dependencies: ['Gender of Nouns', 'Plural of Nouns']
 	}
 ];

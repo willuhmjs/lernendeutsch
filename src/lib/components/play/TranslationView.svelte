@@ -4,7 +4,7 @@
 	export let feedback: any;
 	export let loading: boolean;
 	export let userInput: string;
-	export let lessonLanguage: any;
+	export let lessonLanguage: { name: string } | null | undefined;
 </script>
 
 <div class="form-group">
