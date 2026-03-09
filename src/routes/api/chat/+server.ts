@@ -108,7 +108,7 @@ export async function POST(event) {
 				grammarRule: { languageId: activeLanguage.id }
 			},
 			include: { grammarRule: true },
-			take: 5, // get some recent/active grammar
+			take: 10, // Increased from 5 to improve tracking comprehensiveness
 			orderBy: { nextReviewDate: 'asc' }
 		});
 
@@ -153,17 +153,17 @@ Set "assignmentCompleted" to true if the user has reached at least ${assignmentG
 You must embody this character completely, down to your personality, quirks, and worldview. NEVER break character, never refer to yourself as an AI, and respond exactly as this character naturally would in ${currentSession.language}. 
 Keep your responses relatively short, realistic, and conversational, suitable for an authentic dialogue.
 
-In addition to your reply, you must act as a grader. Evaluate the user's last message.
+In addition to your reply, you must act as a grader. Evaluate the user's last message for both vocabulary and grammar accuracy.
 Provide brief feedback in English ("feedbackEnglish") on their grammar and vocabulary usage.
 If the user correctly used any of their targeted vocabulary, or if you can evaluate words they used, provide a score (0.0 to 1.0) for them in "vocabularyUpdates".
-If they correctly used any of their targeted grammar rules, provide a score (0.0 to 1.0) for them in "grammarUpdates".
+If they correctly used any of their targeted grammar rules, provide a score (0.0 to 1.0) for them in "grammarUpdates". BE THOROUGH: if a message demonstrates a grammar rule (e.g. past tense, word order), you MUST score it.
 If they used OTHER ${currentSession.language} words correctly by coincidence, list their base forms (lemmas) in lowercase in "extraVocabLemmas".
 ${assignmentPrompt}
 
-Targeted Vocabulary the user is learning:
+Targeted Vocabulary the user is learning (Score these if used):
 ${userVocabList || '(None currently active)'}
 
-Targeted Grammar Rules the user is learning:
+Targeted Grammar Rules the user is learning (Score these if demonstrated):
 ${userGrammarList || '(None currently active)'}
 
 Return your response as a JSON object with the following structure:

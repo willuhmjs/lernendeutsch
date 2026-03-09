@@ -8,13 +8,28 @@ import { prisma } from '$lib/server/prisma';
  */
 
 // Core A1 grammar concepts to seed as LEARNING
-const BEGINNER_GRAMMAR_TITLES = [
-	'Present Tense (Präsens) - Regular Verbs',
-	'Sein, Haben, Werden - Conjugation',
-	'Definite Articles (Nominative)',
-	'Personal Pronouns (Nominative)',
-	'Word Order - Main Clause (Hauptsatz)'
-];
+const BEGINNER_GRAMMAR_TITLES: Record<string, string[]> = {
+	de: [
+		'Present Tense (Präsens) - Regular Verbs',
+		'Sein, Haben, Werden - Conjugation',
+		'Definite Articles (Nominative)',
+		'Personal Pronouns (Nominative)',
+		'Word Order - Main Clause (Hauptsatz)'
+	],
+	es: [
+		'Subject Pronouns (Pronombres Personales)',
+		'Noun Gender and Plurals',
+		'Definite and Indefinite Articles',
+		'Present Tense Regular Verbs (-ar, -er, -ir)',
+		'Ser vs Estar'
+	],
+	fr: [
+		'Gender of Nouns',
+		'Plural of Nouns',
+		'Present Tense (-er verbs)',
+		'Adjective Agreement'
+	]
+};
 
 export async function POST({ locals }: any) {
 	if (!locals.user) {
@@ -23,6 +38,7 @@ export async function POST({ locals }: any) {
 
 	const userId = locals.user.id;
 	const languageId = locals.user.activeLanguage!.id;
+	const languageCode = locals.user.activeLanguage!.code;
 
 	try {
 		// 1. Set user level to A1
@@ -70,12 +86,13 @@ export async function POST({ locals }: any) {
 
 		// 3. Seed starter grammar as LEARNING
 		let grammarSeeded = 0;
+		const titles = BEGINNER_GRAMMAR_TITLES[languageCode] || BEGINNER_GRAMMAR_TITLES['de'];
 
 		const grammarRules = await prisma.grammarRule.findMany({
 			where: {
 				languageId,
 				title: {
-					in: BEGINNER_GRAMMAR_TITLES
+					in: titles
 				}
 			}
 		});

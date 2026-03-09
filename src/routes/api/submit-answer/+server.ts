@@ -87,7 +87,7 @@ export async function POST(event) {
 			const evaluation = {
 				globalScore: score,
 				vocabularyUpdates: targetedVocabulary.map((v: { id: string }) => ({ id: v.id, score })),
-				grammarUpdates: [],
+				grammarUpdates: targetedGrammar.map((g: { id: string }) => ({ id: g.id, score })),
 				extraVocabLemmas: [],
 				feedback: isCorrect ? 'Correct!' : 'Incorrect.',
 				feedbackEnglish: isCorrect ? 'Correct!' : 'Incorrect.'
@@ -101,7 +101,8 @@ export async function POST(event) {
 				assignmentProgress = await updateAssignmentScore(assignmentId, userId, isCorrect);
 			}
 
-			const xpToAdd = isCorrect ? 10 : 0;
+			// Reduce XP for multiple choice as it's easier than other modes
+			const xpToAdd = isCorrect ? 5 : 0;
 			if (xpToAdd > 0) {
 				await updateGamification(userId, xpToAdd);
 			}
