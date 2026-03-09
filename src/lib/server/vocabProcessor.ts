@@ -469,6 +469,9 @@ export async function processVocabEnrichment(
 		const fullSentence = targetLanguageText.replace(/<[^>]+>/g, '').trim();
 
 		if (unknownContentWords.length > 0 || ambiguousInSentence.length > 0) {
+			// Signal start of AI lookup
+			enqueue({ type: 'vocab_enrichment', data: [], status: 'searching' });
+
 			const aiTasks: Promise<void>[] = [];
 
 			if (unknownContentWords.length > 0) {
@@ -647,8 +650,8 @@ export async function processVocabEnrichment(
 				);
 			}
 
-			// Don't await them sequentially so we don't block the API response
-			Promise.allSettled(aiTasks).catch((e) => console.error("Vocab enrichment error", e));
+			// Await all AI tasks so the stream stays open and tooltips show "AI analyzing"
+			await Promise.allSettled(aiTasks);
 		}
 	} catch (err) {
 		console.error('Vocab enrichment setup failed', err);

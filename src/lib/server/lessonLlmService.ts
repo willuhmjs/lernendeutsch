@@ -121,7 +121,7 @@ export async function generateLessonStream({
 						targetLanguageText = parsedResponse.targetSentence || '';
 					}
 
-					processVocabEnrichment(
+					await processVocabEnrichment(
 						userId,
 						targetLanguageText,
 						activeLangName,

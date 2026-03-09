@@ -1417,8 +1417,11 @@
 							userLevel = msg.data.userLevel || 'A1';
 							isAbsoluteBeginner = msg.data.isAbsoluteBeginner || false;
 						} else if (msg.type === 'vocab_enrichment') {
+							if (msg.status === 'searching') {
+								toast.success('AI generating vocabulary... 🤖');
+							}
 							const existingIds = new Set((challenge.allVocabulary || []).map((v: any) => v.id));
-							const newVocab = msg.data.filter((v: any) => !existingIds.has(v.id));
+							const newVocab = (msg.data || []).filter((v: any) => !existingIds.has(v.id));
 							challenge.allVocabulary = [...(challenge.allVocabulary || []), ...newVocab];
 						} else if (msg.type === 'chunk') {
 							accumulatedJson += msg.content;
@@ -1571,8 +1574,11 @@
 					if (msg.type === 'chunk') {
 						accumulatedJson += msg.content;
 					} else if (msg.type === 'vocab_enrichment') {
+						if (msg.status === 'searching') {
+							toast.success('AI generating vocabulary... 🤖');
+						}
 						const existingIds = new Set((challenge.allVocabulary || []).map((v: any) => v.id));
-						const newVocab = msg.data.filter((v: any) => !existingIds.has(v.id));
+						const newVocab = (msg.data || []).filter((v: any) => !existingIds.has(v.id));
 						challenge.allVocabulary = [...(challenge.allVocabulary || []), ...newVocab];
 					}
 				} catch (e) {}
