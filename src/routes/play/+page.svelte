@@ -3,6 +3,7 @@
 	import { fade, fly } from 'svelte/transition';
 	import toast from 'svelte-french-toast';
 	import { marked } from 'marked';
+	import { modal } from '$lib/modal.svelte';
 	import type { PageData } from './$types';
 
 	import FillInBlankView from '$lib/components/play/FillInBlankView.svelte';
@@ -1813,6 +1814,16 @@
 				// Auto-show English feedback for beginners
 				if (isAbsoluteBeginner && feedback.feedbackEnglish) {
 					showEnglishFeedback = true;
+				}
+
+				// Level Up Celebration
+				if (data.levelUp) {
+					userLevel = data.levelUp.newLevel;
+					isAbsoluteBeginner = userLevel === 'A1';
+					modal.alert(
+						`Congratulations! You've leveled up from ${data.levelUp.oldLevel} to ${data.levelUp.newLevel}!`,
+						'🎉 Level Up!'
+					);
 				}
 			} catch (e) {
 				console.error('Failed to parse full feedback response', e, responseText);

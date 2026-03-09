@@ -1,13 +1,10 @@
 import { json } from '@sveltejs/kit';
-import {
-	buildEvaluationPrompt,
-	parseEvaluationResponse,
-	updateEloRatings
-} from '$lib/server/grader';
+import { updateEloRatings, buildEvaluationPrompt, parseEvaluationResponse } from '$lib/server/grader';
 import { generateChatCompletion } from '$lib/server/llm';
 import { prisma } from '$lib/server/prisma';
 import { submitAnswerRateLimiter } from '$lib/server/ratelimit';
 import { updateGamification } from '$lib/server/gamification';
+import { CefrService } from '$lib/server/cefrService';
 
 /** Track a correct/incorrect answer against an assignment score record. */
 async function updateAssignmentScore(assignmentId: string, userId: string, isCorrect: boolean) {
@@ -107,12 +104,18 @@ export async function POST(event) {
 				await updateGamification(userId, xpToAdd);
 			}
 
-			return json({ ...evaluation, assignmentProgress });
+			// Check for CEFR level up
+			let levelUp = null;
+			if (locals.user.activeLanguage?.id) {
+				levelUp = await CefrService.evaluateLevelUp(userId, locals.user.activeLanguage.id);
+			}
+
+			return json({ ...evaluation, assignmentProgress, levelUp });
 		}
 
-		// Build prompt and call LLM with streaming
 		let userLevel = locals.user.cefrLevel || 'A1';
 		let activeLanguageName = bodyLanguageName || locals.user.activeLanguage?.name || 'German';
+		const activeLanguageId = locals.user.activeLanguage?.id;
 
 		if (assignmentId) {
 			const assignment = await prisma.assignment.findUnique({
@@ -201,10 +204,16 @@ export async function POST(event) {
 						await updateGamification(userId, xpToAdd);
 					}
 
+					// Check for CEFR level up
+					let levelUp = null;
+					if (activeLanguageId) {
+						levelUp = await CefrService.evaluateLevelUp(userId, activeLanguageId);
+					}
+
 					// Send the final evaluation payload before closing the stream
 					controller.enqueue(
 						new TextEncoder().encode(
-							`\n\nJSON_PAYLOAD:${JSON.stringify({ ...evaluation, assignmentProgress })}`
+							`\n\nJSON_PAYLOAD:${JSON.stringify({ ...evaluation, assignmentProgress, levelUp })}`
 						)
 					);
 				} catch (e) {

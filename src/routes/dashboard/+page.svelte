@@ -47,6 +47,22 @@
 	<header class="dashboard-header" in:fly={{ y: 20, duration: 400 }}>
 		<h1 class="dark:text-white">Proficiency Dashboard</h1>
 		<p class="dark:text-slate-400">Track your language learning progress.</p>
+
+		{#if data.cefrProgress}
+			<div class="cefr-progress-container">
+				<div class="cefr-labels">
+					<span class="current-level">{data.cefrProgress.currentLevel}</span>
+					<span class="next-level">{data.cefrProgress.nextLevel || 'MAX'}</span>
+				</div>
+				<div class="cefr-bar-track">
+					<div class="cefr-bar-fill" style="width: {data.cefrProgress.percentComplete}%">
+						<span class="cefr-percent">{data.cefrProgress.percentComplete}%</span>
+					</div>
+				</div>
+				<p class="cefr-subtext">Overall Progress to {data.cefrProgress.nextLevel || 'Mastery'}</p>
+			</div>
+		{/if}
+
 		<div class="header-actions">
 			<a href="/play" class="btn-duo btn-primary">Start Lesson</a>
 			{#if data.dueReviewCount > 0}
@@ -378,6 +394,61 @@
 		max-width: 600px;
 		margin-left: auto;
 		margin-right: auto;
+	}
+
+	.cefr-progress-container {
+		max-width: 400px;
+		margin: 0 auto 2.5rem;
+		padding: 0 1rem;
+	}
+
+	.cefr-labels {
+		display: flex;
+		justify-content: space-between;
+		margin-bottom: 0.6rem;
+		font-weight: 800;
+		font-size: 1.25rem;
+		color: #ffffff;
+		letter-spacing: 0.05em;
+	}
+
+	.cefr-bar-track {
+		width: 100%;
+		height: 1.25rem;
+		background: rgba(255, 255, 255, 0.1);
+		border-radius: 9999px;
+		overflow: hidden;
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		position: relative;
+		box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+	}
+
+	.cefr-bar-fill {
+		height: 100%;
+		background: linear-gradient(90deg, #3b82f6, #8b5cf6, #d946ef);
+		border-radius: 9999px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+		min-width: 2.5rem;
+		box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+	}
+
+	.cefr-percent {
+		font-size: 0.7rem;
+		font-weight: 900;
+		color: white;
+		text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+	}
+
+	.cefr-subtext {
+		font-size: 0.75rem;
+		color: #94a3b8;
+		margin-top: 0.75rem;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		font-weight: 700;
 	}
 
 	.header-actions {

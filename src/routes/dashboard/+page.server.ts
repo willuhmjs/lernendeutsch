@@ -1,6 +1,7 @@
 import type { PageServerLoad } from './$types';
 import { prisma } from '$lib/server/prisma';
 import { redirect } from '@sveltejs/kit';
+import { CefrService } from '$lib/server/cefrService';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) {
@@ -53,9 +54,14 @@ export const load: PageServerLoad = async ({ locals }) => {
 		}
 	});
 
+	const cefrProgress = user.activeLanguage?.id 
+		? await CefrService.getCefrProgress(user.id, user.activeLanguage.id)
+		: null;
+
 	return {
 		vocabularies,
 		grammarRules,
-		dueReviewCount
+		dueReviewCount,
+		cefrProgress
 	};
 };

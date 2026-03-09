@@ -388,24 +388,20 @@ export async function updateEloRatings(
 	for (const vocabUpdate of payload.vocabularyUpdates || []) {
 		try {
 			// Ensure the Vocabulary exists
-			const vocabExists = await prisma.vocabulary.findUnique({
+			const vocab = await prisma.vocabulary.findUnique({
 				where: { id: vocabUpdate.id }
+			}) || await prisma.vocabulary.create({
+				data: {
+					id: vocabUpdate.id,
+					lemma: vocabUpdate.id // Fallback to id if lemma isn't available
+				}
 			});
 
-			if (!vocabExists) {
-				await prisma.vocabulary.create({
-					data: {
-						id: vocabUpdate.id,
-						lemma: vocabUpdate.id // Fallback to id if lemma isn't available
-					}
-				});
-			}
-
-			// We don't have CEFR levels for Vocabulary, so we assume an average 1000 base difficulty for words
-			const baseDifficulty = 1000;
+			// Use the CEFR level of the vocabulary item to determine base difficulty
+			const baseDifficulty = mapLevelToElo(vocab.cefrLevel || 'A1');
 
 			const userVocab = await prisma.userVocabulary.findUnique({
-				where: { userId_vocabularyId: { userId, vocabularyId: vocabUpdate.id } }
+				where: { userId_vocabularyId: { userId, vocabularyId: vocab.id } }
 			});
 
 			const currentElo = userVocab?.eloRating ?? baseDifficulty;
@@ -496,20 +492,16 @@ export async function updateEloRatings(
 		if (!lemma) continue;
 		try {
 			// Look up the word in the global vocabulary
-			let vocabExists = await prisma.vocabulary.findFirst({
+			const vocab = await prisma.vocabulary.findFirst({
 				where: { lemma: lemma }
+			}) || await prisma.vocabulary.create({
+				data: { lemma: lemma }
 			});
 
-			if (!vocabExists) {
-				vocabExists = await prisma.vocabulary.create({
-					data: { lemma: lemma }
-				});
-			}
-
-			const baseDifficulty = 1000;
+			const baseDifficulty = mapLevelToElo(vocab.cefrLevel || 'A1');
 
 			const userVocab = await prisma.userVocabulary.findUnique({
-				where: { userId_vocabularyId: { userId, vocabularyId: vocabExists.id } }
+				where: { userId_vocabularyId: { userId, vocabularyId: vocab.id } }
 			});
 
 			const currentElo = userVocab?.eloRating ?? baseDifficulty;
@@ -520,16 +512,16 @@ export async function updateEloRatings(
 			const newState = deriveSrsState(newElo, baseDifficulty);
 			const nextReviewDate = calculateNextReviewDate(newElo, baseDifficulty);
 
-			await updateSrsMetrics(userId, vocabExists.id, 1.0);
+			await updateSrsMetrics(userId, vocab.id, 1.0);
 
 			// We don't currently return extra vocab updates in the API response's main arrays,
 			// but we could if we wanted to show them. For now just update DB.
 
 			await prisma.userVocabulary.upsert({
-				where: { userId_vocabularyId: { userId, vocabularyId: vocabExists.id } },
+				where: { userId_vocabularyId: { userId, vocabularyId: vocab.id } },
 				create: {
 					userId,
-					vocabularyId: vocabExists.id,
+					vocabularyId: vocab.id,
 					eloRating: newElo,
 					srsState: newState,
 					nextReviewDate
