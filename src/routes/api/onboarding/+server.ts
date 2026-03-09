@@ -4,6 +4,15 @@ import { prisma } from '$lib/server/prisma';
 
 import type { RequestEvent } from './$types';
 
+const GREETINGS: Record<string, string> = {
+	German:
+		'Hallo! (Hello!) Ich freue mich darauf, herauszufinden, wie gut dein Deutsch bereits ist. Wie heißt du? (What is your name?)',
+	Spanish:
+		'¡Hola! (Hello!) Estoy emocionado de descubrir en qué nivel estás con tu español. ¿Cómo te llamas? (What is your name?)',
+	French:
+		'Bonjour ! (Hello!) Je suis ravi de découvrir votre niveau de français. Comment vous appelez-vous ? (What is your name?)'
+};
+
 const getSystemPrompt = (
 	activeLangName: string,
 	availableGrammarRules: string[]
@@ -88,21 +97,9 @@ export async function POST({ request, locals }: RequestEvent) {
 		const isRefining = existingProgress?.hasOnboarded === true;
 
 		if (messages.length === 0) {
-			const prompt = `You are a friendly ${activeLangName} language teacher. 
-Generate a warm, professional first greeting and an initial simple question to start a placement assessment for a new student.
-The greeting should be mostly in ${activeLangName}, but include English translations for key parts or a full translation in parentheses so the student feels comfortable.
-Encourage them that it's okay if they are just starting.
-Example: "¡Hola! (Hello!) I'm excited to find out where you are with your Spanish. ¿Cómo te llamas? (What is your name?)"
-Return ONLY the final greeting message.`;
-
-			const response = await generateChatCompletion({
-				userId,
-				messages: [{ role: 'user', content: prompt }],
-				systemPrompt: `You are a helpful assistant. Return only the requested greeting text for a ${activeLangName} teacher.`,
-				stream: false
-			});
-
-			const greetingMessage = response.choices[0]?.message?.content || `Hello! Welcome! I'm excited to find out where you are with your ${activeLangName}. Don't worry if you're just starting out — I'll adjust to your level.\n\nLet's begin: What is your name? Feel free to answer in ${activeLangName} or English!`;
+			const greetingMessage =
+				GREETINGS[activeLangName] ||
+				`Hello! Welcome! I'm excited to find out where you are with your ${activeLangName}. Don't worry if you're just starting out — I'll adjust to your level.\n\nLet's begin: What is your name? Feel free to answer in ${activeLangName} or English!`;
 
 			return json({
 				message: greetingMessage,
