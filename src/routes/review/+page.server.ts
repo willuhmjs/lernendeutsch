@@ -16,7 +16,11 @@ export async function load({ locals }) {
 			}
 		},
 		include: {
-			vocabulary: true
+			vocabulary: {
+				include: {
+					meanings: true
+				}
+			}
 		},
 		orderBy: {
 			nextReviewDate: 'asc'

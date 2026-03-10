@@ -156,7 +156,7 @@ JSON format:
 
 	const asciiNote = isNativeToTarget
 		? `Note: Do not penalize the user if they use ASCII equivalents for ${activeLanguageName} special characters (e.g., 'ss' instead of 'ß', 'ae' instead of 'ä', 'oe' instead of 'ö', 'ue' instead of 'ü', or their uppercase equivalents like 'Ae' for 'Ä'). Treat these as entirely correct.`
-		: '';
+		: `IMPORTANT: When ${activeLanguageName} does not grammatically distinguish between certain ${nativeLanguage} verb forms (e.g., simple vs. progressive vs. continuous aspect), accept ALL equivalent ${nativeLanguage} verb forms as fully correct. For example, if ${activeLanguageName} uses a single present tense form where ${nativeLanguage} has "I come" / "I am coming" / "I do come", all must receive a score of 1.0. Only penalize verb form differences when ${activeLanguageName} itself makes that distinction (e.g., separate past tenses like preterite vs. perfect, if applicable).`;
 
 	const grammarNote = isNativeToTarget
 		? ''
@@ -290,7 +290,7 @@ export function mapLevelToElo(level: string): number {
 	return levels[level.toUpperCase()] || 1000;
 }
 
-const K_FACTOR = 48;
+const K_FACTOR = 96;
 
 function calculateNewElo(
 	currentElo: number,
