@@ -91,6 +91,27 @@
 	function closeModal() {
 		selectedModalItem = null;
 	}
+
+	function getPrerequisiteProgress(rule: any) {
+		const deps = rule.grammarRule?.dependencies || [];
+		return deps.map((dep: any) => {
+			const node = grammarWebNodes.find((n: any) => n.grammarRule.id === dep.id);
+			const srsState = node?.srsState || 'LOCKED';
+			const isComplete = srsState === 'KNOWN' || srsState === 'MASTERED';
+			const elo = node?.eloRating || 1000;
+			const percent = srsState === 'MASTERED' ? 100
+				: srsState === 'KNOWN' ? Math.max(0, Math.min(100, ((elo - 1050) / 100) * 100))
+				: srsState === 'LEARNING' ? Math.max(0, Math.min(100, ((elo - 1000) / 50) * 100))
+				: 0;
+			return {
+				title: dep.title,
+				srsState,
+				isComplete,
+				percent,
+				color: (srsColors as any)[srsState] || srsColors.LOCKED
+			};
+		});
+	}
 </script>
 
 <div class="dashboard-container dark:text-slate-300">
@@ -432,20 +453,45 @@
 				
 			{:else if selectedModalItem.type === 'grammar'}
 				{@const rule = selectedModalItem.data}
-				
+				{@const prereqs = getPrerequisiteProgress(rule)}
+
 				<h3 class="modal-title dark:text-white">{rule.grammarRule.title}</h3>
-				
+
 				<div class="modal-body dark:text-slate-300">
 					<div class="modal-elo-section">
 						<div class="modal-elo-header">
 							<span class="dark:text-slate-400">Status: {rule.srsState}</span>
-							<span class="modal-elo-score" style="color: {selectedModalItem.color}">ELO {Math.ceil(rule.eloRating)}</span>
+							{#if !rule.isLocked}
+								<span class="modal-elo-score" style="color: {selectedModalItem.color}">ELO {Math.ceil(rule.eloRating)}</span>
+							{/if}
 						</div>
-						<div class="elo-progress-track">
-							<div class="elo-progress-fill" style="width: {selectedModalItem.eloPercent}%; background-color: {selectedModalItem.color}"></div>
-						</div>
+						{#if !rule.isLocked}
+							<div class="elo-progress-track">
+								<div class="elo-progress-fill" style="width: {selectedModalItem.eloPercent}%; background-color: {selectedModalItem.color}"></div>
+							</div>
+						{/if}
 					</div>
-					
+
+					{#if prereqs.length > 0}
+						<div class="prereq-section">
+							<h4 class="prereq-heading dark:text-slate-400">{rule.isLocked ? 'Prerequisites to Unlock' : 'Prerequisites'}</h4>
+							<div class="prereq-list">
+								{#each prereqs as prereq}
+									<div class="prereq-item">
+										<div class="prereq-item-header">
+											<span class="prereq-dot" style="background-color: {prereq.color}"></span>
+											<span class="prereq-title dark:text-slate-200">{prereq.title}</span>
+											<span class="prereq-status" style="color: {prereq.color}">{prereq.srsState}</span>
+										</div>
+										<div class="prereq-bar-track">
+											<div class="prereq-bar-fill" style="width: {prereq.percent}%; background-color: {prereq.color}"></div>
+										</div>
+									</div>
+								{/each}
+							</div>
+						</div>
+					{/if}
+
 					<div class="modal-details">
 						<p class="modal-desc">{rule.grammarRule.description || 'No description available.'}</p>
 						{#if rule.grammarRule.guide}
@@ -1245,6 +1291,77 @@
 
 	.modal-elo-score {
 		font-weight: 800;
+	}
+
+	.prereq-section {
+		margin-bottom: 1.5rem;
+		padding-bottom: 1.5rem;
+		border-bottom: 1px solid rgba(0,0,0,0.05);
+	}
+
+	.dark .prereq-section {
+		border-bottom-color: rgba(255,255,255,0.1);
+	}
+
+	.prereq-heading {
+		font-size: 0.8rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: #64748b;
+		margin: 0 0 0.75rem 0;
+	}
+
+	.prereq-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.prereq-item-header {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-bottom: 0.35rem;
+	}
+
+	.prereq-dot {
+		width: 10px;
+		height: 10px;
+		border-radius: 50%;
+		flex-shrink: 0;
+	}
+
+	.prereq-title {
+		font-size: 0.9rem;
+		font-weight: 600;
+		color: #334155;
+		flex: 1;
+	}
+
+	.prereq-status {
+		font-size: 0.7rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.prereq-bar-track {
+		width: 100%;
+		height: 6px;
+		background: #e2e8f0;
+		border-radius: 9999px;
+		overflow: hidden;
+	}
+
+	.dark .prereq-bar-track {
+		background: #1e293b;
+	}
+
+	.prereq-bar-fill {
+		height: 100%;
+		border-radius: 9999px;
+		transition: width 0.5s ease;
 	}
 
 	.modal-details {
