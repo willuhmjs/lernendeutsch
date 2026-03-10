@@ -188,6 +188,7 @@
 	let loadProgressPct = 0;
 	let loadTipIndex = 0;
 	let estimatedLoadMs = 9000;
+	let isLocalMode = false;
 	let _loadProgressInterval: ReturnType<typeof setInterval> | null = null;
 	let _loadTipInterval: ReturnType<typeof setInterval> | null = null;
 	let expandedGrammarId: string | null = null;
@@ -1342,6 +1343,7 @@
 			if (statRes.ok) {
 				const statData = await statRes.json();
 				estimatedLoadMs = statData.averageMs || 9000;
+				isLocalMode = statData.isLocalMode || false;
 			}
 		} catch {
 			/* use default */
@@ -2041,7 +2043,7 @@ r<svelte:head>
 				>
 					<div class="spinner"></div>
 					<div class="load-progress-track dark:bg-slate-700">
-						<div class="load-progress-fill" style="width: {loadProgressPct}%"></div>
+						<div class="load-progress-fill {isLocalMode ? 'local-mode-fill' : ''}" style="width: {loadProgressPct}%"></div>
 					</div>
 					<div class="load-tip-container">
 						{#key loadTipIndex}
@@ -3089,6 +3091,10 @@ r<svelte:head>
 		background: linear-gradient(to right, #3b82f6, #6366f1);
 		border-radius: 999px;
 		transition: width 0.12s linear;
+	}
+
+	.load-progress-fill.local-mode-fill {
+		background: linear-gradient(to right, #10b981, #059669); /* emerald gradient */
 	}
 
 	.load-tip-container {

@@ -6,9 +6,12 @@ export async function GET({ locals }) {
 		return json({ error: 'Unauthorized' }, { status: 401 });
 	}
 
+	const isLocalMode = !!locals.user.useLocalLlm;
+
 	return json({
-		averageMs: getAverageLoadTime(),
-		sampleCount: getSampleCount()
+		averageMs: getAverageLoadTime(isLocalMode),
+		sampleCount: getSampleCount(isLocalMode),
+		isLocalMode
 	});
 }
 
@@ -29,8 +32,9 @@ export async function POST({ locals, request }) {
 			return json({ error: 'Invalid load time value' }, { status: 400 });
 		}
 
-		await recordLoadTime(loadTimeMs);
-		return json({ success: true });
+		const isLocalMode = !!locals.user.useLocalLlm;
+		await recordLoadTime(loadTimeMs, isLocalMode);
+		return json({ success: true, isLocalMode });
 	} catch {
 		return json({ error: 'Invalid payload' }, { status: 400 });
 	}

@@ -236,12 +236,13 @@ model UserGrammarRule {
 }
 
 model SiteSettings {
-  id                String  @id @default("singleton")
-  localLoginEnabled Boolean @default(true)
-  loadTimeSamples   Int[]
-  llmEndpoint       String?
-  llmModel          String?
-  llmApiKey         String?
+  id                    String  @id @default("singleton")
+  localLoginEnabled     Boolean @default(true)
+  loadTimeSamples       Int[]
+  localLoadTimeSamples  Int[]   @default([])
+  llmEndpoint           String?
+  llmModel              String?
+  llmApiKey             String?
 }
 
 enum ClassRole {
