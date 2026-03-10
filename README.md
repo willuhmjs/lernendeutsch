@@ -1,6 +1,6 @@
-# Lernen Deutsch
+# LingoLearn
 
-A German language learning app with spaced repetition, AI-powered lesson generation, and grammar tracking. Built with SvelteKit, Prisma, and PostgreSQL.
+A language learning app with spaced repetition, AI-powered lesson generation, and grammar tracking. Built with SvelteKit, Prisma, and PostgreSQL.
 
 ## Features
 
