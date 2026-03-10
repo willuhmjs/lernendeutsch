@@ -99,17 +99,51 @@
 		<p class="dark:text-slate-400">Track your language learning progress.</p>
 
 		{#if (data as any).cefrProgress}
+			{@const cp = (data as any).cefrProgress}
 			<div class="cefr-progress-container">
 				<div class="cefr-labels">
-					<span class="current-level">{(data as any).cefrProgress.currentLevel}</span>
-					<span class="next-level">{(data as any).cefrProgress.nextLevel || 'MAX'}</span>
+					<span class="current-level">{cp.currentLevel}</span>
+					<span class="next-level">{cp.nextLevel || 'MAX'}</span>
 				</div>
 				<div class="cefr-bar-track">
-					<div class="cefr-bar-fill" style="width: {(data as any).cefrProgress.percentComplete}%">
-						<span class="cefr-percent">{(data as any).cefrProgress.percentComplete}%</span>
+					<div class="cefr-bar-fill" style="width: {cp.percentComplete}%">
+						<span class="cefr-percent">{cp.percentComplete}%</span>
 					</div>
 				</div>
-				<p class="cefr-subtext">Overall Progress to {(data as any).cefrProgress.nextLevel || 'Mastery'}</p>
+				<p class="cefr-subtext">Overall Progress to {cp.nextLevel || 'Mastery'}</p>
+
+				{#if cp.nextLevel}
+					<div class="cefr-detail-bars">
+						<div class="detail-bar-row">
+							<span class="detail-bar-label">Vocab Mastery</span>
+							<div class="detail-bar-track">
+								<div class="detail-bar-fill vocab" style="width: {Math.min(100, Math.round(cp.vocabMastery * 100 / 0.8))}%"></div>
+							</div>
+							<span class="detail-bar-value">{Math.round(cp.vocabMastery * 100)}%</span>
+						</div>
+						<div class="detail-bar-row">
+							<span class="detail-bar-label">Grammar Mastery</span>
+							<div class="detail-bar-track">
+								<div class="detail-bar-fill grammar" style="width: {Math.min(100, Math.round(cp.grammarMastery * 100 / 0.8))}%"></div>
+							</div>
+							<span class="detail-bar-value">{Math.round(cp.grammarMastery * 100)}%</span>
+						</div>
+						<div class="detail-bar-row">
+							<span class="detail-bar-label">Content Explored</span>
+							<div class="detail-bar-track">
+								<div class="detail-bar-fill exposure" style="width: {Math.min(100, Math.round(Math.min(cp.vocabExposure, cp.grammarExposure) * 100 / 0.6))}%"></div>
+							</div>
+							<span class="detail-bar-value">{Math.round(Math.min(cp.vocabExposure, cp.grammarExposure) * 100)}%</span>
+						</div>
+						<div class="detail-bar-row">
+							<span class="detail-bar-label">Avg ELO</span>
+							<div class="detail-bar-track">
+								<div class="detail-bar-fill elo" style="width: {Math.min(100, Math.round(cp.averageElo / cp.targetElo * 100))}%"></div>
+							</div>
+							<span class="detail-bar-value">{cp.averageElo} / {cp.targetElo}</span>
+						</div>
+					</div>
+				{/if}
 			</div>
 		{/if}
 
@@ -515,6 +549,57 @@
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
 		font-weight: 700;
+	}
+
+	.cefr-detail-bars {
+		margin-top: 1.25rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.detail-bar-row {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.detail-bar-label {
+		font-size: 0.65rem;
+		color: #94a3b8;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		width: 110px;
+		text-align: right;
+		flex-shrink: 0;
+	}
+
+	.detail-bar-track {
+		flex: 1;
+		height: 6px;
+		background: rgba(255, 255, 255, 0.1);
+		border-radius: 9999px;
+		overflow: hidden;
+	}
+
+	.detail-bar-fill {
+		height: 100%;
+		border-radius: 9999px;
+		transition: width 1s ease;
+	}
+
+	.detail-bar-fill.vocab { background: #3b82f6; }
+	.detail-bar-fill.grammar { background: #8b5cf6; }
+	.detail-bar-fill.exposure { background: #f59e0b; }
+	.detail-bar-fill.elo { background: #10b981; }
+
+	.detail-bar-value {
+		font-size: 0.65rem;
+		color: #cbd5e1;
+		font-weight: 700;
+		width: 70px;
+		flex-shrink: 0;
 	}
 
 	.header-actions {

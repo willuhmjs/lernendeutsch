@@ -68,8 +68,11 @@ model User {
   longestStreak    Int       @default(0)
   lastActivityDate DateTime?
   totalXp          Int       @default(0)
+  timezone         String?   // IANA timezone e.g. "America/New_York"
 
-  createdGames Game[]
+  createdGames          Game[]
+  grammarRuleProgress   UserGrammarRuleProgress[]
+  levelUpEvents         LevelUpEvent[]
 }
 
 model UserProgress {
@@ -171,7 +174,8 @@ model GrammarRule {
   level       String            @default("A1")
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
-  users       UserGrammarRule[]
+  users    UserGrammarRule[]
+  progress UserGrammarRuleProgress[]
 
   dependencies GrammarRule[] @relation("GrammarDependencies")
   dependents   GrammarRule[] @relation("GrammarDependencies")
@@ -234,6 +238,41 @@ model UserGrammarRule {
 
   @@unique([userId, grammarRuleId])
   @@index([userId, srsState, nextReviewDate])
+}
+
+model UserGrammarRuleProgress {
+  id                 String   @id @default(uuid())
+  userId             String
+  grammarRuleId      String
+  nextReviewDate     DateTime
+  interval           Int      @default(0)
+  easeFactor         Float    @default(2.5)
+  consecutiveCorrect Int      @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  grammarRule GrammarRule @relation(fields: [grammarRuleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, grammarRuleId])
+  @@index([nextReviewDate])
+}
+
+model LevelUpEvent {
+  id              String   @id @default(uuid())
+  userId          String
+  languageId      String
+  oldLevel        String
+  newLevel        String
+  vocabMastery    Float
+  grammarMastery  Float
+  averageElo      Float
+  createdAt       DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, languageId])
 }
 
 model SiteSettings {

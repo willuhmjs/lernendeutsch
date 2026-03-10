@@ -1,5 +1,23 @@
 import { prisma } from './prisma';
 
+function getDateInTimezone(date: Date, timezone: string | null): Date {
+	if (!timezone) {
+		return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+	}
+	const parts = new Intl.DateTimeFormat('en-US', {
+		timeZone: timezone,
+		year: 'numeric',
+		month: '2-digit',
+		day: '2-digit'
+	}).formatToParts(date);
+
+	const year = parseInt(parts.find(p => p.type === 'year')!.value);
+	const month = parseInt(parts.find(p => p.type === 'month')!.value) - 1;
+	const day = parseInt(parts.find(p => p.type === 'day')!.value);
+
+	return new Date(year, month, day);
+}
+
 export async function updateGamification(userId: string, xpToAdd: number) {
 	const user = await prisma.user.findUnique({
 		where: { id: userId },
@@ -7,7 +25,8 @@ export async function updateGamification(userId: string, xpToAdd: number) {
 			currentStreak: true,
 			longestStreak: true,
 			lastActivityDate: true,
-			totalXp: true
+			totalXp: true,
+			timezone: true
 		}
 	});
 
@@ -20,28 +39,18 @@ export async function updateGamification(userId: string, xpToAdd: number) {
 	let newLongestStreak = user.longestStreak;
 
 	if (user.lastActivityDate) {
-		const lastActivity = new Date(user.lastActivityDate);
-		// Normalize to start of day for accurate day differences
-		const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-		const lastActiveDay = new Date(
-			lastActivity.getFullYear(),
-			lastActivity.getMonth(),
-			lastActivity.getDate()
-		);
+		const today = getDateInTimezone(now, user.timezone);
+		const lastActiveDay = getDateInTimezone(new Date(user.lastActivityDate), user.timezone);
 
 		const diffTime = Math.abs(today.getTime() - lastActiveDay.getTime());
-		const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+		const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
 		if (diffDays === 1) {
-			// Activity was yesterday
 			newStreak += 1;
 		} else if (diffDays > 1) {
-			// Activity was before yesterday
 			newStreak = 1;
 		}
-		// If diffDays === 0, activity was today, keep the same streak
 	} else {
-		// First activity
 		newStreak = 1;
 	}
 

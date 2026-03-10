@@ -51,14 +51,22 @@ export const load: PageServerLoad = async ({ locals }) => {
 		orderBy: { level: 'asc' }
 	});
 
-	const dueReviewCount = await prisma.userVocabularyProgress.count({
-		where: {
-			userId: user.id,
-			nextReviewDate: {
-				lte: new Date()
+	const [dueVocabReviewCount, dueGrammarReviewCount] = await Promise.all([
+		prisma.userVocabularyProgress.count({
+			where: {
+				userId: user.id,
+				nextReviewDate: { lte: new Date() }
 			}
-		}
-	});
+		}),
+		prisma.userGrammarRuleProgress.count({
+			where: {
+				userId: user.id,
+				nextReviewDate: { lte: new Date() }
+			}
+		})
+	]);
+
+	const dueReviewCount = dueVocabReviewCount + dueGrammarReviewCount;
 
 	const cefrProgress = user.activeLanguage?.id 
 		? await CefrService.getCefrProgress(user.id, user.activeLanguage.id)

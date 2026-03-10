@@ -15,8 +15,20 @@ export async function POST({ params, request, locals }) {
 
 		const userId = params.id;
 
-		// Delete all user vocabulary and grammar rules for the specified language
+		// Delete all user vocabulary, grammar, SRS progress, and level-up history
 		await prisma.$transaction([
+			prisma.userVocabularyProgress.deleteMany({
+				where: {
+					userId,
+					vocabulary: { languageId }
+				}
+			}),
+			prisma.userGrammarRuleProgress.deleteMany({
+				where: {
+					userId,
+					grammarRule: { languageId }
+				}
+			}),
 			prisma.userVocabulary.deleteMany({
 				where: {
 					userId,
@@ -28,6 +40,9 @@ export async function POST({ params, request, locals }) {
 					userId,
 					grammarRule: { languageId }
 				}
+			}),
+			prisma.levelUpEvent.deleteMany({
+				where: { userId, languageId }
 			}),
 			prisma.userProgress.updateMany({
 				where: { userId, languageId },
