@@ -29,15 +29,15 @@ export function buildLessonPrompt({
 		? `Generate EXACTLY ONE very simple ${activeLangName} sentence (3-6 words, no run-ons) suitable for someone who is just starting to learn ${activeLangName}. Use only basic vocabulary like greetings, pronouns, simple verbs (sein, haben, heißen, kommen), and common nouns. Keep it extremely simple.`
 		: isBeginner
 			? `Generate EXACTLY ONE simple, natural ${activeLangName} sentence (no run-ons/semi-colons) as a challenge.`
-			: `Generate a natural ${activeLangName} challenge (complex sentence or exactly 2 STRICTLY related, narrative sentences forming a micro-story) suitable for ${userLevel}.`;
+			: `Generate a natural, coherent ${activeLangName} sentence suitable for ${userLevel}. It can be a single complex sentence or, if it reads naturally, two short closely related sentences that form a logical mini-narrative. The result MUST read as something a native speaker would actually say or write.`;
 
 	const qualityConstraint = `
 CRITICAL STYLE & TONE CONSTRAINT:
-- The sentences MUST NOT be mundane, robotic, or nonsensical.
-- They MUST be engaging, thought-provoking, and highly relevant for everyday use.
+- The sentence(s) MUST make logical, real-world sense. NEVER produce a sentence that sounds absurd, surreal, or randomly cobbled together.
+- Before outputting, mentally re-read the sentence and ask: "Would a native speaker ever actually say this in a real conversation or written text?" If not, rewrite it.
+- They MUST be engaging and relevant for everyday use — real-world situations, daily routines, opinions, travel, work, hobbies, social interactions, etc.
 - Emulate the style, depth, and conversational realism of AP Language classes.
-- Cover real-world situations, nuanced day-to-day communication, and engaging scenarios.
-- Whether short or long, the sentence(s) must make complete sense, sound highly natural, and actively engage the user.`;
+- It is MUCH BETTER to use only 1 target vocabulary word in a natural sentence than to force 2-3 words into a sentence that sounds unnatural or nonsensical.`;
 
 	const topicConstraint = assignmentTopic
 		? `\nCRITICAL THEMATIC CONSTRAINT: The sentence(s) MUST be about the topic: "${assignmentTopic}". This is a mandatory requirement.`
@@ -207,9 +207,10 @@ ${sentenceConstraint}
 ${qualityConstraint}
 ${topicConstraint}${grammarConstraint}
 Compose the ${activeLangName} text by HEAVILY prioritizing the "Learning Vocabulary" provided below. These are the target words the student is currently focusing on.
-CRITICAL THEMATIC INJECTION: Your primary goal is to teach the words in the "Learning Vocabulary" list. You MUST use at least one word from this list, and are strongly encouraged to use 2-3 if they can fit together naturally. Build a realistic, high-quality scenario around these target words. You may also use words from the "Mastered" list or other common ${activeLangName} words appropriate for a ${userLevel} student to ensure natural flow.
+CRITICAL THEMATIC INJECTION: Your primary goal is to teach the words in the "Learning Vocabulary" list. You MUST use at least one word from this list. You MAY use 2-3 if they fit together naturally in a coherent, realistic scenario — but NEVER force multiple target words into a sentence if doing so produces an awkward, contrived, or illogical result. It is always better to write a perfect sentence with 1 target word than a strange sentence with 3. Build a realistic, high-quality scenario around the chosen target word(s). You may also use words from the "Mastered" list or other common ${activeLangName} words appropriate for a ${userLevel} student to ensure natural flow.
 CRITICAL GRAMMAR INJECTION: You MUST structurally incorporate the requested grammar rule(s) (either from the critical grammar constraint above, or from the Learning Grammar section) into the sentence. This is mandatory. Ensure the grammar rule is naturally applied. You MUST identify ANY and ALL grammar rules used in your sentence (from BOTH the Learning and Mastered Grammar lists) and return their IDs (e.g., "g0", "g1") in the "targetedGrammarIds" array.
-CRITICAL QUALITY INSTRUCTION: Prioritize sentence quality, natural flow, and logic. While using "Learning Vocabulary" is the priority, do NOT force words together if they don't make sense. The sentence must be authentic and pedagogically useful.
+CRITICAL QUALITY INSTRUCTION: Prioritize sentence quality, natural flow, and logic above all else. The sentence MUST sound like something a native speaker would genuinely say or write. Do NOT force unrelated vocabulary words into the same sentence — if words don't naturally belong together in a coherent scenario, pick only the one that works best and build a good sentence around it. The sentence must be authentic and pedagogically useful.
+SELF-CHECK: After composing your sentence, verify: (1) Does it make logical sense? (2) Is the scenario realistic? (3) Would a native speaker find it natural? If any answer is no, rewrite it.
 ${modeInstruction}
 
 ${vocabTagInstruction}
