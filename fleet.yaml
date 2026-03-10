@@ -2,8 +2,7 @@ defaultNamespace: lingolearn
 
 imageScans:
   - name: lingolearn-scan
-    image:
-      name: "ghcr.io/willuhmjs/lingolearn"
+    image: "ghcr.io/willuhmjs/lingolearn"
     policy:
       alphabetical:
         order: desc
