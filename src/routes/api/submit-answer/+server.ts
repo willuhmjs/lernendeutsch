@@ -58,6 +58,13 @@ export async function POST(event) {
 		const userId = locals.user.id;
 		const gameMode = bodyGameMode || 'native-to-target';
 
+		console.log("SUBMIT ANSWER REQUEST:", {
+			targetedVocabularyIds,
+			targetedGrammarIds,
+			gameMode,
+			activeLanguageName: bodyLanguageName
+		});
+
 		if (!userInput || !targetSentence) {
 			return json({ error: 'Missing userInput or targetSentence' }, { status: 400 });
 		}

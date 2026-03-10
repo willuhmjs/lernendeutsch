@@ -1638,15 +1638,15 @@
 				// Filter targeted vocab/grammar to only IDs the LLM actually used in the sentence.
 				// The LLM returns targetedVocabularyIds/targetedGrammarIds listing only what it used.
 				// Discard any vocab/grammar the LLM didn't use so they aren't graded or shown.
-				if (parsed.targetedVocabularyIds && Array.isArray(parsed.targetedVocabularyIds) && parsed.targetedVocabularyIds.length > 0) {
+				if (parsed.targetedVocabularyIds && Array.isArray(parsed.targetedVocabularyIds)) {
 					const usedVocabIds = new Set(parsed.targetedVocabularyIds);
-					challenge.targetedVocabulary = (challenge.targetedVocabulary || []).filter((v: any) =>
+					challenge.targetedVocabulary = (challenge._allMetadataVocab || challenge.targetedVocabulary || []).filter((v: any) =>
 						usedVocabIds.has(v.id)
 					);
 				}
-				if (parsed.targetedGrammarIds && Array.isArray(parsed.targetedGrammarIds) && parsed.targetedGrammarIds.length > 0) {
+				if (parsed.targetedGrammarIds && Array.isArray(parsed.targetedGrammarIds)) {
 					const usedGrammarIds = new Set(parsed.targetedGrammarIds);
-					challenge.targetedGrammar = (challenge.targetedGrammar || []).filter((g: any) =>
+					challenge.targetedGrammar = (challenge._allMetadataGrammar || challenge.targetedGrammar || []).filter((g: any) =>
 						usedGrammarIds.has(g.id)
 					);
 				}

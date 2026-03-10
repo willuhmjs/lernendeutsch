@@ -144,10 +144,11 @@ export async function POST(event) {
 		}
 
 		// Final selection for the lesson (shuffled)
-		let learningVocabDb = selectedLearning.sort(() => 0.5 - Math.random()).slice(0, 6);
+		const learningVocabDb = selectedLearning.sort(() => 0.5 - Math.random()).slice(0, 6);
 
 		// 4. Fetch Mastered Vocabulary and Grammar
-		let [masteredVocabDb, masteredGrammarDb, allMasteredGrammarIdsQuery] = await Promise.all([
+		let masteredGrammarDb: any[];
+		const [masteredVocabDb, initialMasteredGrammarDb, allMasteredGrammarIdsQuery] = await Promise.all([
 			prisma.userVocabulary.findMany({
 				where: {
 					userId,
@@ -176,6 +177,7 @@ export async function POST(event) {
 				select: { grammarRuleId: true }
 			})
 		]);
+		masteredGrammarDb = initialMasteredGrammarDb;
 
 		const masteredGrammarIds = new Set(allMasteredGrammarIdsQuery.map((g) => g.grammarRuleId));
 
@@ -205,13 +207,13 @@ export async function POST(event) {
 			const potentialNewGrammars = await prisma.grammarRule.findMany({
 				where: { level: { in: allowedLevels }, languageId: activeLanguageId },
 				include: { dependencies: { select: { id: true } } },
+				orderBy: { level: 'asc' },
 				take: 20
 			});
 			const eligibleGrammars = potentialNewGrammars.filter((rule) =>
 				rule.dependencies.every((dep) => masteredGrammarIds.has(dep.id))
 			);
 			if (eligibleGrammars.length > 0) {
-				// @ts-expect-error type inference
 				masteredGrammarDb = eligibleGrammars
 					.slice(0, Math.min(5, eligibleGrammars.length - 1))
 					.map((g) => ({ grammarRule: g }));
@@ -222,6 +224,10 @@ export async function POST(event) {
 					// @ts-expect-error type inference
 					learningGrammarDb = eligibleGrammars.slice(-1).map((g) => ({ grammarRule: g }));
 				}
+			} else if (potentialNewGrammars.length > 0) {
+				// Ultimate fallback: if nothing is eligible, just give them the first rule to ensure they have grammar to learn
+				// @ts-expect-error type inference
+				learningGrammarDb = [{ grammarRule: potentialNewGrammars[0] }];
 			}
 		}
 
@@ -239,6 +245,7 @@ export async function POST(event) {
 					languageId: activeLanguageId
 				},
 				include: { dependencies: { select: { id: true } } },
+				orderBy: { level: 'asc' },
 				take: 20
 			});
 
@@ -249,6 +256,10 @@ export async function POST(event) {
 			if (eligibleGrammars.length > 0) {
 				// @ts-expect-error type inference
 				learningGrammarDb = [{ grammarRule: eligibleGrammars[0] }];
+			} else if (potentialNewGrammars.length > 0) {
+				// Ultimate fallback: just give them the first rule anyway to prevent empty grammar
+				// @ts-expect-error type inference
+				learningGrammarDb = [{ grammarRule: potentialNewGrammars[0] }];
 			}
 		}
 
@@ -265,12 +276,20 @@ export async function POST(event) {
 		const masteredGrammar = masteredGrammarDb.map((ug: any) => ug.grammarRule);
 		const learningGrammar = learningGrammarDb.map((ug: any) => ug.grammarRule);
 
+		console.log("GENERATE LESSON GRAMMAR ARRAYS:", {
+			masteredGrammarDbLength: masteredGrammarDb.length,
+			learningGrammarDbLength: learningGrammarDb.length,
+			masteredGrammarLength: masteredGrammar.length,
+			learningGrammarLength: learningGrammar.length,
+		});
+
 		// Build short ID maps for LLM (saves tokens & prevents UUID garbling)
 		const idMap: Record<string, string> = {}; // short -> real UUID
 		learningVocab.forEach((v, i) => {
 			idMap[`v${i}`] = v.id;
 		});
-		learningGrammar.forEach((g, i) => {
+		const allGrammar = [...masteredGrammar, ...learningGrammar];
+		allGrammar.forEach((g, i) => {
 			idMap[`g${i}`] = g.id;
 		});
 
@@ -291,10 +310,10 @@ export async function POST(event) {
 			)
 			.join('\n');
 		const masteredGrammarList = masteredGrammar
-			.map((g: any) => `- ${g.title} (${g.description})`)
+			.map((g: { title: string; description: string; id: string }) => `- ${g.title} (${g.description}) - ID: ${Object.keys(idMap).find(k => idMap[k] === g.id)}`)
 			.join('\n');
 		const learningGrammarList = learningGrammar
-			.map((g: any, i) => `- ${g.title} (${g.description}) - ID: g${i}`)
+			.map((g: { title: string; description: string; id: string }) => `- ${g.title} (${g.description}) - ID: ${Object.keys(idMap).find(k => idMap[k] === g.id)}`)
 			.join('\n');
 
 		const userLevel = locals.user.cefrLevel || 'A1';
@@ -319,7 +338,7 @@ export async function POST(event) {
 			jsonSchemaObj,
 			requestSignal: request.signal,
 			targetedVocabulary: learningVocab,
-			targetedGrammar: learningGrammar,
+			targetedGrammar: allGrammar,
 			allVocabulary: [...masteredVocab, ...learningVocab],
 			gameMode,
 			idMap,
