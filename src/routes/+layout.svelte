@@ -385,16 +385,76 @@
 				>
 				<span class="brand-text">LingoLearn</span>
 			</a>
-			{#if user}
-				<div class="gamification-stats">
-					<span class="stat streak" title="Current Streak">
-						🔥 {user.currentStreak || 0}
-					</span>
-					<span class="stat xp" title="Total XP">
-						⚡ {user.totalXp || 0} XP
-					</span>
-				</div>
-			{/if}
+			<div class="mobile-header-right">
+				{#if user && languages.length > 0}
+					<div class="language-dropdown-container mobile-lang-dropdown">
+						<button class="mobile-lang-btn" onclick={toggleDropdown}>
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path
+									d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+								/></svg
+							>
+							<span class="mobile-lang-label">
+								{#if user?.activeLanguage}
+									{user.activeLanguage.flag ? user.activeLanguage.flag : ''}{user.activeLanguage.name}
+								{:else}
+									Language
+								{/if}
+							</span>
+							<svg
+								class="dropdown-chevron {isDropdownOpen ? 'open' : ''}"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg
+							>
+						</button>
+
+						{#if isDropdownOpen}
+							<div class="dropdown-menu mobile-dropdown-menu">
+								{#each languages as lang}
+									<button
+										class="dropdown-item {user?.activeLanguage?.id === lang.id ? 'active' : ''}"
+										onclick={() => changeLanguage(lang.id)}
+									>
+										<span class="lang-flag">{lang.flag || ''}</span>
+										<span class="lang-name">{lang.name}</span>
+										{#if user?.activeLanguage?.id === lang.id}
+											<svg
+												class="check-icon"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="2"
+												stroke-linecap="round"
+												stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg
+											>
+										{/if}
+									</button>
+								{/each}
+							</div>
+						{/if}
+					</div>
+				{/if}
+				{#if user}
+					<div class="gamification-stats">
+						<span class="stat streak" title="Current Streak">
+							🔥 {user.currentStreak || 0}
+						</span>
+						<span class="stat xp" title="Total XP">
+							⚡ {user.totalXp || 0} XP
+						</span>
+					</div>
+				{/if}
+			</div>
 		</header>
 
 		<header class="desktop-topbar">
@@ -921,6 +981,10 @@
 		display: none;
 	}
 
+	.mobile-lang-dropdown {
+		display: none;
+	}
+
 	.gamification-stats {
 		display: flex;
 		align-items: center;
@@ -1060,7 +1124,7 @@
 
 		.mobile-header {
 			display: flex;
-			justify-content: flex-end;
+			justify-content: space-between;
 			align-items: center;
 			padding: 1rem;
 			border-bottom: 2px solid var(--header-border, #e5e7eb);
@@ -1078,9 +1142,6 @@
 			font-weight: 800;
 			color: #2563eb;
 			text-decoration: none;
-			position: absolute;
-			left: 50%;
-			transform: translateX(-50%);
 		}
 
 		.mobile-brand .brand-icon {
@@ -1090,6 +1151,54 @@
 
 		.mobile-brand .brand-text {
 			display: inline;
+		}
+
+		.mobile-header-right {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+		}
+
+		.mobile-lang-dropdown {
+			display: block;
+			position: relative;
+		}
+
+		.mobile-lang-btn {
+			display: flex;
+			align-items: center;
+			gap: 0.375rem;
+			background: none;
+			border: 2px solid var(--card-border, #e5e7eb);
+			border-radius: 0.75rem;
+			padding: 0.375rem 0.625rem;
+			font-family: inherit;
+			font-size: 0.8rem;
+			font-weight: 700;
+			color: var(--text-color, #374151);
+			cursor: pointer;
+		}
+
+		.mobile-lang-btn svg {
+			width: 1.125rem;
+			height: 1.125rem;
+			flex-shrink: 0;
+		}
+
+		.mobile-lang-label {
+			white-space: nowrap;
+		}
+
+		.mobile-dropdown-menu {
+			position: absolute;
+			top: calc(100% + 0.5rem);
+			right: 0;
+			left: auto;
+			bottom: auto;
+			min-width: 180px;
+			box-shadow:
+				0 4px 6px -1px rgba(0, 0, 0, 0.1),
+				0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		}
 
 		.gamification-stats {

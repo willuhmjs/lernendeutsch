@@ -148,11 +148,7 @@ const basicGrammarRules = [
 		guide:
 			'# Akkusativ – direktes Objekt\n\nDer **Akkusativ** kennzeichnet meist das direkte Objekt. Im Nominativ und Akkusativ ändern sich vor allem die maskulinen Formen.\n\n### Artikelübersicht (Singular)\n- der → **den**\n- ein → **einen**\n- die → **die**\n- eine → **eine**\n- das → **das**\n- ein → **ein**\n\n### Beispiele\n- Ich sehe **den** Hund.\n- Er kauft **einen** Computer.\n- Wir haben **eine** Frage.\n\n> **Tipp:** Viele Verben fordern zwingend den Akkusativ (sehen, kaufen, finden …).',
 		level: 'A1',
-		dependencies: [
-			'Definite Articles (Nominative)',
-			'Indefinite Articles (Nominative)',
-			'Word Order - Main Clause (Hauptsatz)'
-		]
+		dependencies: ['Definite Articles (Nominative)', 'Indefinite Articles (Nominative)']
 	},
 	{
 		title: 'Negation with "nicht" and "kein"',
@@ -179,7 +175,7 @@ const basicGrammarRules = [
 		guide:
 			'# W-Fragen\n\n**W-Fragen** beginnen mit einem Fragewort (wer, was, wo, wann, warum, wie, wohin, woher …). Das konjugierte Verb steht an zweiter Stelle.\n\n### Struktur\n**Fragewort + Verb + Subjekt + Rest**\n\n### Beispiele\n- **Wo** wohnst du?\n- **Wann** kommst du?\n- **Warum** lernst du Deutsch?',
 		level: 'A1',
-		dependencies: ['Yes/No Questions (Entscheidungsfragen)']
+		dependencies: ['Word Order - Main Clause (Hauptsatz)']
 	},
 	{
 		title: 'Possessive Articles (Possessivartikel)',
@@ -229,7 +225,7 @@ const basicGrammarRules = [
 		guide:
 			'# Untrennbare Verben\n\nEinige Präfixe werden **nie** abgetrennt: be-, emp-, ent-, er-, ge-, miss-, ver-, zer-.\n\n### Beispiele\n- verstehen, bekommen, beginnen, verkaufen, erklären\n\nIm Perfekt haben diese Verben kein zusätzliches ge-: **verstehen → verstanden**, **bekommen → bekommen**.',
 		level: 'A1',
-		dependencies: ['Separable Verbs (Trennbare Verben)']
+		dependencies: ['Present Tense (Präsens) - Regular Verbs', 'Word Order - Main Clause (Hauptsatz)']
 	},
 	{
 		title: 'Accusative Prepositions',
@@ -303,7 +299,7 @@ const basicGrammarRules = [
 		guide:
 			'# Adjektivdeklination\n\nAdjektive bekommen im Deutschen **Endungen**, die von Genus, Kasus, Numerus und Artikeltyp abhängen.\n\n- Nach bestimmtem Artikel: **der schöne Mann**\n- Nach unbestimmtem Artikel: **ein schöner Mann**\n- Ohne Artikel: **schöner Mann**\n\n> **Strategie:** Lerne zuerst häufige Muster (Nominativ/Akkusativ Singular), baue danach weitere Fälle auf.',
 		level: 'A2',
-		dependencies: ['Dative Case (Dativ)']
+		dependencies: ['Accusative Case (Akkusativ)', 'Dative Case (Dativ)']
 	},
 	{
 		title: 'Comparative and Superlative (Komparativ und Superlativ)',
@@ -338,7 +334,7 @@ const basicGrammarRules = [
 		guide:
 			'# Subjunktionen (unterordnende Konjunktionen)\n\nSubjunktionen wie **weil, dass, wenn, ob, als, obwohl, damit** leiten Nebensätze ein. Im Nebensatz steht das konjugierte Verb **am Ende**.\n\n### Beispiel\n- Ich bleibe zu Hause, **weil** ich krank **bin**.\n- Er sagt, **dass** er morgen **kommt**.',
 		level: 'A2',
-		dependencies: ['Coordinating Conjunctions (Konjunktionen)']
+		dependencies: ['Word Order - Main Clause (Hauptsatz)']
 	},
 	{
 		title: 'Temporal Prepositions (Temporale Präpositionen)',
@@ -363,7 +359,7 @@ const basicGrammarRules = [
 		guide:
 			'# Satzstellung mit Dativ- und Akkusativobjekt\n\nStehen Dativ- und Akkusativobjekt im selben Satz, steht meist der **Dativ vor dem Akkusativ** – besonders bei Pronomen.\n\n### Beispiele\n- Ich gebe **dir** (Dat.) **das Buch** (Akk.).\n- Ich gebe **es** (Akk.) **dem Mann** (Dat.), wenn das Akkusativobjekt ein Pronomen ist.',
 		level: 'A2',
-		dependencies: ['Verbs with Dative Objects']
+		dependencies: ['Verbs with Dative Objects', 'Accusative Case (Akkusativ)']
 	},
 	{
 		title: 'Adverbs of Frequency and Time',
@@ -394,8 +390,7 @@ const basicGrammarRules = [
 		level: 'A2',
 		dependencies: [
 			'Sein, Haben, Werden - Conjugation',
-			'Separable Verbs (Trennbare Verben)',
-			'Inseparable Verbs (Untrennbare Verben)'
+			'Separable Verbs (Trennbare Verben)'
 		]
 	},
 	{
@@ -475,7 +470,10 @@ const basicGrammarRules = [
 		guide:
 			'# Konjunktionaladverbien\n\nWörter wie **deshalb, trotzdem, deswegen, außerdem, dennoch** verbinden Sätze und stehen meist an Position 1, danach folgt Inversion (Verb an zweiter Stelle, Subjekt danach).\n\n- Es regnet, **deshalb** bleibe ich zu Hause.\n- Er war müde, **trotzdem** ging er arbeiten.',
 		level: 'B1',
-		dependencies: ['Coordinating Conjunctions (Konjunktionen)']
+		dependencies: [
+			'Coordinating Conjunctions (Konjunktionen)',
+			'Word Order - Main Clause (Hauptsatz)'
+		]
 	},
 	{
 		title: 'Passive Voice - Past Tenses (Passiv Perfekt/Präteritum)',
@@ -585,7 +583,7 @@ const basicGrammarRules = [
 		guide:
 			'# Modalpartikeln\n\nWörter wie **doch, ja, mal, halt, eben, schon, wohl** färben die Aussage emotional, werden aber kaum übersetzt.\n\n- Komm **doch** mal her!\n- Das ist **ja** interessant.',
 		level: 'B2',
-		dependencies: ['Adverbs of Frequency and Time']
+		dependencies: ['Word Order - Main Clause (Hauptsatz)']
 	},
 	{
 		title: 'Future II (Futur II)',
@@ -802,7 +800,7 @@ const basicGrammarRules = [
 		guide:
 			'# Idiomatische Ausdrücke (Redewendungen)\n\nFeste Wendungen wie **ins Bett gehen, auf dem Holzweg sein, jemandem die Daumen drücken** haben eine übertragene Bedeutung, die sich nicht wörtlich ergibt. Sie sind typisch für ein sehr hohes Sprachniveau.',
 		level: 'C2',
-		dependencies: []
+		dependencies: ['Subordinate Clauses (Nebensätze)']
 	}
 ];
 
@@ -902,7 +900,7 @@ const spanishGrammarRules = [
 		guide:
 			'# Gustar (To Like)\n\nThe verb **gustar** works differently than "to like" in English. It literally means "to be pleasing to".\n\nIt requires an Indirect Object Pronoun (me, te, le, nos, os, les).\n\n### Forms\n*   Use **gusta** for singular nouns or verbs (infinitives).\n*   Use **gustan** for plural nouns.\n\n### Examples:\n*   **Me gusta** la manzana. (The apple is pleasing to me / I like the apple.)\n*   **Te gustan** los libros. (The books are pleasing to you / You like the books.)\n*   **Nos gusta** cantar. (Singing is pleasing to us / We like to sing.)\n\n*Similar verbs:* encantar, importar, faltar.',
 		level: 'A2',
-		dependencies: ['Definite and Indefinite Articles']
+		dependencies: ['Definite and Indefinite Articles', 'Subject Pronouns (Pronombres Personales)']
 	},
 	{
 		title: 'Direct Object Pronouns (DOPs)',
@@ -966,7 +964,7 @@ const spanishGrammarRules = [
 		guide:
 			'# Por vs Para\n\nBoth mean "for," but they are not interchangeable.\n\n### Use PARA for (PERFECT):\n*   **P**urpose (in order to + infinitive)\n*   **E**xact date/deadline\n*   **R**ecipient (for someone)\n*   **F**uture destination\n*   **E**mployment\n*   **C**omparison\n*   **T**oward a specific place\n\n### Use POR for (ATTRACTED):\n*   **A**round a place\n*   **T**hrough a place\n*   **T**ransportation / communication (by bus, by phone)\n*   **R**eason or motive (because of)\n*   **A**fter / going to get something\n*   **C**ost / Exchange\n*   **T**hanks (Gracias por...)\n*   **E**xchange\n*   **D**uration of time',
 		level: 'B1',
-		dependencies: []
+		dependencies: ['Present Tense Regular Verbs (-ar, -er, -ir)']
 	},
 	{
 		title: 'Formal Commands (Usted/Ustedes)',
@@ -974,7 +972,10 @@ const spanishGrammarRules = [
 		guide:
 			'# Formal Commands (Usted/Ustedes)\n\nUsed to tell someone formally (usted/ustedes) to do or not do something.\n\n### Formation (Present Subjunctive forms):\n1.  Start with the "yo" form of the present tense (e.g., hablo, como).\n2.  Drop the -o.\n3.  Add the "opposite" ending:\n    *   **-AR verbs add **-e** (Ud.) or **-en** (Uds.).\n    *   **-ER/-IR verbs add **-a** (Ud.) or **-an** (Uds.).\n\n### Examples:\n*   Hablar → **Hable** Ud. / **Hablen** Uds.\n*   Comer → **Coma** Ud. / **Coman** Uds.\n*   Tener (tengo) → **Tenga** Ud. / **Tengan** Uds.\n\n*Negative commands:* Simply put "No" in front. (No hable Ud.)',
 		level: 'B1',
-		dependencies: ['Present Tense Regular Verbs (-ar, -er, -ir)']
+		dependencies: [
+			'Present Tense Regular Verbs (-ar, -er, -ir)',
+			'Stem-Changing Verbs in the Present Tense'
+		]
 	},
 	{
 		title: 'Informal Commands (Tú)',
@@ -982,7 +983,10 @@ const spanishGrammarRules = [
 		guide:
 			'# Informal Commands (Tú)\n\nUsed to tell a friend (tú) to do or not do something.\n\n### Affirmative Tú Commands:\nUse the **él/ella/usted** form of the present tense.\n*   Hablar → ¡**Habla**! (Speak!)\n*   Comer → ¡**Come**! (Eat!)\n*   *Irregular:* Ven, di, sal, haz, ten, ve, pon, sé.\n\n### Negative Tú Commands:\nUse the "tú" form of the Present Subjunctive (opposite endings).\n1. Yo form, drop -o.\n2. Add opposite ending + s: -AR adds **-es**, -ER/-IR adds **-as**.\n*   Hablar → ¡No **hables**! (Don\'t speak!)\n*   Comer → ¡No **comas**! (Don\'t eat!)',
 		level: 'B1',
-		dependencies: ['Present Tense Regular Verbs (-ar, -er, -ir)']
+		dependencies: [
+			'Present Tense Regular Verbs (-ar, -er, -ir)',
+			'Stem-Changing Verbs in the Present Tense'
+		]
 	},
 	{
 		title: 'Present Subjunctive Mood',
@@ -990,7 +994,10 @@ const spanishGrammarRules = [
 		guide:
 			'# Present Subjunctive\n\nThe subjunctive is a mood used for subjectivity, doubt, wishes, and emotions. Often triggered by "WEIRDO" verbs (Wishes, Emotions, Impersonal expressions, Recommendations, Doubt, Ojalá) + "que".\n\n### Formation:\n1. Start with the "yo" form of the present indicative.\n2. Drop the -o.\n3. Add opposite endings:\n   *   **-AR:** -e, -es, -e, -emos, -éis, -en\n   *   **-ER/-IR:** -a, -as, -a, -amos, -áis, -an\n\n### Examples:\n*   (Hablar) Espero que tú **hables** español. (I hope that you speak Spanish.)\n*   (Comer) Quiero que ella **coma**. (I want her to eat.)',
 		level: 'B1',
-		dependencies: ['Present Tense Regular Verbs (-ar, -er, -ir)']
+		dependencies: [
+			'Present Tense Regular Verbs (-ar, -er, -ir)',
+			'Stem-Changing Verbs in the Present Tense'
+		]
 	},
 	{
 		title: 'Future Tense',
@@ -1075,7 +1082,10 @@ const spanishGrammarRules = [
 		guide:
 			'# Relative Clauses (Oraciones de Relativo)\n\nRelative clauses give extra information about a noun and are introduced by relative pronouns.\n\n### Common Pronouns\n*   **que** – that, who, which (most frequent)\n*   **quien(es)** – who (after prepositions / in nonessential clauses)\n*   **donde** – where\n*   **cuyo/a(s)** – whose (agrees with the thing possessed)\n\n### Examples\n*   El libro **que** compré es interesante. (The book that I bought is interesting.)\n*   La mujer **con quien** hablo es mi profesora. (The woman with whom I speak is my teacher.)\n*   La ciudad **donde** vivo es pequeña. (The city where I live is small.)',
 		level: 'B1',
-		dependencies: ['Definite and Indefinite Articles', 'Preterite vs Imperfect']
+		dependencies: [
+			'Definite and Indefinite Articles',
+			'Present Tense Regular Verbs (-ar, -er, -ir)'
+		]
 	},
 	{
 		title: 'Impersonal and Passive "se"',
@@ -1085,9 +1095,8 @@ const spanishGrammarRules = [
 			'# Impersonal and Passive "se"\n\nSpanish often uses **se** to make general or passive-like statements without mentioning who does the action.\n\n### Impersonal se\nUsed for people in general (like English "one/you/they").\n*   **Se come** tarde en España. (People eat late in Spain.)\n\n### Passive se\nUsed with a direct object that becomes the grammatical subject. The verb agrees with the object.\n*   **Se venden** casas. (Houses are sold.)\n*   **Se habla** español aquí. (Spanish is spoken here.)',
 		level: 'B1',
 		dependencies: [
-			'Preterite Tense - Regular Verbs',
-			'Direct Object Pronouns (DOPs)',
-			'Indirect Object Pronouns (IOPs)'
+			'Present Tense Regular Verbs (-ar, -er, -ir)',
+			'Reflexive Verbs'
 		]
 	},
 	{
