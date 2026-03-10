@@ -126,20 +126,20 @@ export class CefrService {
       return null;
     }
 
-    // Count user's MASTERED items at current level
+    // Count user's KNOWN + MASTERED items at current level
     const [masteredVocabCount, masteredGrammarCount] = await Promise.all([
       prisma.userVocabulary.count({
         where: {
           userId,
           vocabulary: { languageId, cefrLevel: currentLevel },
-          srsState: SrsState.MASTERED
+          srsState: { in: [SrsState.KNOWN, SrsState.MASTERED] }
         }
       }),
       prisma.userGrammarRule.count({
         where: {
           userId,
           grammarRule: { languageId, level: currentLevel },
-          srsState: SrsState.MASTERED
+          srsState: { in: [SrsState.KNOWN, SrsState.MASTERED] }
         }
       })
     ]);
@@ -275,14 +275,14 @@ export class CefrService {
         where: {
           userId,
           vocabulary: { languageId, cefrLevel: currentLevel },
-          srsState: SrsState.MASTERED
+          srsState: { in: [SrsState.KNOWN, SrsState.MASTERED] }
         }
       }),
       prisma.userGrammarRule.count({
         where: {
           userId,
           grammarRule: { languageId, level: currentLevel },
-          srsState: SrsState.MASTERED
+          srsState: { in: [SrsState.KNOWN, SrsState.MASTERED] }
         }
       })
     ]);
