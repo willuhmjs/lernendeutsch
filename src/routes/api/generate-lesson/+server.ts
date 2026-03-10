@@ -269,16 +269,26 @@ export async function POST(event) {
 			}
 		}
 
-		const masteredVocab = masteredVocabDb.map((uv: any) => ({
-			...uv.vocabulary,
-			eloRating: uv.eloRating ?? 1000,
-			srsState: uv.srsState ?? 'UNSEEN'
-		}));
-		const learningVocab = learningVocabDb.map((uv: any) => ({
-			...uv.vocabulary,
-			eloRating: uv.eloRating ?? 1000,
-			srsState: uv.srsState ?? 'UNSEEN'
-		}));
+		// Filter out articles from targeted vocabulary — they are function words
+		// taught via grammar rules (e.g. "Accusative Case") and cause nonsensical
+		// sentences when the LLM is forced to "use" them as standalone vocab
+		// (e.g. "Den der Apfel esse ich." with double articles).
+		const EXCLUDED_POS = new Set(['article']);
+
+		const masteredVocab = masteredVocabDb
+			.filter((uv: any) => !EXCLUDED_POS.has(uv.vocabulary?.partOfSpeech))
+			.map((uv: any) => ({
+				...uv.vocabulary,
+				eloRating: uv.eloRating ?? 1000,
+				srsState: uv.srsState ?? 'UNSEEN'
+			}));
+		const learningVocab = learningVocabDb
+			.filter((uv: any) => !EXCLUDED_POS.has(uv.vocabulary?.partOfSpeech))
+			.map((uv: any) => ({
+				...uv.vocabulary,
+				eloRating: uv.eloRating ?? 1000,
+				srsState: uv.srsState ?? 'UNSEEN'
+			}));
 		const masteredGrammar = masteredGrammarDb.map((ug: any) => ug.grammarRule);
 		const learningGrammar = learningGrammarDb.map((ug: any) => ug.grammarRule);
 
