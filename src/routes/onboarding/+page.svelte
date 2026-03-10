@@ -250,18 +250,18 @@
 	class:chat-active={messages.length > 0 || (selectedPath === 'test' && !completed)}
 >
 	{#if selectedPath === 'language' && !completed}
-		<header class="page-header" in:fly={{ y: 20, duration: 400 }}>
-			<h1 class="dark:text-white">Choose Your Language</h1>
-			<p class="dark:text-slate-400">Which language would you like to start learning?</p>
-		</header>
-		<div class="path-selection" in:fly={{ y: 20, duration: 400, delay: 100 }}>
-			{#each data.languages || [] as lang}
-				<button class="path-card dark:bg-slate-900 dark:border-slate-700" on:click={() => selectLanguage(lang.id)}>
-					<span class="path-icon">{lang.flag || '🌐'}</span>
-					<h2 class="dark:text-white">{lang.name}</h2>
-				</button>
-			{/each}
-		</div>
+		   <header class="page-header" in:fly={{ y: 20, duration: 400 }}>
+			   <h1 class="dark:text-white">Choose Your New Language</h1>
+			   <p class="dark:text-slate-400">Which language would you like to start learning?</p>
+		   </header>
+		   <div class="path-selection horizontal" in:fly={{ y: 20, duration: 400, delay: 100 }}>
+			   {#each data.languages || [] as lang}
+				   <button class="path-card dark:bg-slate-900 dark:border-slate-700" on:click={() => selectLanguage(lang.id)}>
+					   <span class="path-icon">{lang.flag || '🌐'}</span>
+					   <h2 class="dark:text-white">{lang.name}</h2>
+				   </button>
+			   {/each}
+		   </div>
 	{:else if selectedPath === 'choose' && !completed}
 		<!-- Path Selection Screen -->
 		<header class="page-header" in:fly={{ y: 20, duration: 400 }}>
@@ -818,13 +818,20 @@
 	}
 
 	/* Path Selection Styles */
-	.path-selection {
-		display: flex;
-		flex-direction: column;
-		gap: 1.25rem;
-		max-width: 700px;
-		margin: 0 auto;
-	}
+	   .path-selection {
+		   display: flex;
+		   flex-direction: column;
+		   gap: 1.25rem;
+		   max-width: 700px;
+		   margin: 0 auto;
+	   }
+
+	   .path-selection.horizontal {
+		   flex-direction: row;
+		   justify-content: center;
+		   gap: 1.25rem;
+		   flex-wrap: wrap;
+	   }
 
 	.path-card {
 		display: flex;
