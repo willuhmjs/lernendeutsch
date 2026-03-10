@@ -45,7 +45,8 @@ spec:
     spec:
       containers:
         - name: lingolearn
-          image: ghcr.io/willuhmjs/lingolearn:latest # {"$imagescan": "lingolearn-scan"}
+          # {"$imagescan": "lingolearn-image"}
+          image: ghcr.io/willuhmjs/lingolearn:latest
           ports:
             - containerPort: 3000
           env:
