@@ -1,0 +1,10 @@
+defaultNamespace: lingolearn
+
+imageScans:
+  - name: lingolearn-scan
+    image:
+      name: "ghcr.io/willuhmjs/lingolearn"
+    policy:
+      alphabetical:
+        order: desc
+    tagName: lingolearn-image

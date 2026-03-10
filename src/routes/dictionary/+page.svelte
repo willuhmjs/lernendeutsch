@@ -216,7 +216,7 @@
 <svelte:window on:keydown={handleKeydown} />
 
 <svelte:head>
-	<title>Dictionary & Grammar - LernenDeutsch</title>
+	<title>Dictionary & Grammar - LingoLearn</title>
 </svelte:head>
 
 <div class="dictionary-container">
