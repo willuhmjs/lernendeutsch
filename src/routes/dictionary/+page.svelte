@@ -529,11 +529,15 @@
 								{#each Object.entries(selectedResult.metadata.declensions) as [caseName, forms]}
 									<div class="declension-case">
 										<h4 class="case-title">{caseName}</h4>
-										<ul class="declension-list">
-											{#each Object.entries(forms as Record<string, string>) as [gender, declension]}
-												<li><span class="gender">{gender}:</span> {declension}</li>
-											{/each}
-										</ul>
+										{#if typeof forms === 'string'}
+											<p class="declension-value">{forms}</p>
+										{:else}
+											<ul class="declension-list">
+												{#each Object.entries(forms as Record<string, string>) as [gender, declension]}
+													<li><span class="gender">{gender}:</span> {declension}</li>
+												{/each}
+											</ul>
+										{/if}
 									</div>
 								{/each}
 							</div>
