@@ -17,7 +17,8 @@ export async function generateLessonStream({
 	activeLangName,
 	activeLanguageId,
 	masteredVocab,
-	learningVocab
+	learningVocab,
+	useLocalLlm = false
 }: {
 	userId: string;
 	systemPrompt: string;
@@ -34,6 +35,7 @@ export async function generateLessonStream({
 	activeLanguageId: string;
 	masteredVocab: any[];
 	learningVocab: any[];
+	useLocalLlm?: boolean;
 }) {
 	const llmResponse = await generateChatCompletion({
 		userId,
@@ -130,7 +132,8 @@ export async function generateLessonStream({
 						learningVocab,
 						(data) => {
 							controller.enqueue(new TextEncoder().encode(JSON.stringify(data) + '\n'));
-						}
+						},
+						useLocalLlm
 					);
 				} catch (enrichErr) {
 					if (enrichErr instanceof SyntaxError) {

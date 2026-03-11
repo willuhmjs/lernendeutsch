@@ -405,7 +405,8 @@ export async function processVocabEnrichment(
 	activeLanguageId: string,
 	masteredVocab: any[],
 	learningVocab: any[],
-	enqueue: (data: any) => void
+	enqueue: (data: any) => void,
+	skipDbWrite = false
 ) {
 	try {
 		const rawWords = targetLanguageText
@@ -520,7 +521,7 @@ export async function processVocabEnrichment(
 										include: { meanings: true }
 									});
 									if (existing) {
-										if (existing.meanings.length === 0 && v.meaning) {
+										if (!skipDbWrite && existing.meanings.length === 0 && v.meaning) {
 											aiVocabEntries.push(
 												await prisma.vocabulary.update({
 													where: { id: existing.id },
@@ -536,7 +537,7 @@ export async function processVocabEnrichment(
 										} else {
 											aiVocabEntries.push(existing);
 										}
-									} else {
+									} else if (!skipDbWrite) {
 										aiVocabEntries.push(
 											await prisma.vocabulary.create({
 												data: {
@@ -608,7 +609,7 @@ export async function processVocabEnrichment(
 										include: { meanings: true }
 									});
 									if (existing) {
-										if (existing.meanings.length === 0 && v.meaning) {
+										if (!skipDbWrite && existing.meanings.length === 0 && v.meaning) {
 											ctxEntries.push(
 												await prisma.vocabulary.update({
 													where: { id: existing.id },
@@ -624,7 +625,7 @@ export async function processVocabEnrichment(
 										} else {
 											ctxEntries.push(existing);
 										}
-									} else {
+									} else if (!skipDbWrite) {
 										ctxEntries.push(
 											await prisma.vocabulary.create({
 												data: {

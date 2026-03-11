@@ -391,7 +391,8 @@ export async function POST(event) {
 			activeLangName,
 			activeLanguageId,
 			masteredVocab,
-			learningVocab
+			learningVocab,
+			useLocalLlm: user?.useLocalLlm ?? false
 		});
 
 		return new Response(stream, {
