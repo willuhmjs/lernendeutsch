@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { prisma } from '$lib/server/prisma';
+import { CefrService } from '$lib/server/cefrService';
 
 export async function POST({ request, locals }: any) {
 	if (!locals.user) {
@@ -17,13 +18,19 @@ export async function POST({ request, locals }: any) {
 
 		console.log(`[Manual Onboarding Complete] User ${userId} placed at level ${level}.`);
 
+		const languageId = locals.user.activeLanguage!.id;
+
+		const existingProgress = await prisma.userProgress.findUnique({
+			where: { userId_languageId: { userId, languageId } },
+			select: { cefrLevel: true }
+		});
+		const oldLevel = existingProgress?.cefrLevel;
+
 		await prisma.userProgress.upsert({
-			where: {
-				userId_languageId: { userId, languageId: locals.user.activeLanguage!.id }
-			},
+			where: { userId_languageId: { userId, languageId } },
 			create: {
 				userId,
-				languageId: locals.user.activeLanguage!.id,
+				languageId,
 				hasOnboarded: true,
 				cefrLevel: level
 			},
@@ -32,6 +39,8 @@ export async function POST({ request, locals }: any) {
 				cefrLevel: level
 			}
 		});
+
+		await CefrService.applyGrammarMasteryForLevel(userId, languageId, level, oldLevel);
 
 		console.log('Successfully completed manual onboarding');
 

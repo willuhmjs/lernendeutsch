@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { generateChatCompletion, normalizeWords } from '$lib/server/llm';
 import { prisma } from '$lib/server/prisma';
+import { CefrService } from '$lib/server/cefrService';
 
 import type { RequestEvent } from './$types';
 
@@ -115,13 +116,18 @@ export async function POST({ request, locals }: RequestEvent) {
 			const level = validLevels.includes(lastLevelGuess) ? lastLevelGuess : 'A1';
 
 			try {
+				const langId = user.activeLanguage.id;
+				const priorProgress = await prisma.userProgress.findUnique({
+					where: { userId_languageId: { userId, languageId: langId } },
+					select: { cefrLevel: true }
+				});
+				const oldLevel = priorProgress?.cefrLevel;
+
 				await prisma.userProgress.upsert({
-					where: {
-						userId_languageId: { userId, languageId: user.activeLanguage.id }
-					},
+					where: { userId_languageId: { userId, languageId: langId } },
 					create: {
 						userId,
-						languageId: user.activeLanguage.id,
+						languageId: langId,
 						hasOnboarded: true,
 						cefrLevel: level
 					},
@@ -130,6 +136,8 @@ export async function POST({ request, locals }: RequestEvent) {
 						cefrLevel: level
 					}
 				});
+
+				await CefrService.applyGrammarMasteryForLevel(userId, langId, level, oldLevel);
 				console.log(`[Onboarding End Early] User ${userId} placed at level ${level}.`);
 			} catch (updateError) {
 				console.error('Error updating user after end early:', updateError);
@@ -335,6 +343,9 @@ export async function POST({ request, locals }: RequestEvent) {
 									`[Onboarding Complete] User ${userId} placed at level ${parsedResponse.level}.`
 								);
 								try {
+									const placedLevel = parsedResponse.level || 'A1';
+									const oldLevel = existingProgress?.cefrLevel;
+
 									await prisma.userProgress.upsert({
 										where: {
 											userId_languageId: { userId, languageId: activeLangId }
@@ -343,13 +354,15 @@ export async function POST({ request, locals }: RequestEvent) {
 											userId,
 											languageId: activeLangId,
 											hasOnboarded: true,
-											cefrLevel: parsedResponse.level || 'A1'
+											cefrLevel: placedLevel
 										},
 										update: {
 											hasOnboarded: true,
-											cefrLevel: parsedResponse.level || 'A1'
+											cefrLevel: placedLevel
 										}
 									});
+
+									await CefrService.applyGrammarMasteryForLevel(userId, activeLangId, placedLevel, oldLevel);
 									console.log('Successfully completed onboarding');
 								} catch (updateError) {
 									console.error('Error in bulk update', updateError);

@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { prisma } from '$lib/server/prisma';
+import { CefrService } from '$lib/server/cefrService';
 
 /**
  * Absolute beginner onboarding endpoint.
@@ -28,6 +29,12 @@ export async function POST({ locals }: RequestEvent) {
 
 	try {
 		// 1. Set user level to A1
+		const existingProgress = await prisma.userProgress.findUnique({
+			where: { userId_languageId: { userId, languageId } },
+			select: { cefrLevel: true }
+		});
+		const oldLevel = existingProgress?.cefrLevel;
+
 		await prisma.userProgress.upsert({
 			where: {
 				userId_languageId: { userId, languageId }
@@ -43,6 +50,8 @@ export async function POST({ locals }: RequestEvent) {
 				cefrLevel: 'A1'
 			}
 		});
+
+		await CefrService.applyGrammarMasteryForLevel(userId, languageId, 'A1', oldLevel);
 
 		// 2. Seed starter vocabulary as LEARNING dynamically
 		const startingElo = 1000; // A1 base Elo

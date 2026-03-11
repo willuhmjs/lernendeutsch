@@ -188,6 +188,83 @@ export class CefrService {
     return null;
   }
 
+  /**
+   * Apply grammar mastery based on a CEFR level placement.
+   *
+   * When a user is placed at `newLevel`:
+   *   - All grammar rules for levels BEFORE `newLevel` are upserted to MASTERED
+   *     (eloRating is preserved if the record already exists, otherwise BASE_ELO is used).
+   *
+   * When downgrading from `oldLevel` to `newLevel` (oldLevel > newLevel):
+   *   - Grammar rules for levels between `newLevel` and `oldLevel` (exclusive) are reset
+   *     to UNSEEN. These were previously auto-mastered and are no longer implied mastered.
+   *     eloRating is never changed.
+   */
+  static async applyGrammarMasteryForLevel(
+    userId: string,
+    languageId: string,
+    newLevel: string,
+    oldLevel?: string
+  ): Promise<void> {
+    const newLevelIndex = CEFR_CONFIG.LEVELS.indexOf(newLevel as typeof CEFR_CONFIG.LEVELS[number]);
+    if (newLevelIndex === -1) return;
+
+    const oldLevelIndex = oldLevel
+      ? CEFR_CONFIG.LEVELS.indexOf(oldLevel as typeof CEFR_CONFIG.LEVELS[number])
+      : -1;
+
+    const isDowngrade = oldLevelIndex !== -1 && newLevelIndex < oldLevelIndex;
+
+    // Levels whose grammar should be auto-mastered (all levels strictly before newLevel)
+    const levelsToMaster = CEFR_CONFIG.LEVELS.slice(0, newLevelIndex) as string[];
+
+    // Levels whose auto-mastery should be reverted (between newLevel and oldLevel, exclusive of oldLevel)
+    const levelsToRevert: string[] = isDowngrade
+      ? (CEFR_CONFIG.LEVELS.slice(newLevelIndex, oldLevelIndex) as string[])
+      : [];
+
+    // Auto-master grammar for previous levels
+    for (const level of levelsToMaster) {
+      const grammarRules = await prisma.grammarRule.findMany({
+        where: { languageId, level }
+      });
+
+      const baseElo = CEFR_CONFIG.BASE_ELO[level as keyof typeof CEFR_CONFIG.BASE_ELO];
+
+      for (const rule of grammarRules) {
+        await prisma.userGrammarRule.upsert({
+          where: { userId_grammarRuleId: { userId, grammarRuleId: rule.id } },
+          update: { srsState: SrsState.MASTERED },
+          create: {
+            userId,
+            grammarRuleId: rule.id,
+            srsState: SrsState.MASTERED,
+            eloRating: baseElo
+          }
+        });
+      }
+    }
+
+    // Revert auto-mastered grammar when downgrading
+    for (const level of levelsToRevert) {
+      const grammarRules = await prisma.grammarRule.findMany({
+        where: { languageId, level },
+        select: { id: true }
+      });
+      const ruleIds = grammarRules.map((r) => r.id);
+      if (ruleIds.length > 0) {
+        await prisma.userGrammarRule.updateMany({
+          where: { userId, grammarRuleId: { in: ruleIds } },
+          data: { srsState: SrsState.UNSEEN }
+        });
+      }
+    }
+
+    console.log(
+      `[Grammar Mastery] User ${userId}: mastered ${levelsToMaster.length} prior level(s), reverted ${levelsToRevert.length} level(s) → placed at ${newLevel}`
+    );
+  }
+
   static async getCefrProgress(userId: string, languageId: string): Promise<CefrProgressDetail> {
     const userProgress = await prisma.userProgress.findUnique({
       where: {

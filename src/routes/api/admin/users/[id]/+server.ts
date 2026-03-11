@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { prisma } from '$lib/server/prisma';
+import { CefrService } from '$lib/server/cefrService';
 import type { RequestEvent } from '@sveltejs/kit';
 
 export async function PUT({ params, request, locals }: RequestEvent) {
@@ -28,6 +29,23 @@ export async function PUT({ params, request, locals }: RequestEvent) {
 		if (email !== undefined) updateData.email = email;
 		if (role !== undefined) updateData.role = role;
 
+		// Snapshot existing CEFR levels before the transaction so we can compute mastery changes
+		const progressUpdates = progress && Array.isArray(progress)
+			? progress.filter((p: { languageId?: string; cefrLevel?: string }) => p.languageId && p.cefrLevel)
+			: [];
+
+		const existingProgressRecords = progressUpdates.length > 0
+			? await prisma.userProgress.findMany({
+					where: {
+						userId: id!,
+						languageId: { in: progressUpdates.map((p: { languageId: string }) => p.languageId) }
+					},
+					select: { languageId: true, cefrLevel: true }
+				})
+			: [];
+
+		const oldLevelMap = new Map(existingProgressRecords.map((r) => [r.languageId, r.cefrLevel]));
+
 		// Run in a transaction if we are updating user progress
 		const [user] = await prisma.$transaction(async (tx) => {
 			const u = await tx.user.update({
@@ -42,33 +60,37 @@ export async function PUT({ params, request, locals }: RequestEvent) {
 				}
 			});
 
-			if (progress && Array.isArray(progress)) {
-				for (const p of progress) {
-					if (p.languageId && p.cefrLevel) {
-						await tx.userProgress.upsert({
-							where: {
-								userId_languageId: {
-									userId: id!,
-									languageId: p.languageId
-								}
-							},
-							update: {
-								cefrLevel: p.cefrLevel,
-								hasOnboarded: Boolean(p.hasOnboarded ?? false)
-							},
-							create: {
+			if (progressUpdates.length > 0) {
+				for (const p of progressUpdates) {
+					await tx.userProgress.upsert({
+						where: {
+							userId_languageId: {
 								userId: id!,
-								languageId: p.languageId,
-								cefrLevel: p.cefrLevel,
-								hasOnboarded: Boolean(p.hasOnboarded ?? true)
+								languageId: p.languageId
 							}
-						});
-					}
+						},
+						update: {
+							cefrLevel: p.cefrLevel,
+							hasOnboarded: Boolean(p.hasOnboarded ?? false)
+						},
+						create: {
+							userId: id!,
+							languageId: p.languageId,
+							cefrLevel: p.cefrLevel,
+							hasOnboarded: Boolean(p.hasOnboarded ?? true)
+						}
+					});
 				}
 			}
 
 			return [u];
 		});
+
+		// Apply grammar mastery changes outside the transaction (can be slow for large data sets)
+		for (const p of progressUpdates) {
+			const oldLevel = oldLevelMap.get(p.languageId);
+			await CefrService.applyGrammarMasteryForLevel(id!, p.languageId, p.cefrLevel, oldLevel);
+		}
 
 		return json({ user });
 	} catch (error: unknown) {
