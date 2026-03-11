@@ -54,12 +54,17 @@
 	// Merge user progress with all possible rules for the grammar web
 	$: grammarWebNodes = sortedRules.map((rule: any) => {
 		const userProgress = data.grammarRules.find((ur: any) => ur.grammarRuleId === rule.id);
+		const prereqsMet = (rule.dependencies || []).length === 0 ||
+			(rule.dependencies || []).every((dep: any) => {
+				const depProgress = data.grammarRules.find((ur: any) => ur.grammarRuleId === dep.id);
+				return depProgress?.srsState === 'MASTERED';
+			});
 		return {
 			...userProgress,
 			grammarRule: rule,
-			srsState: userProgress?.srsState || 'LOCKED',
+			srsState: userProgress?.srsState || (prereqsMet ? 'UNSEEN' : 'LOCKED'),
 			eloRating: userProgress?.eloRating || 1000,
-			isLocked: !userProgress
+			isLocked: !prereqsMet
 		};
 	});
 
