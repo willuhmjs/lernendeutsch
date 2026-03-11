@@ -8,22 +8,56 @@
 	export let data: PageData;
 
 	let currentReviewIndex = 0;
-	let showingAnswer = false;
 	let isSubmitting = false;
+	let isGrading = false;
 	let typedAnswer = '';
 	let reviewInputRef: HTMLInputElement;
 
-	$: activeLangName = $page.data.user?.activeLanguage?.name || 'en';
+	let gradeResult: { correct: boolean; score: number } | null = null;
+	let userOverride: boolean | null = null;
 
+	$: activeLangName = $page.data.user?.activeLanguage?.name || 'en';
 	$: dueReviews = data.dueReviews || [];
 	$: currentReview = dueReviews[currentReviewIndex];
 	$: isFinished = dueReviews.length > 0 ? currentReviewIndex >= dueReviews.length : true;
+	$: showingAnswer = gradeResult !== null;
 
-	function showAnswer() {
-		showingAnswer = true;
+	$: effectiveCorrect = userOverride !== null ? userOverride : gradeResult?.correct ?? false;
+	$: effectiveScore = userOverride !== null ? (userOverride ? 1.0 : 0.0) : (gradeResult?.score ?? 0);
+
+	async function showAnswer() {
+		if (isGrading) return;
+
+		if (!typedAnswer.trim()) {
+			gradeResult = { correct: false, score: 0 };
+			return;
+		}
+
+		isGrading = true;
+		try {
+			const res = await fetch('/api/review/grade', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					userAnswer: typedAnswer,
+					lemma: currentReview.vocabulary.lemma,
+					correctMeaning: (currentReview.vocabulary as any).meanings?.[0]?.value || ''
+				})
+			});
+
+			if (res.ok) {
+				gradeResult = await res.json();
+			} else {
+				gradeResult = { correct: false, score: 0 };
+			}
+		} catch {
+			gradeResult = { correct: false, score: 0 };
+		} finally {
+			isGrading = false;
+		}
 	}
 
-	async function submitGrade(score: number) {
+	async function submitAndNext() {
 		if (isSubmitting || !currentReview) return;
 		isSubmitting = true;
 
@@ -33,13 +67,14 @@
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					vocabularyId: currentReview.vocabulary.id,
-					score
+					score: effectiveScore
 				})
 			});
 
 			if (res.ok) {
 				currentReviewIndex++;
-				showingAnswer = false;
+				gradeResult = null;
+				userOverride = null;
 				typedAnswer = '';
 			}
 		} catch (e) {
@@ -47,6 +82,10 @@
 		} finally {
 			isSubmitting = false;
 		}
+	}
+
+	function toggleOverride() {
+		userOverride = userOverride !== null ? !userOverride : !gradeResult?.correct;
 	}
 </script>
 
@@ -104,22 +143,36 @@
 						<div class="answer-section">
 							{#if showingAnswer}
 								<div class="answer-reveal">
-									<!-- Divider -->
-									<div class="divider">
-										<span>Answer</span>
+									<!-- Grade Result Banner -->
+									<div class="grade-banner" class:grade-correct={effectiveCorrect} class:grade-incorrect={!effectiveCorrect}>
+										<div class="grade-icon">
+											{#if effectiveCorrect}
+												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+													<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+												</svg>
+											{:else}
+												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+													<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+												</svg>
+											{/if}
+										</div>
+										<span class="grade-label">{effectiveCorrect ? 'Correct' : 'Incorrect'}</span>
 									</div>
 
 									<!-- Answer Info -->
 									<div class="answer-info">
 										{#if typedAnswer}
-											<div class="typed-answer-display">
-												<span class="typed-label">You typed:</span>
+											<div class="typed-answer-display" class:typed-correct={effectiveCorrect} class:typed-incorrect={!effectiveCorrect}>
+												<span class="typed-label">Your answer</span>
 												<span class="typed-text">{typedAnswer}</span>
 											</div>
 										{/if}
-										<p class="meaning-text">
-											{(currentReview.vocabulary as any).meanings?.[0]?.value || 'No meaning provided'}
-										</p>
+										<div class="correct-answer-display">
+											<span class="correct-label">Correct answer</span>
+											<p class="meaning-text">
+												{(currentReview.vocabulary as any).meanings?.[0]?.value || 'No meaning provided'}
+											</p>
+										</div>
 										<div class="meta-tags">
 											{#if currentReview.vocabulary.gender}
 												<span class="meta-tag">
@@ -134,35 +187,17 @@
 										</div>
 									</div>
 
-									<!-- Grading Buttons -->
-									<div class="grading-buttons">
-										<button
-											class="btn-duo btn-danger"
-											on:click={() => submitGrade(0)}
-											disabled={isSubmitting}
-										>
-											Again
+									<!-- Actions -->
+									<div class="action-row">
+										<button class="btn-duo btn-override" on:click={toggleOverride}>
+											{effectiveCorrect ? 'Mark as incorrect' : 'Mark as correct'}
 										</button>
 										<button
-											class="btn-duo btn-hard"
-											on:click={() => submitGrade(0.4)}
+											class="btn-duo btn-primary btn-continue"
+											on:click={submitAndNext}
 											disabled={isSubmitting}
 										>
-											Hard
-										</button>
-										<button
-											class="btn-duo btn-primary"
-											on:click={() => submitGrade(0.8)}
-											disabled={isSubmitting}
-										>
-											Good
-										</button>
-										<button
-											class="btn-duo btn-easy"
-											on:click={() => submitGrade(1.0)}
-											disabled={isSubmitting}
-										>
-											Easy
+											{isSubmitting ? 'Saving...' : 'Continue'}
 										</button>
 									</div>
 								</div>
@@ -196,8 +231,17 @@
 										on:keydown={(e) => e.key === 'Enter' && showAnswer()}
 									/>
 								</div>
-								<button class="btn-duo btn-primary show-answer-btn" on:click={showAnswer}>
-									Show Answer
+								<button
+									class="btn-duo btn-primary show-answer-btn"
+									on:click={showAnswer}
+									disabled={isGrading}
+								>
+									{#if isGrading}
+										<span class="grading-spinner"></span>
+										Grading...
+									{:else}
+										Show Answer
+									{/if}
 								</button>
 							{/if}
 						</div>
@@ -406,10 +450,31 @@
 		padding-top: 1rem;
 		padding-bottom: 1rem;
 		font-size: 1.125rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+	}
+
+	.grading-spinner {
+		width: 1rem;
+		height: 1rem;
+		border: 2px solid rgba(255, 255, 255, 0.4);
+		border-top-color: white;
+		border-radius: 50%;
+		animation: spin 0.7s linear infinite;
+		display: inline-block;
+	}
+
+	@keyframes spin {
+		to { transform: rotate(360deg); }
 	}
 
 	.answer-reveal {
 		animation: fadeIn 0.3s ease-out;
+		display: flex;
+		flex-direction: column;
+		gap: 1.25rem;
 	}
 
 	@keyframes fadeIn {
@@ -423,74 +488,196 @@
 		}
 	}
 
-	.divider {
-		position: relative;
-		text-align: center;
-		margin-bottom: 2rem;
+	/* Grade banner */
+	.grade-banner {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		padding: 1rem 1.25rem;
+		border-radius: 1rem;
+		font-weight: 800;
+		font-size: 1.125rem;
 	}
 
-	.divider::before {
-		content: '';
-		position: absolute;
-		top: 50%;
-		left: 0;
-		right: 0;
-		border-top: 1px solid var(--card-border, #e2e8f0);
+	.grade-correct {
+		background-color: #dcfce7;
+		color: #15803d;
 	}
 
-	.divider span {
-		position: relative;
-		background-color: var(--card-bg, #ffffff);
-		padding: 0 1rem;
-		font-size: 0.875rem;
-		font-weight: 600;
-		color: #94a3b8;
+	.grade-incorrect {
+		background-color: #fee2e2;
+		color: #dc2626;
 	}
 
+	:global(html[data-theme='dark']) .grade-correct {
+		background-color: rgba(20, 83, 45, 0.35);
+		color: #4ade80;
+	}
+
+	:global(html[data-theme='dark']) .grade-incorrect {
+		background-color: rgba(127, 29, 29, 0.35);
+		color: #f87171;
+	}
+
+	.grade-icon {
+		width: 1.75rem;
+		height: 1.75rem;
+		flex-shrink: 0;
+	}
+
+	.grade-icon svg {
+		width: 100%;
+		height: 100%;
+	}
+
+	.grade-label {
+		font-size: 1.25rem;
+	}
+
+	/* Answer info */
 	.answer-info {
-		text-align: center;
-		margin-bottom: 2.5rem;
 		display: flex;
 		flex-direction: column;
-		align-items: center;
-		gap: 1rem;
+		gap: 0.75rem;
 	}
 
 	.typed-answer-display {
-		background-color: #f1f5f9;
 		padding: 0.75rem 1.25rem;
 		border-radius: 1rem;
-		border: 1px solid #e2e8f0;
-		max-width: 100%;
+		border: 2px solid;
 		display: flex;
 		flex-direction: column;
 		gap: 0.25rem;
 	}
 
-	:global(html[data-theme='dark']) .typed-answer-display {
-		background-color: #1e293b;
-		border-color: #334155;
+	.typed-correct {
+		background-color: #f0fdf4;
+		border-color: #86efac;
 	}
 
-	.typed-label {
+	.typed-incorrect {
+		background-color: #fef2f2;
+		border-color: #fca5a5;
+	}
+
+	:global(html[data-theme='dark']) .typed-correct {
+		background-color: rgba(20, 83, 45, 0.2);
+		border-color: rgba(74, 222, 128, 0.4);
+	}
+
+	:global(html[data-theme='dark']) .typed-incorrect {
+		background-color: rgba(127, 29, 29, 0.2);
+		border-color: rgba(248, 113, 113, 0.4);
+	}
+
+	.typed-label,
+	.correct-label {
 		font-size: 0.75rem;
 		font-weight: 700;
 		text-transform: uppercase;
-		color: #64748b;
 		letter-spacing: 0.05em;
+		color: #64748b;
+	}
+
+	:global(html[data-theme='dark']) .typed-label,
+	:global(html[data-theme='dark']) .correct-label {
+		color: #94a3b8;
 	}
 
 	.typed-text {
-		font-size: 1.25rem;
+		font-size: 1.125rem;
 		font-weight: 700;
 		color: var(--text-color, #0f172a);
 	}
 
+	.correct-answer-display {
+		background-color: #f8fafc;
+		border: 1px solid #e2e8f0;
+		padding: 0.75rem 1.25rem;
+		border-radius: 1rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	:global(html[data-theme='dark']) .correct-answer-display {
+		background-color: #1e293b;
+		border-color: #334155;
+	}
+
 	.meaning-text {
-		font-size: 1.75rem;
+		font-size: 1.5rem;
 		font-weight: 800;
-		margin: 0.5rem 0;
+		margin: 0;
 		color: var(--text-color, #1e293b);
+	}
+
+	.meta-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+	}
+
+	.meta-tag {
+		background-color: #f8fafc;
+		color: #475569;
+		padding: 0.5rem 1rem;
+		border-radius: 0.75rem;
+		font-size: 0.875rem;
+		font-weight: 600;
+		border: 1px solid #e2e8f0;
+	}
+
+	:global(html[data-theme='dark']) .meta-tag {
+		background-color: #1e293b;
+		color: #cbd5e1;
+		border-color: #334155;
+	}
+
+	.meta-tag strong {
+		color: var(--text-color, #0f172a);
+		margin-left: 0.25rem;
+	}
+
+	/* Action row */
+	.action-row {
+		display: flex;
+		gap: 0.75rem;
+		align-items: center;
+	}
+
+	.btn-override {
+		background-color: transparent;
+		color: #64748b;
+		border: 2px solid #e2e8f0;
+		box-shadow: none;
+		font-size: 0.875rem;
+		padding: 0.75rem 1rem;
+		white-space: nowrap;
+	}
+
+	.btn-override:hover {
+		background-color: #f1f5f9;
+		border-color: #cbd5e1;
+		transform: none;
+		box-shadow: none;
+	}
+
+	:global(html[data-theme='dark']) .btn-override {
+		color: #94a3b8;
+		border-color: #334155;
+	}
+
+	:global(html[data-theme='dark']) .btn-override:hover {
+		background-color: #1e293b;
+		border-color: #475569;
+	}
+
+	.btn-continue {
+		flex: 1;
+		padding-top: 1rem;
+		padding-bottom: 1rem;
+		font-size: 1.125rem;
 	}
 
 	.typing-label-row {
@@ -549,84 +736,5 @@
 
 	:global(html[data-theme='dark']) .review-input:focus {
 		border-color: #3b82f6;
-	}
-
-	.meta-tags {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: center;
-		gap: 0.75rem;
-		margin-top: 0.5rem;
-	}
-
-	.meta-tag {
-		background-color: #f8fafc;
-		color: #475569;
-		padding: 0.5rem 1rem;
-		border-radius: 0.75rem;
-		font-size: 0.875rem;
-		font-weight: 600;
-		border: 1px solid #e2e8f0;
-	}
-
-	:global(html[data-theme='dark']) .meta-tag {
-		background-color: #1e293b;
-		color: #cbd5e1;
-		border-color: #334155;
-	}
-
-	.meta-tag strong {
-		color: var(--text-color, #0f172a);
-		margin-left: 0.25rem;
-	}
-
-	.grading-buttons {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		gap: 0.75rem;
-	}
-
-	@media (min-width: 640px) {
-		.grading-buttons {
-			grid-template-columns: repeat(4, 1fr);
-		}
-	}
-
-	.grading-buttons button {
-		padding-top: 1rem;
-		padding-bottom: 1rem;
-		width: 100%;
-	}
-
-	.btn-hard {
-		background-color: #f97316;
-		color: white;
-		box-shadow: 0 4px 0 #c2410c;
-	}
-
-	.btn-hard:hover {
-		background-color: #fb923c;
-		transform: scale(1.02);
-	}
-
-	.btn-hard:active {
-		transform: scale(0.98) translateY(2px);
-		box-shadow: 0 2px 0 #c2410c;
-	}
-
-	.btn-easy {
-		background-color: #06b6d4;
-		color: white;
-		box-shadow: 0 4px 0 #0891b2;
-	}
-
-	.btn-easy:hover {
-		background-color: #22d3ee;
-		transform: scale(1.02);
-	}
-
-	.btn-easy:active {
-		transform: scale(0.98) translateY(2px);
-		box-shadow: 0 2px 0 #0891b2;
 	}
 </style>
