@@ -6,6 +6,7 @@ import { submitAnswerRateLimiter } from '$lib/server/ratelimit';
 import { updateGamification } from '$lib/server/gamification';
 import { CefrService } from '$lib/server/cefrService';
 import { XP_CONFIG } from '$lib/server/srsConfig';
+import { isClearlyCorrect } from '$lib/server/fuzzyGrade';
 
 /** Track a correct/incorrect answer against an assignment score record. */
 async function updateAssignmentScore(assignmentId: string, userId: string, isCorrect: boolean) {
@@ -134,6 +135,42 @@ export async function POST(event) {
 			}
 
 			return json({ ...remappedEvaluation, assignmentProgress, levelUp });
+		}
+
+		// Fast path for translation modes: skip LLM if fuzzy matching is confident
+		// (skip fill-blank: userInput is only the blank words, not the full sentence)
+		if (gameMode === 'native-to-target' || gameMode === 'target-to-native') {
+			if (isClearlyCorrect(userInput, targetSentence)) {
+				const score = 1.0;
+				const remappedEvaluation = {
+					globalScore: score,
+					vocabularyUpdates: targetedVocabulary.map((v: any) => ({ id: v.id, score })),
+					grammarUpdates: targetedGrammar.map((g: any) => ({ id: g.id, score })),
+					extraVocabLemmas: [],
+					feedback: '',
+					feedbackEnglish: ''
+				};
+
+				await updateEloRatings(userId, remappedEvaluation, gameMode);
+
+				let assignmentProgress = null;
+				if (assignmentId) {
+					try {
+						assignmentProgress = await updateAssignmentScore(assignmentId, userId, true);
+					} catch (err) {
+						console.error('Assignment score update failed:', err);
+					}
+				}
+
+				await updateGamification(userId, XP_CONFIG.CORRECT_ANSWER.OTHER_MODES);
+
+				let levelUp = null;
+				if (locals.user.activeLanguage?.id) {
+					levelUp = await CefrService.evaluateLevelUp(userId, locals.user.activeLanguage.id);
+				}
+
+				return json({ ...remappedEvaluation, assignmentProgress, levelUp });
+			}
 		}
 
 		let userLevel = locals.user.cefrLevel || 'A1';

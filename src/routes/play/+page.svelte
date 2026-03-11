@@ -9,12 +9,13 @@
 	import FillInBlankView from '$lib/components/play/FillInBlankView.svelte';
 	import MultipleChoiceView from '$lib/components/play/MultipleChoiceView.svelte';
 	import TranslationView from '$lib/components/play/TranslationView.svelte';
+	import ImmersionView from '$lib/components/play/ImmersionView.svelte';
 
 	export let data: PageData;
 
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
-	let activeTab: 'learn' | 'games' = 'learn';
+	let activeTab: 'learn' | 'games' | 'immerse' = 'learn';
 
 	$: {
 		const tabParam = $page.url.searchParams.get('tab');
@@ -22,6 +23,8 @@
 			activeTab = 'games';
 		} else if (tabParam === 'learn') {
 			activeTab = 'learn';
+		} else if (tabParam === 'immerse') {
+			activeTab = 'immerse';
 		}
 	}
 	let myGames = data.myGames;
@@ -1887,6 +1890,13 @@ r<svelte:head>
 				</button>
 				<button
 					class="tab-btn"
+					class:active={activeTab === 'immerse'}
+					on:click={() => (activeTab = 'immerse')}
+				>
+					Immerse
+				</button>
+				<button
+					class="tab-btn"
 					class:active={activeTab === 'games'}
 					on:click={() => (activeTab = 'games')}
 				>
@@ -2352,6 +2362,10 @@ r<svelte:head>
 				</div>
 			{/if}
 			</div>
+		{:else if activeTab === 'immerse'}
+			<div class="immerse-wrapper" in:fly={{ y: 20, duration: 400, delay: 100 }}>
+				<ImmersionView language={lessonLanguage} cefrLevel={userLevel} />
+			</div>
 		{:else}
 			<div class="games-wrapper" in:fly={{ y: 20, duration: 400, delay: 100 }}>
 				<div class="header-section">
@@ -2706,6 +2720,12 @@ r<svelte:head>
 		display: flex;
 		flex-direction: column;
 		gap: 2rem;
+	}
+
+	.immerse-wrapper {
+		max-width: 800px;
+		margin: 0 auto;
+		width: 100%;
 	}
 
 	.header-section {

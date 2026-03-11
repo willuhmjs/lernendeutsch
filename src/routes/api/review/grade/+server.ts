@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { generateChatCompletion } from '$lib/server/llm';
+import { isClearlyCorrect } from '$lib/server/fuzzyGrade';
 
 export async function POST({ request, locals }) {
 	if (!locals.user) {
@@ -11,6 +12,11 @@ export async function POST({ request, locals }) {
 
 		if (!userAnswer?.trim()) {
 			return json({ correct: false, score: 0 });
+		}
+
+		// Fast path: skip LLM if fuzzy matching is confident the answer is correct
+		if (correctMeaning && isClearlyCorrect(userAnswer, correctMeaning)) {
+			return json({ correct: true, score: 1.0 });
 		}
 
 		const systemPrompt = `You are grading a vocabulary flashcard review. The student was shown a word and typed their translation into English.
