@@ -78,18 +78,166 @@
 		return acc;
 	}, {} as Record<string, number>);
 
-	let selectedModalItem: { type: 'vocab' | 'grammar', data: any, color: string, eloPercent: number } | null = null;
-	
+	// Modal navigation stack - supports drilling into prerequisite modals
+	let modalStack: Array<{ type: 'vocab' | 'grammar', data: any, color: string, eloPercent: number }> = [];
+	$: selectedModalItem = modalStack.length > 0 ? modalStack[modalStack.length - 1] : null;
+
+	// Test-out state
+	let grammarModalPhase: 'detail' | 'testing' | 'results' = 'detail';
+	let testOutQuestions: any[] | null = null;
+	let testOutCurrentIndex = 0;
+	let testOutSelectedAnswer: number | null = null;
+	let testOutAnsweredCurrent = false;
+	let testOutScores: boolean[] = [];
+	let testOutLoading = false;
+	let testOutError: string | null = null;
+	let testOutMastering = false;
+	let testOutMasteryDone = false;
+
+	$: testOutPassedCount = testOutScores.filter(Boolean).length;
+	$: testOutTotalQuestions = testOutQuestions?.length || 10;
+	$: testOutPassed = testOutScores.length === testOutTotalQuestions && testOutPassedCount >= 9;
+
+	function resetTestOut() {
+		testOutQuestions = null;
+		testOutCurrentIndex = 0;
+		testOutSelectedAnswer = null;
+		testOutAnsweredCurrent = false;
+		testOutScores = [];
+		testOutLoading = false;
+		testOutError = null;
+		testOutMastering = false;
+		testOutMasteryDone = false;
+	}
+
 	function openVocabModal(vocab: any, color: string, eloPercent: number) {
-		selectedModalItem = { type: 'vocab', data: vocab, color, eloPercent };
+		modalStack = [{ type: 'vocab', data: vocab, color, eloPercent }];
+		grammarModalPhase = 'detail';
+		resetTestOut();
 	}
 
 	function openGrammarModal(rule: any, color: string, eloPercent: number) {
-		selectedModalItem = { type: 'grammar', data: rule, color, eloPercent };
+		modalStack = [{ type: 'grammar', data: rule, color, eloPercent }];
+		grammarModalPhase = 'detail';
+		resetTestOut();
+	}
+
+	function navigateToPrereq(ruleId: string) {
+		const node = grammarWebNodes.find((n: any) => n.grammarRule.id === ruleId);
+		if (!node) return;
+		const srsColor = (srsColors as any)[node.srsState] || srsColors.LOCKED;
+		const eloPercent = node.isLocked ? 0 : Math.max(0, Math.min(100,
+			node.srsState === 'LEARNING' ? ((node.eloRating - 1000) / 50) * 100
+			: node.srsState === 'KNOWN' ? ((node.eloRating - 1050) / 100) * 100
+			: node.srsState === 'MASTERED' ? 100 : 0
+		));
+		modalStack = [...modalStack, { type: 'grammar', data: node, color: srsColor, eloPercent }];
+		grammarModalPhase = 'detail';
+		resetTestOut();
+	}
+
+	function goBack() {
+		if (grammarModalPhase !== 'detail') {
+			grammarModalPhase = 'detail';
+			resetTestOut();
+		} else if (modalStack.length > 1) {
+			modalStack = modalStack.slice(0, -1);
+		}
 	}
 
 	function closeModal() {
-		selectedModalItem = null;
+		modalStack = [];
+		grammarModalPhase = 'detail';
+		resetTestOut();
+	}
+
+	async function startTestOut(ruleId: string) {
+		grammarModalPhase = 'testing';
+		testOutLoading = true;
+		testOutError = null;
+		testOutQuestions = null;
+		testOutCurrentIndex = 0;
+		testOutSelectedAnswer = null;
+		testOutAnsweredCurrent = false;
+		testOutScores = [];
+		try {
+			const res = await fetch(`/api/grammar/${ruleId}/test-out`, { method: 'POST' });
+			if (!res.ok) {
+				const err = await res.json();
+				testOutError = err.error || 'Failed to generate questions.';
+				grammarModalPhase = 'detail';
+				return;
+			}
+			const responseData = await res.json();
+			testOutQuestions = responseData.questions;
+		} catch {
+			testOutError = 'Failed to generate questions. Please try again.';
+			grammarModalPhase = 'detail';
+		} finally {
+			testOutLoading = false;
+		}
+	}
+
+	function handleTestAnswer(optionIndex: number) {
+		if (testOutAnsweredCurrent || !testOutQuestions) return;
+		testOutSelectedAnswer = optionIndex;
+		testOutAnsweredCurrent = true;
+		const correct = optionIndex === testOutQuestions[testOutCurrentIndex].correctIndex;
+		testOutScores = [...testOutScores, correct];
+	}
+
+	function nextTestQuestion() {
+		if (!testOutQuestions) return;
+		if (testOutCurrentIndex >= testOutQuestions.length - 1) {
+			grammarModalPhase = 'results';
+		} else {
+			testOutCurrentIndex++;
+			testOutSelectedAnswer = null;
+			testOutAnsweredCurrent = false;
+		}
+	}
+
+	async function submitMastery(ruleId: string) {
+		testOutMastering = true;
+		testOutError = null;
+		try {
+			const res = await fetch(`/api/grammar/${ruleId}/master`, { method: 'POST' });
+			if (res.ok) {
+				testOutMasteryDone = true;
+				// Update local data to reflect mastery and trigger reactivity in grammarWebNodes
+				const existing = data.grammarRules.find((r: any) => r.grammarRuleId === ruleId);
+				if (existing) {
+					data = {
+						...data,
+						grammarRules: data.grammarRules.map((r: any) =>
+							r.grammarRuleId === ruleId ? { ...r, srsState: 'MASTERED', eloRating: 1200 } : r
+						)
+					};
+				} else {
+					data = {
+						...data,
+						grammarRules: [
+							...data.grammarRules,
+							{ grammarRuleId: ruleId, srsState: 'MASTERED', eloRating: 1200, nextReviewDate: null }
+						]
+					};
+				}
+				// Update the modal stack entry so the detail view reflects mastery
+				modalStack = modalStack.map((item, i) => {
+					if (i === modalStack.length - 1 && item.type === 'grammar' && item.data.grammarRule?.id === ruleId) {
+						return { ...item, data: { ...item.data, srsState: 'MASTERED', isLocked: false }, color: srsColors.MASTERED };
+					}
+					return item;
+				});
+			} else {
+				const err = await res.json();
+				testOutError = err.error || 'Failed to mark as mastered.';
+			}
+		} catch {
+			testOutError = 'Failed to mark as mastered. Please try again.';
+		} finally {
+			testOutMastering = false;
+		}
 	}
 
 	function getPrerequisiteProgress(rule: any) {
@@ -104,6 +252,7 @@
 				: srsState === 'LEARNING' ? Math.max(0, Math.min(100, ((elo - 1000) / 50) * 100))
 				: 0;
 			return {
+				id: dep.id,
 				title: dep.title,
 				srsState,
 				isComplete,
@@ -388,16 +537,20 @@
 </div>
 
 {#if selectedModalItem}
-	<div class="modal-backdrop" on:click={closeModal} on:keydown={(e) => e.key === 'Escape' && closeModal()} role="button" tabindex="0">
-		<div class="modal-content dark:bg-slate-800 dark:border-slate-700" on:click|stopPropagation role="document">
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div class="modal-backdrop" on:click={closeModal} on:keydown={(e) => e.key === 'Escape' && closeModal()}>
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
+		<div class="modal-content dark:bg-slate-800 dark:border-slate-700" on:click|stopPropagation>
 			<button class="modal-close dark:text-slate-400 dark:hover:text-white" on:click={closeModal}>&times;</button>
-			
+
 			{#if selectedModalItem.type === 'vocab'}
 				{@const vocab = selectedModalItem.data}
 				{@const isUnseen = vocab.srsState === 'UNSEEN'}
 				{@const elo = vocab.eloRating !== undefined ? Math.round(vocab.eloRating) : 1000}
 				{@const levelText = isUnseen ? 'Unseen' : vocab.srsState.charAt(0) + vocab.srsState.slice(1).toLowerCase()}
-				
+
 				<h3 class="modal-title dark:text-white">
 					{#if vocab.vocabulary.partOfSpeech?.toLowerCase() === 'noun'}
 						{vocab.vocabulary.lemma.charAt(0).toUpperCase() + vocab.vocabulary.lemma.slice(1)}
@@ -405,7 +558,7 @@
 						{vocab.vocabulary.lemma}
 					{/if}
 				</h3>
-				
+
 				<div class="modal-body dark:text-slate-300">
 					{#if !isUnseen}
 						<div class="modal-elo-section">
@@ -422,7 +575,7 @@
 							<div class="modal-elo-header"><span class="dark:text-slate-400">Status: {levelText}</span></div>
 						</div>
 					{/if}
-					
+
 					<div class="modal-details">
 						{#if vocab.vocabulary.partOfSpeech}
 							<div class="modal-detail-row">
@@ -450,57 +603,209 @@
 						{/if}
 					</div>
 				</div>
-				
+
 			{:else if selectedModalItem.type === 'grammar'}
 				{@const rule = selectedModalItem.data}
 				{@const prereqs = getPrerequisiteProgress(rule)}
+				{@const allPrereqsMastered = prereqs.length === 0 || prereqs.every((p: any) => p.srsState === 'MASTERED')}
+				{@const canTestOut = !rule.isLocked && rule.srsState !== 'MASTERED' && allPrereqsMastered}
 
-				<h3 class="modal-title dark:text-white">{rule.grammarRule.title}</h3>
+				<!-- Back navigation -->
+				{#if grammarModalPhase !== 'detail' || modalStack.length > 1}
+					<button class="modal-back-btn dark:text-slate-400 dark:hover:text-white" on:click={goBack}>
+						←
+						{#if grammarModalPhase !== 'detail'}
+							Back to Details
+						{:else}
+							{modalStack[modalStack.length - 2]?.data?.grammarRule?.title || 'Back'}
+						{/if}
+					</button>
+				{/if}
 
-				<div class="modal-body dark:text-slate-300">
-					<div class="modal-elo-section">
-						<div class="modal-elo-header">
-							<span class="dark:text-slate-400">Status: {rule.srsState}</span>
+				{#if grammarModalPhase === 'detail'}
+					<h3 class="modal-title dark:text-white">{rule.grammarRule.title}</h3>
+
+					<div class="modal-body dark:text-slate-300">
+						<div class="modal-elo-section">
+							<div class="modal-elo-header">
+								<span class="dark:text-slate-400">Status: {rule.srsState}</span>
+								{#if !rule.isLocked}
+									<span class="modal-elo-score" style="color: {selectedModalItem.color}">ELO {Math.ceil(rule.eloRating)}</span>
+								{/if}
+							</div>
 							{#if !rule.isLocked}
-								<span class="modal-elo-score" style="color: {selectedModalItem.color}">ELO {Math.ceil(rule.eloRating)}</span>
+								<div class="elo-progress-track">
+									<div class="elo-progress-fill" style="width: {selectedModalItem.eloPercent}%; background-color: {selectedModalItem.color}"></div>
+								</div>
 							{/if}
 						</div>
-						{#if !rule.isLocked}
-							<div class="elo-progress-track">
-								<div class="elo-progress-fill" style="width: {selectedModalItem.eloPercent}%; background-color: {selectedModalItem.color}"></div>
+
+						{#if prereqs.length > 0}
+							<div class="prereq-section">
+								<h4 class="prereq-heading dark:text-slate-400">{rule.isLocked ? 'Prerequisites to Unlock' : 'Prerequisites'}</h4>
+								<div class="prereq-list">
+									{#each prereqs as prereq}
+										<button
+											class="prereq-item prereq-item-clickable dark:hover:bg-slate-700"
+											on:click={() => navigateToPrereq(prereq.id)}
+											title="View {prereq.title}"
+										>
+											<div class="prereq-item-header">
+												<span class="prereq-dot" style="background-color: {prereq.color}"></span>
+												<span class="prereq-title dark:text-slate-200">{prereq.title}</span>
+												<span class="prereq-status" style="color: {prereq.color}">{prereq.srsState}</span>
+												<span class="prereq-arrow dark:text-slate-500">›</span>
+											</div>
+											<div class="prereq-bar-track">
+												<div class="prereq-bar-fill" style="width: {prereq.percent}%; background-color: {prereq.color}"></div>
+											</div>
+										</button>
+									{/each}
+								</div>
 							</div>
+						{/if}
+
+						<div class="modal-details">
+							<p class="modal-desc">{rule.grammarRule.description || 'No description available.'}</p>
+							{#if rule.grammarRule.guide}
+								<div class="grammar-guide markdown-body dark:bg-slate-900 dark:border-slate-700">
+									{@html marked(rule.grammarRule.guide)}
+								</div>
+							{/if}
+						</div>
+
+						{#if canTestOut}
+							<div class="test-out-section">
+								<div class="test-out-divider"></div>
+								<p class="test-out-hint dark:text-slate-400">
+									All prerequisites mastered! You can test out of this rule by answering 9 out of 10 questions correctly.
+								</p>
+								<button class="test-out-btn" on:click={() => startTestOut(rule.grammarRule.id)}>
+									Test Out of {rule.grammarRule.title}
+								</button>
+							</div>
+						{/if}
+
+						{#if testOutError}
+							<p class="test-out-error">{testOutError}</p>
 						{/if}
 					</div>
 
-					{#if prereqs.length > 0}
-						<div class="prereq-section">
-							<h4 class="prereq-heading dark:text-slate-400">{rule.isLocked ? 'Prerequisites to Unlock' : 'Prerequisites'}</h4>
-							<div class="prereq-list">
-								{#each prereqs as prereq}
-									<div class="prereq-item">
-										<div class="prereq-item-header">
-											<span class="prereq-dot" style="background-color: {prereq.color}"></span>
-											<span class="prereq-title dark:text-slate-200">{prereq.title}</span>
-											<span class="prereq-status" style="color: {prereq.color}">{prereq.srsState}</span>
-										</div>
-										<div class="prereq-bar-track">
-											<div class="prereq-bar-fill" style="width: {prereq.percent}%; background-color: {prereq.color}"></div>
-										</div>
-									</div>
+				{:else if grammarModalPhase === 'testing'}
+					<h3 class="modal-title dark:text-white">Test Out: {rule.grammarRule.title}</h3>
+
+					<div class="modal-body dark:text-slate-300">
+						{#if testOutLoading}
+							<div class="test-loading">
+								<div class="test-loading-spinner"></div>
+								<p>Generating questions…</p>
+							</div>
+						{:else if testOutError && !testOutQuestions}
+							<div class="test-error-state">
+								<p>{testOutError}</p>
+								<button class="test-retry-btn" on:click={() => startTestOut(rule.grammarRule.id)}>Try Again</button>
+							</div>
+						{:else if testOutQuestions}
+							{@const q = testOutQuestions[testOutCurrentIndex]}
+							{@const lastScore = testOutScores[testOutScores.length - 1]}
+
+							<div class="test-progress-header">
+								<span class="test-q-count dark:text-slate-400">Question {testOutCurrentIndex + 1} / {testOutTotalQuestions}</span>
+								<span class="test-score-preview dark:text-slate-400">{testOutPassedCount} correct so far</span>
+							</div>
+							<div class="test-progress-bar-track">
+								<div class="test-progress-bar-fill" style="width: {((testOutCurrentIndex) / testOutTotalQuestions) * 100}%"></div>
+							</div>
+
+							<div class="test-question-card dark:bg-slate-900 dark:border-slate-700">
+								<p class="test-sentence">{q.sentence}</p>
+								<p class="test-context dark:text-slate-500">{q.context}</p>
+							</div>
+
+							<div class="test-options">
+								{#each q.options as option, i}
+									<button
+										class="test-option dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200"
+										class:option-correct={testOutAnsweredCurrent && i === q.correctIndex}
+										class:option-incorrect={testOutAnsweredCurrent && i === testOutSelectedAnswer && i !== q.correctIndex}
+										class:option-disabled={testOutAnsweredCurrent && i !== q.correctIndex && i !== testOutSelectedAnswer}
+										on:click={() => handleTestAnswer(i)}
+										disabled={testOutAnsweredCurrent}
+									>
+										<span class="option-letter">{String.fromCharCode(65 + i)}</span>
+										<span class="option-text">{option}</span>
+									</button>
 								{/each}
 							</div>
-						</div>
-					{/if}
 
-					<div class="modal-details">
-						<p class="modal-desc">{rule.grammarRule.description || 'No description available.'}</p>
-						{#if rule.grammarRule.guide}
-							<div class="grammar-guide markdown-body dark:bg-slate-900 dark:border-slate-700">
-								{@html marked(rule.grammarRule.guide)}
-							</div>
+							{#if testOutAnsweredCurrent}
+								<div class="test-feedback" class:feedback-correct={lastScore} class:feedback-incorrect={!lastScore}>
+									<span class="feedback-icon">{lastScore ? '✓' : '✗'}</span>
+									<div class="feedback-content">
+										<span class="feedback-label">{lastScore ? 'Correct!' : `Incorrect — correct answer: ${q.options[q.correctIndex]}`}</span>
+										<p class="feedback-explanation dark:text-slate-400">{q.explanation}</p>
+									</div>
+								</div>
+								<button class="test-next-btn" on:click={nextTestQuestion}>
+									{testOutCurrentIndex >= testOutTotalQuestions - 1 ? 'See Results →' : 'Next Question →'}
+								</button>
+							{/if}
 						{/if}
 					</div>
-				</div>
+
+				{:else if grammarModalPhase === 'results'}
+					<h3 class="modal-title dark:text-white">Results: {rule.grammarRule.title}</h3>
+
+					<div class="modal-body dark:text-slate-300">
+						<div class="results-score-display" class:results-pass={testOutPassed} class:results-fail={!testOutPassed}>
+							<span class="results-number">{testOutPassedCount}/{testOutTotalQuestions}</span>
+							<span class="results-label">correct</span>
+						</div>
+
+						<div class="score-dots">
+							{#each testOutScores as correct}
+								<span class="score-dot" class:dot-correct={correct} class:dot-incorrect={!correct}>
+									{correct ? '✓' : '✗'}
+								</span>
+							{/each}
+						</div>
+
+						{#if testOutPassed}
+							<p class="results-message results-pass-msg">
+								You've demonstrated mastery of {rule.grammarRule.title}!
+							</p>
+							{#if testOutMasteryDone}
+								<div class="mastery-confirmed dark:bg-green-900 dark:border-green-700">
+									<span>✓ Marked as Mastered!</span>
+								</div>
+							{:else}
+								<button
+									class="master-confirm-btn"
+									on:click={() => submitMastery(rule.grammarRule.id)}
+									disabled={testOutMastering}
+								>
+									{testOutMastering ? 'Saving…' : 'Mark as Mastered →'}
+								</button>
+							{/if}
+						{:else}
+							<p class="results-message results-fail-msg dark:text-slate-400">
+								You need at least 9/10 correct to test out. Keep practicing and try again!
+							</p>
+							<div class="results-actions">
+								<button class="results-retry-btn" on:click={() => startTestOut(rule.grammarRule.id)}>
+									Try Again
+								</button>
+								<button class="results-back-btn dark:border-slate-600 dark:text-slate-300" on:click={goBack}>
+									Back to Details
+								</button>
+							</div>
+						{/if}
+
+						{#if testOutError}
+							<p class="test-out-error">{testOutError}</p>
+						{/if}
+					</div>
+				{/if}
 			{/if}
 		</div>
 	</div>
@@ -1323,6 +1628,7 @@
 		align-items: center;
 		gap: 0.5rem;
 		margin-bottom: 0.35rem;
+		width: 100%;
 	}
 
 	.prereq-dot {
@@ -1549,5 +1855,471 @@
 
 	.dark .grammar-guide :global(th) {
 		background: #1e293b;
+	}
+
+	/* Modal back button */
+	.modal-back-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
+		background: none;
+		border: none;
+		font-size: 0.85rem;
+		font-weight: 600;
+		color: #64748b;
+		cursor: pointer;
+		padding: 0;
+		margin-top: -0.5rem;
+		margin-bottom: 0.5rem;
+		transition: color 0.2s;
+	}
+
+	.modal-back-btn:hover {
+		color: #334155;
+	}
+
+	/* Prerequisite items as clickable buttons */
+	.prereq-item-clickable {
+		display: block;
+		width: 100%;
+		box-sizing: border-box;
+		background: none;
+		border: 1px solid #e2e8f0;
+		border-radius: 0.5rem;
+		padding: 0.6rem 0.75rem;
+		cursor: pointer;
+		text-align: left;
+		transition: background 0.15s, border-color 0.15s;
+	}
+
+	.prereq-item-clickable:hover {
+		background: #f1f5f9;
+		border-color: #cbd5e1;
+	}
+
+	.prereq-arrow {
+		font-size: 1.1rem;
+		color: #94a3b8;
+		margin-left: auto;
+	}
+
+	/* Test-out section in detail view */
+	.test-out-divider {
+		height: 1px;
+		background: rgba(0, 0, 0, 0.07);
+		margin: 1.5rem 0 1rem;
+	}
+
+	.test-out-hint {
+		font-size: 0.85rem;
+		color: #64748b;
+		margin: 0 0 0.75rem;
+		line-height: 1.4;
+	}
+
+	.test-out-btn {
+		width: 100%;
+		padding: 0.75rem 1.25rem;
+		background: linear-gradient(135deg, #7c3aed, #4f46e5);
+		color: #ffffff;
+		border: none;
+		border-radius: 0.5rem;
+		font-size: 0.95rem;
+		font-weight: 700;
+		cursor: pointer;
+		transition: opacity 0.2s, transform 0.15s;
+		letter-spacing: 0.01em;
+	}
+
+	.test-out-btn:hover {
+		opacity: 0.9;
+		transform: translateY(-1px);
+	}
+
+	.test-out-error {
+		margin-top: 0.75rem;
+		color: #dc2626;
+		font-size: 0.85rem;
+	}
+
+	/* Testing phase */
+	.test-loading {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1rem;
+		padding: 2rem;
+		color: #64748b;
+	}
+
+	.test-loading-spinner {
+		width: 2rem;
+		height: 2rem;
+		border: 3px solid #e2e8f0;
+		border-top-color: #7c3aed;
+		border-radius: 50%;
+		animation: spin 0.8s linear infinite;
+	}
+
+	@keyframes spin {
+		to { transform: rotate(360deg); }
+	}
+
+	.test-error-state {
+		text-align: center;
+		padding: 2rem;
+		color: #dc2626;
+	}
+
+	.test-retry-btn {
+		margin-top: 1rem;
+		padding: 0.5rem 1.25rem;
+		background: #7c3aed;
+		color: #fff;
+		border: none;
+		border-radius: 0.375rem;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	.test-progress-header {
+		display: flex;
+		justify-content: space-between;
+		margin-bottom: 0.5rem;
+		font-size: 0.8rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: #64748b;
+	}
+
+	.test-progress-bar-track {
+		width: 100%;
+		height: 6px;
+		background: #e2e8f0;
+		border-radius: 9999px;
+		overflow: hidden;
+		margin-bottom: 1.25rem;
+	}
+
+	.test-progress-bar-fill {
+		height: 100%;
+		background: linear-gradient(90deg, #7c3aed, #4f46e5);
+		border-radius: 9999px;
+		transition: width 0.4s ease;
+	}
+
+	.test-question-card {
+		background: #f8fafc;
+		border: 1px solid #e2e8f0;
+		border-radius: 0.75rem;
+		padding: 1.25rem;
+		margin-bottom: 1rem;
+	}
+
+	.test-sentence {
+		font-size: 1.2rem;
+		font-weight: 700;
+		color: #0f172a;
+		margin: 0 0 0.4rem;
+		line-height: 1.4;
+	}
+
+	.dark .test-sentence {
+		color: #f1f5f9;
+	}
+
+	.test-context {
+		font-size: 0.875rem;
+		color: #64748b;
+		margin: 0;
+		font-style: italic;
+	}
+
+	.test-options {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		margin-bottom: 1rem;
+	}
+
+	.test-option {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		padding: 0.65rem 1rem;
+		background: #ffffff;
+		border: 2px solid #e2e8f0;
+		border-radius: 0.5rem;
+		font-size: 0.95rem;
+		cursor: pointer;
+		text-align: left;
+		transition: border-color 0.15s, background 0.15s;
+		color: #334155;
+	}
+
+	.test-option:hover:not(:disabled) {
+		border-color: #7c3aed;
+		background: #faf5ff;
+	}
+
+	.test-option:disabled {
+		cursor: default;
+	}
+
+	.test-option.option-correct {
+		border-color: #10b981;
+		background: #d1fae5;
+		color: #065f46;
+	}
+
+	.test-option.option-incorrect {
+		border-color: #ef4444;
+		background: #fee2e2;
+		color: #7f1d1d;
+	}
+
+	.test-option.option-disabled {
+		opacity: 0.45;
+	}
+
+	.option-letter {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 1.5rem;
+		height: 1.5rem;
+		border-radius: 50%;
+		background: #e2e8f0;
+		font-size: 0.75rem;
+		font-weight: 800;
+		flex-shrink: 0;
+		color: #475569;
+	}
+
+	.option-text {
+		flex: 1;
+		font-weight: 600;
+	}
+
+	.test-feedback {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.75rem;
+		padding: 0.875rem 1rem;
+		border-radius: 0.5rem;
+		margin-bottom: 1rem;
+		border: 1px solid transparent;
+	}
+
+	.test-feedback.feedback-correct {
+		background: #d1fae5;
+		border-color: #6ee7b7;
+	}
+
+	.test-feedback.feedback-incorrect {
+		background: #fee2e2;
+		border-color: #fca5a5;
+	}
+
+	.feedback-icon {
+		font-size: 1.1rem;
+		font-weight: 800;
+		flex-shrink: 0;
+		margin-top: 0.05rem;
+	}
+
+	.feedback-content {
+		flex: 1;
+	}
+
+	.feedback-label {
+		display: block;
+		font-weight: 700;
+		font-size: 0.9rem;
+		margin-bottom: 0.25rem;
+	}
+
+	.feedback-explanation {
+		font-size: 0.8rem;
+		color: #475569;
+		margin: 0;
+		line-height: 1.4;
+	}
+
+	.test-next-btn {
+		width: 100%;
+		padding: 0.7rem 1.25rem;
+		background: #1e293b;
+		color: #ffffff;
+		border: none;
+		border-radius: 0.5rem;
+		font-size: 0.95rem;
+		font-weight: 700;
+		cursor: pointer;
+		transition: background 0.2s;
+	}
+
+	.test-next-btn:hover {
+		background: #0f172a;
+	}
+
+	/* Results phase */
+	.results-score-display {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		width: 6rem;
+		height: 6rem;
+		border-radius: 50%;
+		margin: 0 auto 1.25rem;
+		border: 4px solid;
+	}
+
+	.results-score-display.results-pass {
+		border-color: #10b981;
+		background: #d1fae5;
+		color: #065f46;
+	}
+
+	.results-score-display.results-fail {
+		border-color: #f59e0b;
+		background: #fef3c7;
+		color: #78350f;
+	}
+
+	.results-number {
+		font-size: 1.5rem;
+		font-weight: 900;
+		line-height: 1;
+	}
+
+	.results-label {
+		font-size: 0.7rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.score-dots {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.35rem;
+		justify-content: center;
+		margin-bottom: 1.25rem;
+	}
+
+	.score-dot {
+		width: 2rem;
+		height: 2rem;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 0.75rem;
+		font-weight: 800;
+	}
+
+	.score-dot.dot-correct {
+		background: #d1fae5;
+		color: #065f46;
+	}
+
+	.score-dot.dot-incorrect {
+		background: #fee2e2;
+		color: #7f1d1d;
+	}
+
+	.results-message {
+		text-align: center;
+		font-size: 0.95rem;
+		line-height: 1.5;
+		margin: 0 0 1.25rem;
+	}
+
+	.results-pass-msg {
+		color: #065f46;
+		font-weight: 600;
+	}
+
+	.results-fail-msg {
+		color: #64748b;
+	}
+
+	.master-confirm-btn {
+		width: 100%;
+		padding: 0.75rem 1.25rem;
+		background: linear-gradient(135deg, #10b981, #059669);
+		color: #ffffff;
+		border: none;
+		border-radius: 0.5rem;
+		font-size: 0.95rem;
+		font-weight: 700;
+		cursor: pointer;
+		transition: opacity 0.2s, transform 0.15s;
+	}
+
+	.master-confirm-btn:hover:not(:disabled) {
+		opacity: 0.9;
+		transform: translateY(-1px);
+	}
+
+	.master-confirm-btn:disabled {
+		opacity: 0.7;
+		cursor: default;
+	}
+
+	.mastery-confirmed {
+		padding: 0.875rem 1rem;
+		background: #d1fae5;
+		border: 1px solid #6ee7b7;
+		border-radius: 0.5rem;
+		text-align: center;
+		font-weight: 700;
+		color: #065f46;
+	}
+
+	.results-actions {
+		display: flex;
+		gap: 0.75rem;
+	}
+
+	.results-retry-btn {
+		flex: 1;
+		padding: 0.7rem 1rem;
+		background: linear-gradient(135deg, #7c3aed, #4f46e5);
+		color: #ffffff;
+		border: none;
+		border-radius: 0.5rem;
+		font-size: 0.9rem;
+		font-weight: 700;
+		cursor: pointer;
+		transition: opacity 0.2s;
+	}
+
+	.results-retry-btn:hover {
+		opacity: 0.9;
+	}
+
+	.results-back-btn {
+		flex: 1;
+		padding: 0.7rem 1rem;
+		background: transparent;
+		color: #475569;
+		border: 1px solid #cbd5e1;
+		border-radius: 0.5rem;
+		font-size: 0.9rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: background 0.15s;
+	}
+
+	.results-back-btn:hover {
+		background: #f1f5f9;
+	}
+
+	.test-out-section {
+		margin-top: 1.5rem;
 	}
 </style>
