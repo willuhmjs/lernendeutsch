@@ -305,11 +305,14 @@ function calculateNewElo(
 /**
  * Derives SRS state from SM-2 metrics (consecutiveCorrect count).
  * This is the single source of truth for srsState.
+ * MASTERED requires both a long interval AND enough consecutive correct answers.
  */
 export function deriveSrsStateFromSm2(consecutiveCorrect: number, interval: number): SrsState {
 	if (consecutiveCorrect === 0) return 'LEARNING';
-	if (interval >= SRS_STATE_CONFIG.MASTERED_INTERVAL_DAYS) return 'MASTERED';
-	if (consecutiveCorrect >= SRS_STATE_CONFIG.KNOWN_THRESHOLD) return 'KNOWN';
+	if (consecutiveCorrect >= SRS_STATE_CONFIG.KNOWN_THRESHOLD) {
+		if (interval >= SRS_STATE_CONFIG.MASTERED_INTERVAL_DAYS) return 'MASTERED';
+		return 'KNOWN';
+	}
 	return 'LEARNING';
 }
 
@@ -336,6 +339,9 @@ function computeSm2Update(score: number, current: { interval: number; easeFactor
 
 	easeFactor = easeFactor + (0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02));
 	if (easeFactor < SM2_CONFIG.MIN_EASE_FACTOR) easeFactor = SM2_CONFIG.MIN_EASE_FACTOR;
+	if (easeFactor > SM2_CONFIG.MAX_EASE_FACTOR) easeFactor = SM2_CONFIG.MAX_EASE_FACTOR;
+
+	if (interval > SM2_CONFIG.MAX_INTERVAL_DAYS) interval = SM2_CONFIG.MAX_INTERVAL_DAYS;
 
 	const nextReviewDate = new Date();
 	nextReviewDate.setDate(nextReviewDate.getDate() + interval);
