@@ -666,15 +666,6 @@
 							</div>
 						{/if}
 
-						<div class="modal-details">
-							<p class="modal-desc">{rule.grammarRule.description || 'No description available.'}</p>
-							{#if rule.grammarRule.guide}
-								<div class="grammar-guide markdown-body dark:bg-slate-900 dark:border-slate-700">
-									{@html marked(rule.grammarRule.guide)}
-								</div>
-							{/if}
-						</div>
-
 						{#if canTestOut}
 							<div class="test-out-section">
 								<div class="test-out-divider"></div>
@@ -690,6 +681,15 @@
 						{#if testOutError}
 							<p class="test-out-error">{testOutError}</p>
 						{/if}
+
+						<div class="modal-details">
+							<p class="modal-desc">{rule.grammarRule.description || 'No description available.'}</p>
+							{#if rule.grammarRule.guide}
+								<div class="grammar-guide markdown-body dark:bg-slate-900 dark:border-slate-700">
+									{@html marked(rule.grammarRule.guide)}
+								</div>
+							{/if}
+						</div>
 					</div>
 
 				{:else if grammarModalPhase === 'testing'}
