@@ -15,6 +15,21 @@ export const POST = async ({ request, locals }: RequestEvent) => {
 	}
 
 	try {
+		// Verify the vocabulary exists and belongs to user's active language
+		const vocabulary = await prisma.vocabulary.findUnique({
+			where: { id: vocabularyId },
+			select: { languageId: true }
+		});
+
+		if (!vocabulary) {
+			return json({ error: 'Vocabulary not found' }, { status: 404 });
+		}
+
+		// Ensure vocabulary belongs to user's active language
+		if (locals.user.activeLanguage && vocabulary.languageId !== locals.user.activeLanguage.id) {
+			return json({ error: 'Vocabulary does not belong to your active language' }, { status: 400 });
+		}
+
 		const result = await prisma.userVocabulary.upsert({
 			where: {
 				userId_vocabularyId: {

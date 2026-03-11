@@ -1,4 +1,5 @@
 import { prisma } from './prisma';
+import { ELO_CONFIG, CEFR_CONFIG, SM2_CONFIG, SRS_STATE_CONFIG } from './srsConfig';
 
 type SrsState = 'UNSEEN' | 'LEARNING' | 'KNOWN' | 'MASTERED';
 type Vocabulary = {
@@ -279,18 +280,8 @@ export function parseEvaluationResponse(content: string): EvaluationPayload {
 }
 
 export function mapLevelToElo(level: string): number {
-	const levels: Record<string, number> = {
-		A1: 1000,
-		A2: 1200,
-		B1: 1400,
-		B2: 1600,
-		C1: 1800,
-		C2: 2000
-	};
-	return levels[level.toUpperCase()] || 1000;
+	return CEFR_CONFIG.BASE_ELO[level.toUpperCase() as keyof typeof CEFR_CONFIG.BASE_ELO] || CEFR_CONFIG.BASE_ELO.A1;
 }
-
-const K_FACTOR = 96;
 
 function calculateNewElo(
 	currentElo: number,
@@ -301,12 +292,13 @@ function calculateNewElo(
 	const expectedScore = 1 / (1 + Math.pow(10, (baseDifficulty - currentElo) / 400));
 
 	let kMultiplier = 1.0;
-	// Multiple choice and recognition (target-to-native) provide less evidence of mastery than production
-	if (gameMode === 'multiple-choice' || gameMode === 'target-to-native') kMultiplier = 0.5;
-	// Production into target language is the most difficult and provides the strongest evidence of mastery
-	if (gameMode === 'native-to-target') kMultiplier = 1.2;
+	// Use configured K-factor multipliers by game mode
+	if (gameMode === 'multiple-choice') kMultiplier = ELO_CONFIG.K_MULTIPLIERS.MULTIPLE_CHOICE;
+	else if (gameMode === 'target-to-native') kMultiplier = ELO_CONFIG.K_MULTIPLIERS.TARGET_TO_NATIVE;
+	else if (gameMode === 'native-to-target') kMultiplier = ELO_CONFIG.K_MULTIPLIERS.NATIVE_TO_TARGET;
+	else if (gameMode === 'fill-blank') kMultiplier = ELO_CONFIG.K_MULTIPLIERS.FILL_BLANK;
 
-	const effectiveK = K_FACTOR * kMultiplier;
+	const effectiveK = ELO_CONFIG.K_FACTOR * kMultiplier;
 	return currentElo + effectiveK * (score - expectedScore);
 }
 
@@ -316,8 +308,8 @@ function calculateNewElo(
  */
 export function deriveSrsStateFromSm2(consecutiveCorrect: number, interval: number): SrsState {
 	if (consecutiveCorrect === 0) return 'LEARNING';
-	if (interval >= 21) return 'MASTERED'; // 3+ weeks interval = mastered
-	if (consecutiveCorrect >= 2) return 'KNOWN';
+	if (interval >= SRS_STATE_CONFIG.MASTERED_INTERVAL_DAYS) return 'MASTERED';
+	if (consecutiveCorrect >= SRS_STATE_CONFIG.KNOWN_THRESHOLD) return 'KNOWN';
 	return 'LEARNING';
 }
 
@@ -328,22 +320,22 @@ function computeSm2Update(score: number, current: { interval: number; easeFactor
 	let { interval, easeFactor, consecutiveCorrect } = current;
 	const grade = Math.round(score * 5);
 
-	if (grade >= 3) {
+	if (grade >= SM2_CONFIG.SUCCESS_GRADE_THRESHOLD) {
 		if (consecutiveCorrect === 0) {
-			interval = 1;
+			interval = SM2_CONFIG.INTERVALS.FIRST_SUCCESS;
 		} else if (consecutiveCorrect === 1) {
-			interval = 6;
+			interval = SM2_CONFIG.INTERVALS.SECOND_SUCCESS;
 		} else {
 			interval = Math.round(interval * easeFactor);
 		}
 		consecutiveCorrect++;
 	} else {
 		consecutiveCorrect = 0;
-		interval = 1;
+		interval = SM2_CONFIG.INTERVALS.FIRST_SUCCESS;
 	}
 
 	easeFactor = easeFactor + (0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02));
-	if (easeFactor < 1.3) easeFactor = 1.3;
+	if (easeFactor < SM2_CONFIG.MIN_EASE_FACTOR) easeFactor = SM2_CONFIG.MIN_EASE_FACTOR;
 
 	const nextReviewDate = new Date();
 	nextReviewDate.setDate(nextReviewDate.getDate() + interval);
@@ -359,7 +351,7 @@ export async function updateSrsMetrics(userId: string, itemId: string, score: nu
 
 		const sm2 = computeSm2Update(score, {
 			interval: currentProgress?.interval ?? 0,
-			easeFactor: currentProgress?.easeFactor ?? 2.5,
+			easeFactor: currentProgress?.easeFactor ?? SM2_CONFIG.DEFAULT_EASE_FACTOR,
 			consecutiveCorrect: currentProgress?.consecutiveCorrect ?? 0
 		});
 
@@ -378,7 +370,7 @@ export async function updateSrsMetrics(userId: string, itemId: string, score: nu
 
 	const sm2 = computeSm2Update(score, {
 		interval: currentProgress?.interval ?? 0,
-		easeFactor: currentProgress?.easeFactor ?? 2.5,
+		easeFactor: currentProgress?.easeFactor ?? SM2_CONFIG.DEFAULT_EASE_FACTOR,
 		consecutiveCorrect: currentProgress?.consecutiveCorrect ?? 0
 	});
 

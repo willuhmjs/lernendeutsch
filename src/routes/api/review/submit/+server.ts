@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { updateSrsMetrics } from '$lib/server/grader';
 import { updateGamification } from '$lib/server/gamification';
+import { XP_CONFIG } from '$lib/server/srsConfig';
 
 export async function POST({ request, locals }) {
 	if (!locals.user) {
@@ -16,7 +17,7 @@ export async function POST({ request, locals }) {
 
 		await updateSrsMetrics(locals.user.id, vocabularyId, score);
 
-		const xpToAdd = score >= 0.8 ? 10 : 0;
+		const xpToAdd = score >= XP_CONFIG.SCORE_THRESHOLD ? XP_CONFIG.CORRECT_ANSWER.OTHER_MODES : 0;
 		if (xpToAdd > 0) {
 			await updateGamification(locals.user.id, xpToAdd);
 		}

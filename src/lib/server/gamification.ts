@@ -45,12 +45,18 @@ export async function updateGamification(userId: string, xpToAdd: number) {
 		const diffTime = Math.abs(today.getTime() - lastActiveDay.getTime());
 		const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
-		if (diffDays === 1) {
+		if (diffDays === 0) {
+			// Same day - maintain current streak
+			newStreak = user.currentStreak;
+		} else if (diffDays === 1) {
+			// Consecutive day - increment streak
 			newStreak += 1;
 		} else if (diffDays > 1) {
+			// Streak broken - reset to 1
 			newStreak = 1;
 		}
 	} else {
+		// First activity ever
 		newStreak = 1;
 	}
 

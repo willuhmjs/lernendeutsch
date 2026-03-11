@@ -4,9 +4,14 @@ import type { Handle } from '@sveltejs/kit';
 import { prisma } from '$lib/server/prisma';
 import { initLoadTimeStat } from '$lib/server/loadTimeStat';
 import { apiRateLimiter, authRateLimiter } from '$lib/server/ratelimit';
+import { GAMIFICATION_CONFIG } from '$lib/server/srsConfig';
 
 // Hydrate rolling load-time average from DB on startup
 initLoadTimeStat();
+
+// In-memory cache for lastActive throttling
+// Maps userId -> last update timestamp
+const lastActiveUpdateCache = new Map<string, number>();
 
 const authorization: Handle = async ({ event, resolve }) => {
 	// Rate limiting logic
@@ -111,13 +116,19 @@ const authorization: Handle = async ({ event, resolve }) => {
 			: null
 	};
 
-	// Fire-and-forget lastActive update
-	prisma.user
-		.update({
-			where: { id: session.user.id },
-			data: { lastActive: new Date() }
-		})
-		.catch((err) => console.error('Failed to update lastActive', err));
+	// Throttled fire-and-forget lastActive update
+	const now = Date.now();
+	const lastUpdate = lastActiveUpdateCache.get(session.user.id);
+
+	if (!lastUpdate || now - lastUpdate > GAMIFICATION_CONFIG.LAST_ACTIVE_THROTTLE_MS) {
+		lastActiveUpdateCache.set(session.user.id, now);
+		prisma.user
+			.update({
+				where: { id: session.user.id },
+				data: { lastActive: new Date() }
+			})
+			.catch((err) => console.error('Failed to update lastActive', err));
+	}
 
 	if (event.url.pathname.startsWith('/admin') && event.locals.user.role !== 'ADMIN') {
 		return new Response(null, {

@@ -11,10 +11,20 @@ const originalCreateUser = adapter.createUser!;
 adapter.createUser = async (user) => {
 	const baseUsername = user.email?.split('@')[0] || 'user';
 	const username = `${baseUsername}-${Math.floor(Math.random() * 10000)}`;
-	const userCount = await prisma.user.count();
-	const role = userCount === 0 ? 'ADMIN' : 'USER';
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	return originalCreateUser({ ...user, username, role } as any);
+	const createdUser = await originalCreateUser({ ...user, username, role: 'USER' } as any);
+
+	// Atomically check and upgrade to ADMIN if this is the first user
+	const isFirstUser = await prisma.user.count() === 1;
+	if (isFirstUser && createdUser.id) {
+		await prisma.user.update({
+			where: { id: createdUser.id as string },
+			data: { role: 'ADMIN' }
+		});
+		return { ...createdUser, role: 'ADMIN' };
+	}
+
+	return createdUser;
 };
 
 export const { handle, signIn, signOut } = SvelteKitAuth({
@@ -55,15 +65,13 @@ export const { handle, signIn, signOut } = SvelteKitAuth({
 	},
 	callbacks: {
 		async session({ session, user }) {
-			// Attach additional user info to the session
+			// Attach basic user info to the session
+			// Note: cefrLevel and hasOnboarded are now in UserProgress table
+			// and are loaded in hooks.server.ts
 			if (session.user && user) {
 				session.user.id = user.id;
 				// @ts-expect-error - Custom property
 				session.user.username = user.username;
-				// @ts-expect-error - Custom property
-				session.user.cefrLevel = user.cefrLevel;
-				// @ts-expect-error - Custom property
-				session.user.hasOnboarded = user.hasOnboarded;
 				// @ts-expect-error - Custom property
 				session.user.role = user.role;
 				// @ts-expect-error - Custom property

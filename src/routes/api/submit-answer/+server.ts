@@ -5,33 +5,32 @@ import { prisma } from '$lib/server/prisma';
 import { submitAnswerRateLimiter } from '$lib/server/ratelimit';
 import { updateGamification } from '$lib/server/gamification';
 import { CefrService } from '$lib/server/cefrService';
+import { XP_CONFIG } from '$lib/server/srsConfig';
 
 /** Track a correct/incorrect answer against an assignment score record. */
 async function updateAssignmentScore(assignmentId: string, userId: string, isCorrect: boolean) {
-	try {
-		const assignment = await prisma.assignment.findUnique({ where: { id: assignmentId } });
-		if (!assignment) return null;
-
-		const increment = isCorrect ? 1 : 0;
-
-		const current = await prisma.assignmentScore.findUnique({
-			where: { assignmentId_userId: { assignmentId, userId } }
-		});
-
-		const newScore = (current?.score ?? 0) + increment;
-		const passed = newScore >= assignment.targetScore;
-
-		const updated = await prisma.assignmentScore.upsert({
-			where: { assignmentId_userId: { assignmentId, userId } },
-			create: { assignmentId, userId, score: newScore, passed },
-			update: { score: newScore, passed }
-		});
-
-		return { score: updated.score, targetScore: assignment.targetScore, passed: updated.passed };
-	} catch (e) {
-		console.error('Failed to update assignment score:', e);
-		return null;
+	const assignment = await prisma.assignment.findUnique({ where: { id: assignmentId } });
+	if (!assignment) {
+		console.error(`Assignment ${assignmentId} not found`);
+		throw new Error('Assignment not found');
 	}
+
+	const increment = isCorrect ? 1 : 0;
+
+	const current = await prisma.assignmentScore.findUnique({
+		where: { assignmentId_userId: { assignmentId, userId } }
+	});
+
+	const newScore = (current?.score ?? 0) + increment;
+	const passed = newScore >= assignment.targetScore;
+
+	const updated = await prisma.assignmentScore.upsert({
+		where: { assignmentId_userId: { assignmentId, userId } },
+		create: { assignmentId, userId, score: newScore, passed },
+		update: { score: newScore, passed }
+	});
+
+	return { score: updated.score, targetScore: assignment.targetScore, passed: updated.passed };
 }
 
 export async function POST(event) {
@@ -114,11 +113,16 @@ export async function POST(event) {
 
 			let assignmentProgress = null;
 			if (assignmentId) {
-				assignmentProgress = await updateAssignmentScore(assignmentId, userId, isCorrect);
+				try {
+					assignmentProgress = await updateAssignmentScore(assignmentId, userId, isCorrect);
+				} catch (err) {
+					console.error('Assignment score update failed:', err);
+					// Continue execution - assignment tracking is non-critical
+				}
 			}
 
-			// Reduce XP for multiple choice as it's easier than other modes
-			const xpToAdd = isCorrect ? 5 : 0;
+			// Award XP for correct answers (multiple choice awards less)
+			const xpToAdd = isCorrect ? XP_CONFIG.CORRECT_ANSWER.MULTIPLE_CHOICE : 0;
 			if (xpToAdd > 0) {
 				await updateGamification(userId, xpToAdd);
 			}
@@ -219,10 +223,17 @@ export async function POST(event) {
 					let assignmentProgress = null;
 					const isCorrect = (evaluation.globalScore ?? 0) >= 0.5;
 					if (assignmentId) {
-						assignmentProgress = await updateAssignmentScore(assignmentId, userId, isCorrect);
+						try {
+							assignmentProgress = await updateAssignmentScore(assignmentId, userId, isCorrect);
+						} catch (err) {
+							console.error('Assignment score update failed:', err);
+							// Continue execution - assignment tracking is non-critical
+						}
 					}
 
-					const xpToAdd = isCorrect ? 10 : 0;
+					// Award XP for high-scoring answers
+					const earnedXp = (evaluation.globalScore ?? 0) >= XP_CONFIG.SCORE_THRESHOLD;
+					const xpToAdd = earnedXp ? XP_CONFIG.CORRECT_ANSWER.OTHER_MODES : 0;
 					if (xpToAdd > 0) {
 						await updateGamification(userId, xpToAdd);
 					}

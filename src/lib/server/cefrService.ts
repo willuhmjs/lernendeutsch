@@ -1,23 +1,6 @@
 import { prisma } from './prisma';
 import { SrsState } from '@prisma/client';
-
-const CEFR_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
-
-const ELO_TARGETS: Record<string, number> = {
-  'A1': 1150,
-  'A2': 1350,
-  'B1': 1550,
-  'B2': 1750,
-  'C1': 1950
-};
-
-// Minimum percentage of items at a level that the user must have interacted with
-// (i.e. have at least LEARNING status) before they can level up
-const MIN_EXPOSURE_PERCENT = 0.6;
-
-// Items not reviewed for this many days will have their ELO decayed toward baseline
-const DECAY_THRESHOLD_DAYS = 30;
-const DECAY_RATE = 0.05; // 5% decay toward baseline per decay period
+import { CEFR_CONFIG } from './srsConfig';
 
 export interface LevelUpdate {
   oldLevel: string;
@@ -43,11 +26,7 @@ export class CefrService {
    */
   static async applyEloDecay(userId: string, languageId: string): Promise<void> {
     const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - DECAY_THRESHOLD_DAYS);
-
-    const levelToElo: Record<string, number> = {
-      A1: 1000, A2: 1200, B1: 1400, B2: 1600, C1: 1800, C2: 2000
-    };
+    cutoff.setDate(cutoff.getDate() - CEFR_CONFIG.DECAY.THRESHOLD_DAYS);
 
     // Decay stale vocabulary
     const staleVocab = await prisma.userVocabulary.findMany({
@@ -61,9 +40,9 @@ export class CefrService {
     });
 
     for (const item of staleVocab) {
-      const baseline = levelToElo[item.vocabulary.cefrLevel] || 1000;
+      const baseline = CEFR_CONFIG.BASE_ELO[item.vocabulary.cefrLevel as keyof typeof CEFR_CONFIG.BASE_ELO] || CEFR_CONFIG.BASE_ELO.A1;
       if (item.eloRating > baseline) {
-        const decayedElo = item.eloRating - (item.eloRating - baseline) * DECAY_RATE;
+        const decayedElo = item.eloRating - (item.eloRating - baseline) * CEFR_CONFIG.DECAY.RATE;
         await prisma.userVocabulary.update({
           where: { id: item.id },
           data: { eloRating: decayedElo }
@@ -83,9 +62,9 @@ export class CefrService {
     });
 
     for (const item of staleGrammar) {
-      const baseline = levelToElo[item.grammarRule.level] || 1000;
+      const baseline = CEFR_CONFIG.BASE_ELO[item.grammarRule.level as keyof typeof CEFR_CONFIG.BASE_ELO] || CEFR_CONFIG.BASE_ELO.A1;
       if (item.eloRating > baseline) {
-        const decayedElo = item.eloRating - (item.eloRating - baseline) * DECAY_RATE;
+        const decayedElo = item.eloRating - (item.eloRating - baseline) * CEFR_CONFIG.DECAY.RATE;
         await prisma.userGrammarRule.update({
           where: { id: item.id },
           data: { eloRating: decayedElo }
@@ -104,14 +83,14 @@ export class CefrService {
     if (!userProgress) return null;
 
     const currentLevel = userProgress.cefrLevel;
-    const currentLevelIndex = CEFR_LEVELS.indexOf(currentLevel);
+    const currentLevelIndex = CEFR_CONFIG.LEVELS.indexOf(currentLevel);
 
-    if (currentLevelIndex === -1 || currentLevelIndex === CEFR_LEVELS.length - 1) {
+    if (currentLevelIndex === -1 || currentLevelIndex === CEFR_CONFIG.LEVELS.length - 1) {
       return null;
     }
 
-    const nextLevel = CEFR_LEVELS[currentLevelIndex + 1];
-    const targetElo = ELO_TARGETS[currentLevel];
+    const nextLevel = CEFR_CONFIG.LEVELS[currentLevelIndex + 1];
+    const targetElo = CEFR_CONFIG.ELO_TARGETS[currentLevel];
 
     // Apply ELO decay before evaluating
     await this.applyEloDecay(userId, languageId);
@@ -194,29 +173,29 @@ export class CefrService {
       : 0;
 
     // Check all thresholds
-    const masteryThreshold = 0.8;
-    const isMasteryMet = vocabMastery >= masteryThreshold && grammarMastery >= masteryThreshold;
+    const isMasteryMet = vocabMastery >= CEFR_CONFIG.MASTERY_THRESHOLD && grammarMastery >= CEFR_CONFIG.MASTERY_THRESHOLD;
     const isEloMet = averageElo >= targetElo;
-    const isExposureMet = vocabExposure >= MIN_EXPOSURE_PERCENT && grammarExposure >= MIN_EXPOSURE_PERCENT;
+    const isExposureMet = vocabExposure >= CEFR_CONFIG.MIN_EXPOSURE_PERCENT && grammarExposure >= CEFR_CONFIG.MIN_EXPOSURE_PERCENT;
 
     if (isMasteryMet && isEloMet && isExposureMet) {
-      await prisma.userProgress.update({
-        where: { id: userProgress.id },
-        data: { cefrLevel: nextLevel }
-      });
-
-      // Audit log
-      await prisma.levelUpEvent.create({
-        data: {
-          userId,
-          languageId,
-          oldLevel: currentLevel,
-          newLevel: nextLevel,
-          vocabMastery,
-          grammarMastery,
-          averageElo
-        }
-      });
+      // Use transaction to ensure atomicity of level-up and audit log
+      await prisma.$transaction([
+        prisma.userProgress.update({
+          where: { id: userProgress.id },
+          data: { cefrLevel: nextLevel }
+        }),
+        prisma.levelUpEvent.create({
+          data: {
+            userId,
+            languageId,
+            oldLevel: currentLevel,
+            newLevel: nextLevel,
+            vocabMastery,
+            grammarMastery,
+            averageElo
+          }
+        })
+      ]);
 
       return { oldLevel: currentLevel, newLevel: nextLevel };
     }
@@ -240,14 +219,14 @@ export class CefrService {
         grammarMastery: 0,
         vocabExposure: 0,
         grammarExposure: 0,
-        averageElo: 1000,
-        targetElo: ELO_TARGETS['A1']
+        averageElo: CEFR_CONFIG.BASE_ELO.A1,
+        targetElo: CEFR_CONFIG.ELO_TARGETS.A1
       };
     }
 
     const currentLevel = userProgress.cefrLevel;
-    const currentLevelIndex = CEFR_LEVELS.indexOf(currentLevel);
-    const nextLevel = currentLevelIndex < CEFR_LEVELS.length - 1 ? CEFR_LEVELS[currentLevelIndex + 1] : null;
+    const currentLevelIndex = CEFR_CONFIG.LEVELS.indexOf(currentLevel);
+    const nextLevel = currentLevelIndex < CEFR_CONFIG.LEVELS.length - 1 ? CEFR_CONFIG.LEVELS[currentLevelIndex + 1] : null;
 
     if (!nextLevel) {
       return {
@@ -263,7 +242,7 @@ export class CefrService {
       };
     }
 
-    const targetElo = ELO_TARGETS[currentLevel];
+    const targetElo = CEFR_CONFIG.ELO_TARGETS[currentLevel];
 
     const [totalVocab, totalGrammar] = await Promise.all([
       prisma.vocabulary.count({ where: { languageId, cefrLevel: currentLevel } }),
@@ -334,9 +313,9 @@ export class CefrService {
       : 1000;
 
     // Progress = bottleneck of the three requirements (matches evaluateLevelUp logic)
-    const masteryProgress = Math.min(vocabMastery, grammarMastery) / 0.8;
+    const masteryProgress = Math.min(vocabMastery, grammarMastery) / CEFR_CONFIG.MASTERY_THRESHOLD;
     const eloProgress = Math.min(1, averageElo / targetElo);
-    const exposureProgress = Math.min(vocabExposure, grammarExposure) / MIN_EXPOSURE_PERCENT;
+    const exposureProgress = Math.min(vocabExposure, grammarExposure) / CEFR_CONFIG.MIN_EXPOSURE_PERCENT;
 
     const weightedPercent = Math.min(1,
       (Math.min(1, masteryProgress) * 0.5) +
