@@ -154,16 +154,27 @@ export async function POST(event) {
 
 		// 4. Fetch Mastered Vocabulary and Grammar
 		let masteredGrammarDb: any[];
-		const [masteredVocabDb, initialMasteredGrammarDb, allMasteredGrammarIdsQuery] = await Promise.all([
+		const [masteredVocabDb, knownVocabDb, initialMasteredGrammarDb, allMasteredGrammarIdsQuery] = await Promise.all([
 			prisma.userVocabulary.findMany({
 				where: {
 					userId,
-					srsState: { in: [SrsState.KNOWN, SrsState.MASTERED] },
+					srsState: SrsState.MASTERED,
 					OR: [{ nextReviewDate: null }, { nextReviewDate: { lte: now } }],
 					vocabulary: { meanings: { some: {} }, languageId: activeLanguageId } as any
 				},
 				include: { vocabulary: { include: { meanings: true } } },
 				take: 20
+			}),
+			prisma.userVocabulary.findMany({
+				where: {
+					userId,
+					srsState: SrsState.KNOWN,
+					OR: [{ nextReviewDate: null }, { nextReviewDate: { lte: nearDue } }],
+					vocabulary: { meanings: { some: {} }, languageId: activeLanguageId } as any
+				},
+				include: { vocabulary: { include: { meanings: true } } },
+				orderBy: { nextReviewDate: 'asc' },
+				take: 3
 			}),
 			prisma.userGrammarRule.findMany({
 				where: {
@@ -289,6 +300,13 @@ export async function POST(event) {
 				eloRating: uv.eloRating ?? 1000,
 				srsState: uv.srsState ?? 'UNSEEN'
 			}));
+		const knownVocab = knownVocabDb
+			.filter((uv: any) => !EXCLUDED_POS.has(uv.vocabulary?.partOfSpeech))
+			.map((uv: any) => ({
+				...uv.vocabulary,
+				eloRating: uv.eloRating ?? 1000,
+				srsState: uv.srsState ?? 'KNOWN'
+			}));
 		const masteredGrammar = masteredGrammarDb.map((ug: any) => ug.grammarRule);
 		const learningGrammar = learningGrammarDb.map((ug: any) => ug.grammarRule);
 
@@ -303,6 +321,10 @@ export async function POST(event) {
 		const idMap: Record<string, string> = {}; // short -> real UUID
 		learningVocab.forEach((v, i) => {
 			idMap[`v${i}`] = v.id;
+		});
+		const learnOffset = learningVocab.length;
+		knownVocab.forEach((v, i) => {
+			idMap[`v${learnOffset + i}`] = v.id;
 		});
 		const allGrammar = [...masteredGrammar, ...learningGrammar];
 		allGrammar.forEach((g, i) => {
@@ -325,6 +347,11 @@ export async function POST(event) {
 				(v, i) => `${formatVocab(v as unknown as Parameters<typeof formatVocab>[0])} - ID: v${i}`
 			)
 			.join('\n');
+		const knownVocabList = knownVocab
+			.map(
+				(v, i) => `${formatVocab(v as unknown as Parameters<typeof formatVocab>[0])} - ID: v${learnOffset + i}`
+			)
+			.join('\n');
 		const masteredGrammarList = masteredGrammar
 			.map((g: { title: string; description: string; id: string }) => `- ${g.title} (${g.description}) - ID: ${Object.keys(idMap).find(k => idMap[k] === g.id)}`)
 			.join('\n');
@@ -344,6 +371,7 @@ export async function POST(event) {
 			assignmentTargetGrammar,
 			masteredVocabList,
 			learningVocabList,
+			knownVocabList,
 			masteredGrammarList,
 			learningGrammarList
 		});
@@ -353,9 +381,9 @@ export async function POST(event) {
 			systemPrompt,
 			jsonSchemaObj,
 			requestSignal: request.signal,
-			targetedVocabulary: learningVocab,
+			targetedVocabulary: [...learningVocab, ...knownVocab],
 			targetedGrammar: allGrammar,
-			allVocabulary: [...masteredVocab, ...learningVocab],
+			allVocabulary: [...masteredVocab, ...learningVocab, ...knownVocab],
 			gameMode,
 			idMap,
 			userLevel,

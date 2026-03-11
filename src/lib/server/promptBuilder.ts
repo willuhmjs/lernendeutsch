@@ -1,5 +1,14 @@
 export type GameMode = 'native-to-target' | 'target-to-native' | 'fill-blank' | 'multiple-choice';
 
+function shuffleAndCap(list: string, maxItems: number): string {
+	const lines = list.split('\n').filter(Boolean);
+	for (let i = lines.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[lines[i], lines[j]] = [lines[j], lines[i]];
+	}
+	return lines.slice(0, maxItems).join('\n');
+}
+
 export function buildLessonPrompt({
 	activeLangName,
 	userLevel,
@@ -9,6 +18,7 @@ export function buildLessonPrompt({
 	assignmentTargetGrammar,
 	masteredVocabList,
 	learningVocabList,
+	knownVocabList,
 	masteredGrammarList,
 	learningGrammarList
 }: {
@@ -20,6 +30,7 @@ export function buildLessonPrompt({
 	assignmentTargetGrammar: string[];
 	masteredVocabList: string;
 	learningVocabList: string;
+	knownVocabList: string;
 	masteredGrammarList: string;
 	learningGrammarList: string;
 }) {
@@ -216,13 +227,16 @@ ${modeInstruction}
 ${vocabTagInstruction}
 
 Mastered Vocab:
-${masteredVocabList || 'Basic'}
+${shuffleAndCap(masteredVocabList || '', 10) || 'Basic'}
 
 Mastered Grammar:
 ${masteredGrammarList || 'Basic'}
 
 Learning Vocabulary (USE WHAT FITS NATURALLY):
 ${learningVocabList || 'None'}
+
+Review Vocabulary (words the student has seen before — consolidate by using naturally if they fit; include their IDs in targetedVocabularyIds):
+${knownVocabList || 'None'}
 
 Learning Grammar (MANDATORY TO INCORPORATE):
 ${learningGrammarList || 'None'}
