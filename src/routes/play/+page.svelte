@@ -195,6 +195,7 @@
 	let _loadProgressInterval: ReturnType<typeof setInterval> | null = null;
 	let _loadTipInterval: ReturnType<typeof setInterval> | null = null;
 	let expandedGrammarId: string | null = null;
+	let showGrammarRef = false;
 
 	function toggleGrammar(id: string) {
 		expandedGrammarId = expandedGrammarId === id ? null : id;
@@ -1890,17 +1891,17 @@ r<svelte:head>
 				</button>
 				<button
 					class="tab-btn"
-					class:active={activeTab === 'immerse'}
-					on:click={() => (activeTab = 'immerse')}
-				>
-					Immerse
-				</button>
-				<button
-					class="tab-btn"
 					class:active={activeTab === 'games'}
 					on:click={() => (activeTab = 'games')}
 				>
 					Games
+				</button>
+				<button
+					class="tab-btn"
+					class:active={activeTab === 'immerse'}
+					on:click={() => (activeTab = 'immerse')}
+				>
+					Immerse
 				</button>
 			</div>
 		</div>
@@ -2024,16 +2025,22 @@ r<svelte:head>
 										'Target'}
 									<span class="mode-difficulty hard">Hardest</span>
 								</button>
-								<button
-									class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700"
-									class:active={gameMode === 'chat'}
-									on:click={() => (gameMode = 'chat')}
-									style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 28rem;"
-								>
-									💬 AI Chat Practice
-									<span class="mode-difficulty medium">Conversational</span>
-								</button>
 							</div>
+
+							<div class="chat-separator dark:text-slate-500">
+								<span class="separator-line dark:bg-slate-700"></span>
+								<span class="separator-text">or</span>
+								<span class="separator-line dark:bg-slate-700"></span>
+							</div>
+
+							<button
+								class="chat-cta-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700"
+								class:active={gameMode === 'chat'}
+								on:click={() => (gameMode = 'chat')}
+							>
+								💬 AI Chat Practice
+								<span class="chat-cta-subtitle dark:text-slate-400">Practice conversation with an AI tutor</span>
+							</button>
 						{/if}
 					</div>
 					<button
@@ -2074,6 +2081,13 @@ r<svelte:head>
 					class="card card-duo challenge-card dark:bg-slate-800 dark:border-slate-700"
 					in:fly={{ y: 20, duration: 400 }}
 				>
+					<button
+						type="button"
+						class="change-mode-link dark:text-slate-400 dark:hover:text-slate-200"
+						on:click={() => { challenge = null; feedback = null; showGrammarRef = false; }}
+					>
+						&larr; Change Mode
+					</button>
 					<div class="challenge-section">
 						{#if challenge.gameMode === 'fill-blank'}
 							<h3 class="dark:text-slate-400">Fill in the blanks:</h3>
@@ -2103,8 +2117,7 @@ r<svelte:head>
 						</div>
 					{/if}
 
-					<div class="challenge-section">
-						<h3 class="dark:text-slate-400">Grammar Reference:</h3>
+					<div class="challenge-section grammar-ref-section">
 						{#if isStreaming}
 							<div class="ai-magic-loader">
 								<span class="sparkle">✨</span>
@@ -2112,9 +2125,21 @@ r<svelte:head>
 									>AI is analyzing grammar & generating tooltips...</span
 								>
 							</div>
-						{:else if challenge.targetedGrammar?.length > 0}
-							<ul class="concept-list">
-								{#each challenge.targetedGrammar as grammar}
+						{:else}
+						<button
+							type="button"
+							class="grammar-ref-toggle dark:text-slate-400 dark:hover:text-slate-200 dark:border-slate-700"
+							on:click={() => (showGrammarRef = !showGrammarRef)}
+						>
+							{showGrammarRef ? 'Hide help' : 'Need help?'}
+							<span class="grammar-ref-chevron" class:expanded={showGrammarRef}>&#9662;</span>
+						</button>
+						{#if showGrammarRef}
+							<div transition:fly={{ y: -5, duration: 200 }}>
+								<h3 class="dark:text-slate-400" style="margin-top: 0.75rem;">Grammar Reference:</h3>
+								{#if challenge.targetedGrammar?.length > 0}
+									<ul class="concept-list">
+										{#each challenge.targetedGrammar as grammar}
 									<li class="dark:text-slate-300 grammar-item">
 										<div class="grammar-header">
 											<span class="concept-type dark:bg-slate-700 dark:text-slate-300">Grammar</span
@@ -2140,10 +2165,13 @@ r<svelte:head>
 										{/if}
 									</li>
 								{/each}
-							</ul>
-						{:else}
-							<p class="dark:text-slate-400 italic">None found</p>
+									</ul>
+								{:else}
+									<p class="dark:text-slate-400 italic">None found</p>
+								{/if}
+							</div>
 						{/if}
+					{/if}
 					</div>
 
 					<form on:submit|preventDefault={submitAnswer} class="answer-form">
@@ -2449,7 +2477,9 @@ r<svelte:head>
 					{/if}
 				</div>
 
-				<div class="games-section">
+				<hr class="games-divider" />
+
+				<div class="games-section community-games-section">
 					<h2>
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
 							<path
@@ -2462,13 +2492,12 @@ r<svelte:head>
 						Community Games
 					</h2>
 
-					<div class="category-tabs" style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; overflow-x: auto; padding-bottom: 0.5rem;">
+					<div class="category-pills">
 						{#each categories as category}
 							<button
-								class="tab-btn"
+								class="filter-pill"
 								class:active={currentCategory === category}
 								on:click={() => handleCategoryChange(category)}
-								style="padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.875rem; white-space: nowrap;"
 							>
 								{category}
 							</button>
@@ -2529,7 +2558,7 @@ r<svelte:head>
 						
 						{#if communityGames.length < totalCommunityGames}
 							<div class="load-more-container" style="text-align: center; margin-top: 2rem;">
-								<button class="btn-primary create-btn" on:click={loadMore} disabled={loadingMore}>
+								<button class="btn-load-more" on:click={loadMore} disabled={loadingMore}>
 									{loadingMore ? 'Loading...' : 'Load More'}
 								</button>
 							</div>
@@ -4364,5 +4393,242 @@ r<svelte:head>
 		.assignment-banner {
 			padding: 1rem;
 		}
+	}
+
+	/* Fix 1 - Chat CTA separated from mode buttons */
+	.chat-separator {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin: 1.25rem 0;
+		color: #94a3b8;
+		font-size: 0.85rem;
+		font-weight: 600;
+	}
+
+	.separator-line {
+		flex: 1;
+		height: 1px;
+		background: #e2e8f0;
+	}
+
+	.chat-cta-btn {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.25rem;
+		width: 100%;
+		padding: 1rem 1.25rem;
+		border-radius: 1rem;
+		border: 2px dashed #cbd5e1;
+		background: #f8fafc;
+		color: #475569;
+		font-size: 0.95rem;
+		font-weight: 700;
+		cursor: pointer;
+		transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+	}
+
+	.chat-cta-btn:hover {
+		border-color: #93c5fd;
+		background: #eff6ff;
+		transform: translateY(-2px);
+	}
+
+	:global(html[data-theme='dark']) .chat-cta-btn {
+		background: #0f172a;
+		border-color: #334155;
+		color: #cbd5e1;
+	}
+
+	:global(html[data-theme='dark']) .chat-cta-btn:hover {
+		border-color: #3b82f6;
+		background: #1e293b;
+	}
+
+	.chat-cta-btn.active {
+		border-color: #1cb0f6;
+		border-style: solid;
+		background: #ddf4ff;
+		color: #1cb0f6;
+	}
+
+	:global(html[data-theme='dark']) .chat-cta-btn.active {
+		border-color: #38bdf8;
+		background: #0c2340;
+		color: #38bdf8;
+	}
+
+	.chat-cta-subtitle {
+		font-size: 0.8rem;
+		font-weight: 400;
+		color: #94a3b8;
+	}
+
+	/* Fix 3 - Collapsible grammar reference */
+	.grammar-ref-toggle {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		background: none;
+		border: 1px solid #e2e8f0;
+		border-radius: 0.5rem;
+		padding: 0.4rem 0.75rem;
+		font-size: 0.85rem;
+		font-weight: 600;
+		color: #64748b;
+		cursor: pointer;
+		transition: all 0.2s;
+	}
+
+	.grammar-ref-toggle:hover {
+		color: #3b82f6;
+		border-color: #93c5fd;
+		background: #eff6ff;
+	}
+
+	:global(html[data-theme='dark']) .grammar-ref-toggle {
+		border-color: #334155;
+	}
+
+	:global(html[data-theme='dark']) .grammar-ref-toggle:hover {
+		color: #60a5fa;
+		border-color: #3b82f6;
+		background: #1e293b;
+	}
+
+	.grammar-ref-chevron {
+		display: inline-block;
+		transition: transform 0.2s;
+		font-size: 0.75rem;
+	}
+
+	.grammar-ref-chevron.expanded {
+		transform: rotate(180deg);
+	}
+
+	/* Fix 4 - Change Mode link */
+	.change-mode-link {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
+		background: none;
+		border: none;
+		font-size: 0.85rem;
+		font-weight: 500;
+		color: #64748b;
+		cursor: pointer;
+		padding: 0;
+		margin-bottom: 1rem;
+		transition: color 0.15s;
+	}
+
+	.change-mode-link:hover {
+		color: #3b82f6;
+	}
+
+	/* Fix 5 - Load More button */
+	.btn-load-more {
+		padding: 0.625rem 1.75rem;
+		border-radius: 0.75rem;
+		font-weight: 600;
+		font-size: 0.95rem;
+		background: transparent;
+		color: #3b82f6;
+		border: 2px solid #3b82f6;
+		cursor: pointer;
+		transition: all 0.2s;
+		font-family: inherit;
+	}
+
+	.btn-load-more:hover {
+		background: #eff6ff;
+	}
+
+	.btn-load-more:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	:global(html[data-theme='dark']) .btn-load-more {
+		color: #60a5fa;
+		border-color: #60a5fa;
+	}
+
+	:global(html[data-theme='dark']) .btn-load-more:hover {
+		background: #1e293b;
+	}
+
+	/* Fix 6 - Category filter pills */
+	.category-pills {
+		display: flex;
+		gap: 0.5rem;
+		margin-bottom: 1.5rem;
+		overflow-x: auto;
+		padding-bottom: 0.5rem;
+	}
+
+	.filter-pill {
+		padding: 0.4rem 1rem;
+		border-radius: 9999px;
+		font-size: 0.85rem;
+		font-weight: 600;
+		white-space: nowrap;
+		background: #f1f5f9;
+		color: #64748b;
+		border: 1px solid #e2e8f0;
+		cursor: pointer;
+		transition: all 0.2s;
+	}
+
+	.filter-pill:hover {
+		background: #e2e8f0;
+		color: #334155;
+	}
+
+	.filter-pill.active {
+		background: #dbeafe;
+		color: #1d4ed8;
+		border-color: #93c5fd;
+	}
+
+	:global(html[data-theme='dark']) .filter-pill {
+		background: #1e293b;
+		color: #94a3b8;
+		border-color: #334155;
+	}
+
+	:global(html[data-theme='dark']) .filter-pill:hover {
+		background: #334155;
+		color: #f1f5f9;
+	}
+
+	:global(html[data-theme='dark']) .filter-pill.active {
+		background: #1e3a8a;
+		color: #93c5fd;
+		border-color: #3b82f6;
+	}
+
+	/* Fix 7 - Visual divider between game sections */
+	.games-divider {
+		border: none;
+		border-top: 2px solid #e2e8f0;
+		margin: 1rem 0;
+	}
+
+	:global(html[data-theme='dark']) .games-divider {
+		border-top-color: #334155;
+	}
+
+	.community-games-section {
+		background: #f8fafc;
+		border-radius: 1rem;
+		padding: 1.5rem;
+		border: 1px solid #e2e8f0;
+	}
+
+	:global(html[data-theme='dark']) .community-games-section {
+		background: #0f172a;
+		border-color: #1e293b;
 	}
 </style>

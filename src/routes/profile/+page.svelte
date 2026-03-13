@@ -178,7 +178,7 @@
 						on:click={fetchModels}
 						disabled={isFetchingModels || !llmBaseUrl}
 					>
-						{isFetchingModels ? 'Fetching...' : 'Fetch Models'}
+						{isFetchingModels ? 'Fetching...' : 'Fetch Models \u2192'}
 					</button>
 				</div>
 			</div>
@@ -215,6 +215,11 @@
 						bind:value={llmModel}
 						placeholder="e.g., llama3.2, gpt-4o-mini"
 					/>
+					{#if llmBaseUrl}
+						<p class="model-hint">
+							Enter your API endpoint above and click <strong>Fetch Models &rarr;</strong> to populate available models, or type a model name manually.
+						</p>
+					{/if}
 				{/if}
 			</div>
 
@@ -455,26 +460,66 @@
 	}
 
 	.fetch-models-btn {
-		background: none;
-		border: 1px solid var(--input-border, #d1d5db);
+		background: #eff6ff;
+		border: 1px solid #93c5fd;
 		padding: 0.625rem 1rem;
 		border-radius: 0.5rem;
 		font-size: 0.875rem;
-		font-weight: 500;
-		color: var(--input-text, #4b5563);
+		font-weight: 600;
+		color: #2563eb;
 		cursor: pointer;
 		transition: all 0.15s;
 		white-space: nowrap;
 	}
 
 	.fetch-models-btn:hover:not(:disabled) {
-		background-color: var(--link-hover-bg, #f9fafb);
-		border-color: #9ca3af;
+		background-color: #dbeafe;
+		border-color: #60a5fa;
 	}
 
 	.fetch-models-btn:disabled {
 		opacity: 0.5;
 		cursor: not-allowed;
+		background: none;
+		border-color: var(--input-border, #d1d5db);
+		color: var(--input-text, #4b5563);
+		font-weight: 500;
+	}
+
+	:global(html[data-theme='dark']) .fetch-models-btn {
+		background: #1e3a5f;
+		border-color: #3b82f6;
+		color: #93c5fd;
+	}
+
+	:global(html[data-theme='dark']) .fetch-models-btn:hover:not(:disabled) {
+		background: #1e40af;
+		border-color: #60a5fa;
+	}
+
+	:global(html[data-theme='dark']) .fetch-models-btn:disabled {
+		background: none;
+		border-color: var(--input-border, #4b5563);
+		color: var(--input-text, #6b7280);
+	}
+
+	.model-hint {
+		margin: 0.5rem 0 0;
+		font-size: 0.8rem;
+		color: #6b7280;
+		line-height: 1.4;
+	}
+
+	.model-hint strong {
+		color: #2563eb;
+	}
+
+	:global(html[data-theme='dark']) .model-hint {
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .model-hint strong {
+		color: #93c5fd;
 	}
 
 	.checkbox-wrapper {

@@ -169,7 +169,13 @@
 	<!-- Header Banner -->
 	<div class="assignment-banner" in:fly={{ y: 20, duration: 400 }}>
 		<div class="banner-info">
-			<a href="/classes/{classDetails.id}" class="back-link">&larr; Back to Class</a>
+			<nav class="breadcrumb">
+				<a href="/classes">Classes</a>
+				<span class="breadcrumb-sep">/</span>
+				<a href="/classes/{classDetails.id}">{classDetails.name}</a>
+				<span class="breadcrumb-sep">/</span>
+				<span class="breadcrumb-current">{assignment.title}</span>
+			</nav>
 			<h1>{assignment.title}</h1>
 			{#if assignment.description}
 				<p class="banner-desc">{assignment.description}</p>
@@ -462,19 +468,32 @@
 		}
 	}
 
-	.back-link {
-		display: inline-block;
+	.breadcrumb {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+		margin-bottom: 0.75rem;
 		font-size: 0.8rem;
-		font-weight: 800;
+		letter-spacing: 0.02em;
+	}
+
+	.breadcrumb a {
 		color: #bfdbfe;
 		text-decoration: none;
-		margin-bottom: 0.75rem;
-		letter-spacing: 0.02em;
+		font-weight: 600;
 		transition: color 0.15s;
 	}
 
-	.back-link:hover {
+	.breadcrumb a:hover {
 		color: white;
+	}
+
+	.breadcrumb-sep {
+		color: #6b7280;
+	}
+
+	.breadcrumb-current {
+		color: #9ca3af;
 	}
 
 	.assignment-banner h1 {

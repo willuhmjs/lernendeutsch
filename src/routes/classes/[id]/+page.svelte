@@ -245,6 +245,11 @@
 	<!-- Class Header Banner -->
 	<div class="class-banner" in:fly={{ y: 20, duration: 400 }}>
 		<div class="banner-info">
+			<nav class="breadcrumb">
+				<a href="/classes">Classes</a>
+				<span class="breadcrumb-sep">/</span>
+				<span class="breadcrumb-current">{classDetails.name}</span>
+			</nav>
 			<h1>{classDetails.name}</h1>
 			{#if classDetails.description}
 				<p class="banner-desc">{classDetails.description}</p>
@@ -687,6 +692,33 @@
 {/if}
 
 <style>
+	.breadcrumb {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+		margin-bottom: 0.5rem;
+		font-size: 0.8rem;
+	}
+
+	.breadcrumb a {
+		color: #bfdbfe;
+		text-decoration: none;
+		font-weight: 600;
+		transition: color 0.15s;
+	}
+
+	.breadcrumb a:hover {
+		color: white;
+	}
+
+	.breadcrumb-sep {
+		color: rgba(255, 255, 255, 0.4);
+	}
+
+	.breadcrumb-current {
+		color: rgba(255, 255, 255, 0.7);
+	}
+
 	.class-detail-container {
 		max-width: 1100px;
 		margin: 0 auto;

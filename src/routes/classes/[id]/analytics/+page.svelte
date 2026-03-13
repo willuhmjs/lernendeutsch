@@ -54,12 +54,13 @@
 <div class="container mx-auto px-4 py-8">
 	<div class="mb-6 flex items-center justify-between">
 		<div>
-			<a
-				href="/classes/{$page.params.id}"
-				class="text-sm text-blue-400 hover:text-blue-300 mb-2 inline-block"
-			>
-				&larr; Back to Class
-			</a>
+			<nav class="breadcrumb" style="margin-bottom: 0.5rem;">
+				<a href="/classes" style="color: #60a5fa; font-size: 0.875rem;">Classes</a>
+				<span style="color: #6b7280; margin: 0 0.375rem;">/</span>
+				<a href="/classes/{$page.params.id}" style="color: #60a5fa; font-size: 0.875rem;">{data.classData.name}</a>
+				<span style="color: #6b7280; margin: 0 0.375rem;">/</span>
+				<span style="color: #9ca3af; font-size: 0.875rem;">Analytics</span>
+			</nav>
 			<h1 class="text-3xl font-bold text-white">{data.classData.name} - Analytics</h1>
 			<p class="text-gray-400 mt-1">Struggling Concepts Dashboard</p>
 		</div>

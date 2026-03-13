@@ -156,41 +156,6 @@
 		}
 	}
 
-	async function handleAskAIForExisting(vocabularyId: string, lemma: string) {
-		if (!lemma.trim() || !activeLanguageId) return;
-
-		llmLoading = true;
-		llmError = null;
-
-		try {
-			const res = await fetch('/api/vocabulary/llm-lookup', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					word: lemma.trim(),
-					languageId: activeLanguageId,
-					existingId: vocabularyId
-				})
-			});
-
-			if (res.ok) {
-				const responseData = await res.json();
-				// Update the result in the list
-				results = results.map(r => r.id === vocabularyId ? responseData.data : r);
-			} else {
-				console.error('Failed to look up meaning');
-				llmError = 'Failed to fetch meaning from AI.';
-			}
-		} catch (error) {
-			console.error('LLM lookup failed:', error);
-			llmError = 'An error occurred while connecting to the AI.';
-		} finally {
-			llmLoading = false;
-		}
-	}
-
 	async function handleAddWord(vocabularyId: string) {
 		try {
 			const res = await fetch('/api/user/vocabulary', {
@@ -340,15 +305,6 @@
 								</div>
 
 								<div class="result-action">
-									{#if !result.meanings?.[0]?.value}
-										<button
-											class="btn-ask-ai-inline"
-											on:click|stopPropagation={() => handleAskAIForExisting(result.id, result.lemma)}
-											disabled={llmLoading}
-										>
-											Look up with AI
-										</button>
-									{/if}
 									{#if addedWords.includes(result.id)}
 										<button disabled class="btn-added"> Added </button>
 									{:else}
@@ -406,7 +362,7 @@
 								{#if llmLoading}
 									<span class="spinner-small"></span> Asking AI...
 								{:else}
-									Ask AI
+									Ask AI about "{query}"
 								{/if}
 							</button>
 						{:else}
@@ -1122,10 +1078,13 @@
 	.modal-body {
 		padding: 1.5rem;
 		overflow-y: auto;
+		flex: 1;
+		min-height: 0;
 	}
 
 	.modal-header {
 		padding: 1.5rem 1.5rem 0;
+		flex-shrink: 0;
 	}
 
 	.modal-title {
@@ -1181,10 +1140,13 @@
 		border-top: 1px solid #e5e7eb;
 		display: flex;
 		justify-content: flex-start;
+		background-color: #ffffff;
+		flex-shrink: 0;
 	}
 
 	:global(html[data-theme='dark']) .modal-footer {
 		border-top-color: #374151;
+		background-color: #1f2937;
 	}
 
 	/* No Results & Empty State */

@@ -87,6 +87,33 @@
 	function toggleOverride() {
 		userOverride = userOverride !== null ? !userOverride : !gradeResult?.correct;
 	}
+
+	async function skipWord() {
+		if (isSubmitting || !currentReview) return;
+		isSubmitting = true;
+
+		try {
+			const res = await fetch('/api/review/submit', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					vocabularyId: currentReview.vocabulary.id,
+					score: 0
+				})
+			});
+
+			if (res.ok) {
+				currentReviewIndex++;
+				gradeResult = null;
+				userOverride = null;
+				typedAnswer = '';
+			}
+		} catch (e) {
+			console.error('Failed to skip review', e);
+		} finally {
+			isSubmitting = false;
+		}
+	}
 </script>
 
 <svelte:head>
@@ -190,6 +217,7 @@
 									<!-- Actions -->
 									<div class="action-row">
 										<button class="btn-duo btn-override" on:click={toggleOverride}>
+											<span class="override-icon">&#x21A9;</span>
 											{effectiveCorrect ? 'Mark as incorrect' : 'Mark as correct'}
 										</button>
 										<button
@@ -242,6 +270,13 @@
 									{:else}
 										Show Answer
 									{/if}
+								</button>
+								<button
+									class="btn-skip"
+									on:click={skipWord}
+									disabled={isSubmitting}
+								>
+									Skip this word
 								</button>
 							{/if}
 						</div>
@@ -647,30 +682,42 @@
 	}
 
 	.btn-override {
-		background-color: transparent;
-		color: #64748b;
-		border: 2px solid #e2e8f0;
-		box-shadow: none;
-		font-size: 0.875rem;
-		padding: 0.75rem 1rem;
+		background-color: #f8fafc;
+		color: #475569;
+		border: 2px solid #94a3b8;
+		box-shadow: 0 2px 0 #cbd5e1;
+		font-size: 0.9375rem;
+		font-weight: 700;
+		padding: 0.75rem 1.25rem;
 		white-space: nowrap;
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
 	}
 
 	.btn-override:hover {
 		background-color: #f1f5f9;
-		border-color: #cbd5e1;
-		transform: none;
-		box-shadow: none;
+		border-color: #64748b;
+		transform: translateY(-1px);
+		box-shadow: 0 3px 0 #cbd5e1;
+	}
+
+	.override-icon {
+		font-size: 1.1rem;
+		line-height: 1;
 	}
 
 	:global(html[data-theme='dark']) .btn-override {
-		color: #94a3b8;
-		border-color: #334155;
+		background-color: #1e293b;
+		color: #cbd5e1;
+		border-color: #64748b;
+		box-shadow: 0 2px 0 #334155;
 	}
 
 	:global(html[data-theme='dark']) .btn-override:hover {
-		background-color: #1e293b;
-		border-color: #475569;
+		background-color: #334155;
+		border-color: #94a3b8;
+		box-shadow: 0 3px 0 #334155;
 	}
 
 	.btn-continue {
@@ -736,5 +783,37 @@
 
 	:global(html[data-theme='dark']) .review-input:focus {
 		border-color: #3b82f6;
+	}
+
+	.btn-skip {
+		display: block;
+		margin: 0.75rem auto 0;
+		background: none;
+		border: none;
+		color: #94a3b8;
+		font-size: 0.875rem;
+		font-weight: 600;
+		cursor: pointer;
+		padding: 0.375rem 0.75rem;
+		text-decoration: underline;
+		text-underline-offset: 2px;
+		transition: color 0.15s;
+	}
+
+	.btn-skip:hover {
+		color: #64748b;
+	}
+
+	.btn-skip:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	:global(html[data-theme='dark']) .btn-skip {
+		color: #64748b;
+	}
+
+	:global(html[data-theme='dark']) .btn-skip:hover {
+		color: #94a3b8;
 	}
 </style>

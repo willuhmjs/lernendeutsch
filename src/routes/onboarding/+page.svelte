@@ -404,14 +404,14 @@
 									already know as Mastered!
 								</p>
 							{/if}
-							<div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-								<button class="btn btn-success" on:click={() => (window.location.href = '/')}>
-									Go to Dashboard
-								</button>
-								<button class="btn btn-primary" on:click={() => (window.location.href = '/play')}>
+							<div class="completion-buttons">
+								<button class="btn btn-primary btn-large" on:click={() => (window.location.href = '/play')}>
 									Start Learning
 								</button>
-								<button class="btn btn-secondary" on:click={restartOnboarding}>
+								<button class="btn btn-outlined" on:click={() => (window.location.href = '/')}>
+									Go to Dashboard
+								</button>
+								<button class="btn-text-link" on:click={restartOnboarding}>
 									Restart Onboarding
 								</button>
 							</div>
@@ -450,24 +450,6 @@
 				{/if}
 			</div>
 
-			{#if !completed}
-				<div class="side-panel">
-					<div class="manual-placement dark:bg-slate-800 dark:border-slate-700">
-						<p class="dark:text-slate-300">Or skip the test and choose your level manually:</p>
-						<div class="level-buttons">
-							{#each ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as lvl}
-								<button
-									class="btn btn-level dark:bg-slate-700 dark:text-slate-200"
-									disabled={isSubmittingManual || loading}
-									on:click={() => handleManualPlacement(lvl)}
-								>
-									{lvl}
-								</button>
-							{/each}
-						</div>
-					</div>
-				</div>
-			{/if}
 		</div>
 	{/if}
 </main>
@@ -537,30 +519,6 @@
 		overflow: hidden;
 	}
 
-	.side-panel {
-		flex: 0 0 250px;
-		display: flex;
-		flex-direction: column;
-	}
-
-	.manual-placement {
-		background: var(--card-bg, #f1f5f9);
-		padding: 1.25rem;
-		border-radius: 12px;
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 1rem;
-		border: 1px solid var(--card-border, #e2e8f0);
-	}
-
-	.manual-placement p {
-		margin: 0;
-		font-weight: 500;
-		color: #475569;
-		line-height: 1.4;
-	}
-
 	.level-buttons {
 		display: flex;
 		gap: 0.5rem;
@@ -573,15 +531,6 @@
 			flex-direction: column;
 		}
 
-		.side-panel {
-			flex: auto;
-		}
-
-		.manual-placement {
-			flex-direction: row;
-			align-items: center;
-			justify-content: space-between;
-		}
 	}
 
 	.btn-level {
@@ -758,6 +707,72 @@
 
 	.btn-success:hover:not(:disabled) {
 		background-color: #15803d;
+	}
+
+	.completion-buttons {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.75rem;
+	}
+
+	.btn-large {
+		width: 100%;
+		padding: 1rem 2rem;
+		font-size: 1.15rem;
+	}
+
+	.btn-outlined {
+		background-color: transparent;
+		color: #16a34a;
+		border: 2px solid #16a34a;
+		padding: 0.6rem 1.5rem;
+		font-size: 0.95rem;
+		border-radius: 0.5rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: all 0.2s;
+	}
+
+	.btn-outlined:hover {
+		background-color: #f0fdf4;
+		color: #15803d;
+		border-color: #15803d;
+	}
+
+	:global(html[data-theme='dark']) .btn-outlined {
+		color: #4ade80;
+		border-color: #4ade80;
+	}
+
+	:global(html[data-theme='dark']) .btn-outlined:hover {
+		background-color: #0d1f14;
+		color: #86efac;
+		border-color: #86efac;
+	}
+
+	.btn-text-link {
+		background: none;
+		border: none;
+		color: #64748b;
+		font-size: 0.85rem;
+		cursor: pointer;
+		text-decoration: underline;
+		padding: 0.25rem 0.5rem;
+		font-weight: 400;
+		transition: color 0.2s;
+	}
+
+	.btn-text-link:hover {
+		color: #334155;
+	}
+
+	:global(html[data-theme='dark']) .btn-text-link {
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .btn-text-link:hover {
+		color: #cbd5e1;
 	}
 
 	.completion-card {

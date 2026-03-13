@@ -17,10 +17,13 @@
 	let isJoining = $state(false);
 	let joinError = $state('');
 
+	let activeTab: 'create' | 'join' = $state('create');
+
 	onMount(() => {
 		const codeParam = $page.url.searchParams.get('code');
 		if (codeParam) {
 			joinCode = codeParam;
+			activeTab = 'join';
 			handleJoin();
 		}
 	});
@@ -92,163 +95,8 @@
 		<p>Manage your classes and learning groups.</p>
 	</header>
 
-	<div class="forms-grid" in:fly={{ y: 20, duration: 400, delay: 100 }}>
-		<!-- Create Class Form -->
-		<div class="card-duo form-card create-card">
-			<div class="card-header">
-				<div class="icon-wrapper create-icon">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-						stroke-width="2"
-					>
-						<path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-					</svg>
-				</div>
-				<h2>Create a Class</h2>
-				<p class="card-subtitle">Start a new learning group</p>
-			</div>
-			<form
-				onsubmit={(e) => {
-					e.preventDefault();
-					handleCreate();
-				}}
-				class="form-inner"
-			>
-				<div class="field">
-					<label for="name">Class Name</label>
-					<div class="input-wrapper">
-						<input
-							type="text"
-							id="name"
-							bind:value={createName}
-							placeholder="e.g. German 101"
-							required
-							disabled={isCreating}
-						/>
-					</div>
-				</div>
-				<div class="field">
-					<label for="description">Description <span class="optional">(Optional)</span></label>
-					<div class="input-wrapper">
-						<textarea
-							id="description"
-							bind:value={createDescription}
-							placeholder="What is this class about?"
-							rows="2"
-							disabled={isCreating}
-						></textarea>
-					</div>
-				</div>
-				<div class="field">
-					<label for="language">Primary Language</label>
-					<div class="input-wrapper select-wrapper">
-						<select id="language" bind:value={createLanguage} disabled={isCreating}>
-							<option value="international">🌍 International</option>
-							<option value="de">🇩🇪 German</option>
-							<option value="es">🇪🇸 Spanish</option>
-							<option value="fr">🇫🇷 French</option>
-						</select>
-					</div>
-				</div>
-				{#if createError}
-					<div class="form-error">
-						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-							<path
-								fill-rule="evenodd"
-								d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-								clip-rule="evenodd"
-							/>
-						</svg>
-						{createError}
-					</div>
-				{/if}
-				<div class="form-actions">
-					<button
-						type="submit"
-						disabled={isCreating || !createName}
-						class="btn-duo btn-primary btn-full"
-					>
-						{isCreating ? 'Creating...' : 'Create Class'}
-					</button>
-				</div>
-			</form>
-		</div>
-
-		<!-- Join Class Form -->
-		<div class="card-duo form-card join-card">
-			<div class="card-header">
-				<div class="icon-wrapper join-icon">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-						stroke-width="2"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-						/>
-					</svg>
-				</div>
-				<h2>Join a Class</h2>
-				<p class="card-subtitle">Enter a code from your teacher</p>
-			</div>
-			<form
-				onsubmit={(e) => {
-					e.preventDefault();
-					handleJoin();
-				}}
-				class="form-inner"
-			>
-				<div class="field">
-					<label for="inviteCode">Invite Code</label>
-					<div class="code-input-container">
-						<input
-							type="text"
-							id="inviteCode"
-							bind:value={joinCode}
-							placeholder="------"
-							class="invite-code-input"
-							maxlength="6"
-							required
-							autocomplete="off"
-							disabled={isJoining}
-						/>
-						<div class="code-format-hint">6 alphanumeric characters</div>
-					</div>
-				</div>
-				{#if joinError}
-					<div class="form-error">
-						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-							<path
-								fill-rule="evenodd"
-								d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-								clip-rule="evenodd"
-							/>
-						</svg>
-						{joinError}
-					</div>
-				{/if}
-				<div class="form-actions">
-					<button
-						type="submit"
-						disabled={isJoining || joinCode.length < 6}
-						class="btn-duo btn-join btn-full"
-					>
-						{isJoining ? 'Joining...' : 'Join Class'}
-					</button>
-				</div>
-			</form>
-		</div>
-	</div>
-
 	<!-- List of Classes -->
-	<section class="my-classes-section" in:fly={{ y: 20, duration: 400, delay: 200 }}>
+	<section class="my-classes-section" in:fly={{ y: 20, duration: 400, delay: 100 }}>
 		<h2 class="section-title">My Classes</h2>
 
 		{#if data.classes && data.classes.length > 0}
@@ -301,6 +149,185 @@
 				</svg>
 				<p class="empty-title">No classes yet</p>
 				<p class="empty-desc">Create a new class or join one using an invite code!</p>
+			</div>
+		{/if}
+	</section>
+
+	<!-- Create / Join Forms -->
+	<section class="forms-section" in:fly={{ y: 20, duration: 400, delay: 200 }}>
+		<div class="tabs-container">
+			<div class="tabs">
+				<button
+					class="tab-btn"
+					class:active={activeTab === 'create'}
+					onclick={() => (activeTab = 'create')}
+				>
+					Create Class
+				</button>
+				<button
+					class="tab-btn"
+					class:active={activeTab === 'join'}
+					onclick={() => (activeTab = 'join')}
+				>
+					Join Class
+				</button>
+			</div>
+		</div>
+
+		{#if activeTab === 'create'}
+			<div class="form-card-wrapper" in:fly={{ y: 10, duration: 300 }}>
+				<div class="card-duo form-card create-card">
+					<div class="card-header">
+						<div class="icon-wrapper create-icon">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+								stroke-width="2"
+							>
+								<path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+							</svg>
+						</div>
+						<h2>Create a Class</h2>
+						<p class="card-subtitle">Start a new learning group</p>
+					</div>
+					<form
+						onsubmit={(e) => {
+							e.preventDefault();
+							handleCreate();
+						}}
+						class="form-inner"
+					>
+						<div class="field">
+							<label for="name">Class Name</label>
+							<div class="input-wrapper">
+								<input
+									type="text"
+									id="name"
+									bind:value={createName}
+									placeholder="e.g. German 101"
+									required
+									disabled={isCreating}
+								/>
+							</div>
+						</div>
+						<div class="field">
+							<label for="description">Description <span class="optional">(Optional)</span></label>
+							<div class="input-wrapper">
+								<textarea
+									id="description"
+									bind:value={createDescription}
+									placeholder="What is this class about?"
+									rows="2"
+									disabled={isCreating}
+								></textarea>
+							</div>
+						</div>
+						<div class="field">
+							<label for="language">Primary Language</label>
+							<div class="input-wrapper select-wrapper">
+								<select id="language" bind:value={createLanguage} disabled={isCreating}>
+									<option value="international">🌍 International</option>
+									<option value="de">🇩🇪 German</option>
+									<option value="es">🇪🇸 Spanish</option>
+									<option value="fr">🇫🇷 French</option>
+								</select>
+							</div>
+						</div>
+						{#if createError}
+							<div class="form-error">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+									<path
+										fill-rule="evenodd"
+										d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+										clip-rule="evenodd"
+									/>
+								</svg>
+								{createError}
+							</div>
+						{/if}
+						<div class="form-actions">
+							<button
+								type="submit"
+								disabled={isCreating || !createName}
+								class="btn-duo btn-primary btn-full"
+							>
+								{isCreating ? 'Creating...' : 'Create Class'}
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		{:else}
+			<div class="form-card-wrapper" in:fly={{ y: 10, duration: 300 }}>
+				<div class="card-duo form-card join-card">
+					<div class="card-header">
+						<div class="icon-wrapper join-icon">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+								stroke-width="2"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+								/>
+							</svg>
+						</div>
+						<h2>Join a Class</h2>
+						<p class="card-subtitle">Enter a code from your teacher</p>
+					</div>
+					<form
+						onsubmit={(e) => {
+							e.preventDefault();
+							handleJoin();
+						}}
+						class="form-inner"
+					>
+						<div class="field">
+							<label for="inviteCode">Invite Code</label>
+							<div class="code-input-container">
+								<input
+									type="text"
+									id="inviteCode"
+									bind:value={joinCode}
+									placeholder="------"
+									class="invite-code-input"
+									maxlength="6"
+									required
+									autocomplete="off"
+									disabled={isJoining}
+								/>
+								<div class="code-format-hint">6 alphanumeric characters</div>
+							</div>
+						</div>
+						{#if joinError}
+							<div class="form-error">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+									<path
+										fill-rule="evenodd"
+										d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+										clip-rule="evenodd"
+									/>
+								</svg>
+								{joinError}
+							</div>
+						{/if}
+						<div class="form-actions">
+							<button
+								type="submit"
+								disabled={isJoining || joinCode.length < 6}
+								class="btn-duo btn-join btn-full"
+							>
+								{isJoining ? 'Joining...' : 'Join Class'}
+							</button>
+						</div>
+					</form>
+				</div>
 			</div>
 		{/if}
 	</section>
@@ -364,17 +391,66 @@
 		margin: 0;
 	}
 
-	.forms-grid {
-		display: grid;
-		grid-template-columns: 1fr;
-		gap: 2rem;
-		margin-bottom: 3rem;
+	.forms-section {
+		margin-top: 3rem;
 	}
 
-	@media (min-width: 768px) {
-		.forms-grid {
-			grid-template-columns: 1fr 1fr;
-		}
+	.tabs-container {
+		display: flex;
+		justify-content: center;
+		margin-bottom: 2rem;
+	}
+
+	.tabs {
+		display: flex;
+		background: #f1f5f9;
+		padding: 0.5rem;
+		border-radius: 1rem;
+		gap: 0.5rem;
+	}
+
+	:global(html[data-theme='dark']) .tabs {
+		background: #1e293b;
+	}
+
+	.tab-btn {
+		padding: 0.75rem 2rem;
+		border-radius: 0.75rem;
+		font-weight: bold;
+		font-size: 1rem;
+		color: #64748b;
+		background: transparent;
+		border: none;
+		cursor: pointer;
+		transition: all 0.2s;
+	}
+
+	.tab-btn:hover {
+		color: #1e293b;
+		background: #e2e8f0;
+	}
+
+	:global(html[data-theme='dark']) .tab-btn:hover {
+		color: #f8fafc;
+		background: #334155;
+	}
+
+	.tab-btn.active {
+		background: white;
+		color: #3b82f6;
+		box-shadow:
+			0 4px 6px -1px rgba(0, 0, 0, 0.1),
+			0 2px 4px -1px rgba(0, 0, 0, 0.06);
+	}
+
+	:global(html[data-theme='dark']) .tab-btn.active {
+		background: #0f172a;
+		color: #60a5fa;
+	}
+
+	.form-card-wrapper {
+		max-width: 500px;
+		margin: 0 auto;
 	}
 
 	.form-card {
@@ -581,7 +657,7 @@
 	}
 
 	.my-classes-section {
-		margin-top: 1rem;
+		margin-top: 0;
 	}
 
 	.section-title {

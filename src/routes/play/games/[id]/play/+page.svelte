@@ -62,6 +62,12 @@
 </script>
 
 <div class="learn-container">
+	<nav class="breadcrumb">
+		<a href="/play?tab=games">Games</a>
+		<span class="breadcrumb-sep">/</span>
+		<span class="breadcrumb-current">{game.title}</span>
+	</nav>
+
 	{#if isGameOver}
 		<div class="card-duo game-over-card">
 			<h1>Game Over!</h1>
@@ -115,6 +121,36 @@
 </div>
 
 <style>
+	.breadcrumb {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+		margin-bottom: 1rem;
+		font-size: 0.875rem;
+	}
+
+	.breadcrumb a {
+		color: #3b82f6;
+		text-decoration: none;
+		font-weight: 600;
+	}
+
+	.breadcrumb a:hover {
+		text-decoration: underline;
+	}
+
+	.breadcrumb-sep {
+		color: #9ca3af;
+	}
+
+	.breadcrumb-current {
+		color: #6b7280;
+	}
+
+	:global(html[data-theme='dark']) .breadcrumb-current {
+		color: #9ca3af;
+	}
+
 	.learn-container {
 		max-width: 42rem; /* 2xl */
 		margin: 0 auto;

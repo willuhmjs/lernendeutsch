@@ -268,10 +268,11 @@
 <div class="editor-container">
 	<div class="header-section">
 		<div>
-			<a href="/play?tab=games" class="back-link">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-				Back to Games
-			</a>
+			<nav class="breadcrumb">
+				<a href="/play?tab=games">Games</a>
+				<span class="breadcrumb-sep">/</span>
+				<span class="breadcrumb-current">{game.title || 'Edit'}</span>
+			</nav>
 			<h1>Game Editor</h1>
 		</div>
 		<div class="header-actions">
@@ -498,23 +499,34 @@
 		}
 	}
 
-	.back-link {
-		color: #3b82f6;
-		font-weight: bold;
-		text-decoration: none;
-		display: inline-flex;
+	.breadcrumb {
+		display: flex;
 		align-items: center;
 		gap: 0.25rem;
 		margin-bottom: 0.5rem;
+		font-size: 0.875rem;
 	}
 
-	.back-link:hover {
+	.breadcrumb a {
+		color: #3b82f6;
+		text-decoration: none;
+		font-weight: 600;
+	}
+
+	.breadcrumb a:hover {
 		text-decoration: underline;
 	}
 
-	.back-link svg {
-		width: 1rem;
-		height: 1rem;
+	.breadcrumb-sep {
+		color: #9ca3af;
+	}
+
+	.breadcrumb-current {
+		color: #6b7280;
+	}
+
+	:global(html[data-theme='dark']) .breadcrumb-current {
+		color: #9ca3af;
 	}
 
 	.header-section h1 {
