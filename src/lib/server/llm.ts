@@ -37,26 +37,33 @@ export async function generateChatCompletion({
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }: GenerateChatCompletionOptions): Promise<any> {
 	// 1. Fetch user credentials from database and site settings
-	const [user, settings] = await Promise.all([
+	const [user, settings, classStudentCount] = await Promise.all([
 		prisma.user.findUnique({
 			where: { id: userId },
 			select: { useLocalLlm: true, llmBaseUrl: true, llmApiKey: true, llmModel: true, activeLanguage: true }
 		}),
-		getSiteSettings()
+		getSiteSettings(),
+		prisma.classMember.count({
+			where: { userId, role: 'STUDENT' }
+		})
 	]);
+
+	// Students in any class must use the site LLM — never their custom endpoint.
+	// This prevents malicious LLMs from grading answers as always correct or awarding points.
+	const allowCustomLlm = user?.useLocalLlm && classStudentCount === 0;
 
 	// 2. Resolve Base URL and API Key (User custom OR Site Settings OR fallback to environment variables)
 	const rawBaseUrl = (
-		(user?.useLocalLlm && user?.llmBaseUrl) ? user.llmBaseUrl :
+		(allowCustomLlm && user?.llmBaseUrl) ? user.llmBaseUrl :
 		settings.llmEndpoint ||
 		env.DEFAULT_LLM_BASE_URL ||
 		''
 	).replace(/^["']|["']$/g, '');
-	
+
 	const apiKey = (
-		(user?.useLocalLlm && user?.llmApiKey) ? user.llmApiKey :
-		settings.llmApiKey || 
-		env.DEFAULT_LLM_API_KEY || 
+		(allowCustomLlm && user?.llmApiKey) ? user.llmApiKey :
+		settings.llmApiKey ||
+		env.DEFAULT_LLM_API_KEY ||
 		''
 	).replace(
 		/^["']|["']$/g,
@@ -64,7 +71,7 @@ export async function generateChatCompletion({
 	);
 	const resolvedModel = (
 		model ||
-		(user?.useLocalLlm && user?.llmModel) ||
+		(allowCustomLlm && user?.llmModel) ||
 		settings.llmModel ||
 		env.DEFAULT_LLM_MODEL ||
 		'gpt-3.5-turbo'

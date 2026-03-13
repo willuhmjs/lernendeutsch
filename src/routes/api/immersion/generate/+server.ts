@@ -110,10 +110,22 @@ const MEDIA_TYPE_SCHEMAS: Record<
 function buildImmersionPrompt(
 	mediaType: MediaType,
 	cefrLevel: string,
-	languageName: string
+	languageName: string,
+	vocabHints: string[],
+	grammarHints: string[]
 ): string {
 	const schema = MEDIA_TYPE_SCHEMAS[mediaType];
 	const isLowerLevel = cefrLevel === 'A1' || cefrLevel === 'A2';
+
+	let vocabSection = '';
+	if (vocabHints.length > 0) {
+		vocabSection = `\nThe learner is currently studying these vocabulary words. Try to naturally incorporate a few of them where they fit, but do NOT force them — authenticity comes first:\n${vocabHints.map((v) => `- ${v}`).join('\n')}\n`;
+	}
+
+	let grammarSection = '';
+	if (grammarHints.length > 0) {
+		grammarSection = `\nThe learner is practicing these grammar concepts. Where it feels natural, use sentence structures that demonstrate some of them:\n${grammarHints.map((g) => `- ${g}`).join('\n')}\n`;
+	}
 
 	return `You are a language learning content generator. Generate an authentic, realistic ${schema.description.toLowerCase()} written entirely in ${languageName}, appropriate for a ${cefrLevel} language learner.
 
@@ -131,6 +143,7 @@ ${
 }
 
 Make the content feel authentic — like something that would actually appear in the real world. Choose a realistic topic relevant to everyday life, culture, or current events.
+${vocabSection}${grammarSection}
 
 Generate a JSON response with this EXACT structure:
 {
@@ -211,8 +224,36 @@ export async function POST(event) {
 
 		const cefrLevel = locals.user.cefrLevel || 'A1';
 		const languageName = locals.user.activeLanguage?.name || 'German';
+		const activeLanguageId = locals.user.activeLanguage?.id;
 
-		const systemPrompt = buildImmersionPrompt(mediaType, cefrLevel, languageName);
+		let vocabHints: string[] = [];
+		let grammarHints: string[] = [];
+
+		if (activeLanguageId) {
+			const userVocabs = await prisma.userVocabulary.findMany({
+				where: {
+					userId: locals.user.id,
+					vocabulary: { languageId: activeLanguageId }
+				},
+				include: { vocabulary: true },
+				take: 15,
+				orderBy: { nextReviewDate: 'asc' }
+			});
+			vocabHints = userVocabs.map((uv) => uv.vocabulary.lemma);
+
+			const userGrammars = await prisma.userGrammarRule.findMany({
+				where: {
+					userId: locals.user.id,
+					grammarRule: { languageId: activeLanguageId }
+				},
+				include: { grammarRule: true },
+				take: 8,
+				orderBy: { nextReviewDate: 'asc' }
+			});
+			grammarHints = userGrammars.map((ug) => ug.grammarRule.title);
+		}
+
+		const systemPrompt = buildImmersionPrompt(mediaType, cefrLevel, languageName, vocabHints, grammarHints);
 
 		const response = await generateChatCompletion({
 			userId: locals.user.id,

@@ -122,8 +122,9 @@ export async function POST(event) {
 				}
 			}
 
-			// Award XP for correct answers (multiple choice awards less)
-			const xpToAdd = isCorrect ? XP_CONFIG.CORRECT_ANSWER.MULTIPLE_CHOICE : 0;
+			// Award XP for correct answers (multiple choice awards less).
+			// No XP during class assignments — prevents gaming the system.
+			const xpToAdd = isCorrect && !assignmentId ? XP_CONFIG.CORRECT_ANSWER.MULTIPLE_CHOICE : 0;
 			if (xpToAdd > 0) {
 				await updateGamification(userId, xpToAdd);
 			}
@@ -162,7 +163,10 @@ export async function POST(event) {
 					}
 				}
 
+				// No XP during class assignments — prevents gaming the system.
+			if (!assignmentId) {
 				await updateGamification(userId, XP_CONFIG.CORRECT_ANSWER.OTHER_MODES);
+			}
 
 				let levelUp = null;
 				if (locals.user.activeLanguage?.id) {
@@ -268,8 +272,9 @@ export async function POST(event) {
 						}
 					}
 
-					// Award XP for high-scoring answers
-					const earnedXp = (evaluation.globalScore ?? 0) >= XP_CONFIG.SCORE_THRESHOLD;
+					// Award XP for high-scoring answers.
+					// No XP during class assignments — prevents gaming the system.
+					const earnedXp = (evaluation.globalScore ?? 0) >= XP_CONFIG.SCORE_THRESHOLD && !assignmentId;
 					const xpToAdd = earnedXp ? XP_CONFIG.CORRECT_ANSWER.OTHER_MODES : 0;
 					if (xpToAdd > 0) {
 						await updateGamification(userId, xpToAdd);
