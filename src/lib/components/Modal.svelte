@@ -3,15 +3,54 @@
 	import { fade, scale } from 'svelte/transition';
 
 	let modalState = $derived(modal.current);
+	let previouslyFocusedElement: HTMLElement | null = null;
+
+	// Handle escape key to close modal
+	function handleKeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape' && modalState?.type !== 'alert') {
+			modal.close(false);
+		}
+	}
+
+	// Handle backdrop click - only allow for non-critical modals
+	function handleBackdropClick() {
+		if (modalState?.type !== 'alert' && modalState?.type !== 'confirm') {
+			modal.close(false);
+		}
+	}
+
+	// Save and restore focus for accessibility
+	$effect(() => {
+		if (modalState) {
+			// Save currently focused element
+			previouslyFocusedElement = document.activeElement as HTMLElement;
+
+			// Focus the first button in the modal
+			setTimeout(() => {
+				const confirmBtn = document.querySelector('.modal-btn-confirm') as HTMLElement;
+				confirmBtn?.focus();
+			}, 250);
+		} else if (previouslyFocusedElement) {
+			// Restore focus when modal closes
+			previouslyFocusedElement.focus();
+			previouslyFocusedElement = null;
+		}
+	});
 </script>
+
+<svelte:window on:keydown={handleKeydown} />
 
 {#if modalState}
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
 		class="modal-backdrop"
+		role="dialog"
+		aria-modal="true"
+		aria-labelledby={modalState.title ? 'modal-title' : undefined}
+		aria-describedby="modal-message"
 		transition:fade={{ duration: 200 }}
-		onclick={() => modalState?.type === 'alert' || modalState?.type === 'confirm' ? null : modal.close(false)}
+		onclick={handleBackdropClick}
 	>
 		<!-- svelte-ignore a11y_click_events_have_key_events -->
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -22,11 +61,11 @@
 		>
 			<div class="modal-content">
 				{#if modalState.title}
-					<h3 class="modal-title">
+					<h3 id="modal-title" class="modal-title">
 						{modalState.title}
 					</h3>
 				{/if}
-				<p class="modal-message">
+				<p id="modal-message" class="modal-message">
 					{modalState.message}
 				</p>
 			</div>
@@ -36,6 +75,7 @@
 					<button
 						type="button"
 						class="modal-btn-cancel"
+						aria-label={modalState.cancelText || 'Cancel'}
 						onclick={() => modal.close(false)}
 					>
 						{modalState.cancelText || 'Cancel'}
@@ -45,6 +85,7 @@
 				<button
 					type="button"
 					class="modal-btn-confirm"
+					aria-label={modalState.confirmText || 'OK'}
 					onclick={() => modal.close(true)}
 				>
 					{modalState.confirmText || 'OK'}

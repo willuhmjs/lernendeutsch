@@ -4,6 +4,7 @@
 	import type { PageData } from './$types';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
+	import { toastError, toastSuccess } from '$lib/utils/toast';
 
 	let { data }: { data: PageData } = $props();
 
@@ -11,11 +12,9 @@
 	let createDescription = $state('');
 	let createLanguage = $state('international');
 	let isCreating = $state(false);
-	let createError = $state('');
 
 	let joinCode = $state('');
 	let isJoining = $state(false);
-	let joinError = $state('');
 
 	let activeTab: 'create' | 'join' = $state('create');
 
@@ -29,9 +28,8 @@
 	});
 
 	async function handleCreate() {
-		if (!createName) return;
+		if (!createName || isCreating) return;
 		isCreating = true;
-		createError = '';
 
 		try {
 			const res = await fetch('/api/classes/create', {
@@ -45,24 +43,24 @@
 			});
 			const result = await res.json();
 			if (!res.ok) {
-				createError = result.error || 'Failed to create class';
+				toastError(result.error || 'Failed to create class');
 			} else {
+				toastSuccess('Class created successfully!');
 				createName = '';
 				createDescription = '';
 				createLanguage = 'international';
 				await invalidateAll();
 			}
 		} catch (e) {
-			createError = 'An error occurred';
+			toastError('An error occurred');
 		} finally {
 			isCreating = false;
 		}
 	}
 
 	async function handleJoin() {
-		if (!joinCode) return;
+		if (!joinCode || isJoining) return;
 		isJoining = true;
-		joinError = '';
 
 		try {
 			const res = await fetch('/api/classes/join', {
@@ -72,13 +70,14 @@
 			});
 			const result = await res.json();
 			if (!res.ok) {
-				joinError = result.error || 'Failed to join class';
+				toastError(result.error || 'Failed to join class');
 			} else {
+				toastSuccess('Joined class successfully!');
 				joinCode = '';
 				await invalidateAll();
 			}
 		} catch (e) {
-			joinError = 'An error occurred';
+			toastError('An error occurred');
 		} finally {
 			isJoining = false;
 		}
@@ -235,18 +234,6 @@
 								</select>
 							</div>
 						</div>
-						{#if createError}
-							<div class="form-error">
-								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-									<path
-										fill-rule="evenodd"
-										d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-										clip-rule="evenodd"
-									/>
-								</svg>
-								{createError}
-							</div>
-						{/if}
 						<div class="form-actions">
 							<button
 								type="submit"
@@ -305,18 +292,6 @@
 								<div class="code-format-hint">6 alphanumeric characters</div>
 							</div>
 						</div>
-						{#if joinError}
-							<div class="form-error">
-								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-									<path
-										fill-rule="evenodd"
-										d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-										clip-rule="evenodd"
-									/>
-								</svg>
-								{joinError}
-							</div>
-						{/if}
 						<div class="form-actions">
 							<button
 								type="submit"

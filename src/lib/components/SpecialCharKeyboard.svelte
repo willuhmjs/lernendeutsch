@@ -54,6 +54,8 @@
 		type="button"
 		class="toggle-button"
 		on:click={toggleKeyboard}
+		aria-expanded={isExpanded}
+		aria-label="{isExpanded ? 'Hide' : 'Show'} special character keyboard"
 	>
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -74,6 +76,8 @@
 					type="button"
 					class="shift-button {isShift ? 'active' : ''}"
 					on:click={toggleShift}
+					aria-pressed={isShift}
+					aria-label="Toggle uppercase"
 				>
 					Shift
 				</button>

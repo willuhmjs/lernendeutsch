@@ -134,7 +134,7 @@
 		{#if isFinished}
 			<div class="card-duo finished-card" in:fly={{ y: 20, duration: 400, delay: 100 }}>
 				<div class="success-icon">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
 						<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
 					</svg>
 				</div>
@@ -174,11 +174,11 @@
 									<div class="grade-banner" class:grade-correct={effectiveCorrect} class:grade-incorrect={!effectiveCorrect}>
 										<div class="grade-icon">
 											{#if effectiveCorrect}
-												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
 													<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
 												</svg>
 											{:else}
-												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
 													<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
 												</svg>
 											{/if}
@@ -216,7 +216,7 @@
 
 									<!-- Actions -->
 									<div class="action-row">
-										<button class="btn-duo btn-override" on:click={toggleOverride}>
+										<button class="btn-duo btn-override" on:click={toggleOverride} aria-label="{effectiveCorrect ? "Mark as incorrect" : "Mark as correct"}">
 											<span class="override-icon">&#x21A9;</span>
 											{effectiveCorrect ? 'Mark as incorrect' : 'Mark as correct'}
 										</button>

@@ -529,7 +529,7 @@
 						placeholder="e.g. A friendly waiter at a café"
 					/>
 				</div>
-				<button on:click={startSession} class="btn-duo btn-primary start-btn">
+				<button type="button" on:click={startSession} class="btn-duo btn-primary start-btn" aria-label="Start conversation">
 					Start Conversation
 				</button>
 			</div>
@@ -650,7 +650,7 @@
 							disabled={isLoading || isPassed}
 						></textarea>
 					</div>
-					<button on:click={sendMessage} disabled={isLoading || !message.trim() || isPassed} class="send-btn">
+					<button type="button" on:click={sendMessage} disabled={isLoading || !message.trim() || isPassed} class="send-btn" aria-label="Send message">
 						<svg
 							class="icon"
 							fill="none"

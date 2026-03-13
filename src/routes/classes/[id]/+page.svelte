@@ -2,6 +2,7 @@
 	import { invalidateAll } from '$app/navigation';
 	import { fly } from 'svelte/transition';
 	import toast from 'svelte-french-toast';
+	import { toastError } from '$lib/utils/toast';
 	import { modal } from '$lib/modal.svelte';
 	import type { PageData } from './$types';
 
@@ -27,7 +28,6 @@
 	let vocabInput = '';
 	let grammarSearchQuery = '';
 	let isCreatingAssignment = false;
-	let assignmentError = '';
 
 	function openCreateAssignmentModal() {
 		showCreateAssignmentModal = true;
@@ -43,7 +43,6 @@
 		targetVocabList = [];
 		vocabInput = '';
 		grammarSearchQuery = '';
-		assignmentError = '';
 	}
 
 	function closeCreateAssignmentModal() {
@@ -75,11 +74,11 @@
 
 	async function handleCreateAssignment() {
 		if (!createAssignmentTitle.trim()) {
-			assignmentError = 'Title is required';
+			toastError('Title is required');
 			return;
 		}
+		if (isCreatingAssignment) return;
 		isCreatingAssignment = true;
-		assignmentError = '';
 
 		try {
 			const res = await fetch(`/api/classes/${classDetails.id}/assignments`, {
@@ -100,13 +99,13 @@
 			});
 			const result = await res.json();
 			if (!res.ok) {
-				assignmentError = result.error || 'Failed to create assignment';
+				toastError(result.error || 'Failed to create assignment');
 			} else {
 				closeCreateAssignmentModal();
 				await invalidateAll();
 			}
 		} catch (e) {
-			assignmentError = 'An error occurred';
+			toastError('An error occurred');
 		} finally {
 			isCreatingAssignment = false;
 		}
@@ -689,9 +688,6 @@
 					</button>
 				</div>
 			</form>
-			{#if assignmentError}
-				<p class="form-error">{assignmentError}</p>
-			{/if}
 		</div>
 	</div>
 {/if}

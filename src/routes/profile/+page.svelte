@@ -3,16 +3,42 @@
 	import { enhance } from '$app/forms';
 	import { fly } from 'svelte/transition';
 	import { onMount } from 'svelte';
+	import { toastSuccess, toastError } from '$lib/utils/toast';
 
-	export let data: PageData;
-	export let form;
+	let { data, form }: { data: PageData; form: any } = $props();
+
+	// Form submission states
+	let isUpdatingTheme = $state(false);
+	let isUpdatingLLM = $state(false);
+	let isUpdatingPassword = $state(false);
+	let isUpdatingLanguage = $state(false);
+	let isDeletingAccount = $state(false);
 
 	// LLM settings state
-	let llmBaseUrl = data.user?.llmBaseUrl || '';
-	let llmApiKey = data.user?.llmApiKey || '';
-	let llmModel = data.user?.llmModel || '';
-	let availableModels: string[] = [];
-	let isFetchingModels = false;
+	let llmBaseUrl = $state(data.user?.llmBaseUrl || '');
+	let llmApiKey = $state(data.user?.llmApiKey || '');
+	let llmModel = $state(data.user?.llmModel || '');
+	let availableModels = $state<string[]>([]);
+	let isFetchingModels = $state(false);
+
+	// Account deletion confirmation
+	let deleteConfirmation = $state('');
+	let canDelete = $derived(deleteConfirmation === 'DELETE');
+
+	// Show success/error messages as toasts
+	$effect(() => {
+		if (form?.themeSuccess) toastSuccess(form.themeSuccess);
+		if (form?.llmSuccess) toastSuccess(form.llmSuccess);
+		if (form?.passwordSuccess) toastSuccess(form.passwordSuccess);
+		if (form?.languageSuccess) toastSuccess(form.languageSuccess);
+		if (form?.themeError) toastError(form.themeError);
+		if (form?.llmError) toastError(form.llmError);
+		if (form?.passwordError) toastError(form.passwordError);
+		if (form?.languageError) toastError(form.languageError);
+	});
+
+	// AbortController for fetch race condition prevention
+	let fetchModelsController: AbortController | null = null;
 
 	// Fetch models from the LLM endpoint
 	async function fetchModels() {
@@ -20,6 +46,10 @@
 			availableModels = [];
 			return;
 		}
+
+		// Cancel previous request
+		fetchModelsController?.abort();
+		fetchModelsController = new AbortController();
 
 		isFetchingModels = true;
 		try {
@@ -33,7 +63,10 @@
 				headers['Authorization'] = `Bearer ${llmApiKey}`;
 			}
 
-			const res = await fetch(fetchUrl, { headers });
+			const res = await fetch(fetchUrl, {
+				headers,
+				signal: fetchModelsController.signal
+			});
 			if (res.ok) {
 				const data = await res.json();
 				if (data && data.data && Array.isArray(data.data)) {
@@ -46,7 +79,8 @@
 			} else {
 				availableModels = [];
 			}
-		} catch (error) {
+		} catch (error: any) {
+			if (error.name === 'AbortError') return;
 			console.error('Failed to fetch models', error);
 			availableModels = [];
 		} finally {
@@ -96,23 +130,18 @@
 	>
 		<h2>Theme Settings</h2>
 
-		{#if form?.themeSuccess}
-			<div class="alert alert-success">{form.themeSuccess}</div>
-		{/if}
-		{#if form?.themeError}
-			<div class="alert alert-error">{form.themeError}</div>
-		{/if}
-
 		<form
 			method="POST"
 			action="?/updateTheme"
 			use:enhance={() => {
+				isUpdatingTheme = true;
 				return async ({ result, update }) => {
 					if (result.type === 'success') {
 						const select = document.getElementById('theme') as HTMLSelectElement;
 						document.documentElement.setAttribute('data-theme', select.value);
 					}
 					await update();
+					isUpdatingTheme = false;
 				};
 			}}
 		>
@@ -127,7 +156,9 @@
 					<option value="dark" selected={data.user?.theme === 'dark'}>Dark</option>
 				</select>
 			</div>
-			<button type="submit" class="submit-btn">Update Theme</button>
+			<button type="submit" class="submit-btn" disabled={isUpdatingTheme}>
+				{isUpdatingTheme ? 'Updating...' : 'Update Theme'}
+			</button>
 		</form>
 	</section>
 
@@ -140,14 +171,17 @@
 			Use your own local or remote LLM server (e.g. Ollama, LM Studio). Using your own server removes rate limits!
 		</p>
 
-		{#if form && 'llmSuccess' in form && form.llmSuccess}
-			<div class="alert alert-success">{form.llmSuccess}</div>
-		{/if}
-		{#if form && 'llmError' in form && form.llmError}
-			<div class="alert alert-error">{form.llmError}</div>
-		{/if}
-
-		<form method="POST" action="?/updateLlmSettings" use:enhance>
+		<form
+			method="POST"
+			action="?/updateLlmSettings"
+			use:enhance={() => {
+				isUpdatingLLM = true;
+				return async ({ update }) => {
+					await update();
+					isUpdatingLLM = false;
+				};
+			}}
+		>
 			<div class="checkbox-wrapper">
 				<input
 					type="checkbox"
@@ -223,7 +257,9 @@
 				{/if}
 			</div>
 
-			<button type="submit" class="submit-btn">Save LLM Settings</button>
+			<button type="submit" class="submit-btn" disabled={isUpdatingLLM}>
+				{isUpdatingLLM ? 'Saving...' : 'Save LLM Settings'}
+			</button>
 		</form>
 	</section>
 
@@ -234,14 +270,17 @@
 		>
 			<h2>Update Password</h2>
 
-			{#if form?.error}
-				<div class="alert alert-error">{form.error}</div>
-			{/if}
-			{#if form?.success}
-				<div class="alert alert-success">{form.success}</div>
-			{/if}
-
-			<form method="POST" action="?/updatePassword">
+			<form
+				method="POST"
+				action="?/updatePassword"
+				use:enhance={() => {
+					isUpdatingPassword = true;
+					return async ({ update }) => {
+						await update();
+						isUpdatingPassword = false;
+					};
+				}}
+			>
 				{#if data.hasPassword}
 					<div class="form-group">
 						<label for="currentPassword">Current Password</label>
@@ -265,7 +304,9 @@
 					/>
 				</div>
 
-				<button type="submit" class="submit-btn">Update Password</button>
+				<button type="submit" class="submit-btn" disabled={isUpdatingPassword}>
+					{isUpdatingPassword ? 'Updating...' : 'Update Password'}
+				</button>
 			</form>
 		</section>
 	{/if}
@@ -294,8 +335,30 @@
 					<form method="dialog">
 						<button class="btn">Cancel</button>
 					</form>
-					<form method="POST" action="?/deleteAccount">
-						<button class="btn btn-error" type="submit">Yes, Delete My Account</button>
+					<p style="margin-bottom: 1rem; color: #ef4444; font-weight: 600;">
+						Type <strong>DELETE</strong> to confirm account deletion:
+					</p>
+					<input
+						type="text"
+						bind:value={deleteConfirmation}
+						placeholder="Type DELETE"
+						style="width: 100%; padding: 0.5rem; margin-bottom: 1rem; border: 2px solid #ef4444; border-radius: 0.5rem;"
+						aria-label="Type DELETE to confirm"
+					/>
+					<form
+						method="POST"
+						action="?/deleteAccount"
+						use:enhance={() => {
+							isDeletingAccount = true;
+							return async ({ update }) => {
+								await update();
+								isDeletingAccount = false;
+							};
+						}}
+					>
+						<button class="btn btn-error" type="submit" disabled={!canDelete || isDeletingAccount}>
+							{isDeletingAccount ? 'Deleting...' : 'Yes, Delete My Account'}
+						</button>
 					</form>
 				</div>
 			</div>

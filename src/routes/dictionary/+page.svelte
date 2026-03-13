@@ -2,6 +2,7 @@
 	import { fade, fly, slide } from 'svelte/transition';
 	import { marked } from 'marked';
 	import SpecialCharKeyboard from '$lib/components/SpecialCharKeyboard.svelte';
+	import { toastError } from '$lib/utils/toast';
 
 	export let data;
 
@@ -10,8 +11,8 @@
 	let results: any[] = [];
 	let loading = false;
 	let llmLoading = false;
-	let llmError: string | null = null;
 	let debounceTimer: ReturnType<typeof setTimeout>;
+	let searchController: AbortController | null = null;
 	let searchInputEl: HTMLInputElement;
 
 	// Keep track of which words have been added in this session
@@ -61,20 +62,25 @@
 	async function performSearch(q: string) {
 		if (!q.trim()) {
 			results = [];
-			llmError = null;
 			return;
 		}
 
+		searchController?.abort();
+		searchController = new AbortController();
+
 		loading = true;
-		llmError = null;
 		try {
-			const res = await fetch(`/api/vocabulary/search?q=${encodeURIComponent(q)}`);
+			const res = await fetch(`/api/vocabulary/search?q=${encodeURIComponent(q)}`, {
+				signal: searchController.signal
+			});
 			if (res.ok) {
 				const data = await res.json();
 				results = data.results;
 			}
-		} catch (error) {
-			console.error('Search failed:', error);
+		} catch (error: any) {
+			if (error.name !== 'AbortError') {
+				console.error('Search failed:', error);
+			}
 		} finally {
 			loading = false;
 		}
@@ -119,10 +125,9 @@
 	}
 
 	async function handleAskAI() {
-		if (!query.trim() || !activeLanguageId) return;
+		if (!query.trim() || !activeLanguageId || llmLoading) return;
 
 		llmLoading = true;
-		llmError = null;
 
 		try {
 			const res = await fetch('/api/vocabulary/llm-lookup', {
@@ -141,16 +146,16 @@
 				results = [responseData.data || responseData]; // Show the newly added word
 			} else {
 				if (res.status === 400) {
-					llmError = "This doesn't seem to be a valid word in the target language.";
+					toastError("This doesn't seem to be a valid word in the target language.");
 				} else if (res.status === 429) {
-					llmError = "You've asked the AI too many times recently. Please try again later.";
+					toastError("You've asked the AI too many times recently. Please try again later.");
 				} else {
-					llmError = 'An error occurred while asking the AI. Please try again.';
+					toastError('An error occurred while asking the AI. Please try again.');
 				}
 			}
 		} catch (error) {
 			console.error('LLM lookup failed:', error);
-			llmError = 'An error occurred while connecting to the AI.';
+			toastError('An error occurred while connecting to the AI.');
 		} finally {
 			llmLoading = false;
 		}
@@ -319,9 +324,6 @@
 				{#if query.trim().length > 1 && activeLanguageId}
 					<div class="ask-ai-results-section">
 						<p class="ask-ai-results-text">Not finding the exact word you searched for?</p>
-						{#if llmError}
-							<div class="error-message">{llmError}</div>
-						{/if}
 						<button on:click={handleAskAI} class="btn-ask-ai-results" disabled={llmLoading}>
 							{#if llmLoading}
 								<span class="spinner-small"></span> Asking AI...
@@ -351,12 +353,6 @@
 					<p class="no-results-text">Would you like to ask the AI to define it?</p>
 					
 					<div class="ask-ai-section">
-						{#if llmError}
-							<div class="error-message">
-								{llmError}
-							</div>
-						{/if}
-
 						{#if activeLanguageId}
 							<button on:click={handleAskAI} class="btn-ask-ai" disabled={llmLoading}>
 								{#if llmLoading}
@@ -393,26 +389,30 @@
 						<div class="grammar-rules-list">
 							{#each groupedGrammar[level] as rule}
 								<div class="grammar-rule-card dark:bg-slate-800 dark:border-slate-700">
-									<!-- svelte-ignore a11y-click-events-have-key-events -->
-									<!-- svelte-ignore a11y-no-static-element-interactions -->
-									<div class="grammar-rule-header" on:click={() => toggleGrammar(rule.id)}>
+									<button
+										type="button"
+										class="grammar-rule-header"
+										on:click={() => toggleGrammar(rule.id)}
+										aria-expanded={expandedGrammarId === rule.id}
+										aria-controls="grammar-{rule.id}"
+									>
 										<div class="grammar-rule-title-wrapper">
 											<h3 class="grammar-rule-title dark:text-white">{rule.title}</h3>
 											{#if rule.description}
 												<p class="grammar-rule-desc dark:text-slate-400">{rule.description}</p>
 											{/if}
 										</div>
-										<button class="grammar-toggle-btn dark:text-slate-400">
+										<span class="grammar-toggle-btn dark:text-slate-400" aria-hidden="true">
 											{#if expandedGrammarId === rule.id}
-												<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+												<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
 											{:else}
-												<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+												<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
 											{/if}
-										</button>
-									</div>
+										</span>
+									</button>
 									
 									{#if expandedGrammarId === rule.id && rule.guide}
-										<div class="grammar-rule-content" transition:slide={{ duration: 200 }}>
+										<div class="grammar-rule-content" id="grammar-{rule.id}" transition:slide={{ duration: 200 }}>
 											<div class="grammar-guide markdown-body dark:bg-slate-900 dark:border-slate-700">
 												{@html marked(rule.guide)}
 											</div>

@@ -2,13 +2,13 @@
 	import { onMount } from 'svelte';
 	import { fly } from 'svelte/transition';
 	import { invalidateAll } from '$app/navigation';
+	import { toastError } from '$lib/utils/toast';
 
 	export let data: any;
 
 	let messages: { role: string; content: string }[] = [];
 	let userInput = '';
 	let loading = false;
-	let error = '';
 	let completed = data?.user?.hasOnboarded || false;
 
 	let completionData: { level?: string; feedback?: string } = {
@@ -20,7 +20,6 @@
 		completed = false;
 		selectedPath = 'choose';
 		messages = [];
-		error = '';
 	};
 	let lastLevelGuess = data?.user?.cefrLevel || 'A1';
 
@@ -40,7 +39,7 @@
 				selectedPath = 'choose';
 			}
 		} catch (e) {
-			error = 'Failed to select language';
+			toastError('Failed to select language');
 		}
 	};
 
@@ -53,7 +52,6 @@
 		if (completed || isSubmittingBeginner) return;
 		isSubmittingBeginner = true;
 		selectedPath = 'beginner';
-		error = '';
 
 		try {
 			const res = await fetch('/api/onboarding/beginner', {
@@ -75,7 +73,7 @@
 				};
 			}
 		} catch (e: any) {
-			error = e.message;
+			toastError(e.message || 'Failed to set up beginner account');
 			selectedPath = 'choose';
 		} finally {
 			isSubmittingBeginner = false;
@@ -87,7 +85,6 @@
 		if (completed) return;
 		if (userInput.trim() === '' && messages.length > 0) return;
 
-		error = '';
 		loading = true;
 
 		// Add user's message to history
@@ -161,7 +158,7 @@
 				console.error('Failed to parse full response', e, responseText);
 			}
 		} catch (e: any) {
-			error = e.message;
+			toastError(e.message || 'Failed to send message');
 		} finally {
 			loading = false;
 		}
@@ -172,7 +169,6 @@
 	const handleManualPlacement = async (level: string) => {
 		if (completed || isSubmittingManual) return;
 		isSubmittingManual = true;
-		error = '';
 
 		try {
 			const res = await fetch('/api/onboarding/manual', {
@@ -192,7 +188,7 @@
 				completionData = { level: data.level, feedback: 'You have manually selected your level.' };
 			}
 		} catch (e: any) {
-			error = e.message;
+			toastError(e.message || 'Failed to set manual level');
 		} finally {
 			isSubmittingManual = false;
 		}
@@ -203,7 +199,6 @@
 	const handleEndEarly = async () => {
 		if (completed || isEndingEarly) return;
 		isEndingEarly = true;
-		error = '';
 		loading = true;
 
 		try {
@@ -233,7 +228,7 @@
 				completionData = { level: data.level, feedback: data.feedback };
 			}
 		} catch (e: any) {
-			error = e.message;
+			toastError(e.message || 'Failed to end early');
 		} finally {
 			isEndingEarly = false;
 			loading = false;
@@ -317,11 +312,6 @@
 			</div>
 		</div>
 
-		{#if error}
-			<div class="error-alert">
-				<p>{error}</p>
-			</div>
-		{/if}
 	{:else}
 		<!-- Placement Test / Completion -->
 		<header class="page-header" in:fly={{ y: 20, duration: 400 }}>
@@ -338,7 +328,7 @@
 
 		<div class="content-layout" in:fly={{ y: 20, duration: 400, delay: 100 }}>
 			<div class="chat-container dark:bg-slate-800 dark:border-slate-700">
-				{#if messages.length > 0 || loading || error}
+				{#if messages.length > 0 || loading}
 					<div class="chat-messages dark:bg-slate-900">
 						{#each messages as msg}
 							<div class="message-wrapper {msg.role === 'user' ? 'user' : 'assistant'}">
@@ -366,11 +356,6 @@
 							</div>
 						{/if}
 
-						{#if error}
-							<div class="error-alert">
-								<p>{error}</p>
-							</div>
-						{/if}
 					</div>
 				{/if}
 

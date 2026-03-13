@@ -79,6 +79,7 @@
 	let mcqXpAwarded = false; // tracks if MCQ XP was awarded via API
 
 	async function generate() {
+		if (loading) return;
 		loading = true;
 		error = '';
 		session = null;

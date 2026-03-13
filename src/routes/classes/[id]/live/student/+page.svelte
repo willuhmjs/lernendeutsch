@@ -82,6 +82,7 @@
 	}
 
 	async function submitAnswer(isCorrect: boolean) {
+		if (hasAnswered) return;
 		try {
 			lastAnswerCorrect = isCorrect;
 			const res = await fetch(`/api/classes/${classId}/live-session/student`, {
@@ -157,8 +158,11 @@
 						{#each shuffledOptions as opt, i}
 							{@const optionColors = ['a', 'b', 'c', 'd', 'a', 'b']}
 							<button
+								type="button"
 								class={`option-btn option-${optionColors[i % optionColors.length]}`}
 								on:click={() => submitAnswer(opt.isCorrect)}
+								disabled={hasAnswered}
+								aria-label="Answer option: {opt.text}"
 							>
 								{opt.text}
 							</button>

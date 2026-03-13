@@ -270,7 +270,13 @@
 				<div class="sidebar-footer">
 					{#if languages.length > 0}
 						<div class="language-dropdown-container">
-							<button class="nav-item language-selector-btn" onclick={toggleDropdown}>
+							<button
+								class="nav-item language-selector-btn"
+								onclick={toggleDropdown}
+								aria-label="Select language"
+								aria-expanded={isDropdownOpen}
+								aria-haspopup="true"
+							>
 								<svg
 									viewBox="0 0 24 24"
 									fill="none"
@@ -278,6 +284,7 @@
 									stroke-width="2"
 									stroke-linecap="round"
 									stroke-linejoin="round"
+									aria-hidden="true"
 									><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path
 										d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
 									/></svg
@@ -297,16 +304,19 @@
 									stroke="currentColor"
 									stroke-width="2"
 									stroke-linecap="round"
-									stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg
+									stroke-linejoin="round"
+									aria-hidden="true"><polyline points="6 9 12 15 18 9" /></svg
 								>
 							</button>
 
 							{#if isDropdownOpen}
-								<div class="dropdown-menu">
+								<div class="dropdown-menu" role="menu">
 									{#each languages as lang}
 										<button
 											class="dropdown-item {user?.activeLanguage?.id === lang.id ? 'active' : ''}"
 											onclick={() => changeLanguage(lang.id)}
+											role="menuitem"
+											aria-label="Switch to {lang.name}"
 										>
 											<span class="lang-flag">{lang.flag || ''}</span>
 											<span class="lang-name">{lang.name}</span>
@@ -318,7 +328,8 @@
 													stroke="currentColor"
 													stroke-width="2"
 													stroke-linecap="round"
-													stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg
+													stroke-linejoin="round"
+													aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg
 												>
 											{/if}
 										</button>
@@ -388,7 +399,7 @@
 			<div class="mobile-header-right">
 				{#if user && languages.length > 0}
 					<div class="language-dropdown-container mobile-lang-dropdown">
-						<button class="mobile-lang-btn" onclick={toggleDropdown}>
+						<button class="mobile-lang-btn" onclick={toggleDropdown} aria-label="Select language">
 							<svg
 								viewBox="0 0 24 24"
 								fill="none"
@@ -396,6 +407,7 @@
 								stroke-width="2"
 								stroke-linecap="round"
 								stroke-linejoin="round"
+								aria-hidden="true"
 								><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path
 									d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
 								/></svg
@@ -414,7 +426,8 @@
 								stroke="currentColor"
 								stroke-width="2"
 								stroke-linecap="round"
-								stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg
+								stroke-linejoin="round"
+								aria-hidden="true"><polyline points="6 9 12 15 18 9" /></svg
 							>
 						</button>
 
@@ -424,6 +437,7 @@
 									<button
 										class="dropdown-item {user?.activeLanguage?.id === lang.id ? 'active' : ''}"
 										onclick={() => changeLanguage(lang.id)}
+										aria-label="Switch to {lang.name}"
 									>
 										<span class="lang-flag">{lang.flag || ''}</span>
 										<span class="lang-name">{lang.name}</span>
@@ -435,7 +449,8 @@
 												stroke="currentColor"
 												stroke-width="2"
 												stroke-linecap="round"
-												stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg
+												stroke-linejoin="round"
+												aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg
 											>
 										{/if}
 									</button>
@@ -447,6 +462,7 @@
 				<button
 					class="nav-item theme-toggle-btn mobile-theme-toggle"
 					onclick={cycleTheme}
+					aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
 					style="border: none; background: transparent; cursor: pointer; padding: 0.4rem; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center;"
 				>
 					{#if theme === 'light'}
@@ -459,6 +475,7 @@
 							stroke-width="2"
 							stroke-linecap="round"
 							stroke-linejoin="round"
+							aria-hidden="true"
 							><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line
 								x1="12"
 								y1="21"
@@ -486,6 +503,7 @@
 							stroke-width="2"
 							stroke-linecap="round"
 							stroke-linejoin="round"
+							aria-hidden="true"
 							><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg
 						>
 					{/if}
@@ -499,6 +517,25 @@
 							⚡ {user.totalXp || 0} XP
 						</span>
 					</div>
+					<!-- Mobile logout button -->
+					<form action="/logout" method="POST" class="mobile-logout-form">
+						<button type="submit" class="mobile-logout-btn" aria-label="Logout">
+							<svg
+								viewBox="0 0 24 24"
+								width="20"
+								height="20"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								aria-hidden="true"
+								><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline
+									points="16 17 21 12 16 7"
+								/><line x1="21" y1="12" x2="9" y2="12" /></svg
+							>
+						</button>
+					</form>
 				{/if}
 			</div>
 		</header>
@@ -508,6 +545,7 @@
 			<button
 				class="nav-item theme-toggle-btn"
 				onclick={cycleTheme}
+				aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
 				style="margin-right: 1rem; border: none; background: transparent; cursor: pointer; padding: 0.5rem; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; width: auto; height: auto;"
 			>
 				{#if theme === 'light'}
@@ -844,7 +882,13 @@
 	.nav-item:hover,
 	.nav-item.active {
 		color: #1cb0f6;
-		background-color: #ddf4ff;
+		background-color: var(--link-hover-bg, #ddf4ff);
+	}
+
+	:global(html[data-theme='dark']) .nav-item:hover,
+	:global(html[data-theme='dark']) .nav-item.active {
+		color: #60a5fa;
+		background-color: #1f2937;
 	}
 
 	.nav-item:active {
@@ -939,8 +983,14 @@
 
 	.dropdown-item:hover,
 	.dropdown-item.active {
-		background-color: #ddf4ff;
+		background-color: var(--link-hover-bg, #ddf4ff);
 		color: #1cb0f6;
+	}
+
+	:global(html[data-theme='dark']) .dropdown-item:hover,
+	:global(html[data-theme='dark']) .dropdown-item.active {
+		background-color: #1f2937;
+		color: #60a5fa;
 	}
 
 	.lang-flag {
@@ -1249,6 +1299,37 @@
 
 		.gamification-stats {
 			padding: 0.375rem 0.75rem;
+		}
+
+		.mobile-logout-form {
+			margin: 0;
+		}
+
+		.mobile-logout-btn {
+			background: none;
+			border: 2px solid var(--card-border, #e5e7eb);
+			border-radius: 0.75rem;
+			padding: 0.375rem 0.625rem;
+			cursor: pointer;
+			color: #ff4b4b;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all 0.15s;
+		}
+
+		.mobile-logout-btn:hover {
+			background-color: #ffedef;
+			border-color: #ff4b4b;
+		}
+
+		:global(html[data-theme='dark']) .mobile-logout-btn {
+			border-color: #374151;
+		}
+
+		:global(html[data-theme='dark']) .mobile-logout-btn:hover {
+			background-color: #1f2937;
+			border-color: #ff4b4b;
 		}
 
 		.main-content {

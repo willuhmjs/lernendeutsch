@@ -2,6 +2,7 @@
 	import type { PageData } from './$types';
 	import { fly } from 'svelte/transition';
 	import toast from 'svelte-french-toast';
+	import { toastError } from '$lib/utils/toast';
 	import { modal } from '$lib/modal.svelte';
 
 	export let data: PageData;
@@ -71,7 +72,6 @@
 	let vocabInputRef: HTMLInputElement;
 	let grammarSearchQuery = '';
 	let isSaving = false;
-	let assignmentError = '';
 
 	function openEditModal() {
 		editTitle = assignment.title;
@@ -86,7 +86,6 @@
 		targetVocabList = assignment.targetVocab ? [...assignment.targetVocab] : [];
 		vocabInput = '';
 		grammarSearchQuery = '';
-		assignmentError = '';
 		showEditModal = true;
 	}
 
@@ -119,12 +118,12 @@
 
 	async function handleSaveEdit() {
 		if (!editTitle.trim()) {
-			assignmentError = 'Title is required';
+			toastError('Title is required');
 			return;
 		}
+		if (isSaving) return;
 
 		isSaving = true;
-		assignmentError = '';
 		try {
 			const res = await fetch(`/api/classes/${classDetails.id}/assignments/${assignment.id}`, {
 				method: 'PATCH',
@@ -151,10 +150,10 @@
 				await invalidateAll();
 			} else {
 				const result = await res.json();
-				assignmentError = result.error || 'Failed to update assignment';
+				toastError(result.error || 'Failed to update assignment');
 			}
 		} catch (e) {
-			assignmentError = 'An error occurred';
+			toastError('An error occurred');
 		} finally {
 			isSaving = false;
 		}
@@ -438,9 +437,6 @@
 					</button>
 				</div>
 			</form>
-			{#if assignmentError}
-				<p class="form-error">{assignmentError}</p>
-			{/if}
 		</div>
 	</div>
 {/if}
