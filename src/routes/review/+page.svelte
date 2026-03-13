@@ -259,7 +259,6 @@
 										type="text"
 										class="review-input"
 										placeholder="Type translation here..."
-										autofocus
 										on:keydown={(e) => e.key === 'Enter' && showAnswer()}
 									/>
 								</div>
