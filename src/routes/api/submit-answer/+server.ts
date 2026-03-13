@@ -147,8 +147,8 @@ export async function POST(event) {
 					vocabularyUpdates: targetedVocabulary.map((v: any) => ({ id: v.id, score })),
 					grammarUpdates: targetedGrammar.map((g: any) => ({ id: g.id, score })),
 					extraVocabLemmas: [],
-					feedback: '',
-					feedbackEnglish: ''
+					feedback: 'Correct!',
+					feedbackEnglish: 'Correct!'
 				};
 
 				await updateEloRatings(userId, remappedEvaluation, gameMode);

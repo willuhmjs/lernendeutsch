@@ -632,7 +632,7 @@
 
 	.generate-btn {
 		padding: 0.8rem 1.5rem;
-		background: #1cb0f6;
+		background: #7c3aed;
 		color: #fff;
 		border: none;
 		border-radius: 0.75rem;
@@ -644,11 +644,11 @@
 		gap: 0.5rem;
 		justify-content: center;
 		transition: background 0.15s, transform 0.1s;
-		box-shadow: 0 4px 0 #0095d9;
+		box-shadow: 0 4px 0 #5b21b6;
 	}
 
 	.generate-btn:hover:not(:disabled) {
-		background: #0fa6eb;
+		background: #6d28d9;
 		transform: translateY(-1px);
 	}
 
@@ -656,7 +656,7 @@
 		opacity: 0.6;
 		cursor: default;
 		transform: none;
-		box-shadow: 0 2px 0 #0095d9;
+		box-shadow: 0 2px 0 #5b21b6;
 	}
 
 	.spinner {
@@ -698,7 +698,7 @@
 		width: 40px;
 		height: 40px;
 		border: 3px solid #e2e8f0;
-		border-top-color: #1cb0f6;
+		border-top-color: #7c3aed;
 		border-radius: 50%;
 		animation: spin 0.8s linear infinite;
 	}

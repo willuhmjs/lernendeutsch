@@ -1242,7 +1242,7 @@
 
 	.btn-ask-ai {
 		width: 100%;
-		background-color: #3b82f6;
+		background-color: #7c3aed;
 		color: white;
 		border: none;
 		padding: 0.75rem 1.5rem;
@@ -1260,7 +1260,7 @@
 	}
 
 	.btn-ask-ai:hover:not(:disabled) {
-		background-color: #2563eb;
+		background-color: #6d28d9;
 		transform: translateY(-1px);
 	}
 
@@ -1311,7 +1311,7 @@
 	}
 
 	.btn-ask-ai-results {
-		background-color: #3b82f6;
+		background-color: #7c3aed;
 		color: white;
 		border: none;
 		padding: 0.5rem 1.25rem;
@@ -1327,7 +1327,7 @@
 	}
 
 	.btn-ask-ai-results:hover:not(:disabled) {
-		background-color: #2563eb;
+		background-color: #6d28d9;
 	}
 
 	.btn-ask-ai-results:disabled {

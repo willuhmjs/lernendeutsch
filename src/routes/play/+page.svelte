@@ -3077,7 +3077,7 @@ r<svelte:head>
 		width: 2rem;
 		height: 2rem;
 		border: 4px solid #e2e8f0;
-		border-top-color: #3b82f6;
+		border-top-color: #7c3aed;
 		border-radius: 50%;
 		animation: spin 1s linear infinite;
 		margin-bottom: 1rem;
@@ -3088,7 +3088,7 @@ r<svelte:head>
 		width: 1.2rem;
 		height: 1.2rem;
 		border: 3px solid #e2e8f0;
-		border-top-color: #3b82f6;
+		border-top-color: #7c3aed;
 		border-radius: 50%;
 		animation: spin 1s linear infinite;
 	}
@@ -3116,13 +3116,13 @@ r<svelte:head>
 
 	.load-progress-fill {
 		height: 100%;
-		background: linear-gradient(to right, #3b82f6, #6366f1);
+		background: linear-gradient(to right, #7c3aed, #6d28d9);
 		border-radius: 999px;
 		transition: width 0.12s linear;
 	}
 
 	.load-progress-fill.local-mode-fill {
-		background: linear-gradient(to right, #10b981, #059669); /* emerald gradient */
+		background: linear-gradient(to right, #f59e0b, #d97706);
 	}
 
 	.load-tip-container {
@@ -3263,9 +3263,9 @@ r<svelte:head>
 		font-size: 0.6rem;
 		font-weight: 700;
 		letter-spacing: 0.04em;
-		color: #93c5fd;
-		background: rgba(59, 130, 246, 0.2);
-		border: 1px solid rgba(59, 130, 246, 0.35);
+		color: #c4b5fd;
+		background: rgba(124, 58, 237, 0.2);
+		border: 1px solid rgba(124, 58, 237, 0.35);
 		border-radius: 3px;
 		padding: 0 0.3em;
 		line-height: 1.6;

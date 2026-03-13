@@ -948,13 +948,13 @@
 	}
 
 	.admin-link {
-		color: #7c3aed !important;
+		color: #4f46e5 !important;
 	}
 
 	.admin-link:hover,
 	.admin-link.active {
-		color: #6d28d9 !important;
-		background-color: #f5f3ff !important;
+		color: #4338ca !important;
+		background-color: #eef2ff !important;
 	}
 
 	.content-wrapper {
@@ -1009,7 +1009,7 @@
 	}
 
 	.gamification-stats .xp {
-		color: #3b82f6;
+		color: #fbbf24;
 	}
 
 	.main-content {
