@@ -310,11 +310,12 @@ export async function POST(event) {
 		const masteredGrammar = masteredGrammarDb.map((ug: any) => ug.grammarRule);
 		const learningGrammar = learningGrammarDb.map((ug: any) => ug.grammarRule);
 
-		console.log("GENERATE LESSON GRAMMAR ARRAYS:", {
-			masteredGrammarDbLength: masteredGrammarDb.length,
-			learningGrammarDbLength: learningGrammarDb.length,
-			masteredGrammarLength: masteredGrammar.length,
-			learningGrammarLength: learningGrammar.length,
+		// Fetch ALL grammar rules for the language at the user's level so the LLM
+		// can identify grammar concepts used in the sentence even if the user hasn't
+		// encountered them yet (e.g. Akkusativ, Dativ used implicitly in sentences).
+		const allLanguageGrammarDb = await prisma.grammarRule.findMany({
+			where: { languageId: activeLanguageId, level: { in: allowedLevels } },
+			select: { id: true, title: true, description: true, guide: true, level: true }
 		});
 
 		// Build short ID maps for LLM (saves tokens & prevents UUID garbling)
@@ -326,8 +327,8 @@ export async function POST(event) {
 		knownVocab.forEach((v, i) => {
 			idMap[`v${learnOffset + i}`] = v.id;
 		});
-		const allGrammar = [...masteredGrammar, ...learningGrammar];
-		allGrammar.forEach((g, i) => {
+		// Use allLanguageGrammarDb for the idMap so all grammar rules get short IDs
+		allLanguageGrammarDb.forEach((g, i) => {
 			idMap[`g${i}`] = g.id;
 		});
 
@@ -358,6 +359,12 @@ export async function POST(event) {
 		const learningGrammarList = learningGrammar
 			.map((g: { title: string; description: string; id: string }) => `- ${g.title} (${g.description}) - ID: ${Object.keys(idMap).find(k => idMap[k] === g.id)}`)
 			.join('\n');
+		// All grammar rules the LLM can identify (excludes ones already in mastered/learning to avoid duplication)
+		const trackedGrammarIds = new Set([...masteredGrammar, ...learningGrammar].map((g: any) => g.id));
+		const additionalGrammarList = allLanguageGrammarDb
+			.filter(g => !trackedGrammarIds.has(g.id))
+			.map(g => `- ${g.title} (${g.description}) - ID: ${Object.keys(idMap).find(k => idMap[k] === g.id)}`)
+			.join('\n');
 
 		const userLevel = locals.user.cefrLevel || 'A1';
 		const isAbsoluteBeginner = userLevel === 'A1' && masteredVocabDb.length <= 5;
@@ -373,7 +380,8 @@ export async function POST(event) {
 			learningVocabList,
 			knownVocabList,
 			masteredGrammarList,
-			learningGrammarList
+			learningGrammarList,
+			additionalGrammarList
 		});
 
 		const stream = await generateLessonStream({
@@ -382,7 +390,7 @@ export async function POST(event) {
 			jsonSchemaObj,
 			requestSignal: request.signal,
 			targetedVocabulary: [...learningVocab, ...knownVocab],
-			targetedGrammar: allGrammar,
+			targetedGrammar: allLanguageGrammarDb, // full list so client filter can resolve any returned ID
 			allVocabulary: [...masteredVocab, ...learningVocab, ...knownVocab],
 			gameMode,
 			idMap,

@@ -20,7 +20,8 @@ export function buildLessonPrompt({
 	learningVocabList,
 	knownVocabList,
 	masteredGrammarList,
-	learningGrammarList
+	learningGrammarList,
+	additionalGrammarList
 }: {
 	activeLangName: string;
 	userLevel: string;
@@ -33,6 +34,7 @@ export function buildLessonPrompt({
 	knownVocabList: string;
 	masteredGrammarList: string;
 	learningGrammarList: string;
+	additionalGrammarList?: string;
 }) {
 	const isBeginner = userLevel === 'A1' || userLevel === 'A2';
 
@@ -240,6 +242,7 @@ ${knownVocabList || 'None'}
 
 Learning Grammar (MANDATORY TO INCORPORATE):
 ${learningGrammarList || 'None'}
+${additionalGrammarList ? `\nAdditional Grammar Reference (for identification only — if your sentence uses any of these concepts, include their IDs in targetedGrammarIds even if they are not in the Learning or Mastered lists):\n${additionalGrammarList}` : ''}
 
 ${jsonFormatBlock}`;
 
