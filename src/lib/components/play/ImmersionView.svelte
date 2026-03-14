@@ -525,11 +525,17 @@
 	</div>
 
 	{#if loading}
-		<div class="loading-card" in:fade={{ duration: 200 }}>
-			<div class="loading-inner">
-				<div class="loading-spinner"></div>
-				<p>Creating your {selectedMediaType === 'random' ? 'content' : selectedMediaType.replace(/_/g, ' ')}...</p>
+		<div class="loading-card skeleton-card" in:fade={{ duration: 200 }} aria-busy="true" aria-label="Generating content">
+			<div class="skeleton-badge"></div>
+			<div class="skeleton-headline"></div>
+			<div class="skeleton-line"></div>
+			<div class="skeleton-line skeleton-line-short"></div>
+			<div class="skeleton-paragraph">
+				<div class="skeleton-line"></div>
+				<div class="skeleton-line"></div>
+				<div class="skeleton-line skeleton-line-short"></div>
 			</div>
+			<div class="skeleton-hint">Creating your {selectedMediaType === 'random' ? 'content' : selectedMediaType.replace(/_/g, ' ')}...</div>
 		</div>
 	{/if}
 
@@ -1097,6 +1103,71 @@
 	:global(html[data-theme='dark']) .loading-card {
 		background: #1e293b;
 		border-color: #334155;
+	}
+
+	/* Skeleton card styles */
+	@keyframes skeleton-pulse {
+		0%, 100% { opacity: 1; }
+		50% { opacity: 0.4; }
+	}
+
+	.skeleton-card {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.skeleton-badge,
+	.skeleton-headline,
+	.skeleton-line,
+	.skeleton-paragraph {
+		background: var(--card-border, #e2e8f0);
+		border-radius: 0.375rem;
+		animation: skeleton-pulse 1.5s ease-in-out infinite;
+	}
+
+	.skeleton-badge {
+		height: 1.5rem;
+		width: 8rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.skeleton-headline {
+		height: 1.75rem;
+		width: 80%;
+		margin-bottom: 0.5rem;
+	}
+
+	.skeleton-line {
+		height: 1rem;
+		width: 100%;
+		margin-bottom: 0.25rem;
+	}
+
+	.skeleton-line-short {
+		width: 65%;
+	}
+
+	.skeleton-paragraph {
+		background: none;
+		animation: none;
+		display: flex;
+		flex-direction: column;
+		gap: 0.375rem;
+		margin-top: 0.75rem;
+	}
+
+	.skeleton-paragraph .skeleton-line {
+		background: var(--card-border, #e2e8f0);
+		border-radius: 0.375rem;
+		animation: skeleton-pulse 1.5s ease-in-out infinite;
+	}
+
+	.skeleton-hint {
+		margin-top: 1rem;
+		color: #94a3b8;
+		font-size: 0.875rem;
+		text-align: center;
 	}
 
 	.loading-inner {
