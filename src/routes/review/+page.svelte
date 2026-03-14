@@ -22,6 +22,9 @@
 	let showKeyboardHelp = false;
 	let triggerConfetti = false;
 
+	// SRS panel (#26)
+	let showSrsPanel = false;
+
 	// Session summary tracking (#7)
 	type ReviewResult = { lemma: string; correct: boolean; answer: string; correctMeaning: string };
 	let sessionResults: ReviewResult[] = [];
@@ -185,6 +188,7 @@
 				gradeResult = null;
 				userOverride = null;
 				typedAnswer = '';
+				showSrsPanel = false;
 			}
 		} catch (e) {
 			console.error('Failed to submit review', e);
@@ -228,6 +232,7 @@
 				gradeResult = null;
 				userOverride = null;
 				typedAnswer = '';
+				showSrsPanel = false;
 			}
 		} catch (e) {
 			console.error('Failed to skip review', e);
@@ -423,10 +428,42 @@
 								{currentReview.vocabulary.lemma}
 							</h2>
 
-							{#if currentReview.vocabulary.partOfSpeech}
-								<span class="pos-badge">
-									{currentReview.vocabulary.partOfSpeech}
-								</span>
+							<div class="question-area-meta">
+								{#if currentReview.vocabulary.partOfSpeech}
+									<span class="pos-badge">
+										{currentReview.vocabulary.partOfSpeech}
+									</span>
+								{/if}
+								<button class="srs-info-btn" onclick={() => showSrsPanel = !showSrsPanel} title="SRS info" aria-label="Show SRS data">ⓘ</button>
+							</div>
+
+							{#if showSrsPanel}
+								<div class="srs-panel" role="status">
+									<div class="srs-panel-row">
+										<span class="srs-panel-label">State</span>
+										<span class="srs-panel-val srs-state-{((currentReview as any).srsState || 'UNSEEN').toLowerCase()}">{(currentReview as any).srsState || 'Unseen'}</span>
+									</div>
+									<div class="srs-panel-row">
+										<span class="srs-panel-label">Stability</span>
+										<span class="srs-panel-val">{currentReview.stability != null ? currentReview.stability.toFixed(1) + ' days' : '—'}</span>
+									</div>
+									<div class="srs-panel-row">
+										<span class="srs-panel-label">Retrievability</span>
+										<span class="srs-panel-val">{currentReview.retrievability != null ? Math.round(currentReview.retrievability * 100) + '%' : '—'}</span>
+									</div>
+									<div class="srs-panel-row">
+										<span class="srs-panel-label">Reviews</span>
+										<span class="srs-panel-val">{currentReview.repetitions ?? 0}</span>
+									</div>
+									<div class="srs-panel-row">
+										<span class="srs-panel-label">Lapses</span>
+										<span class="srs-panel-val">{currentReview.lapses ?? 0}</span>
+									</div>
+									<div class="srs-panel-row">
+										<span class="srs-panel-label">Next due</span>
+										<span class="srs-panel-val">{new Date(currentReview.nextReviewDate).toLocaleDateString()}</span>
+									</div>
+								</div>
 							{/if}
 						</div>
 
@@ -1089,6 +1126,69 @@
 		border-color: #3a4150;
 		color: #cbd5e1;
 	}
+
+	.question-area-meta {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-top: 0.75rem;
+		flex-wrap: wrap;
+	}
+
+	.srs-info-btn {
+		background: none;
+		border: none;
+		font-size: 1.1rem;
+		color: #94a3b8;
+		cursor: pointer;
+		padding: 0;
+		line-height: 1;
+		transition: color 0.15s;
+	}
+
+	.srs-info-btn:hover {
+		color: #3b82f6;
+	}
+
+	.srs-panel {
+		margin-top: 0.75rem;
+		background: var(--card-bg, #f8fafc);
+		border: 1.5px solid var(--card-border, #e2e8f0);
+		border-radius: 0.75rem;
+		padding: 0.75rem 1rem;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.4rem 1rem;
+		font-size: 0.82rem;
+		width: 100%;
+	}
+
+	:global(html[data-theme='dark']) .srs-panel {
+		background: #1a2230;
+		border-color: #334155;
+	}
+
+	.srs-panel-row {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.srs-panel-label {
+		color: #94a3b8;
+		font-weight: 600;
+	}
+
+	.srs-panel-val {
+		font-weight: 700;
+		color: var(--text-color, #1e293b);
+	}
+
+	.srs-state-unseen   { color: #64748b; }
+	.srs-state-learning { color: #d97706; }
+	.srs-state-known    { color: #059669; }
+	.srs-state-mastered { color: #047857; }
 
 	.answer-section {
 		margin-top: 2rem;
