@@ -64,6 +64,13 @@
 		const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
 		const isInputField = tag === 'input' || tag === 'textarea';
 
+		// Ctrl+Z / Cmd+Z: Undo last card
+		if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && sessionStarted && !isFinished) {
+			e.preventDefault();
+			undoLast();
+			return;
+		}
+
 		// Shift+R: Report an error
 		if (e.shiftKey && e.key.toLowerCase() === 'r' && sessionStarted && !isFinished) {
 			e.preventDefault();
@@ -261,13 +268,14 @@
 						{currentReviewIndex + 1} / {dueReviews.length}
 					</span>
 				{/if}
-				{#if canUndo}
-					<button class="btn-undo" onclick={undoLast} title="Undo last card">
+				{#if sessionStarted && !isFinished}
+					<button class="btn-undo" onclick={undoLast} disabled={!canUndo} title="Undo last card (Ctrl+Z)">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
 							<path stroke-linecap="round" stroke-linejoin="round" d="M9 14L4 9l5-5" />
 							<path stroke-linecap="round" stroke-linejoin="round" d="M4 9h11a5 5 0 010 10h-1" />
 						</svg>
 						Undo
+						<span class="undo-kbd-hint">Ctrl+Z</span>
 					</button>
 				{/if}
 				<button class="btn-kbd-help" onclick={() => showKeyboardHelp = !showKeyboardHelp} title="Keyboard shortcuts">
@@ -299,6 +307,10 @@
 						<div class="kbd-shortcut">
 							<span class="kbd-key">Shift</span> + <span class="kbd-key">R</span>
 							<span class="kbd-desc">Report an error</span>
+						</div>
+						<div class="kbd-shortcut">
+							<span class="kbd-key">Ctrl</span> + <span class="kbd-key">Z</span>
+							<span class="kbd-desc">Undo last card</span>
 						</div>
 					</div>
 				</div>
@@ -623,6 +635,39 @@
 		border-color: #64748b;
 		color: #cbd5e1;
 		background: #2a303c;
+	}
+
+	.btn-undo:disabled {
+		opacity: 0.4;
+		cursor: default;
+	}
+
+	.btn-undo:disabled:hover {
+		border-color: #e2e8f0;
+		color: #64748b;
+		background: none;
+	}
+
+	:global(html[data-theme='dark']) .btn-undo:disabled:hover {
+		border-color: #3a4150;
+		color: #94a3b8;
+		background: none;
+	}
+
+	.undo-kbd-hint {
+		font-size: 0.6rem;
+		font-weight: 700;
+		background: rgba(0, 0, 0, 0.07);
+		border: 1px solid rgba(0, 0, 0, 0.1);
+		border-radius: 0.25rem;
+		padding: 0.1rem 0.35rem;
+		color: #94a3b8;
+		letter-spacing: 0.02em;
+	}
+
+	:global(html[data-theme='dark']) .undo-kbd-hint {
+		background: rgba(255, 255, 255, 0.06);
+		border-color: rgba(255, 255, 255, 0.1);
 	}
 
 	/* Keyboard hints */
