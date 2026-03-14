@@ -1425,6 +1425,14 @@
 		font-weight: 500;
 	}
 
+	:global(html[data-theme='dark']) .breakdown-label {
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .breakdown-row > span {
+		color: #94a3b8;
+	}
+
 	.dashboard-content {
 		display: grid;
 		grid-template-columns: 1fr;

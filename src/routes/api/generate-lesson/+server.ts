@@ -218,11 +218,60 @@ export async function POST(event) {
 			}
 		});
 
-		let learningGrammarDb = learningGrammarDbQuery
-			.filter((ug) => {
-				return ug.grammarRule.dependencies.every((dep) => masteredGrammarIds.has(dep.id));
-			})
-			.slice(0, 1);
+		// Separate rules with all prerequisites met from those with unmet prerequisites.
+		// For rules with unmet prerequisites, collect those prerequisite rule IDs to surface them.
+		const unmetPrereqIds = new Set<string>();
+		for (const ug of learningGrammarDbQuery) {
+			const unmet = ug.grammarRule.dependencies.filter((dep) => !masteredGrammarIds.has(dep.id));
+			for (const dep of unmet) {
+				unmetPrereqIds.add(dep.id);
+			}
+		}
+
+		// If there are unmet prerequisites, find their UserGrammarRule records (or UNSEEN GrammarRules)
+		// and prioritize them — they are foundational rules the user needs first.
+		let prereqGrammarDb: any[] = [];
+		if (unmetPrereqIds.size > 0) {
+			const prereqUserRules = await prisma.userGrammarRule.findMany({
+				where: {
+					userId,
+					grammarRuleId: { in: Array.from(unmetPrereqIds) },
+					srsState: { in: [SrsState.UNSEEN, SrsState.LEARNING] }
+				},
+				orderBy: [{ eloRating: 'asc' }],
+				include: {
+					grammarRule: {
+						include: { dependencies: { select: { id: true } } }
+					}
+				}
+			});
+
+			// Also pick up prerequisite rules the user has never encountered (no UserGrammarRule row yet)
+			const seenPrereqIds = new Set(prereqUserRules.map((r) => r.grammarRuleId));
+			const unseenPrereqIds = Array.from(unmetPrereqIds).filter((id) => !seenPrereqIds.has(id));
+			let unseenPrereqRules: any[] = [];
+			if (unseenPrereqIds.length > 0) {
+				const rawRules = await prisma.grammarRule.findMany({
+					where: { id: { in: unseenPrereqIds } },
+					include: { dependencies: { select: { id: true } } }
+				});
+				unseenPrereqRules = rawRules.map((g) => ({ grammarRule: g }));
+			}
+
+			prereqGrammarDb = [...prereqUserRules, ...unseenPrereqRules]
+				// Only include prereqs whose own prerequisites are mastered (no multi-hop skipping)
+				.filter((ug) => ug.grammarRule.dependencies.every((dep: any) => masteredGrammarIds.has(dep.id)))
+				.slice(0, 1);
+		}
+
+		// Use prerequisite rules if available (they must be learned first), otherwise use eligible learning rules.
+		let learningGrammarDb = prereqGrammarDb.length > 0
+			? prereqGrammarDb
+			: learningGrammarDbQuery
+				.filter((ug) => {
+					return ug.grammarRule.dependencies.every((dep) => masteredGrammarIds.has(dep.id));
+				})
+				.slice(0, 1);
 
 		// Grammar fallback logic
 		if (masteredGrammarDb.length === 0 && learningGrammarDb.length === 0) {
@@ -240,15 +289,12 @@ export async function POST(event) {
 					.slice(0, Math.min(5, eligibleGrammars.length - 1))
 					.map((g) => ({ grammarRule: g }));
 				if (eligibleGrammars.length > 5) {
-					// @ts-expect-error type inference
 					learningGrammarDb = eligibleGrammars.slice(5, 6).map((g) => ({ grammarRule: g }));
 				} else if (eligibleGrammars.length > 1) {
-					// @ts-expect-error type inference
 					learningGrammarDb = eligibleGrammars.slice(-1).map((g) => ({ grammarRule: g }));
 				}
 			} else if (potentialNewGrammars.length > 0) {
 				// Ultimate fallback: if nothing is eligible, just give them the first rule to ensure they have grammar to learn
-				// @ts-expect-error type inference
 				learningGrammarDb = [{ grammarRule: potentialNewGrammars[0] }];
 			}
 		}
@@ -276,11 +322,9 @@ export async function POST(event) {
 			);
 
 			if (eligibleGrammars.length > 0) {
-				// @ts-expect-error type inference
 				learningGrammarDb = [{ grammarRule: eligibleGrammars[0] }];
 			} else if (potentialNewGrammars.length > 0) {
 				// Ultimate fallback: just give them the first rule anyway to prevent empty grammar
-				// @ts-expect-error type inference
 				learningGrammarDb = [{ grammarRule: potentialNewGrammars[0] }];
 			}
 		}
