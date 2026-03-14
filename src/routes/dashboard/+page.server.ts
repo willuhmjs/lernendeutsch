@@ -53,7 +53,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	const in48h = new Date(Date.now() + 48 * 60 * 60 * 1000);
 
-	const [dueVocabReviewCount, dueGrammarReviewCount, dueSoonAssignments] = await Promise.all([
+	const [dueVocabReviewCount, dueGrammarReviewCount, dueSoonAssignments, activeLiveSessions] = await Promise.all([
 		prisma.userVocabularyProgress.count({
 			where: {
 				userId: user.id,
@@ -88,6 +88,23 @@ export const load: PageServerLoad = async ({ locals }) => {
 			},
 			orderBy: { dueDate: 'asc' },
 			take: 5
+		}),
+		// Active live sessions in classes the user belongs to as a student
+		prisma.liveSession.findMany({
+			where: {
+				status: { in: ['waiting', 'active'] },
+				class: {
+					members: {
+						some: { userId: user.id, role: 'STUDENT' }
+					}
+				}
+			},
+			select: {
+				id: true,
+				classId: true,
+				status: true,
+				class: { select: { name: true } }
+			}
 		})
 	]);
 
@@ -103,6 +120,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		allGrammarRules,
 		dueReviewCount,
 		cefrProgress,
-		dueSoonAssignments
+		dueSoonAssignments,
+		activeLiveSessions
 	};
 };

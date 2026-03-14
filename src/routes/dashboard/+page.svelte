@@ -349,6 +349,24 @@
 				<a href="/review" class="btn-duo btn-secondary">Review Vocabulary</a>
 			{/if}
 			<a href="/play?tab=games" class="btn-duo btn-secondary">Play a Quiz</a>
+			{#if (data as any).activeLiveSessions?.length > 0}
+				{@const session = (data as any).activeLiveSessions[0]}
+				<a href="/classes/{session.classId}/live/student" class="btn-duo btn-live">
+					<span class="live-pulse" aria-hidden="true"></span>
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+					Join Live Session
+					<span class="live-class-name">{session.class.name}</span>
+				</a>
+			{/if}
+			{#if (data as any).dueSoonAssignments?.length > 0}
+				{@const assignment = (data as any).dueSoonAssignments[0]}
+				{@const hoursLeft = Math.round((new Date(assignment.dueDate).getTime() - Date.now()) / 3600000)}
+				<a href="/play?assignmentId={assignment.id}" class="btn-duo btn-assignment">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+					Assignment Due
+					<span class="assignment-meta">{assignment.title} · {hoursLeft}h left</span>
+				</a>
+			{/if}
 		</div>
 
 		{#if (data as any).dueSoonAssignments?.length > 0}
@@ -1071,6 +1089,92 @@
 		justify-content: center;
 		gap: 1rem;
 		flex-wrap: wrap;
+	}
+
+	/* Live session button */
+	:global(.btn-live) {
+		background-color: #f97316;
+		color: white;
+		border-color: transparent;
+		box-shadow: 0 4px 0 #c2410c;
+		position: relative;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+	:global(.btn-live svg) {
+		width: 1rem;
+		height: 1rem;
+		flex-shrink: 0;
+	}
+	:global(.btn-live:hover) {
+		background-color: #fb923c;
+		transform: scale(1.02);
+	}
+	:global(.btn-live:active) {
+		transform: scale(0.98) translateY(2px);
+		box-shadow: 0 2px 0 #c2410c;
+	}
+	:global(.live-class-name) {
+		font-size: 0.7em;
+		font-weight: 600;
+		opacity: 0.85;
+		text-transform: none;
+		letter-spacing: 0;
+		background: rgba(0,0,0,0.15);
+		border-radius: 0.4rem;
+		padding: 0.1rem 0.4rem;
+	}
+	:global(.live-pulse) {
+		display: inline-block;
+		width: 0.55rem;
+		height: 0.55rem;
+		border-radius: 50%;
+		background: white;
+		flex-shrink: 0;
+		animation: live-pulse 1.4s ease-in-out infinite;
+	}
+	@keyframes live-pulse {
+		0%, 100% { opacity: 1; transform: scale(1); }
+		50% { opacity: 0.4; transform: scale(0.7); }
+	}
+
+	/* Assignment due button */
+	:global(.btn-assignment) {
+		background-color: #eab308;
+		color: white;
+		border-color: transparent;
+		box-shadow: 0 4px 0 #a16207;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+	:global(.btn-assignment svg) {
+		width: 1rem;
+		height: 1rem;
+		flex-shrink: 0;
+	}
+	:global(.btn-assignment:hover) {
+		background-color: #facc15;
+		transform: scale(1.02);
+	}
+	:global(.btn-assignment:active) {
+		transform: scale(0.98) translateY(2px);
+		box-shadow: 0 2px 0 #a16207;
+	}
+	:global(.assignment-meta) {
+		font-size: 0.7em;
+		font-weight: 600;
+		opacity: 0.85;
+		text-transform: none;
+		letter-spacing: 0;
+		background: rgba(0,0,0,0.15);
+		border-radius: 0.4rem;
+		padding: 0.1rem 0.4rem;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		max-width: 14ch;
 	}
 
 	/* Assignment due-soon banner (#10) */
