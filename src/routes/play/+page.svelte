@@ -3880,6 +3880,10 @@
 		color: #94a3b8;
 	}
 
+	:global(html[data-theme='dark']) .feedback-list-section li {
+		color: #cbd5e1;
+	}
+
 	.elo-delta {
 		font-size: 0.75rem;
 		font-weight: 800;

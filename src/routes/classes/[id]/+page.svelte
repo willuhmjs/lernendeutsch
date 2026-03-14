@@ -1495,6 +1495,17 @@
 		gap: 1.25rem;
 	}
 
+	.assignment-card {
+		box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+		border-radius: 1rem;
+		padding: 1.25rem 1.5rem;
+	}
+
+	.assignment-card:hover {
+		transform: none;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	}
+
 	.assignment-passed {
 		border-color: #86efac;
 	}
@@ -1526,20 +1537,17 @@
 	}
 
 	.assignment-title-row h4 {
-		font-size: 1.4rem;
+		font-size: 1.1rem;
 		color: var(--text-color, #1e293b);
 		margin: 0;
-		text-transform: uppercase;
 		letter-spacing: -0.01em;
 	}
 
 	.badge {
 		font-size: 0.7rem;
-		font-weight: 800;
+		font-weight: 600;
 		padding: 0.2rem 0.6rem;
 		border-radius: 9999px;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
 	}
 
 	.badge-green {
@@ -1565,19 +1573,19 @@
 		gap: 0.5rem;
 		flex-wrap: wrap;
 		margin-top: 0.75rem;
-		font-size: 0.7rem;
-		font-weight: 800;
+		font-size: 0.75rem;
+		font-weight: 500;
 		color: #94a3b8;
-		text-transform: uppercase;
-		letter-spacing: 0.08em;
 	}
 
 	.meta-tag {
 		background-color: var(--card-bg, #f1f5f9);
-		padding: 0.2rem 0.5rem;
-		border-radius: 0.5rem;
-		font-size: 0.65rem;
-		border: 2px solid var(--card-border, #e5e7eb);
+		padding: 0.2rem 0.6rem;
+		border-radius: 0.375rem;
+		font-size: 0.7rem;
+		font-weight: 600;
+		border: 1px solid var(--card-border, #e5e7eb);
+		color: #64748b;
 	}
 
 	.meta-sep {
@@ -1593,31 +1601,32 @@
 	}
 
 	.assignment-title {
-		font-size: 1.4rem !important;
+		font-size: 1.1rem !important;
+		font-weight: 600;
 	}
 
 	.assignment-play-btn {
 		white-space: nowrap;
 		flex-shrink: 0;
-		padding: 0.5rem 1rem !important;
-		font-size: 0.75rem !important;
+		padding: 0.45rem 1rem !important;
+		font-size: 0.8rem !important;
 	}
 
 	.btn-copy {
-		background-color: #f1f5f9;
-		color: #475569;
-		border-color: transparent;
-		box-shadow: 0 4px 0 #cbd5e1;
+		background-color: transparent;
+		color: #64748b;
+		border-color: var(--card-border, #e2e8f0);
+		box-shadow: none;
 	}
 
 	.btn-copy:hover {
-		background-color: #e2e8f0;
-		transform: scale(1.02);
+		background-color: var(--card-bg, #f1f5f9);
+		transform: none;
 	}
 
 	.btn-copy:active {
-		transform: scale(0.98) translateY(2px);
-		box-shadow: 0 2px 0 #cbd5e1;
+		transform: scale(0.98);
+		box-shadow: none;
 	}
 
 	.assignment-actions-row {

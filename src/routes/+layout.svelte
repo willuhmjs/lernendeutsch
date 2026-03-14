@@ -653,11 +653,9 @@
 		align-items: center;
 		justify-content: center;
 		padding: 0.75rem 1.5rem;
-		font-weight: 800;
-		font-size: 1rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		border-radius: 1rem;
+		font-weight: 700;
+		font-size: 0.9rem;
+		border-radius: 0.75rem;
 		border: 2px solid transparent;
 		transition:
 			transform 0.1s,
