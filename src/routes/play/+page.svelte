@@ -3099,7 +3099,7 @@
 		user-select: none;
 	}
 
-	.page-container input {
+	.page-container :global(input) {
 		-webkit-user-select: text;
 		user-select: text;
 	}
