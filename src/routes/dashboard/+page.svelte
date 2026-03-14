@@ -289,7 +289,7 @@
 	}
 </script>
 
-<div class="dashboard-">
+<div class="dashboard-container">
 	<header class="dashboard-header" in:fly={{ y: 20, duration: 400 }}>
 		<h1 class="">Proficiency Dashboard</h1>
 		<p class="">Track your language learning progress.</p>
