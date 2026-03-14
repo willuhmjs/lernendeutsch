@@ -7,6 +7,7 @@ import { updateGamification } from '$lib/server/gamification';
 import { CefrService } from '$lib/server/cefrService';
 import { XP_CONFIG } from '$lib/server/srsConfig';
 import { isClearlyCorrect } from '$lib/server/fuzzyGrade';
+import { isQuotaExceeded, recordTokenUsage } from '$lib/server/aiQuota';
 
 /** Track a correct/incorrect answer against an assignment score record. */
 async function updateAssignmentScore(assignmentId: string, userId: string, isCorrect: boolean) {
@@ -56,6 +57,10 @@ export async function POST(event) {
 
 	if (!locals.user) {
 		return json({ error: 'Unauthorized' }, { status: 401 });
+	}
+
+	if (!user?.useLocalLlm && await isQuotaExceeded(locals.user.id, false)) {
+		return json({ error: 'Daily AI quota exceeded. Please try again tomorrow.' }, { status: 429 });
 	}
 
 	try {
@@ -223,13 +228,17 @@ export async function POST(event) {
 			activeLanguageName
 		);
 
+		const useLocalLlm = user?.useLocalLlm ?? false;
 		const llmResponse = await generateChatCompletion({
 			userId,
 			messages: [{ role: 'user', content: userMessage }],
 			systemPrompt,
 			jsonMode: true,
 			stream: false,
-			signal: request.signal
+			signal: request.signal,
+			onUsage: useLocalLlm ? undefined : ({ totalTokens }) => {
+				recordTokenUsage(userId, totalTokens);
+			}
 		});
 
 		const data = llmResponse;

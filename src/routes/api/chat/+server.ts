@@ -4,6 +4,7 @@ import { generateChatCompletion, type ChatMessage } from '$lib/server/llm';
 import { chatPracticeRateLimiter } from '$lib/server/ratelimit';
 import { updateEloRatings } from '$lib/server/grader';
 import { sanitizeForPrompt } from '$lib/server/sanitize';
+import { isQuotaExceeded, recordTokenUsage } from '$lib/server/aiQuota';
 
 export async function POST(event) {
 	const { locals } = event;
@@ -15,6 +16,10 @@ export async function POST(event) {
 	// Apply rate limiting
 	if (!user?.useLocalLlm && await chatPracticeRateLimiter.isLimited(event)) {
 		return json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
+	}
+
+	if (!user?.useLocalLlm && await isQuotaExceeded(locals.user?.id ?? '', false)) {
+		return json({ error: 'Daily AI quota exceeded. Please try again tomorrow.' }, { status: 429 });
 	}
 
 	const session = await locals.auth();
@@ -214,9 +219,14 @@ Return your response as a JSON object with the following structure:
 				);
 
 				let fullContent = '';
+				let totalTokens = 0;
 
 				try {
 					for await (const chunk of response) {
+						// Capture usage from the final streaming chunk (requires stream_options.include_usage)
+						if (chunk.usage?.total_tokens) {
+							totalTokens = chunk.usage.total_tokens;
+						}
 						const content = chunk.choices[0]?.delta?.content || '';
 						if (content) {
 							fullContent += content;
@@ -224,6 +234,10 @@ Return your response as a JSON object with the following structure:
 								new TextEncoder().encode(JSON.stringify({ type: 'chunk', content }) + '\n')
 							);
 						}
+					}
+
+					if (!user?.useLocalLlm && totalTokens > 0) {
+						recordTokenUsage(userId, totalTokens);
 					}
 
 					let parsedResponse;

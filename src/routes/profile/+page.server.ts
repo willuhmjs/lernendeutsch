@@ -6,13 +6,15 @@ import { z } from 'zod';
 import { Prisma } from '@prisma/client';
 import { getSiteSettings } from '$lib/server/settings';
 import { checkUsernameAppropriate } from '$lib/server/llm';
+import { getDailyUsage, DAILY_TOKEN_QUOTA } from '$lib/server/aiQuota';
+import { CefrService } from '$lib/server/cefrService';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) {
 		throw redirect(303, '/login');
 	}
 
-	const [user, settings, userProgress] = await Promise.all([
+	const [user, settings, userProgress, aiUsage] = await Promise.all([
 		prisma.user.findUnique({
 			where: { id: locals.user.id },
 			select: {
@@ -30,19 +32,34 @@ export const load: PageServerLoad = async ({ locals }) => {
 		prisma.userProgress.findMany({
 			where: { userId: locals.user.id },
 			include: { language: true }
-		})
+		}),
+		getDailyUsage(locals.user.id)
 	]);
 
-	const activeProgress = userProgress.find(
-		(p: { languageId: string }) => p.languageId === locals.user?.activeLanguage?.id
+	const languageProgress = await Promise.all(
+		userProgress.map(async (p) => {
+			const cefrProgress = await CefrService.getCefrProgress(locals.user!.id, p.languageId);
+			return {
+				languageId: p.languageId,
+				languageName: p.language.name,
+				flag: p.language.flag,
+				cefrLevel: p.cefrLevel,
+				cefrProgress
+			};
+		})
 	);
 
 	return {
 		user: { ...locals.user, ...user },
 		hasPassword: !!user?.passwordHash,
 		localLoginEnabled: settings.localLoginEnabled,
-		activeProgress,
-		allProgress: userProgress
+		languageProgress,
+		aiUsage: {
+			tokensUsed: aiUsage?.tokensUsed ?? 0,
+			goodWillTokens: aiUsage?.goodWillTokens ?? 0,
+			effectiveUsage: aiUsage?.effectiveUsage ?? 0,
+			dailyQuota: DAILY_TOKEN_QUOTA
+		}
 	};
 };
 

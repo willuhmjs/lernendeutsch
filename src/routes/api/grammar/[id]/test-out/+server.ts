@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import { prisma } from '$lib/server/prisma';
 import { generateChatCompletion } from '$lib/server/llm';
 import { testOutRateLimiter } from '$lib/server/ratelimit';
+import { isQuotaExceeded, recordTokenUsage } from '$lib/server/aiQuota';
 
 export async function POST(event) {
 	const { params, locals, request } = event;
@@ -17,6 +18,10 @@ export async function POST(event) {
 
 	if (!user?.useLocalLlm && (await testOutRateLimiter.isLimited(event))) {
 		return json({ error: 'Too many requests. Please wait before generating more questions.' }, { status: 429 });
+	}
+
+	if (!user?.useLocalLlm && await isQuotaExceeded(userId, false)) {
+		return json({ error: 'Daily AI quota exceeded. Please try again tomorrow.' }, { status: 429 });
 	}
 
 	const grammarRuleId = params.id;
@@ -92,6 +97,7 @@ Requirements:
 - Use everyday, natural ${languageName} sentences`;
 
 	try {
+		const useLocalLlm = user?.useLocalLlm ?? false;
 		const response = await generateChatCompletion({
 			userId,
 			messages: [
@@ -103,7 +109,10 @@ Requirements:
 			systemPrompt,
 			jsonMode: true,
 			stream: false,
-			signal: request.signal
+			signal: request.signal,
+			onUsage: useLocalLlm ? undefined : ({ totalTokens }) => {
+				recordTokenUsage(userId, totalTokens);
+			}
 		});
 
 		let content = response.choices?.[0]?.message?.content || '';

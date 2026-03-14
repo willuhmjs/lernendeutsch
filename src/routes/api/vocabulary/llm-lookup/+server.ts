@@ -2,6 +2,7 @@ import { json, type RequestEvent } from '@sveltejs/kit';
 import { prisma } from '$lib/server/prisma';
 import { llmDictionaryRateLimiter } from '$lib/server/ratelimit';
 import { generateChatCompletion } from '$lib/server/llm';
+import { isQuotaExceeded, recordTokenUsage } from '$lib/server/aiQuota';
 
 export async function POST(event: RequestEvent) {
 	const { request, locals } = event;
@@ -18,6 +19,10 @@ export async function POST(event: RequestEvent) {
 	// Apply Rate Limiting
 	if (!user?.useLocalLlm && await llmDictionaryRateLimiter.isLimited(event)) {
 		return json({ error: 'Too many requests' }, { status: 429 });
+	}
+
+	if (!user?.useLocalLlm && await isQuotaExceeded(locals.user.id, false)) {
+		return json({ error: 'Daily AI quota exceeded. Please try again tomorrow.' }, { status: 429 });
 	}
 
 	try {
@@ -87,13 +92,16 @@ Return the dictionary entry in the following JSON format:
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s timeout
 
+		const useLocalLlm = user?.useLocalLlm ?? false;
+		let tokensUsed = 0;
 		const response = await generateChatCompletion({
 			userId: locals.user.id,
 			messages: [{ role: 'user', content: word }],
 			systemPrompt,
 			jsonMode: true,
 			temperature: 0.1,
-			signal: controller.signal
+			signal: controller.signal,
+			onUsage: useLocalLlm ? undefined : ({ totalTokens }) => { tokensUsed = totalTokens; }
 		});
 
 		clearTimeout(timeoutId);
@@ -117,6 +125,8 @@ Return the dictionary entry in the following JSON format:
 		}
 
 		if (!llmResult.valid) {
+			// Charged: LLM determined word is invalid/inappropriate — no DB benefit
+			if (!useLocalLlm) recordTokenUsage(locals.user.id, tokensUsed, false);
 			return json(
 				{ success: false, error: 'The word you entered could not be found or is invalid.' },
 				{ status: 400 }
@@ -125,6 +135,8 @@ Return the dictionary entry in the following JSON format:
 
 		// Validate required fields for valid result
 		if (!llmResult.lemma) {
+			// Charged: LLM call produced no usable output
+			if (!useLocalLlm) recordTokenUsage(locals.user.id, tokensUsed, false);
 			return json(
 				{ success: false, error: 'The word you entered could not be found or is invalid.' },
 				{ status: 400 }
@@ -156,9 +168,11 @@ Return the dictionary entry in the following JSON format:
 			const meta = existingVocab.metadata as Record<string, unknown> | null;
 			const isSparse = missingGender || !meta || !(meta.example || meta.declensions || meta.conjugations);
 			if (!isSparse) {
+				// Charged: LLM was called but the word already existed — no new DB benefit
+				if (!useLocalLlm) recordTokenUsage(locals.user.id, tokensUsed, false);
 				return json({ success: true, data: existingVocab });
 			}
-			// Sparse — fall through to enrich with LLM data below
+			// Sparse — fall through to enrich with LLM data below (will be good-will)
 		}
 
 		// Enforce German lowercase non-noun rule programmatically just in case
@@ -195,6 +209,7 @@ Return the dictionary entry in the following JSON format:
 
 		// Users with a local/custom LLM must not write to the shared vocabulary database.
 		// Return a transient (non-persisted) vocab object so the UI still works.
+		// No token recording — local LLM users are not on the public quota.
 		if (user?.useLocalLlm) {
 			const transientVocab = {
 				id: existingVocab?.id ?? null,
@@ -212,6 +227,9 @@ Return the dictionary entry in the following JSON format:
 			};
 			return json({ success: true, data: transientVocab });
 		}
+
+		// Good-will: this call will write to (or enrich) the shared DB
+		recordTokenUsage(locals.user.id, tokensUsed, true);
 
 		let newVocab;
 

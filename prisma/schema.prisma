@@ -76,6 +76,7 @@ model User {
   levelUpEvents         LevelUpEvent[]
 
   localLoadTimeSamples  Int[]  @default([])
+  aiUsage               UserAiUsage[]
 }
 
 model UserProgress {
@@ -431,6 +432,25 @@ model AssignmentScore {
   @@unique([assignmentId, userId])
   @@index([assignmentId])
   @@index([userId])
+}
+
+// Tracks daily AI token consumption per user.
+// tokensUsed is incremented for every public-LLM call. goodWillTokens is
+// incremented when a call benefits the shared database (e.g. enriching or
+// creating vocabulary that was persisted) — these are refunded so they don't
+// count against the user's daily budget.
+// Effective daily usage = tokensUsed - goodWillTokens.
+model UserAiUsage {
+  id              String   @id @default(uuid())
+  userId          String
+  date            DateTime // UTC date (time portion zeroed to midnight)
+  tokensUsed      Int      @default(0)
+  goodWillTokens  Int      @default(0)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId, date])
 }
 
 model ConversationSession {

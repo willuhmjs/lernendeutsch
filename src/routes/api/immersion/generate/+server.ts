@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import { generateChatCompletion } from '$lib/server/llm';
 import { generateLessonRateLimiter } from '$lib/server/ratelimit';
 import { prisma } from '$lib/server/prisma';
+import { isQuotaExceeded, recordTokenUsage } from '$lib/server/aiQuota';
 
 const MEDIA_TYPES = [
 	'news_article',
@@ -211,6 +212,10 @@ export async function POST(event) {
 		return json({ error: 'Too many requests. Please wait a moment.' }, { status: 429 });
 	}
 
+	if (!user?.useLocalLlm && await isQuotaExceeded(locals.user.id, false)) {
+		return json({ error: 'Daily AI quota exceeded. Please try again tomorrow.' }, { status: 429 });
+	}
+
 	try {
 		const body = await request.json().catch(() => ({}));
 		const requestedMediaType = body.mediaType as MediaType | 'random' | undefined;
@@ -255,8 +260,10 @@ export async function POST(event) {
 
 		const systemPrompt = buildImmersionPrompt(mediaType, cefrLevel, languageName, vocabHints, grammarHints);
 
+		const userId = locals.user.id;
+		const useLocalLlm = user?.useLocalLlm ?? false;
 		const response = await generateChatCompletion({
-			userId: locals.user.id,
+			userId,
 			messages: [
 				{
 					role: 'user',
@@ -265,7 +272,10 @@ export async function POST(event) {
 			],
 			systemPrompt,
 			jsonMode: true,
-			temperature: 0.85
+			temperature: 0.85,
+			onUsage: useLocalLlm ? undefined : ({ totalTokens }) => {
+				recordTokenUsage(userId, totalTokens);
+			}
 		});
 
 		const raw = response.choices[0].message.content;

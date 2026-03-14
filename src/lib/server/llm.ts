@@ -57,6 +57,8 @@ export interface GenerateChatCompletionOptions {
 	temperature?: number;
 	stream?: boolean;
 	signal?: AbortSignal;
+	/** Called once with total token counts after the completion finishes. Not called for streaming responses — use the stream's final usage chunk instead. */
+	onUsage?: (usage: { promptTokens: number; completionTokens: number; totalTokens: number }) => void;
 }
 
 /**
@@ -72,7 +74,8 @@ export async function generateChatCompletion({
 	jsonSchema,
 	temperature = 0.3,
 	stream = false,
-	signal
+	signal,
+	onUsage
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }: GenerateChatCompletionOptions): Promise<any> {
 	// 1. Fetch user credentials from database and site settings
@@ -189,6 +192,8 @@ export async function generateChatCompletion({
 			messages: payloadMessages as OpenAI.Chat.Completions.ChatCompletionMessageParam[],
 			temperature,
 			stream: stream as boolean,
+			// Request usage data on the final streaming chunk so callers can track tokens
+			...(stream ? { stream_options: { include_usage: true } } : {})
 		} as OpenAI.Chat.Completions.ChatCompletionCreateParams, { signal });
 
 		if (stream) {
@@ -196,6 +201,14 @@ export async function generateChatCompletion({
 		}
 
 		const completion = response as OpenAI.Chat.Completions.ChatCompletion;
+
+		if (onUsage && completion.usage) {
+			onUsage({
+				promptTokens: completion.usage.prompt_tokens,
+				completionTokens: completion.usage.completion_tokens,
+				totalTokens: completion.usage.total_tokens
+			});
+		}
 
 		// Extract JSON payload if the model output special tokens or markdown around the JSON block
 		if ((jsonMode || jsonSchema) && completion.choices?.[0]?.message?.content) {

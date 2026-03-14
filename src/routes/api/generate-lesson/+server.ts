@@ -4,21 +4,26 @@ import { prisma } from '$lib/server/prisma';
 import { generateLessonRateLimiter } from '$lib/server/ratelimit';
 import { buildLessonPrompt, type GameMode } from '$lib/server/promptBuilder';
 import { generateLessonStream } from '$lib/server/lessonLlmService';
+import { isQuotaExceeded, recordTokenUsage } from '$lib/server/aiQuota';
 
 export async function POST(event) {
 	const { request, locals } = event;
 	
-	const user = locals.user ? await prisma.user.findUnique({
+	if (!locals.user) {
+		return json({ error: 'Unauthorized' }, { status: 401 });
+	}
+
+	const user = await prisma.user.findUnique({
 		where: { id: locals.user.id },
 		select: { useLocalLlm: true }
-	}) : null;
+	});
 
 	if (!user?.useLocalLlm && await generateLessonRateLimiter.isLimited(event)) {
 		return json({ error: 'Too many requests. Limit is 10/min, 200/day.' }, { status: 429 });
 	}
 
-	if (!locals.user) {
-		return json({ error: 'Unauthorized' }, { status: 401 });
+	if (!user?.useLocalLlm && await isQuotaExceeded(locals.user.id, false)) {
+		return json({ error: 'Daily AI quota exceeded. Please try again tomorrow.' }, { status: 429 });
 	}
 
 	try {
@@ -400,7 +405,10 @@ export async function POST(event) {
 			activeLanguageId,
 			masteredVocab,
 			learningVocab,
-			useLocalLlm: user?.useLocalLlm ?? false
+			useLocalLlm: user?.useLocalLlm ?? false,
+			onUsage: user?.useLocalLlm ? undefined : ({ totalTokens }) => {
+				recordTokenUsage(userId, totalTokens);
+			}
 		});
 
 		return new Response(stream, {

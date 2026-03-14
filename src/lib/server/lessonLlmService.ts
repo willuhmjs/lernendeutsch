@@ -18,7 +18,8 @@ export async function generateLessonStream({
 	activeLanguageId,
 	masteredVocab,
 	learningVocab,
-	useLocalLlm = false
+	useLocalLlm = false,
+	onUsage
 }: {
 	userId: string;
 	systemPrompt: string;
@@ -36,6 +37,7 @@ export async function generateLessonStream({
 	masteredVocab: any[];
 	learningVocab: any[];
 	useLocalLlm?: boolean;
+	onUsage?: (usage: { promptTokens: number; completionTokens: number; totalTokens: number }) => void;
 }) {
 	const llmResponse = await generateChatCompletion({
 		userId,
@@ -43,7 +45,8 @@ export async function generateLessonStream({
 		systemPrompt,
 		jsonSchema: jsonSchemaObj,
 		stream: false,
-		signal: requestSignal
+		signal: requestSignal,
+		onUsage
 	});
 
 	const data = llmResponse;
