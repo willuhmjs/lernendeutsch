@@ -374,6 +374,7 @@
 								<div class="assignment-info">
 									<div class="assignment-title-row">
 										<h4 class="assignment-title">{assignment.title}</h4>
+										<span class="meta-tag mode-tag">{assignment.gamemode.replace(/-/g, ' ')}</span>
 										{#if passed}
 											<span class="badge badge-green">&#10003; Passed</span>
 										{:else if myScore}
@@ -385,34 +386,39 @@
 										<p class="assignment-desc">{assignment.description}</p>
 									{/if}
 									<div class="assignment-meta">
-										<span class="meta-tag">{assignment.gamemode.replace(/-/g, ' ')}</span>
-										<span class="meta-sep">&#183;</span>
-										<span>{assignment.targetScore} to pass</span>
-										{#if assignment.dueDate}
-											<span class="meta-sep">&#183;</span>
-											<span class="meta-due">Due {formatDate(assignment.dueDate)}</span>
-										{/if}
+										<span class="meta-tag score-tag">
+											<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="meta-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+											{assignment.targetScore} to pass
+										</span>
 										{#if currentUserRole === 'TEACHER'}
-											<span class="meta-sep">&#183;</span>
-											<span class="meta-progress"
-												>{passedCount}/{classDetails.members.filter((m) => m.role === 'STUDENT')
-													.length} passed</span
-											>
+											<span class="meta-tag progress-tag">
+												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="meta-icon"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+												{passedCount}/{classDetails.members.filter((m) => m.role === 'STUDENT').length} passed
+											</span>
+										{/if}
+										{#if assignment.dueDate}
+											<span class="meta-tag due-tag">
+												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="meta-icon"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+												Due {formatDate(assignment.dueDate)}
+											</span>
 										{/if}
 									</div>
+
+									<div class="assignment-start-container">
+										<a
+											href={assignment.gamemode === 'quiz' && assignment.gameId
+												? `/play/games/${assignment.gameId}/play?assignmentId=${assignment.id}`
+												: `/play?assignmentId=${assignment.id}`}
+											class="btn-duo {passed
+												? 'btn-secondary'
+												: 'btn-primary'} assignment-play-btn text-center"
+										>
+											{passed ? 'Play Again' : myScore ? 'Continue' : 'Start'}
+										</a>
+									</div>
 								</div>
-								<div class="assignment-actions-row">
-									<a
-										href={assignment.gamemode === 'quiz' && assignment.gameId
-											? `/play/games/${assignment.gameId}/play?assignmentId=${assignment.id}`
-											: `/play?assignmentId=${assignment.id}`}
-										class="btn-duo {passed
-											? 'btn-secondary'
-											: 'btn-primary'} assignment-play-btn text-center"
-									>
-										{passed ? 'Play Again' : myScore ? 'Continue' : 'Start'}
-									</a>
-									{#if currentUserRole === 'TEACHER'}
+								{#if currentUserRole === 'TEACHER'}
+									<div class="assignment-actions-row">
 										<a
 											href="/classes/{classDetails.id}/assignments/{assignment.id}"
 											class="btn-duo btn-secondary assignment-play-btn text-center"
@@ -427,8 +433,8 @@
 										>
 											{copiedAssignmentId === assignment.id ? '✓ Copied' : '🔗 Copy Link'}
 										</button>
-									{/if}
-								</div>
+									</div>
+								{/if}
 							</div>
 
 							<!-- Teacher: per-student progress -->
@@ -1540,8 +1546,9 @@
 	.assignment-title-row {
 		display: flex;
 		align-items: center;
-		gap: 0.5rem;
+		gap: 0.75rem;
 		flex-wrap: wrap;
+		margin-bottom: 0.5rem;
 	}
 
 	.assignment-title-row h4 {
@@ -1577,40 +1584,74 @@
 
 	.assignment-meta {
 		display: flex;
+		flex-wrap: wrap;
 		align-items: center;
 		gap: 0.5rem;
-		flex-wrap: wrap;
-		margin-top: 0.75rem;
-		font-size: 0.75rem;
-		font-weight: 500;
-		color: #94a3b8;
+		margin-top: 1rem;
+	}
+
+	.assignment-start-container {
+		margin-top: 1.5rem;
+		display: flex;
+	}
+
+	.assignment-start-container .btn-duo {
+		padding-left: 2.5rem;
+		padding-right: 2.5rem;
+		font-size: 1rem !important;
 	}
 
 	.meta-tag {
-		background-color: var(--card-bg, #f1f5f9);
-		padding: 0.2rem 0.6rem;
-		border-radius: 0.375rem;
-		font-size: 0.7rem;
-		font-weight: 600;
-		border: 1px solid var(--card-border, #e5e7eb);
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		padding: 0.35rem 0.65rem;
+		border-radius: 0.5rem;
+		font-size: 0.75rem;
+		font-weight: 700;
+		box-shadow: 0 2px 0 var(--card-border, #e2e8f0);
+		border: 1px solid var(--card-border, #e2e8f0);
+		background-color: var(--card-bg, #ffffff);
+	}
+
+	.meta-icon {
+		width: 1rem;
+		height: 1rem;
+		opacity: 0.7;
+	}
+
+	.mode-tag {
+		color: #475569;
+		background-color: #f8fafc;
+		border: 1px solid var(--card-border, #e2e8f0);
+		box-shadow: none;
+		font-size: 0.65rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.score-tag {
 		color: #64748b;
 	}
 
-	.meta-sep {
-		color: #cbd5e1;
+	.due-tag {
+		color: #ef4444;
+		border-color: #fecaca;
+		background-color: #fef2f2;
+		box-shadow: 0 2px 0 #fecaca;
 	}
 
-	.meta-due {
-		color: #3b82f6;
-	}
-
-	.meta-progress {
+	.progress-tag {
 		color: #8b5cf6;
+		border-color: #ddd6fe;
+		background-color: #faf5ff;
+		box-shadow: 0 2px 0 #ddd6fe;
 	}
 
 	.assignment-title {
-		font-size: 1.1rem !important;
-		font-weight: 600;
+		font-size: 1.25rem !important;
+		font-weight: 800;
+		color: #1e293b;
 	}
 
 	.assignment-play-btn {
