@@ -916,4 +916,16 @@
 		font-weight: 600;
 		color: #94a3b8;
 	}
+
+	:global(html[data-theme='dark']) .freeze-desc {
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .freeze-count {
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .streak-freeze-card {
+		box-shadow: 0 4px 0 var(--card-border, #2d3340);
+	}
 </style>

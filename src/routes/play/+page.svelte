@@ -3614,6 +3614,11 @@
 	}
 
 	:global(html[data-theme='dark']) .grammar-guide :global(code) {
+		background: #2a303c;
+		color: #f472b6;
+	}
+
+	:global(html[data-theme='dark']) .grammar-guide :global(code) {
 		background: #1e293b;
 		color: #f472b6;
 	}
@@ -3687,7 +3692,7 @@
 	}
 
 	:global(html[data-theme='dark']) .concept-type {
-		background: #334155;
+		background: #3a4150;
 		color: #cbd5e1;
 	}
 
@@ -3754,6 +3759,10 @@
 		font-size: 0.875rem;
 		font-weight: 500;
 		color: #64748b;
+	}
+
+	:global(html[data-theme='dark']) .score-label {
+		color: #94a3b8;
 	}
 
 	.score-value {
@@ -3867,7 +3876,7 @@
 	}
 
 	:global(html[data-theme='dark']) .elo-display {
-		background: #1e293b;
+		background: #2a303c;
 		color: #94a3b8;
 	}
 
@@ -4313,6 +4322,11 @@
 		color: #475569;
 	}
 
+	:global(html[data-theme='dark']) .meta-badge {
+		background-color: rgba(255, 255, 255, 0.08);
+		color: #94a3b8;
+	}
+
 	.meta-badge.gamemode {
 		text-transform: capitalize;
 	}
@@ -4577,13 +4591,14 @@
 	}
 
 	:global(html[data-theme='dark']) .grammar-ref-toggle {
-		border-color: #334155;
+		color: #94a3b8;
+		border-color: #3a4150;
 	}
 
 	:global(html[data-theme='dark']) .grammar-ref-toggle:hover {
 		color: #60a5fa;
 		border-color: #3b82f6;
-		background: #1e293b;
+		background: #2a303c;
 	}
 
 	.grammar-ref-chevron {
@@ -4654,6 +4669,33 @@
 
 	.change-mode-link:hover {
 		color: #3b82f6;
+	}
+
+	:global(html[data-theme='dark']) .change-mode-link {
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .challenge-section h3,
+	:global(html[data-theme='dark']) .feedback-section h3,
+	:global(html[data-theme='dark']) .feedback-list-section h3 {
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .concept-list li {
+		color: #cbd5e1;
+	}
+
+	:global(html[data-theme='dark']) .grammar-title {
+		color: #e2e8f0;
+	}
+
+	:global(html[data-theme='dark']) .guide-toggle-btn {
+		color: #60a5fa;
+	}
+
+	:global(html[data-theme='dark']) .hint-list li {
+		color: #cbd5e1;
+		background: #2a303c;
 	}
 
 	/* Fix 5 - Load More button */
