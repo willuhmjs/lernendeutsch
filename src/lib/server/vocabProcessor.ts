@@ -1,5 +1,6 @@
 import { prisma } from '$lib/server/prisma';
 import { generateChatCompletion } from '$lib/server/llm';
+import { recordTokenUsage } from '$lib/server/aiQuota';
 
 export const AMBIGUOUS_WORDS_BY_LANG: Record<string, string[]> = {
 	German: [
@@ -406,7 +407,8 @@ export async function processVocabEnrichment(
 	masteredVocab: any[],
 	learningVocab: any[],
 	enqueue: (data: any) => void,
-	skipDbWrite = false
+	skipDbWrite = false,
+	chargeQuota = true
 ) {
 	try {
 		const rawWords = targetLanguageText
@@ -489,7 +491,11 @@ export async function processVocabEnrichment(
 								],
 								systemPrompt: `You are an expert ${activeLangName} lexicographer. For each word given (which may be an inflected form), output its base-form (lemma) dictionary entry in ${activeLangName} with an English meaning. Output ONLY valid JSON matching the requested schema, no markdown or extra text.`,
 								jsonMode: true,
-								temperature: 0.1
+								temperature: 0.1,
+								// Good-will: these calls create/enrich shared vocabulary in the DB
+								onUsage: chargeQuota ? ({ totalTokens }) => {
+									recordTokenUsage(userId, totalTokens, true);
+								} : undefined
 							});
 							let aiResultRaw: string;
 							if (typeof aiRes.choices?.[0]?.message?.content === 'string') {
@@ -577,7 +583,11 @@ export async function processVocabEnrichment(
 								],
 								systemPrompt: `You are an expert ${activeLangName} lexicographer. For each word given, provide a generic, dictionary-style definition and its grammatical role. DO NOT provide a definition that is tied to a specific context or sentence. Output ONLY valid JSON, no markdown.`,
 								jsonMode: true,
-								temperature: 0.1
+								temperature: 0.1,
+								// Good-will: these calls create/enrich shared vocabulary in the DB
+								onUsage: chargeQuota ? ({ totalTokens }) => {
+									recordTokenUsage(userId, totalTokens, true);
+								} : undefined
 							});
 							let ctxRaw: string;
 							if (typeof ctxRes.choices?.[0]?.message?.content === 'string') {

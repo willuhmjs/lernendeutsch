@@ -3,6 +3,7 @@ import { generateChatCompletion } from '$lib/server/llm';
 import { updateGamification } from '$lib/server/gamification';
 import { isClearlyCorrect } from '$lib/server/fuzzyGrade';
 import { prisma } from '$lib/server/prisma';
+import { isQuotaExceeded, recordTokenUsage } from '$lib/server/aiQuota';
 
 /** Track a correct answer against an assignment score record for immerse mode. */
 async function updateAssignmentScore(assignmentId: string, userId: string, correctCount: number) {
@@ -35,6 +36,13 @@ export async function POST({ request, locals }) {
 	if (!locals.user) {
 		return json({ error: 'Unauthorized' }, { status: 401 });
 	}
+
+	const userId = locals.user.id;
+	const dbUser = await prisma.user.findUnique({
+		where: { id: userId },
+		select: { useLocalLlm: true }
+	});
+	const useLocalLlm = dbUser?.useLocalLlm ?? false;
 
 	try {
 		const { question, userAnswer, sampleAnswer, awardXp, directXp, assignmentId, correctCount } = await request.json();
@@ -79,12 +87,19 @@ Be lenient with phrasing as long as the core meaning is correct. Accept synonyms
 Sample answer: ${sampleAnswer}
 Student's answer: ${userAnswer}`;
 
+		if (!useLocalLlm && await isQuotaExceeded(userId, false)) {
+			return json({ score: 0, feedback: 'Daily AI quota exceeded. Please try again tomorrow.' });
+		}
+
 		const response = await generateChatCompletion({
-			userId: locals.user.id,
+			userId,
 			messages: [{ role: 'user', content: userMessage }],
 			systemPrompt,
 			jsonMode: true,
-			temperature: 0.1
+			temperature: 0.1,
+			onUsage: useLocalLlm ? undefined : ({ totalTokens }) => {
+				recordTokenUsage(userId, totalTokens);
+			}
 		});
 
 		const result = JSON.parse(response.choices[0].message.content);

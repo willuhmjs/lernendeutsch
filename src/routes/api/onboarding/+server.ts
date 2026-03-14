@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import { generateChatCompletion, normalizeWords } from '$lib/server/llm';
 import { prisma } from '$lib/server/prisma';
 import { CefrService } from '$lib/server/cefrService';
+import { isQuotaExceeded, recordTokenUsage } from '$lib/server/aiQuota';
 
 import type { RequestEvent } from './$types';
 
@@ -73,6 +74,16 @@ export async function POST({ request, locals }: RequestEvent) {
 
 		if (!messages || !Array.isArray(messages)) {
 			return json({ error: 'Messages are required' }, { status: 400 });
+		}
+
+		const dbUser = await prisma.user.findUnique({
+			where: { id: userId },
+			select: { useLocalLlm: true }
+		});
+		const useLocalLlm = dbUser?.useLocalLlm ?? false;
+
+		if (!useLocalLlm && await isQuotaExceeded(userId, false)) {
+			return json({ error: 'Daily AI quota exceeded. Please try again tomorrow.' }, { status: 429 });
 		}
 
 		const user = locals.user;
@@ -306,9 +317,11 @@ export async function POST({ request, locals }: RequestEvent) {
 		const stream = new ReadableStream({
 			async start(controller) {
 				let fullContent = '';
+				let totalTokens = 0;
 
 				try {
 					for await (const chunk of llmResponse) {
+						if (chunk.usage?.total_tokens) totalTokens = chunk.usage.total_tokens;
 						const content = chunk.choices[0]?.delta?.content || '';
 						if (content) {
 							fullContent += content;
@@ -317,6 +330,10 @@ export async function POST({ request, locals }: RequestEvent) {
 					}
 				} catch (err) {
 					console.error('Stream read error', err);
+				}
+
+				if (!useLocalLlm && totalTokens > 0) {
+					recordTokenUsage(userId, totalTokens);
 				}
 
 				controller.close();

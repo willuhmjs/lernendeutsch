@@ -3,6 +3,7 @@ import { prisma } from '$lib/server/prisma';
 import { publishGameRateLimiter } from '$lib/server/ratelimit';
 import { generateChatCompletion } from '$lib/server/llm';
 import { sanitizeForPrompt } from '$lib/server/sanitize';
+import { isQuotaExceeded, recordTokenUsage } from '$lib/server/aiQuota';
 import type { RequestEvent } from '@sveltejs/kit';
 
 export async function POST(event: RequestEvent) {
@@ -21,6 +22,10 @@ export async function POST(event: RequestEvent) {
 
 	if (!user?.useLocalLlm && await publishGameRateLimiter.isLimited(event)) {
 		return json({ error: 'Rate limit exceeded. Try again later.' }, { status: 429 });
+	}
+
+	if (!user?.useLocalLlm && await isQuotaExceeded(locals.user.id, false)) {
+		return json({ error: 'Daily AI quota exceeded. Please try again tomorrow.' }, { status: 429 });
 	}
 
 	const game = await prisma.game.findUnique({
@@ -49,12 +54,16 @@ Is this game appropriate to be published to a public community? Also, suggest a 
 { "approved": boolean, "reason": "short explanation", "category": "Vocabulary" | "Grammar" | "Culture" | "Conversation" | "General" }`;
 
 	try {
+		const useLocalLlm = user?.useLocalLlm ?? false;
 		const llmResponse = await generateChatCompletion({
 			userId: locals.user.id,
 			messages: [{ role: 'user', content: 'Please review this game.' }],
 			systemPrompt,
 			jsonMode: true,
-			temperature: 0.1
+			temperature: 0.1,
+			onUsage: useLocalLlm ? undefined : ({ totalTokens }) => {
+				recordTokenUsage(locals.user!.id, totalTokens);
+			}
 		});
 
 		const result = JSON.parse(llmResponse.choices[0].message.content);

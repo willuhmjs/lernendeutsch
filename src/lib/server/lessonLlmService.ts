@@ -136,7 +136,8 @@ export async function generateLessonStream({
 						(data) => {
 							controller.enqueue(new TextEncoder().encode(JSON.stringify(data) + '\n'));
 						},
-						useLocalLlm
+						useLocalLlm,
+						!useLocalLlm // chargeQuota: record good-will tokens only for public LLM users
 					);
 				} catch (enrichErr) {
 					if (enrichErr instanceof SyntaxError) {

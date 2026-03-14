@@ -2,12 +2,24 @@ import { json } from '@sveltejs/kit';
 import { prisma } from '$lib/server/prisma';
 import { generateChatCompletion } from '$lib/server/llm';
 import { sanitizeForPrompt } from '$lib/server/sanitize';
+import { isQuotaExceeded, recordTokenUsage } from '$lib/server/aiQuota';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ params, request, locals }) => {
 	const session = await locals.auth();
 	if (!session?.user?.id) {
 		return json({ error: 'Unauthorized' }, { status: 401 });
+	}
+
+	const userId = session.user.id;
+	const dbUser = await prisma.user.findUnique({
+		where: { id: userId },
+		select: { useLocalLlm: true }
+	});
+	const useLocalLlm = dbUser?.useLocalLlm ?? false;
+
+	if (!useLocalLlm && await isQuotaExceeded(userId, false)) {
+		return json({ error: 'Daily AI quota exceeded. Please try again tomorrow.' }, { status: 429 });
 	}
 
 	try {
@@ -27,7 +39,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 			return json({ error: 'Game not found' }, { status: 404 });
 		}
 
-		if (game.creatorId !== session.user.id) {
+		if (game.creatorId !== userId) {
 			return json({ error: 'Forbidden' }, { status: 403 });
 		}
 
@@ -51,8 +63,11 @@ Example:
 ]`;
 
 		const response = await generateChatCompletion({
-			userId: session.user.id,
-			messages: [{ role: 'user', content: prompt }]
+			userId,
+			messages: [{ role: 'user', content: prompt }],
+			onUsage: useLocalLlm ? undefined : ({ totalTokens }) => {
+				recordTokenUsage(userId, totalTokens);
+			}
 		});
 
 		if (!response || !response.choices || !response.choices[0]) {

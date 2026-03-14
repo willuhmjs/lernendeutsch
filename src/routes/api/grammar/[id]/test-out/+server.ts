@@ -20,12 +20,13 @@ export async function POST(event) {
 		return json({ error: 'Too many requests. Please wait before generating more questions.' }, { status: 429 });
 	}
 
+	const userId = locals.user.id;
+
 	if (!user?.useLocalLlm && await isQuotaExceeded(userId, false)) {
 		return json({ error: 'Daily AI quota exceeded. Please try again tomorrow.' }, { status: 429 });
 	}
 
 	const grammarRuleId = params.id;
-	const userId = locals.user.id;
 
 	const grammarRule = await prisma.grammarRule.findUnique({
 		where: { id: grammarRuleId },

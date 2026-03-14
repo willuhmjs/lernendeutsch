@@ -117,8 +117,7 @@
 	onMount(() => { if (llmBaseUrl) fetchModels(); });
 
 	// AI quota helpers
-	const quota = data.aiUsage;
-	const quotaPct = $derived(Math.min(100, (quota.effectiveUsage / quota.dailyQuota) * 100));
+	const quotaPct = $derived(Math.min(100, (data.aiUsage.effectiveUsage / data.aiUsage.dailyQuota) * 100));
 	const quotaColor = $derived(
 		quotaPct >= 90 ? '#ef4444' : quotaPct >= 70 ? '#f59e0b' : '#22c55e'
 	);
@@ -222,17 +221,17 @@
 					<div class="quota-stats">
 						<div class="quota-stat">
 							<span class="quota-stat-label">Used</span>
-							<span class="quota-stat-value">{fmtTokens(quota.effectiveUsage)}</span>
+							<span class="quota-stat-value">{fmtTokens(data.aiUsage.effectiveUsage)}</span>
 						</div>
-						{#if quota.goodWillTokens > 0}
+						{#if data.aiUsage.goodWillTokens > 0}
 							<div class="quota-stat">
 								<span class="quota-stat-label">Good-will refunded</span>
-								<span class="quota-stat-value good-will">+{fmtTokens(quota.goodWillTokens)}</span>
+								<span class="quota-stat-value good-will">+{fmtTokens(data.aiUsage.goodWillTokens)}</span>
 							</div>
 						{/if}
 						<div class="quota-stat">
 							<span class="quota-stat-label">Daily limit</span>
-							<span class="quota-stat-value">{fmtTokens(quota.dailyQuota)}</span>
+							<span class="quota-stat-value">{fmtTokens(data.aiUsage.dailyQuota)}</span>
 						</div>
 					</div>
 					{#if quotaPct >= 90}

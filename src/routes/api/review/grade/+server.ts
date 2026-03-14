@@ -1,11 +1,20 @@
 import { json } from '@sveltejs/kit';
 import { generateChatCompletion } from '$lib/server/llm';
 import { isClearlyCorrect } from '$lib/server/fuzzyGrade';
+import { prisma } from '$lib/server/prisma';
+import { isQuotaExceeded, recordTokenUsage } from '$lib/server/aiQuota';
 
 export async function POST({ request, locals }) {
 	if (!locals.user) {
 		return json({ error: 'Unauthorized' }, { status: 401 });
 	}
+
+	const userId = locals.user.id;
+	const dbUser = await prisma.user.findUnique({
+		where: { id: userId },
+		select: { useLocalLlm: true }
+	});
+	const useLocalLlm = dbUser?.useLocalLlm ?? false;
 
 	try {
 		const { userAnswer, lemma, correctMeaning } = await request.json();
@@ -29,12 +38,19 @@ Be lenient with spelling variations and accept common synonyms.`;
 Correct meaning: ${correctMeaning}
 Student's answer: ${userAnswer}`;
 
+		if (!useLocalLlm && await isQuotaExceeded(userId, false)) {
+			return json({ correct: false, score: 0 });
+		}
+
 		const response = await generateChatCompletion({
-			userId: locals.user.id,
+			userId,
 			messages: [{ role: 'user', content: userMessage }],
 			systemPrompt,
 			jsonMode: true,
-			temperature: 0.1
+			temperature: 0.1,
+			onUsage: useLocalLlm ? undefined : ({ totalTokens }) => {
+				recordTokenUsage(userId, totalTokens);
+			}
 		});
 
 		const result = JSON.parse(response.choices[0].message.content);
