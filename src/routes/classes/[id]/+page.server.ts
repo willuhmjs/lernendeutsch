@@ -55,7 +55,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	}
 
 	let languages: any[] = [];
-	let teacherGames: any[] = [];
+	let teacherGames: Array<{ id: string; title: string; language: string; isPublished: boolean; _count: { questions: number } }> = [];
 	if (currentUserMember.role === 'TEACHER') {
 		[languages, teacherGames] = await Promise.all([
 			prisma.language.findMany({

@@ -1065,9 +1065,6 @@
 	}
 
 
-	.quiz-picker-field {
-		grid-column: 1 / -1;
-	}
 	.field-small {
 		max-width: 140px;
 	}

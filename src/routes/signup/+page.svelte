@@ -240,6 +240,10 @@
 		font-size: 0.95rem;
 	}
 
+	:global(html[data-theme='dark']) .auth-header p {
+		color: #94a3b8;
+	}
+
 	.google-auth {
 		margin-bottom: 1.5rem;
 	}
@@ -290,6 +294,15 @@
 		font-size: 0.875rem;
 	}
 
+	:global(html[data-theme='dark']) .divider span {
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .divider::before,
+	:global(html[data-theme='dark']) .divider::after {
+		border-bottom-color: #2d3340;
+	}
+
 	.auth-form {
 		display: flex;
 		flex-direction: column;
@@ -306,6 +319,10 @@
 		font-size: 0.875rem;
 		font-weight: 500;
 		color: #374151;
+	}
+
+	:global(html[data-theme='dark']) .form-group label {
+		color: #cbd5e1;
 	}
 
 	.form-group input {
@@ -344,6 +361,11 @@
 		text-align: center;
 		line-height: 1.5;
 		margin-top: 0.75rem;
+	}
+
+	:global(html[data-theme='dark']) .legal-notice-google,
+	:global(html[data-theme='dark']) .legal-notice {
+		color: #94a3b8;
 	}
 
 	.legal-notice-google a {
@@ -421,6 +443,10 @@
 		margin-top: 2rem;
 		font-size: 0.9rem;
 		color: #6b7280;
+	}
+
+	:global(html[data-theme='dark']) .auth-footer {
+		color: #94a3b8;
 	}
 
 	.auth-footer a {

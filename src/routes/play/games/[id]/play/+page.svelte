@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { page } from '$app/stores';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -17,13 +16,15 @@
 
 	// Assignment context
 	let assignment = $derived(data.assignment ?? null);
-	let assignmentProgress = $state(
-		data.assignmentScore
-			? { score: data.assignmentScore.score, targetScore: assignment?.targetScore ?? 0, passed: data.assignmentScore.passed }
+	let assignmentScore = $derived(data.assignmentScore);
+	let assignmentProgress: { score: number; targetScore: number; passed: boolean } | null = $state(null);
+	$effect(() => {
+		assignmentProgress = assignmentScore
+			? { score: assignmentScore.score, targetScore: assignment?.targetScore ?? 0, passed: assignmentScore.passed }
 			: assignment
 				? { score: 0, targetScore: assignment.targetScore, passed: false }
-				: null
-	);
+				: null;
+	});
 
 	let options = $state<string[]>([]);
 

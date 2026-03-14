@@ -278,6 +278,10 @@
 		color: #cbd5e1;
 	}
 
+	:global(html[data-theme='dark']) .form-group label {
+		color: #cbd5e1;
+	}
+
 	.form-group input {
 		width: 100%;
 		padding: 0.75rem;
@@ -348,6 +352,10 @@
 		margin-top: 2rem;
 		font-size: 0.9rem;
 		color: #6b7280;
+	}
+
+	:global(html[data-theme='dark']) .auth-footer {
+		color: #94a3b8;
 	}
 
 	.auth-footer a {

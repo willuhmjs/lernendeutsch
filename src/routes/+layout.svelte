@@ -17,8 +17,10 @@
 		const savedTheme = localStorage.getItem('app-theme');
 		if (savedTheme) {
 			theme = savedTheme;
-			document.documentElement.setAttribute('data-theme', theme);
+		} else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+			theme = 'dark';
 		}
+		document.documentElement.setAttribute('data-theme', theme);
 	});
 
 	function cycleTheme() {
@@ -787,18 +789,19 @@
 	}
 
 	:global(html[data-theme='dark']) {
-		--bg-color: #000000;
-		--text-color: #f9fafb;
-		--header-bg: #111827;
-		--header-border: #374151;
-		--card-bg: #111827;
-		--card-border: #374151;
+		--bg-color: #1a1d23;
+		--text-color: #e2e8f0;
+		--text-muted: #94a3b8;
+		--header-bg: #21252e;
+		--header-border: #2d3340;
+		--card-bg: #21252e;
+		--card-border: #2d3340;
 		--link-color: #60a5fa;
-		--link-hover-bg: #1f2937;
+		--link-hover-bg: #2a303c;
 		--brand-color: #3b82f6;
-		--input-bg: #1f2937;
-		--input-border: #4b5563;
-		--input-text: #f9fafb;
+		--input-bg: #2a303c;
+		--input-border: #3a4150;
+		--input-text: #e2e8f0;
 	}
 
 	:global(html[data-theme='dark'] .info-card),
@@ -905,7 +908,7 @@
 	:global(html[data-theme='dark']) .nav-item:hover,
 	:global(html[data-theme='dark']) .nav-item.active {
 		color: #60a5fa;
-		background-color: #1f2937;
+		background-color: #2a303c;
 	}
 
 	.nav-item:active {
@@ -1006,7 +1009,7 @@
 
 	:global(html[data-theme='dark']) .dropdown-item:hover,
 	:global(html[data-theme='dark']) .dropdown-item.active {
-		background-color: #1f2937;
+		background-color: #2a303c;
 		color: #60a5fa;
 	}
 
@@ -1341,11 +1344,11 @@
 		}
 
 		:global(html[data-theme='dark']) .mobile-logout-btn {
-			border-color: #374151;
+			border-color: #2d3340;
 		}
 
 		:global(html[data-theme='dark']) .mobile-logout-btn:hover {
-			background-color: #1f2937;
+			background-color: #2a303c;
 			border-color: #ff4b4b;
 		}
 

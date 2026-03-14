@@ -2532,7 +2532,7 @@
 												Play Live
 											</button>
 										{/if}
-										<a href="/play/games/{game.id}/play" class="btn-action"> Play </a>
+										<a href="/play/games/{game.id}/play" class="btn-action"> Solo </a>
 										<a href="/play/games/{game.id}/edit" class="btn-action"> Edit </a>
 									</div>
 								</div>
@@ -2617,7 +2617,7 @@
 										Play Live
 									</button>
 								{/if}
-								<a href="/play/games/{game.id}/play" class="btn-action"> Play </a>
+								<a href="/play/games/{game.id}/play" class="btn-action"> Solo </a>
 							</div>
 						</div>
 					{/each}
