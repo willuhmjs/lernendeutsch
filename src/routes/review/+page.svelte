@@ -25,6 +25,17 @@
 	// SRS panel (#26)
 	let showSrsPanel = false;
 
+	// Copy-to-clipboard (#47)
+	let reviewCopied = false;
+	async function copyReviewWord() {
+		try {
+			const text = currentReview?.vocabulary?.lemma || '';
+			await navigator.clipboard.writeText(text);
+			reviewCopied = true;
+			setTimeout(() => { reviewCopied = false; }, 1500);
+		} catch { /* unavailable */ }
+	}
+
 	// Session summary tracking (#7)
 	type ReviewResult = { lemma: string; correct: boolean; answer: string; correctMeaning: string };
 	let sessionResults: ReviewResult[] = [];
@@ -424,9 +435,10 @@
 					<div class="review-content">
 						<!-- Question Area -->
 						<div class="question-area">
-							<h2 class="lemma-text">
-								{currentReview.vocabulary.lemma}
-							</h2>
+							<div class="lemma-row">
+								<h2 class="lemma-text">{currentReview.vocabulary.lemma}</h2>
+								<button class="copy-btn-lemma" onclick={copyReviewWord} title="Copy word" aria-label="Copy {currentReview.vocabulary.lemma}">{#if reviewCopied}✓{:else}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>{/if}</button>
+							</div>
 
 							<div class="question-area-meta">
 								{#if currentReview.vocabulary.partOfSpeech}
@@ -1097,10 +1109,37 @@
 		padding: 1rem 0;
 	}
 
+	.lemma-row {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin-bottom: 1rem;
+	}
+
+	.copy-btn-lemma {
+		background: none;
+		border: none;
+		cursor: pointer;
+		color: #94a3b8;
+		padding: 0.2rem;
+		border-radius: 0.3rem;
+		line-height: 1;
+		font-size: 1rem;
+		font-weight: 700;
+		transition: color 0.15s;
+		flex-shrink: 0;
+		align-self: flex-start;
+		margin-top: 0.75rem;
+	}
+
+	.copy-btn-lemma:hover {
+		color: #3b82f6;
+	}
+
 	.lemma-text {
 		font-size: 3rem;
 		font-weight: 800;
-		margin: 0 0 1rem 0;
+		margin: 0;
 		color: var(--text-color, #0f172a);
 		letter-spacing: -0.02em;
 	}

@@ -18,6 +18,16 @@
 	// Keep track of which words have been added in this session
 	let addedWords: string[] = [];
 
+	// Copy-to-clipboard (#47)
+	let copiedId: string | null = null;
+	async function copyWord(id: string, text: string) {
+		try {
+			await navigator.clipboard.writeText(text);
+			copiedId = id;
+			setTimeout(() => { copiedId = null; }, 1500);
+		} catch { /* clipboard unavailable */ }
+	}
+
 	// Track selected word for modal
 	let selectedResult: any | null = null;
 	
@@ -316,14 +326,19 @@
 										tabindex="0"
 										role="button"
 									>
-										<h3 class="result-word">
-											{result.lemma}
-											{#if result.gender}
-												<span class="result-gender">
-													{result.gender.toLowerCase()}
-												</span>
-											{/if}
-										</h3>
+										<div class="result-word-row">
+											<h3 class="result-word">
+												{result.lemma}
+												{#if result.gender}
+													<span class="result-gender">
+														{result.gender.toLowerCase()}
+													</span>
+												{/if}
+											</h3>
+											<button class="copy-btn" onclick={(e) => { e.stopPropagation(); copyWord(result.id, result.lemma); }} title="Copy word" aria-label="Copy {result.lemma}">
+												{#if copiedId === result.id}✓{:else}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:0.9rem;height:0.9rem"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>{/if}
+											</button>
+										</div>
 										<p class="result-meaning">
 											{#if result.meanings?.[0]?.value}
 												{result.meanings[0].value}
@@ -502,7 +517,10 @@
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
 				</button>
 				<div class="modal-header-main">
-					<h2 class="modal-title">{selectedResult.lemma}</h2>
+					<div class="modal-title-row">
+						<h2 class="modal-title">{selectedResult.lemma}</h2>
+						<button class="copy-btn copy-btn-modal" onclick={() => copyWord('modal-' + selectedResult.id, selectedResult.lemma + (selectedResult.meanings?.[0]?.value ? ' — ' + selectedResult.meanings[0].value : ''))} title="Copy word" aria-label="Copy {selectedResult.lemma}">{#if copiedId === 'modal-' + selectedResult.id}✓{:else}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>{/if}</button>
+					</div>
 					<div class="modal-header-meta">
 						{#if selectedResult.partOfSpeech}
 							<span class="modal-pos-badge">{selectedResult.partOfSpeech}</span>
@@ -933,6 +951,12 @@
 		flex: 1;
 	}
 
+	.result-word-row {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
 	.result-word {
 		font-size: 1.25rem;
 		font-weight: 700;
@@ -941,6 +965,30 @@
 		align-items: center;
 		gap: 0.5rem;
 		color: var(--text-color, #111827);
+	}
+
+	.copy-btn, .copy-btn-modal {
+		background: none;
+		border: none;
+		cursor: pointer;
+		color: #94a3b8;
+		padding: 0.15rem;
+		border-radius: 0.3rem;
+		line-height: 1;
+		font-size: 0.9rem;
+		font-weight: 700;
+		transition: color 0.15s;
+		flex-shrink: 0;
+	}
+
+	.copy-btn:hover, .copy-btn-modal:hover {
+		color: #3b82f6;
+	}
+
+	.modal-title-row {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
 	}
 
 	.result-gender {
