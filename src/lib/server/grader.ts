@@ -34,7 +34,6 @@ export interface EvaluationPayload {
 	grammarUpdates: { id: string; score: number; eloBefore?: number; eloAfter?: number }[];
 	extraVocabLemmas?: string[];
 	feedback: string;
-	feedbackEnglish?: string;
 }
 
 const normalizeText = (text: string) => {
@@ -91,7 +90,7 @@ Calculate a global accuracy score between 0.0 and 1.0. Be forgiving of minor typ
 Note: Do not penalize the user if they use ASCII equivalents for ${activeLanguageName} special characters (e.g., 'ss' instead of 'ß', 'ae' instead of 'ä', 'oe' instead of 'ö', 'ue' instead of 'ü', or their uppercase equivalents like 'Ae' for 'Ä', 'Ue' for 'Ü', etc.). Treat these as ENTIRELY correct — they MUST receive a score of 1.0 for that vocabulary item.
 IMPORTANT: Capitalization errors (e.g., writing "Gluecklich" instead of "glücklich") are MINOR issues. If the student wrote the correct word with only a capitalization difference, the vocabulary score for that word MUST be at least 0.8. Do NOT give a score of 0 for capitalization-only errors.
 SCORING CONSISTENCY: Each vocabulary/grammar item score must be consistent with the global score. If the global score is above 0.8, no individual item that the student attempted correctly (even with minor issues) should receive a score below 0.5.
-Provide helpful, concise feedback in ${activeLanguageName} ("feedback") and ${nativeLanguage} ("feedbackEnglish").
+Provide helpful, concise feedback in ${nativeLanguage} ("feedback").
 For vocabularyUpdates and grammarUpdates, provide a score between 0.0 and 1.0 depending on how well they used the item. Score each item INDEPENDENTLY.
 If the user correctly used any OTHER ${activeLanguageName} words by coincidence that are not in the targeted list, output their base forms (lemmas) with proper capitalization (e.g. nouns capitalized in German) in the "extraVocabLemmas" array.
 
@@ -105,8 +104,7 @@ ${grammarList}
 
 JSON format:
 {
-  "feedback": "<string (${activeLanguageName} feedback)>",
-  "feedbackEnglish": "<string (${nativeLanguage} translation of feedback)>",
+  "feedback": "<string (${nativeLanguage} feedback)>",
   "globalScore": <number>,
   "vocabularyUpdates": [ { "id": "<vocabulary ID>", "score": <number (0.0 to 1.0)> } ],
   "grammarUpdates": [ { "id": "<grammar ID>", "score": <number (0.0 to 1.0)> } ],
@@ -126,7 +124,7 @@ Your task:
 The student was shown a ${activeLanguageName} sentence and chose a ${nativeLanguage} translation from multiple options.
 Compare their chosen answer to the correct translation.
 If they chose correctly, score 1.0. If wrong, score 0.0.
-Provide brief feedback in ${activeLanguageName} ("feedback") and ${nativeLanguage} ("feedbackEnglish") explaining why the correct answer is right.
+Provide brief feedback in ${nativeLanguage} ("feedback") explaining why the correct answer is right.
 For vocabularyUpdates and grammarUpdates, provide a score of 1.0 or 0.0 based on whether they got the question right.
 If the user correctly recognized any OTHER ${activeLanguageName} words by coincidence that are not in the targeted list, output their base forms (lemmas) with proper capitalization (e.g. nouns capitalized in German) in the "extraVocabLemmas" array.
 
@@ -140,8 +138,7 @@ ${grammarList}
 
 JSON format:
 {
-  "feedback": "<string (${activeLanguageName} feedback)>",
-  "feedbackEnglish": "<string (${nativeLanguage} translation of feedback)>",
+  "feedback": "<string (${nativeLanguage} feedback)>",
   "globalScore": <number>,
   "vocabularyUpdates": [ { "id": "<vocabulary ID>", "score": <number (0.0 to 1.0)> } ],
   "grammarUpdates": [ { "id": "<grammar ID>", "score": <number (0.0 to 1.0)> } ],
@@ -185,7 +182,7 @@ Your task:
 Evaluate the user's ${userLanguage} input against the target expected ${targetLanguage} output.
 Calculate a global accuracy score between 0.0 and 1.0. Be forgiving of minor mistakes like slight typos, capitalization errors, or minor word order issues that do not change the core meaning. Do not penalize minor errors harshly; keep the score proportional to the overall understanding shown.
 Assess if the user correctly used the targeted vocabulary and grammar rules. Give a decimal score between 0.0 and 1.0 for each item in vocabularyUpdates and grammarUpdates. Score each vocabulary and grammar item INDEPENDENTLY — do not penalize one item for errors related to a different item.
-Provide helpful, concise feedback in ${activeLanguageName} ("feedback") and ${nativeLanguage} ("feedbackEnglish").
+Provide helpful, concise feedback in ${nativeLanguage} ("feedback").
 ${extraVocabNote}
 ${asciiNote}
 ${grammarNote}
@@ -202,8 +199,7 @@ ${grammarList}
 
 JSON format:
 {
-  "feedback": "<string (${activeLanguageName} feedback)>",
-  "feedbackEnglish": "<string (${nativeLanguage} translation of feedback)>",
+  "feedback": "<string (${nativeLanguage} feedback)>",
   "globalScore": <number>,
   "vocabularyUpdates": [ { "id": "<vocabulary ID>", "score": <number (0.0 to 1.0)> } ],
   "grammarUpdates": [ { "id": "<grammar ID>", "score": <number (0.0 to 1.0)> } ],
@@ -259,8 +255,7 @@ export function parseEvaluationResponse(content: string): EvaluationPayload {
 		extraVocabLemmas: (payload.extraVocabLemmas || []).map((l: string) =>
 			l.replace(/^[.,!?;:'"()[\]{}-]+|[.,!?;:'"()[\]{}-]+$/g, '')
 		),
-		feedback: payload.feedback || '',
-		feedbackEnglish: payload.feedbackEnglish || ''
+		feedback: payload.feedback || ''
 	};
 
 	// Reconcile contradictory scores: if globalScore is high but individual items

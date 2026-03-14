@@ -208,7 +208,7 @@
 		content: string;
 		correction?: string | null;
 		correctionType?: 'correction' | 'feedback';
-		feedbackEnglish?: string;
+		feedbackText?: string;
 		eloUpdates?: boolean;
 		vocabularyUpdates?: any[];
 		extraVocabLemmas?: string[];
@@ -310,7 +310,7 @@
 								content: event.message.message || event.message.content || '',
 								correction: isFirstMessage ? null : parseCorrection(event.message.correction),
 								correctionType: grading.correctionType || 'correction',
-								feedbackEnglish: event.message.feedbackEnglish || '',
+								feedbackText: event.message.correction || '',
 								eloUpdates: hasEloUpdates,
 								vocabularyUpdates: grading.vocabularyUpdates,
 								extraVocabLemmas: grading.extraVocabLemmas
@@ -598,9 +598,9 @@
 									{/if}
 								</div>
 
-								{#if msg.feedbackEnglish}
+								{#if msg.feedbackText}
 								<div class="feedback-box">
-									<p>{msg.feedbackEnglish}</p>
+									<p>{msg.feedbackText}</p>
 								</div>
 							{/if}
 							{#if msg.eloUpdates}

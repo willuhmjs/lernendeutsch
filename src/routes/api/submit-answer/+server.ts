@@ -114,8 +114,7 @@ export async function POST(event) {
 				vocabularyUpdates: targetedVocabulary.map((v: any, i: number) => ({ id: `v${i}`, score })),
 				grammarUpdates: targetedGrammar.map((g: any, i: number) => ({ id: `g${i}`, score })),
 				extraVocabLemmas: [],
-				feedback: isCorrect ? 'Correct!' : 'Incorrect.',
-				feedbackEnglish: isCorrect ? 'Correct!' : 'Incorrect.'
+				feedback: isCorrect ? 'Correct!' : 'Incorrect.'
 			};
 
 			const remappedEvaluation = {
@@ -163,8 +162,7 @@ export async function POST(event) {
 					vocabularyUpdates: targetedVocabulary.map((v: any) => ({ id: v.id, score })),
 					grammarUpdates: targetedGrammar.map((g: any) => ({ id: g.id, score })),
 					extraVocabLemmas: [],
-					feedback: 'Correct!',
-					feedbackEnglish: 'Correct!'
+					feedback: 'Correct!'
 				};
 
 				await updateEloRatings(userId, remappedEvaluation, gameMode);

@@ -161,7 +161,6 @@
 	let userInput = '';
 	let feedback: any = null;
 	let submitting = false;
-	let showEnglishFeedback = false;
 	let sessionXp = 0;
 	let sessionChallenges = 0;
 	let gameMode: GameMode = data.cefrLevel === 'A1' ? 'multiple-choice' : 'native-to-target';
@@ -1339,7 +1338,6 @@
 		loading = true;
 		isStreaming = true;
 		feedback = null;
-		showEnglishFeedback = false;
 		userInput = '';
 		challenge = null;
 		fillBlankAnswers = [];
@@ -1796,8 +1794,7 @@
 							globalScore: null,
 							vocabularyUpdates: [],
 							grammarUpdates: [],
-							feedback: feedbackText,
-							feedbackEnglish: ''
+							feedback: feedbackText
 						};
 					} else {
 						feedback.feedback = feedbackText;
@@ -1834,18 +1831,12 @@
 						...u,
 						id: graderIdMap[u.id] || u.id
 					})),
-					feedback: data.feedback || '',
-					feedbackEnglish: data.feedbackEnglish || ''
+					feedback: data.feedback || ''
 				};
 				// Update assignment progress if we got it back
 				if (data.assignmentProgress && assignmentProgress) {
 					assignmentProgress = data.assignmentProgress;
 				}
-				// Auto-show English feedback for beginners
-				if (isAbsoluteBeginner && feedback.feedbackEnglish) {
-					showEnglishFeedback = true;
-				}
-
 				// Accumulate session XP (1 XP per score point, rounded)
 				sessionChallenges += 1;
 				const xpEarned = Math.round((data.globalScore ?? 0) * 10);
@@ -2268,12 +2259,6 @@
 				>
 					<div class="feedback-header">
 						<h2 class="">Feedback</h2>
-						{#if feedback.feedbackEnglish}
-							<label class="toggle-container">
-								<input type="checkbox" bind:checked={showEnglishFeedback} />
-								<span class="toggle-label">Translate to English</span>
-							</label>
-						{/if}
 						<div class="score-display">
 							<span class="score-label">Score:</span>
 							{#if feedback.globalScore === null}
@@ -2293,9 +2278,7 @@
 
 					<div class="feedback-message">
 						<p>
-							{showEnglishFeedback && feedback.feedbackEnglish
-								? feedback.feedbackEnglish
-								: feedback.feedback}
+							{feedback.feedback}
 						</p>
 					</div>
 
@@ -3760,22 +3743,6 @@
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
-	}
-
-	.toggle-container {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		cursor: pointer;
-		user-select: none;
-		font-size: 0.875rem;
-		color: #64748b;
-	}
-
-	.toggle-container input[type='checkbox'] {
-		cursor: pointer;
-		width: 1rem;
-		height: 1rem;
 	}
 
 	.score-label {
