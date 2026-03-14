@@ -428,18 +428,24 @@
 		</div>
 	{:else}
 		<div class="grammar-library" in:fly={{ y: 20, duration: 400 }}>
-			<div class="grammar-search-wrapper">
-				<div class="search-icon-wrapper">
-					<svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-					</svg>
+			<div class="grammar-library-toolbar">
+				<div class="grammar-search-wrapper">
+					<div class="search-icon-wrapper">
+						<svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+						</svg>
+					</div>
+					<input
+						type="search"
+						bind:value={grammarQuery}
+						class="search-input"
+						placeholder="Search grammar rules..."
+					/>
 				</div>
-				<input
-					type="search"
-					bind:value={grammarQuery}
-					class="search-input"
-					placeholder="Search grammar rules..."
-				/>
+				<button class="btn-export-pdf no-print" onclick={() => window.print()} title="Export grammar guide as PDF">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+					Export PDF
+				</button>
 			</div>
 
 			{#if sortedLevels.length === 0}
@@ -1066,9 +1072,110 @@
 	}
 
 	/* Grammar Library */
+	.grammar-library-toolbar {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.grammar-library-toolbar .grammar-search-wrapper {
+		flex: 1;
+		margin-bottom: 0;
+	}
+
+	.btn-export-pdf {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		background: #f8fafc;
+		border: 1.5px solid #e2e8f0;
+		color: #475569;
+		font-size: 0.82rem;
+		font-weight: 700;
+		padding: 0.5rem 0.9rem;
+		border-radius: 0.6rem;
+		cursor: pointer;
+		white-space: nowrap;
+		transition: all 0.15s;
+	}
+
+	.btn-export-pdf:hover {
+		border-color: #3b82f6;
+		color: #1d4ed8;
+		background: #eff6ff;
+	}
+
+	:global(html[data-theme='dark']) .btn-export-pdf {
+		background: #1e293b;
+		border-color: #334155;
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .btn-export-pdf:hover {
+		border-color: #3b82f6;
+		color: #93c5fd;
+	}
+
 	.grammar-search-wrapper {
 		position: relative;
 		margin-bottom: 1.5rem;
+	}
+
+	/* Print / PDF styles */
+	@media print {
+		:global(.no-print),
+		:global(nav.sidebar),
+		:global(.sidebar),
+		:global(header),
+		:global(.tabs-container),
+		:global(.search-section),
+		:global(.dictionary-container > .header) {
+			display: none !important;
+		}
+
+		:global(body) {
+			font-family: Georgia, serif;
+			color: #000;
+			background: #fff;
+		}
+
+		:global(.grammar-library) {
+			padding: 0;
+		}
+
+		:global(.grammar-rule-card) {
+			border: 1px solid #ccc;
+			border-radius: 0;
+			margin-bottom: 1.5rem;
+			page-break-inside: avoid;
+		}
+
+		:global(.grammar-rule-header) {
+			padding: 0.75rem;
+			background: #f5f5f5;
+		}
+
+		:global(.grammar-rule-content) {
+			display: block !important;
+			padding: 0.75rem;
+		}
+
+		:global(.grammar-guide) {
+			padding: 0;
+		}
+
+		:global(.grammar-prereqs) {
+			border-bottom: 1px solid #eee;
+			padding-bottom: 0.5rem;
+			margin-bottom: 0.5rem;
+		}
+
+		:global(.grammar-toggle-btn),
+		:global(.btn-export-pdf),
+		:global(.prereq-link) {
+			display: none !important;
+		}
 	}
 
 	.level-heading {
