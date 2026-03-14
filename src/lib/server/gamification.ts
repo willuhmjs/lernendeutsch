@@ -26,6 +26,7 @@ export async function updateGamification(userId: string, xpToAdd: number) {
 			longestStreak: true,
 			lastActivityDate: true,
 			totalXp: true,
+			streakFreezes: true,
 			timezone: true
 		}
 	});
@@ -37,6 +38,7 @@ export async function updateGamification(userId: string, xpToAdd: number) {
 	const now = new Date();
 	let newStreak = user.currentStreak;
 	let newLongestStreak = user.longestStreak;
+	let freezesUsed = 0;
 
 	if (user.lastActivityDate) {
 		const today = getDateInTimezone(now, user.timezone);
@@ -52,8 +54,14 @@ export async function updateGamification(userId: string, xpToAdd: number) {
 			// Consecutive day - increment streak
 			newStreak += 1;
 		} else if (diffDays > 1) {
-			// Streak broken - reset to 1
-			newStreak = 1;
+			// Streak would break — consume freeze if available (#11)
+			if (user.streakFreezes > 0 && diffDays === 2) {
+				// One missed day: use a freeze to preserve streak
+				freezesUsed = 1;
+				newStreak = user.currentStreak + 1;
+			} else {
+				newStreak = 1;
+			}
 		}
 	} else {
 		// First activity ever
@@ -70,7 +78,8 @@ export async function updateGamification(userId: string, xpToAdd: number) {
 			totalXp: { increment: xpToAdd },
 			currentStreak: newStreak,
 			longestStreak: newLongestStreak,
-			lastActivityDate: now
+			lastActivityDate: now,
+			...(freezesUsed > 0 ? { streakFreezes: { decrement: freezesUsed } } : {})
 		}
 	});
 }

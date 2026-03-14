@@ -185,11 +185,11 @@
 				<span>Target Score: {assignment.targetScore}</span>
 			</div>
 			<div class="banner-actions">
-				<button type="button" class="copy-link-btn" on:click={copyLink}>
+				<button type="button" class="copy-link-btn" onclick={copyLink}>
 					{#if copied}✓ Copied!{:else}🔗 Copy Link{/if}
 				</button>
-				<button type="button" class="edit-btn" on:click={openEditModal}> Edit </button>
-				<button type="button" class="delete-btn" on:click={handleDeleteAssignment}> Delete </button>
+				<button type="button" class="edit-btn" onclick={openEditModal}> Edit </button>
+				<button type="button" class="delete-btn" onclick={handleDeleteAssignment}> Delete </button>
 			</div>
 		</div>
 		<div class="pass-rate-box">
@@ -199,12 +199,24 @@
 		</div>
 	</div>
 
-	<!-- Student Progress -->
+	<!-- Student Progress (#6) -->
 	<div in:fly={{ y: 20, duration: 400, delay: 100 }}>
-		<h2 class="section-title">Student Progress</h2>
+		<div class="section-header-row">
+			<h2 class="section-title">Student Progress</h2>
+			{#if studentMembers.length > 0}
+				<div class="section-stats">
+					<span class="section-stat passed">{passedStudents} passed</span>
+					<span class="section-stat-sep">&bull;</span>
+					<span class="section-stat in-progress">{studentMembers.filter((m: any) => { const s = getScoreForUser(m.userId); return s && !s.passed; }).length} in progress</span>
+					<span class="section-stat-sep">&bull;</span>
+					<span class="section-stat not-started">{studentMembers.filter((m: any) => !getScoreForUser(m.userId)).length} not started</span>
+				</div>
+			{/if}
+		</div>
 
 		{#if studentMembers.length === 0}
 			<div class="empty-state">
+				<div class="empty-icon">👥</div>
 				<p class="empty-title">No students yet</p>
 				<p class="empty-desc">Students will appear here once they join the class.</p>
 			</div>
@@ -215,9 +227,10 @@
 						{@const scoreInfo = getScoreForUser(member.userId)}
 						{@const hasStarted = !!scoreInfo}
 						{@const isPassed = scoreInfo?.passed}
+						{@const pct = scoreInfo ? Math.min(100, Math.round((scoreInfo.score / assignment.targetScore) * 100)) : 0}
 						<li class="member-row">
 							<div class="member-info">
-								<div class="member-avatar">
+								<div class="member-avatar" class:avatar-passed={isPassed} class:avatar-progress={hasStarted && !isPassed}>
 									{(member.user.name || member.user.username).charAt(0).toUpperCase()}
 								</div>
 								<div class="member-details">
@@ -228,22 +241,27 @@
 							<div class="score-info">
 								{#if !hasStarted}
 									<span class="badge badge-pending">Not Started</span>
-								{:else if isPassed}
-									<div class="score-display score-passed">
-										<span class="score-check">&#10003;</span>
-										<span class="score-value"
-											>{scoreInfo.score}<span class="score-denom">/{assignment.targetScore}</span
-											></span
-										>
-										<span class="badge badge-green">Passed</span>
-									</div>
 								{:else}
-									<div class="score-display score-progress">
-										<span class="score-value score-amber"
-											>{scoreInfo.score}<span class="score-denom">/{assignment.targetScore}</span
-											></span
-										>
-										<span class="badge badge-amber">In Progress</span>
+									<div class="score-block">
+										<div class="score-top">
+											{#if isPassed}
+												<span class="score-check">&#10003;</span>
+											{/if}
+											<span class="score-value" class:score-passed-text={isPassed} class:score-amber={!isPassed}>
+												{scoreInfo.score}<span class="score-denom">/{assignment.targetScore}</span>
+											</span>
+											<span class="badge" class:badge-green={isPassed} class:badge-amber={!isPassed}>
+												{isPassed ? 'Passed' : 'In Progress'}
+											</span>
+										</div>
+										<div class="score-bar-track">
+											<div
+												class="score-bar-fill"
+												class:fill-passed={isPassed}
+												class:fill-progress={!isPassed}
+												style="width: {pct}%"
+											></div>
+										</div>
 									</div>
 								{/if}
 							</div>
@@ -260,16 +278,16 @@
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
 		class="modal-backdrop"
-		on:click={closeEditModal}
+		onclick={closeEditModal}
 		transition:fly={{ duration: 200, opacity: 0 }}
 	>
-		<div class="modal-content card-duo" on:click|stopPropagation>
+		<div class="modal-content card-duo" onclick={(e) => e.stopPropagation()}>
 			<div class="modal-header">
 				<h3 class="modal-title">Edit Assignment</h3>
-				<button class="btn-close" on:click={closeEditModal}>&times;</button>
+				<button class="btn-close" onclick={closeEditModal}>&times;</button>
 			</div>
 
-			<form on:submit|preventDefault={handleSaveEdit} class="create-form">
+			<form onsubmit={(e) => { e.preventDefault(); handleSaveEdit(); }} class="create-form">
 				<div class="create-form-row">
 					<div class="field">
 						<label for="title">Title <span class="required">*</span></label>
@@ -314,7 +332,7 @@
 								{#each targetVocabList as word}
 									<span class="vocab-tag">
 										{word}
-										<button type="button" class="remove-vocab" on:click={() => removeVocab(word)}>&times;</button>
+										<button type="button" class="remove-vocab" onclick={() => removeVocab(word)}>&times;</button>
 									</span>
 								{/each}
 								<input
@@ -322,7 +340,7 @@
 									id="vocab"
 									bind:this={vocabInputRef}
 									bind:value={vocabInput}
-									on:keydown={handleVocabKeydown}
+									onkeydown={handleVocabKeydown}
 									placeholder={targetVocabList.length === 0 ? "Type a word and press Enter" : ""}
 									class="vocab-inline-input"
 								/>
@@ -349,7 +367,7 @@
 										<input 
 											type="checkbox" 
 											checked={selectedGrammarRules.includes(rule.id)}
-											on:change={() => toggleGrammarRule(rule.id)}
+											onchange={() => toggleGrammarRule(rule.id)}
 										/>
 										<div class="grammar-rule-info">
 											<span class="grammar-rule-title">{rule.title}</span>
@@ -433,7 +451,7 @@
 				</div>
 
 				<div class="modal-actions">
-					<button type="button" class="btn-secondary" on:click={closeEditModal}> Cancel </button>
+					<button type="button" class="btn-secondary" onclick={closeEditModal}> Cancel </button>
 					<button type="submit" disabled={isSaving} class="btn-primary">
 						{isSaving ? 'Saving...' : 'Save Changes'}
 					</button>
@@ -614,14 +632,37 @@
 		margin: 0;
 	}
 
-	/* Section Title */
+	/* Section Header */
+	.section-header-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		margin-bottom: 1.5rem;
+		border-bottom: 2px solid var(--card-border, #e2e8f0);
+		padding-bottom: 0.75rem;
+		flex-wrap: wrap;
+	}
+
 	.section-title {
 		font-size: 1.5rem;
 		color: var(--text-color, #0f172a);
-		margin: 0 0 1.5rem;
-		border-bottom: 2px solid var(--card-border, #e2e8f0);
-		padding-bottom: 0.5rem;
+		margin: 0;
 	}
+
+	.section-stats {
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+		font-size: 0.75rem;
+		font-weight: 700;
+	}
+
+	.section-stat { font-weight: 700; }
+	.section-stat.passed { color: #16a34a; }
+	.section-stat.in-progress { color: #d97706; }
+	.section-stat.not-started { color: #94a3b8; }
+	.section-stat-sep { color: #cbd5e1; }
 
 	/* Members Card */
 	.members-card {
@@ -678,6 +719,19 @@
 		font-size: 1.1rem;
 		flex-shrink: 0;
 		border: 2px solid #bfdbfe;
+		transition: background-color 0.2s, border-color 0.2s;
+	}
+
+	.member-avatar.avatar-passed {
+		background-color: #dcfce7;
+		color: #16a34a;
+		border-color: #86efac;
+	}
+
+	.member-avatar.avatar-progress {
+		background-color: #fef3c7;
+		color: #d97706;
+		border-color: #fde68a;
 	}
 
 	.member-details {
@@ -710,11 +764,38 @@
 		align-items: center;
 	}
 
-	.score-display {
+	.score-block {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 0.35rem;
+		min-width: 140px;
+	}
+
+	.score-top {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
 	}
+
+	.score-passed-text { color: #16a34a; }
+
+	.score-bar-track {
+		width: 100%;
+		height: 4px;
+		background: var(--card-border, #e2e8f0);
+		border-radius: 9999px;
+		overflow: hidden;
+	}
+
+	.score-bar-fill {
+		height: 100%;
+		border-radius: 9999px;
+		transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+	}
+
+	.fill-passed { background: #16a34a; }
+	.fill-progress { background: #f59e0b; }
 
 	.score-check {
 		color: #16a34a;
@@ -767,10 +848,15 @@
 	/* Empty State */
 	.empty-state {
 		text-align: center;
-		padding: 3rem 2rem;
+		padding: 3.5rem 2rem;
 		background: var(--card-bg, #f8fafc);
 		border-radius: 1.5rem;
 		border: 3px dashed var(--card-border, #cbd5e1);
+	}
+
+	.empty-icon {
+		font-size: 2.75rem;
+		margin-bottom: 0.75rem;
 	}
 
 	.empty-title {

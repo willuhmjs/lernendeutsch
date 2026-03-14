@@ -17,10 +17,20 @@
 	let gradeResult: { correct: boolean; score: number } | null = null;
 	let userOverride: boolean | null = null;
 
+	// Session summary tracking (#7)
+	type ReviewResult = { lemma: string; correct: boolean; answer: string; correctMeaning: string };
+	let sessionResults: ReviewResult[] = [];
+
+	// Undo history (#8)
+	type UndoEntry = { index: number; result: ReviewResult };
+	let undoStack: UndoEntry[] = [];
+	$: canUndo = undoStack.length > 0 && !showingAnswer;
+
 	$: activeLangName = $page.data.user?.activeLanguage?.name || 'en';
 	$: dueReviews = data.dueReviews || [];
 	$: currentReview = dueReviews[currentReviewIndex];
-	$: isFinished = dueReviews.length > 0 ? currentReviewIndex >= dueReviews.length : true;
+	$: isFinished = sessionStarted && (dueReviews.length === 0 || currentReviewIndex >= dueReviews.length);
+	$: hasNoReviews = !sessionStarted && dueReviews.length === 0;
 	$: showingAnswer = gradeResult !== null;
 
 	$: if (currentReview && !showingAnswer && reviewInputRef) {
@@ -29,6 +39,23 @@
 
 	$: effectiveCorrect = userOverride !== null ? userOverride : gradeResult?.correct ?? false;
 	$: effectiveScore = userOverride !== null ? (userOverride ? 1.0 : 0.0) : (gradeResult?.score ?? 0);
+
+	// Summary stats (#7)
+	$: correctCount = sessionResults.filter((r) => r.correct).length;
+	$: incorrectCount = sessionResults.filter((r) => !r.correct).length;
+	$: accuracyPct = sessionResults.length > 0 ? Math.round((correctCount / sessionResults.length) * 100) : 0;
+	$: missedWords = sessionResults.filter((r) => !r.correct);
+
+	// Keyboard shortcut: Space/Enter continues after grading (#9)
+	function handleGlobalKeydown(e: KeyboardEvent) {
+		if (!sessionStarted || !showingAnswer) return;
+		const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
+		if (tag === 'input' || tag === 'textarea' || tag === 'button') return;
+		if ((e.key === ' ' || e.key === 'Enter') && !isSubmitting) {
+			e.preventDefault();
+			submitAndNext();
+		}
+	}
 
 	async function showAnswer() {
 		if (isGrading) return;
@@ -77,6 +104,15 @@
 			});
 
 			if (res.ok) {
+				const result: ReviewResult = {
+					lemma: currentReview.vocabulary.lemma,
+					correct: effectiveCorrect,
+					answer: typedAnswer,
+					correctMeaning: (currentReview.vocabulary as any).meanings?.[0]?.value || ''
+				};
+				undoStack = [...undoStack, { index: currentReviewIndex, result }];
+				sessionResults = [...sessionResults, result];
+
 				currentReviewIndex++;
 				gradeResult = null;
 				userOverride = null;
@@ -108,6 +144,15 @@
 			});
 
 			if (res.ok) {
+				const result: ReviewResult = {
+					lemma: currentReview.vocabulary.lemma,
+					correct: false,
+					answer: '',
+					correctMeaning: (currentReview.vocabulary as any).meanings?.[0]?.value || ''
+				};
+				undoStack = [...undoStack, { index: currentReviewIndex, result }];
+				sessionResults = [...sessionResults, result];
+
 				currentReviewIndex++;
 				gradeResult = null;
 				userOverride = null;
@@ -119,7 +164,21 @@
 			isSubmitting = false;
 		}
 	}
+
+	// Undo last submitted card (#8)
+	function undoLast() {
+		if (undoStack.length === 0 || showingAnswer) return;
+		const last = undoStack[undoStack.length - 1];
+		undoStack = undoStack.slice(0, -1);
+		sessionResults = sessionResults.slice(0, -1);
+		currentReviewIndex = last.index;
+		typedAnswer = '';
+		gradeResult = null;
+		userOverride = null;
+	}
 </script>
+
+<svelte:window onkeydown={handleGlobalKeydown} />
 
 <svelte:head>
 	<title>Vocabulary Review - LingoLearn</title>
@@ -129,14 +188,36 @@
 	<div class="content-wrapper">
 		<header class="page-header review-header" in:fly={{ y: 20, duration: 400 }}>
 			<h1>Vocabulary Review</h1>
-			{#if !isFinished && dueReviews.length > 0}
-				<span class="review-counter">
-					{currentReviewIndex + 1} / {dueReviews.length}
-				</span>
-			{/if}
+			<div class="review-header-right">
+				{#if sessionStarted && !isFinished && dueReviews.length > 0}
+					<span class="review-counter">
+						{currentReviewIndex + 1} / {dueReviews.length}
+					</span>
+				{/if}
+				{#if canUndo}
+					<button class="btn-undo" onclick={undoLast} title="Undo last card">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+							<path stroke-linecap="round" stroke-linejoin="round" d="M9 14L4 9l5-5" />
+							<path stroke-linecap="round" stroke-linejoin="round" d="M4 9h11a5 5 0 010 10h-1" />
+						</svg>
+						Undo
+					</button>
+				{/if}
+			</div>
 		</header>
 
-		{#if !sessionStarted && !isFinished && dueReviews.length > 0}
+		{#if hasNoReviews}
+			<div class="card-duo finished-card" in:fly={{ y: 20, duration: 400, delay: 100 }}>
+				<div class="success-icon">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+					</svg>
+				</div>
+				<h2>All caught up!</h2>
+				<p>You have no reviews due right now. Great job keeping your streak alive!</p>
+				<a href="/dashboard" class="btn-duo btn-primary back-btn">Back to Dashboard</a>
+			</div>
+		{:else if !sessionStarted}
 			<div class="card-duo session-start-card" in:fly={{ y: 20, duration: 400, delay: 100 }}>
 				<div class="session-icon">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -147,20 +228,60 @@
 				</div>
 				<h2>Ready to review?</h2>
 				<p>You have <strong>{dueReviews.length}</strong> {dueReviews.length === 1 ? 'card' : 'cards'} due for review.</p>
-				<button class="btn-duo btn-primary start-session-btn" on:click={() => sessionStarted = true}>
+				<button class="btn-duo btn-primary start-session-btn" onclick={() => sessionStarted = true}>
 					Start Reviewing
 				</button>
 				<a href="/dashboard" class="btn-skip">Not now</a>
 			</div>
 		{:else if isFinished}
-			<div class="card-duo finished-card" in:fly={{ y: 20, duration: 400, delay: 100 }}>
-				<div class="success-icon">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-						<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-					</svg>
+			<!-- Session Summary (#7) -->
+			<div class="card-duo summary-card" in:fly={{ y: 20, duration: 400, delay: 100 }}>
+				<div class="summary-icon" class:summary-perfect={accuracyPct === 100} class:summary-good={accuracyPct >= 70 && accuracyPct < 100} class:summary-ok={accuracyPct < 70}>
+					{#if accuracyPct === 100}
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+							<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+						</svg>
+					{:else}
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+							<polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+							<polyline points="2 17 12 22 22 17"></polyline>
+							<polyline points="2 12 12 17 22 12"></polyline>
+						</svg>
+					{/if}
 				</div>
-				<h2>All caught up!</h2>
-				<p>You have no more reviews due right now. Great job keeping your streak alive!</p>
+				<h2>{accuracyPct === 100 ? 'Perfect session!' : accuracyPct >= 70 ? 'Great work!' : 'Session complete'}</h2>
+				<p>You reviewed <strong>{sessionResults.length}</strong> {sessionResults.length === 1 ? 'card' : 'cards'}.</p>
+
+				<div class="summary-stats">
+					<div class="summary-stat correct">
+						<span class="stat-num">{correctCount}</span>
+						<span class="stat-lbl">Correct</span>
+					</div>
+					<div class="summary-stat accuracy">
+						<span class="stat-num">{accuracyPct}%</span>
+						<span class="stat-lbl">Accuracy</span>
+					</div>
+					<div class="summary-stat incorrect">
+						<span class="stat-num">{incorrectCount}</span>
+						<span class="stat-lbl">Missed</span>
+					</div>
+				</div>
+
+				{#if missedWords.length > 0}
+					<div class="missed-words">
+						<h3 class="missed-title">Words to revisit</h3>
+						<ul class="missed-list">
+							{#each missedWords as item}
+								<li class="missed-item">
+									<span class="missed-lemma">{item.lemma}</span>
+									<span class="missed-arrow">→</span>
+									<span class="missed-meaning">{item.correctMeaning}</span>
+								</li>
+							{/each}
+						</ul>
+					</div>
+				{/if}
+
 				<a href="/dashboard" class="btn-duo btn-primary back-btn">Back to Dashboard</a>
 			</div>
 		{:else if currentReview}
@@ -237,16 +358,17 @@
 
 									<!-- Actions -->
 									<div class="action-row">
-										<button class="btn-duo btn-override" on:click={toggleOverride} aria-label="{effectiveCorrect ? "Mark as incorrect" : "Mark as correct"}">
+										<button class="btn-duo btn-override" onclick={toggleOverride} aria-label="{effectiveCorrect ? "Mark as incorrect" : "Mark as correct"}">
 											<span class="override-icon">&#x21A9;</span>
 											{effectiveCorrect ? 'Mark as incorrect' : 'Mark as correct'}
 										</button>
 										<button
 											class="btn-duo btn-primary btn-continue"
-											on:click={submitAndNext}
+											onclick={submitAndNext}
 											disabled={isSubmitting}
 										>
 											{isSubmitting ? 'Saving...' : 'Continue'}
+											{#if !isSubmitting}<span class="continue-hint">Space</span>{/if}
 										</button>
 									</div>
 								</div>
@@ -276,12 +398,12 @@
 										type="text"
 										class="review-input"
 										placeholder="Type translation here..."
-										on:keydown={(e) => e.key === 'Enter' && showAnswer()}
+										onkeydown={(e) => e.key === 'Enter' && showAnswer()}
 									/>
 								</div>
 								<button
 									class="btn-duo btn-primary show-answer-btn"
-									on:click={showAnswer}
+									onclick={showAnswer}
 									disabled={isGrading}
 								>
 									{#if isGrading}
@@ -293,7 +415,7 @@
 								</button>
 								<button
 									class="btn-skip"
-									on:click={skipWord}
+									onclick={skipWord}
 									disabled={isSubmitting}
 								>
 									Skip this word
@@ -333,6 +455,12 @@
 		color: var(--text-color, #0f172a);
 	}
 
+	.review-header-right {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+	}
+
 	.review-counter {
 		background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
 		color: #1e40af;
@@ -347,6 +475,57 @@
 		background: linear-gradient(135deg, rgba(30, 58, 138, 0.3) 0%, rgba(30, 58, 138, 0.5) 100%);
 		color: #bfdbfe;
 		box-shadow: none;
+	}
+
+	/* Undo button (#8) */
+	.btn-undo {
+		display: flex;
+		align-items: center;
+		gap: 0.35rem;
+		background: none;
+		border: 2px solid #e2e8f0;
+		color: #64748b;
+		font-size: 0.8rem;
+		font-weight: 700;
+		padding: 0.4rem 0.75rem;
+		border-radius: 0.75rem;
+		cursor: pointer;
+		transition: all 0.15s;
+	}
+
+	.btn-undo svg {
+		width: 1rem;
+		height: 1rem;
+	}
+
+	.btn-undo:hover {
+		border-color: #94a3b8;
+		color: #334155;
+		background: #f8fafc;
+	}
+
+	:global(html[data-theme='dark']) .btn-undo {
+		border-color: #334155;
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .btn-undo:hover {
+		border-color: #64748b;
+		color: #cbd5e1;
+		background: #1e293b;
+	}
+
+	/* Continue keyboard hint (#9) */
+	.continue-hint {
+		font-size: 0.65rem;
+		font-weight: 700;
+		background: rgba(255, 255, 255, 0.25);
+		border: 1px solid rgba(255, 255, 255, 0.35);
+		border-radius: 0.3rem;
+		padding: 0.1rem 0.4rem;
+		margin-left: 0.5rem;
+		letter-spacing: 0.04em;
+		opacity: 0.85;
 	}
 
 	.session-start-card {
@@ -905,6 +1084,189 @@
 	}
 
 	:global(html[data-theme='dark']) .btn-skip:hover {
+		color: #94a3b8;
+	}
+
+	/* Session Summary card (#7) */
+	.summary-card {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		padding: 3rem 2rem;
+		text-align: center;
+		background-color: var(--card-bg, #ffffff);
+		border-color: var(--card-border, #e2e8f0);
+		box-shadow: 0 4px 0 var(--card-border, #e2e8f0);
+		gap: 1.25rem;
+	}
+
+	:global(html[data-theme='dark']) .summary-card {
+		box-shadow: 0 4px 0 var(--card-border, #374151);
+	}
+
+	.summary-icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 6rem;
+		height: 6rem;
+		border-radius: 50%;
+		box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+	}
+
+	.summary-icon svg { width: 2.75rem; height: 2.75rem; }
+
+	.summary-perfect {
+		background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+		color: #16a34a;
+		box-shadow: 0 4px 0 #16a34a33;
+	}
+	.summary-good {
+		background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+		color: #2563eb;
+		box-shadow: 0 4px 0 #2563eb22;
+	}
+	.summary-ok {
+		background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+		color: #d97706;
+		box-shadow: 0 4px 0 #d9770622;
+	}
+
+	:global(html[data-theme='dark']) .summary-perfect {
+		background: linear-gradient(135deg, rgba(20, 83, 45, 0.4) 0%, rgba(21, 128, 61, 0.4) 100%);
+		color: #4ade80;
+	}
+	:global(html[data-theme='dark']) .summary-good {
+		background: linear-gradient(135deg, rgba(30, 58, 138, 0.4) 0%, rgba(30, 64, 175, 0.4) 100%);
+		color: #93c5fd;
+	}
+	:global(html[data-theme='dark']) .summary-ok {
+		background: linear-gradient(135deg, rgba(120, 53, 15, 0.4) 0%, rgba(146, 64, 14, 0.4) 100%);
+		color: #fbbf24;
+	}
+
+	.summary-card h2 {
+		font-size: 1.75rem;
+		font-weight: 800;
+		margin: 0;
+		color: var(--text-color, #0f172a);
+	}
+
+	.summary-card p {
+		font-size: 1rem;
+		color: #64748b;
+		margin: 0;
+	}
+
+	.summary-card p strong {
+		color: #2563eb;
+		font-size: 1.2em;
+	}
+
+	:global(html[data-theme='dark']) .summary-card p strong {
+		color: #93c5fd;
+	}
+
+	.summary-stats {
+		display: flex;
+		gap: 1.5rem;
+		justify-content: center;
+		flex-wrap: wrap;
+	}
+
+	.summary-stat {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.25rem;
+		min-width: 5rem;
+	}
+
+	.stat-num {
+		font-size: 2.25rem;
+		font-weight: 900;
+		line-height: 1;
+	}
+
+	.stat-lbl {
+		font-size: 0.7rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: #64748b;
+	}
+
+	.summary-stat.correct .stat-num { color: #16a34a; }
+	.summary-stat.incorrect .stat-num { color: #dc2626; }
+	.summary-stat.accuracy .stat-num { color: #2563eb; }
+
+	:global(html[data-theme='dark']) .summary-stat.correct .stat-num { color: #4ade80; }
+	:global(html[data-theme='dark']) .summary-stat.incorrect .stat-num { color: #f87171; }
+	:global(html[data-theme='dark']) .summary-stat.accuracy .stat-num { color: #93c5fd; }
+
+	.missed-words {
+		width: 100%;
+		text-align: left;
+		border: 2px solid var(--card-border, #e2e8f0);
+		border-radius: 1rem;
+		overflow: hidden;
+	}
+
+	.missed-title {
+		font-size: 0.75rem;
+		font-weight: 800;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: #64748b;
+		margin: 0;
+		padding: 0.75rem 1rem;
+		border-bottom: 2px solid var(--card-border, #e2e8f0);
+		background: #f8fafc;
+	}
+
+	:global(html[data-theme='dark']) .missed-title {
+		background: #1e293b;
+		border-color: #334155;
+		color: #94a3b8;
+	}
+
+	.missed-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.missed-item {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.6rem 1rem;
+		border-bottom: 1px solid var(--card-border, #f1f5f9);
+		font-size: 0.95rem;
+	}
+
+	.missed-item:last-child { border-bottom: none; }
+
+	.missed-lemma {
+		font-weight: 800;
+		color: var(--text-color, #1e293b);
+	}
+
+	.missed-arrow {
+		color: #94a3b8;
+		font-size: 0.8rem;
+	}
+
+	.missed-meaning {
+		color: #64748b;
+		font-weight: 600;
+	}
+
+	:global(html[data-theme='dark']) .missed-item {
+		border-color: #1e293b;
+	}
+
+	:global(html[data-theme='dark']) .missed-meaning {
 		color: #94a3b8;
 	}
 </style>

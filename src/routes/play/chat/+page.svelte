@@ -455,7 +455,7 @@
 							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
 							Passed
 						</div>
-						<button class="back-btn" on:click={() => assignment && goto(`/classes/${assignment.classId}`)}>Back to Class</button>
+						<button class="back-btn" onclick={() => assignment && goto(`/classes/${assignment.classId}`)}>Back to Class</button>
 					{:else}
 						<div class="progress-text">Messages: {messagesSent} / {targetScore}</div>
 						<div class="progress-bar-bg">
@@ -468,7 +468,7 @@
 	{/if}
 	
 	<div class="chat-header-main" in:fly={{ y: 20, duration: 400 }}>
-		<a href="/play" class="back-link dark:text-slate-400" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+		<a href="/play" class="back-link " style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
 			<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
 			Back to Play
 		</a>
@@ -486,7 +486,7 @@
 				<div>
 					<div class="label-row">
 						<label for="persona">Persona / Scenario</label>
-						<button class="randomize-btn" on:click={randomizeTopic} title="Randomize Topic">
+						<button class="randomize-btn" onclick={randomizeTopic} title="Randomize Topic">
 							<svg
 								viewBox="0 0 24 24"
 								fill="none"
@@ -508,7 +508,7 @@
 						placeholder="e.g. A friendly waiter at a café"
 					/>
 				</div>
-				<button type="button" on:click={startSession} class="btn-duo btn-ai start-btn" aria-label="Start conversation">
+				<button type="button" onclick={startSession} class="btn-duo btn-ai start-btn" aria-label="Start conversation">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.5rem;height:1.5rem;flex-shrink:0;margin-right:0.5rem;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
 					Start Conversation
 				</button>
@@ -533,11 +533,11 @@
 				</div>
 				{#if !isAssignment}
 				<div class="session-actions">
-					<button on:click={openTopicChange} class="change-topic-btn" disabled={showTopicChange}>
+					<button onclick={openTopicChange} class="change-topic-btn" disabled={showTopicChange}>
 						Change Topic
 					</button>
 					<button
-						on:click={() => {
+						onclick={() => {
 							sessionStarted = false;
 							sessionId = '';
 							showTopicChange = false;
@@ -557,15 +557,15 @@
 						bind:value={newPersona}
 						class="topic-change-input"
 						placeholder="Enter a new persona or topic..."
-						on:keydown={(e) => e.key === 'Enter' && confirmTopicChange()}
+						onkeydown={(e) => e.key === 'Enter' && confirmTopicChange()}
 					/>
-					<button on:click={randomizeNewPersona} class="randomize-inline-btn" title="Randomize">
+					<button onclick={randomizeNewPersona} class="randomize-inline-btn" title="Randomize">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem;"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
 					</button>
-					<button on:click={confirmTopicChange} class="confirm-topic-btn" disabled={!newPersona.trim() || isLoading}>
+					<button onclick={confirmTopicChange} class="confirm-topic-btn" disabled={!newPersona.trim() || isLoading}>
 						Start
 					</button>
-					<button on:click={cancelTopicChange} class="cancel-topic-btn">
+					<button onclick={cancelTopicChange} class="cancel-topic-btn">
 						Cancel
 					</button>
 				</div>
@@ -578,7 +578,7 @@
 						<div class="empty-state">
 							<div class="wave">👋</div>
 							<p>Start the conversation! Introduce yourself or say hello.</p>
-							<button on:click={startAIConversation} class="ai-start-btn" disabled={isLoading}>
+							<button onclick={startAIConversation} class="ai-start-btn" disabled={isLoading}>
 								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem;flex-shrink:0;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
 								Make the AI ask the first question
 							</button>
@@ -665,13 +665,13 @@
 						<textarea
 							bind:this={chatInputRef}
 							bind:value={message}
-							on:keydown={handleKeydown}
+							onkeydown={handleKeydown}
 							placeholder="Type your message... (Enter to send)"
 							rows="1"
 							disabled={isLoading || isPassed}
 						></textarea>
 					</div>
-					<button type="button" on:click={sendMessage} disabled={isLoading || !message.trim() || isPassed} class="send-btn" aria-label="Send message">
+					<button type="button" onclick={sendMessage} disabled={isLoading || !message.trim() || isPassed} class="send-btn" aria-label="Send message">
 						<svg
 							class="icon"
 							fill="none"

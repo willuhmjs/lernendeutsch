@@ -96,7 +96,7 @@
 <div class="live-container">
 	<div class="header-row">
 		<h1 class="battle-title pulse">Live Session: {className}</h1>
-		<button class="btn-end" on:click={endSession}>End Session</button>
+		<button class="btn-end" onclick={endSession}>End Session</button>
 	</div>
 
 	{#if loading && !session}
@@ -120,7 +120,7 @@
 					{/each}
 				</div>
 
-				<button class="btn-primary w-full btn-large mt-large" on:click={startGame} disabled={students.length === 0}>
+				<button class="btn-primary w-full btn-large mt-large" onclick={startGame} disabled={students.length === 0}>
 					Start Game
 				</button>
 			{:else if session.status === 'active' || session.status === 'showing_answer'}
@@ -156,7 +156,7 @@
 				</div>
 
 				{#if session.status === 'active'}
-					<button class="btn-primary w-full btn-large mt-large" on:click={nextQuestion}>
+					<button class="btn-primary w-full btn-large mt-large" onclick={nextQuestion}>
 						Reveal Answer
 					</button>
 				{:else}

@@ -410,7 +410,7 @@
 	}
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 <div class="admin-container">
 	<header class="admin-header" in:fly={{ y: 20, duration: 400 }}>
@@ -542,7 +542,7 @@
 					<button
 						type="button"
 						class="cancel-btn"
-						on:click={fetchModels}
+						onclick={fetchModels}
 						disabled={isFetchingModels || !llmEndpoint}
 					>
 						{isFetchingModels ? 'Fetching...' : 'Fetch Models'}
@@ -636,7 +636,7 @@
 			<div class="lang-data-actions">
 				<div class="lang-action-group">
 					<span class="lang-action-label">Export</span>
-					<button class="seed-btn" on:click={exportLangData} disabled={isExporting}>
+					<button class="seed-btn" onclick={exportLangData} disabled={isExporting}>
 						{isExporting ? 'Exporting…' : 'Download JSON'}
 					</button>
 				</div>
@@ -647,7 +647,7 @@
 						<input type="file" accept=".json" bind:files={importFile} class="file-input" />
 						<button
 							class="seed-btn"
-							on:click={importLangData}
+							onclick={importLangData}
 							disabled={isImporting || !importFile?.length}
 						>
 							{isImporting ? 'Importing…' : 'Import'}
@@ -664,7 +664,7 @@
 								<option value="grammar">Grammar only</option>
 								<option value="all">All (vocab + grammar)</option>
 							</select>
-							<button class="delete-btn" on:click={() => (showDeleteLangConfirm = true)}
+							<button class="delete-btn" onclick={() => (showDeleteLangConfirm = true)}
 								>Delete…</button
 							>
 						</div>
@@ -675,12 +675,12 @@
 							>
 							<button
 								class="delete-confirm-btn"
-								on:click={deleteLangData}
+								onclick={deleteLangData}
 								disabled={isDeletingLangData}
 							>
 								{isDeletingLangData ? 'Deleting…' : 'Confirm'}
 							</button>
-							<button class="cancel-delete-btn" on:click={() => (showDeleteLangConfirm = false)}
+							<button class="cancel-delete-btn" onclick={() => (showDeleteLangConfirm = false)}
 								>Cancel</button
 							>
 						</div>
@@ -708,7 +708,7 @@
 			<h2 style="margin: 0;">Auto-Generated Vocabulary</h2>
 			<button
 				class="seed-btn"
-				on:click={runAICheckAll}
+				onclick={runAICheckAll}
 				disabled={isCheckingAI || data.pendingVocab.length === 0}
 				style="background-color: #8b5cf6;"
 			>
@@ -752,10 +752,10 @@
 								<td>{new Date(vocab.createdAt).toLocaleDateString()}</td>
 								<td>
 									<div style="display: flex; gap: 0.5rem;">
-										<button class="approve-btn" on:click={() => approveVocab(vocab.id)}
+										<button class="approve-btn" onclick={() => approveVocab(vocab.id)}
 											>Approve</button
 										>
-										<button class="delete-vocab-btn" on:click={() => deleteVocab(vocab.id)}
+										<button class="delete-vocab-btn" onclick={() => deleteVocab(vocab.id)}
 											>Delete</button
 										>
 									</div>
@@ -800,7 +800,7 @@
 								<td>{cls._count.assignments}</td>
 								<td>{new Date(cls.createdAt).toLocaleDateString()}</td>
 								<td>
-									<button class="delete-vocab-btn" on:click={() => deleteClass(cls.id)}
+									<button class="delete-vocab-btn" onclick={() => deleteClass(cls.id)}
 										>Delete</button
 									>
 								</td>
@@ -856,7 +856,7 @@
 								>
 							</td>
 							<td>
-								<button class="edit-btn" on:click={() => openEditModal(user)}>Edit</button>
+								<button class="edit-btn" onclick={() => openEditModal(user)}>Edit</button>
 							</td>
 						</tr>
 					{/each}
@@ -869,11 +869,11 @@
 {#if editingUser}
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
-	<div class="modal-backdrop" on:click={handleBackdropClick}>
+	<div class="modal-backdrop" onclick={handleBackdropClick}>
 		<div class="modal">
 			<div class="modal-header">
 				<h2>Edit User</h2>
-				<button class="modal-close" on:click={closeModal}>&times;</button>
+				<button class="modal-close" onclick={closeModal}>&times;</button>
 			</div>
 
 			{#if modalError}
@@ -882,7 +882,7 @@
 				</div>
 			{/if}
 
-			<form class="modal-form" on:submit|preventDefault={saveUser}>
+			<form class="modal-form" onsubmit={(e) => { e.preventDefault(); saveUser(); }}>
 				<div class="form-group">
 					<label for="edit-username">Username</label>
 					<input id="edit-username" type="text" bind:value={editingUser.username} required />
@@ -928,7 +928,7 @@
 									type="button"
 									class="cancel-delete-btn"
 									style="padding: 0.3rem 0.5rem; font-size: 0.75rem;"
-									on:click={() => resetProgress(prog.languageId)}
+									onclick={() => resetProgress(prog.languageId)}
 								>
 									Reset Progress
 								</button>
@@ -939,7 +939,7 @@
 
 				<div class="modal-actions">
 					{#if !showDeleteConfirm}
-						<button type="button" class="delete-btn" on:click={() => (showDeleteConfirm = true)}>
+						<button type="button" class="delete-btn" onclick={() => (showDeleteConfirm = true)}>
 							Delete User
 						</button>
 					{:else}
@@ -948,7 +948,7 @@
 							<button
 								type="button"
 								class="delete-confirm-btn"
-								on:click={deleteUser}
+								onclick={deleteUser}
 								disabled={isDeleting}
 							>
 								{isDeleting ? 'Deleting...' : 'Yes, Delete'}
@@ -956,7 +956,7 @@
 							<button
 								type="button"
 								class="cancel-delete-btn"
-								on:click={() => (showDeleteConfirm = false)}
+								onclick={() => (showDeleteConfirm = false)}
 							>
 								Cancel
 							</button>
@@ -964,7 +964,7 @@
 					{/if}
 
 					<div class="modal-right-actions">
-						<button type="button" class="cancel-btn" on:click={closeModal}>Cancel</button>
+						<button type="button" class="cancel-btn" onclick={closeModal}>Cancel</button>
 						<button type="submit" class="save-btn" disabled={isSaving}>
 							{isSaving ? 'Saving...' : 'Save Changes'}
 						</button>

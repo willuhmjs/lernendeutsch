@@ -184,7 +184,7 @@
 	}
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 <svelte:head>
 	<title>Dictionary & Grammar - LingoLearn</title>
@@ -199,13 +199,13 @@
 	<div class="tabs-container">
 		<button 
 			class="tab-btn {activeTab === 'vocabulary' ? 'active' : ''}" 
-			on:click={() => activeTab = 'vocabulary'}
+			onclick={() => activeTab = 'vocabulary'}
 		>
 			Vocabulary
 		</button>
 		<button 
 			class="tab-btn {activeTab === 'grammar' ? 'active' : ''}" 
-			on:click={() => activeTab = 'grammar'}
+			onclick={() => activeTab = 'grammar'}
 		>
 			Grammar Library
 		</button>
@@ -234,7 +234,7 @@
 					bind:this={searchInputEl}
 					type="search"
 					bind:value={query}
-					on:input={handleInput}
+					oninput={handleInput}
 					class="search-input"
 					placeholder="Search for words in {currentLanguage} or English..."
 				/>
@@ -247,21 +247,18 @@
 					<div class="esset-prompt" transition:fade={{ duration: 150 }}>
 						<span class="esset-text">Convert 'ss' to 'ß'?</span>
 						<div class="esset-actions">
-							<button class="esset-btn esset-yes" on:click={convertToEsset}>Yes</button>
-							<button class="esset-btn esset-no" on:click={dismissEssetPrompt}>No</button>
+							<button class="esset-btn esset-yes" onclick={convertToEsset}>Yes</button>
+							<button class="esset-btn esset-no" onclick={dismissEssetPrompt}>No</button>
 						</div>
 					</div>
 				{/if}
 			</div>
 			
 			<div class="keyboard-wrapper">
-				<SpecialCharKeyboard 
-					language={currentLanguage} 
-					on:char={(event) => {
-						query += event.detail;
-						searchInputEl?.focus();
-						handleInput();
-					}} 
+				<SpecialCharKeyboard
+					language={currentLanguage}
+					bind:value={query}
+					inputElement={searchInputEl}
 				/>
 			</div>
 		</div>
@@ -276,8 +273,8 @@
 									<!-- svelte-ignore a11y-no-static-element-interactions -->
 									<div
 										class="result-clickable"
-										on:click={() => openModal(result)}
-										on:keydown={(e) => {
+										onclick={() => openModal(result)}
+										onkeydown={(e) => {
 											if (e.key === 'Enter' || e.key === ' ') {
 												e.preventDefault();
 												openModal(result);
@@ -313,7 +310,7 @@
 									{#if addedWords.includes(result.id)}
 										<button disabled class="btn-added"> Added </button>
 									{:else}
-										<button on:click={() => handleAddWord(result.id)} class="btn-add"> Add </button>
+										<button onclick={() => handleAddWord(result.id)} class="btn-add"> Add </button>
 									{/if}
 								</div>
 							</div>
@@ -324,7 +321,7 @@
 				{#if query.trim().length > 1 && activeLanguageId}
 					<div class="ask-ai-results-section">
 						<p class="ask-ai-results-text">Not finding the exact word you searched for?</p>
-						<button on:click={handleAskAI} class="btn-ask-ai-results" disabled={llmLoading}>
+						<button onclick={handleAskAI} class="btn-ask-ai-results" disabled={llmLoading}>
 							{#if llmLoading}
 								<span class="spinner-small"></span> Asking AI...
 							{:else}
@@ -355,7 +352,7 @@
 					
 					<div class="ask-ai-section">
 						{#if activeLanguageId}
-							<button on:click={handleAskAI} class="btn-ask-ai" disabled={llmLoading}>
+							<button onclick={handleAskAI} class="btn-ask-ai" disabled={llmLoading}>
 								{#if llmLoading}
 									<span class="spinner-small"></span> Asking AI...
 								{:else}
@@ -390,21 +387,21 @@
 						<h2 class="level-heading">Level {level}</h2>
 						<div class="grammar-rules-list">
 							{#each groupedGrammar[level] as rule}
-								<div class="grammar-rule-card dark:bg-slate-800 dark:border-slate-700">
+								<div class="grammar-rule-card">
 									<button
 										type="button"
 										class="grammar-rule-header"
-										on:click={() => toggleGrammar(rule.id)}
+										onclick={() => toggleGrammar(rule.id)}
 										aria-expanded={expandedGrammarId === rule.id}
 										aria-controls="grammar-{rule.id}"
 									>
 										<div class="grammar-rule-title-wrapper">
-											<h3 class="grammar-rule-title dark:text-white">{rule.title}</h3>
+											<h3 class="grammar-rule-title">{rule.title}</h3>
 											{#if rule.description}
-												<p class="grammar-rule-desc dark:text-slate-400">{rule.description}</p>
+												<p class="grammar-rule-desc">{rule.description}</p>
 											{/if}
 										</div>
-										<span class="grammar-toggle-btn dark:text-slate-400" aria-hidden="true">
+										<span class="grammar-toggle-btn" aria-hidden="true">
 											{#if expandedGrammarId === rule.id}
 												<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
 											{:else}
@@ -415,7 +412,7 @@
 									
 									{#if expandedGrammarId === rule.id && rule.guide}
 										<div class="grammar-rule-content" id="grammar-{rule.id}" transition:slide={{ duration: 200 }}>
-											<div class="grammar-guide markdown-body dark:bg-slate-900 dark:border-slate-700">
+											<div class="grammar-guide markdown-body">
 												{@html marked(rule.guide)}
 											</div>
 										</div>
@@ -433,9 +430,9 @@
 {#if selectedResult}
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
-	<div class="modal-backdrop" on:click={closeModal} transition:fade={{ duration: 200 }}>
-		<div class="modal-content" on:click|stopPropagation transition:fly={{ y: 20, duration: 200 }}>
-			<button class="modal-close" on:click={closeModal}>&times;</button>
+	<div class="modal-backdrop" onclick={closeModal} transition:fade={{ duration: 200 }}>
+		<div class="modal-content" onclick={(e) => e.stopPropagation()} transition:fly={{ y: 20, duration: 200 }}>
+			<button class="modal-close" onclick={closeModal}>&times;</button>
 			<div class="modal-header">
 				<h2 class="modal-title">
 					{selectedResult.lemma}
@@ -561,7 +558,7 @@
 					<button disabled class="btn-added"> Added to List </button>
 				{:else}
 					<button
-						on:click={() => {
+						onclick={() => {
 							handleAddWord(selectedResult.id);
 							closeModal();
 						}}

@@ -4,22 +4,29 @@
 	import VoiceDictation from '$lib/components/VoiceDictation.svelte';
 	import { charSets } from '$lib/utils/keyboard';
 
-	export let challenge: any;
-	export let submitting: boolean;
-	export let feedback: any;
-	export let loading: boolean;
-	export let fillBlankAnswers: string[];
-	export let lessonLanguage: { name: string } | null | undefined;
-	export const submitAnswer = () => {};
+	let {
+		challenge,
+		submitting,
+		feedback,
+		loading,
+		fillBlankAnswers = $bindable([]),
+		lessonLanguage
+	}: {
+		challenge: any;
+		submitting: boolean;
+		feedback: any;
+		loading: boolean;
+		fillBlankAnswers?: string[];
+		lessonLanguage?: { name: string } | null;
+	} = $props();
 
-	// Track which input is focused for the shared special keyboard
-	let focusedIndex = 0;
-	let inputEls: (HTMLInputElement | null)[] = [];
+	let focusedIndex = $state(0);
+	let inputEls: (HTMLInputElement | null)[] = $state([]);
 
-	$: langKey = lessonLanguage?.name?.toLowerCase() || '';
-	$: showSpecialKeyboard = langKey in charSets;
-	$: speechLang = getLangCode(lessonLanguage?.name);
-	$: activeInputEl = inputEls[focusedIndex] ?? null;
+	const langKey = $derived(lessonLanguage?.name?.toLowerCase() || '');
+	const showSpecialKeyboard = $derived(langKey in charSets);
+	const speechLang = $derived(getLangCode(lessonLanguage?.name));
+	const activeInputEl = $derived(inputEls[focusedIndex] ?? null);
 
 	function getLangCode(name: string | undefined): string {
 		const map: Record<string, string> = {
@@ -46,7 +53,7 @@
 	{#each fillBlankAnswers as _, i}
 		<div class="form-group">
 			<div class="input-label-row">
-				<label for="blank-{i}" class="dark:text-slate-300">
+				<label for="blank-{i}" class="label">
 					Blank {i + 1}{challenge.hints?.[i] ? ` (${challenge.hints[i].hint})` : ''}
 				</label>
 				<VoiceDictation
@@ -64,8 +71,8 @@
 				bind:value={fillBlankAnswers[i]}
 				disabled={submitting || feedback !== null || loading}
 				placeholder="Type the missing {lessonLanguage?.name || 'Target'} word..."
-				class="blank-input dark:bg-slate-900 dark:text-white dark:border-slate-700"
-				on:focus={() => (focusedIndex = i)}
+				class="blank-input"
+				onfocus={() => (focusedIndex = i)}
 			/>
 		</div>
 	{/each}

@@ -134,21 +134,31 @@
 				</div>
 			{:else}
 				<div class="empty-state">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-						/>
-					</svg>
+					<div class="empty-icon-wrap">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+							/>
+						</svg>
+					</div>
 					<p class="empty-title">No classes yet</p>
-					<p class="empty-desc">Create a new class or join one using an invite code!</p>
+					<p class="empty-desc">Create a class to assign homework or join one with an invite code.</p>
+					<div class="empty-actions">
+						<button class="empty-cta" onclick={() => { activeTab = 'create'; document.querySelector('.forms-section')?.scrollIntoView({ behavior: 'smooth' }); }}>
+							Create a Class
+						</button>
+						<button class="empty-cta-secondary" onclick={() => { activeTab = 'join'; document.querySelector('.forms-section')?.scrollIntoView({ behavior: 'smooth' }); }}>
+							Join with Code
+						</button>
+					</div>
 				</div>
 			{/if}
 		</section>
@@ -706,11 +716,28 @@
 
 	.empty-state {
 		text-align: center;
-		padding: 3rem 2rem;
+		padding: 3.5rem 2rem;
 		background: var(--card-bg, #f8fafc);
 		border-radius: 1.5rem;
 		border: 3px dashed var(--card-border, #cbd5e1);
 		color: #94a3b8;
+	}
+
+	.empty-icon-wrap {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 5rem;
+		height: 5rem;
+		border-radius: 50%;
+		background: var(--card-border, #e2e8f0);
+		margin-bottom: 1.25rem;
+	}
+
+	.empty-icon-wrap svg {
+		width: 2.5rem;
+		height: 2.5rem;
+		opacity: 0.5;
 	}
 
 	.empty-state svg {
@@ -726,6 +753,45 @@
 		color: #64748b;
 		margin: 0 0 0.5rem;
 	}
+
+	.empty-actions {
+		display: flex;
+		gap: 0.75rem;
+		justify-content: center;
+		margin-top: 1.25rem;
+		flex-wrap: wrap;
+	}
+
+	.empty-cta {
+		background: #3b82f6;
+		color: white;
+		border: none;
+		border-radius: 0.75rem;
+		padding: 0.65rem 1.25rem;
+		font-size: 0.875rem;
+		font-weight: 800;
+		cursor: pointer;
+		box-shadow: 0 3px 0 #2563eb;
+		font-family: inherit;
+		transition: background 0.15s;
+	}
+
+	.empty-cta:hover { background: #2563eb; }
+
+	.empty-cta-secondary {
+		background: var(--card-bg, #ffffff);
+		color: #475569;
+		border: 2px solid var(--card-border, #e2e8f0);
+		border-radius: 0.75rem;
+		padding: 0.65rem 1.25rem;
+		font-size: 0.875rem;
+		font-weight: 800;
+		cursor: pointer;
+		font-family: inherit;
+		transition: border-color 0.15s;
+	}
+
+	.empty-cta-secondary:hover { border-color: #94a3b8; }
 
 	.empty-desc {
 		color: #94a3b8;

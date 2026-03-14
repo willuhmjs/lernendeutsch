@@ -120,7 +120,7 @@
 	{:else if !joined}
 		<div class="battle-card">
 			<h2 class="card-title mb-large">Battle is ready!</h2>
-			<button class="btn-primary w-full btn-large" on:click={joinSession}> Join Now </button>
+			<button class="btn-primary w-full btn-large" onclick={joinSession}> Join Now </button>
 		</div>
 	{:else}
 		<div class="battle-card relative overflow-hidden">
@@ -158,7 +158,7 @@
 							<button
 								type="button"
 								class={`option-btn option-${optionColors[i % optionColors.length]}`}
-								on:click={() => submitAnswer(opt.text)}
+								onclick={() => submitAnswer(opt.text)}
 								disabled={hasAnswered}
 								aria-label="Answer option: {opt.text}"
 							>

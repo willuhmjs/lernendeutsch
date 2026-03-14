@@ -47,13 +47,13 @@
 <div class="page-container">
 	<div class="auth-card" in:fly={{ y: 20, duration: 400 }}>
 		<div class="auth-header">
-			<h2 class="dark:text-white">Create a new account</h2>
-			<p class="dark:text-slate-400">Join us today to get started.</p>
+			<h2 class="">Create a new account</h2>
+			<p class="">Join us today to get started.</p>
 		</div>
 
 		<div class="google-auth">
 			<button
-				class="google-btn dark:bg-slate-800 dark:text-white dark:border-slate-700"
+				class="google-btn "
 				onclick={handleGoogleSignIn}
 				disabled={isGoogleSigningIn}
 				aria-label="Sign up with Google"
@@ -83,7 +83,7 @@
 				{/if}
 				{isGoogleSigningIn ? 'Signing up...' : 'Sign up with Google'}
 			</button>
-			<p class="legal-notice-google dark:text-slate-400">
+			<p class="legal-notice-google ">
 				By signing up, you agree to our <a href="/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a> and
 				<a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
 			</p>
@@ -91,7 +91,7 @@
 
 		{#if data.localLoginEnabled}
 			<div class="divider">
-				<span class="dark:text-slate-400">or continue with email</span>
+				<span class="">or continue with email</span>
 			</div>
 
 			<form
@@ -107,7 +107,7 @@
 				aria-label="Signup form"
 			>
 				<div class="form-group">
-					<label for="username" class="dark:text-slate-300">Username</label>
+					<label for="username" class="">Username</label>
 					<input
 						id="username"
 						name="username"
@@ -116,12 +116,12 @@
 						disabled={isSubmitting}
 						placeholder="Enter your username"
 						aria-label="Username"
-						class="dark:bg-slate-900 dark:text-white dark:border-slate-700"
+						class=""
 					/>
 				</div>
 
 				<div class="form-group">
-					<label for="email" class="dark:text-slate-300">Email address</label>
+					<label for="email" class="">Email address</label>
 					<input
 						id="email"
 						name="email"
@@ -131,12 +131,12 @@
 						disabled={isSubmitting}
 						placeholder="Enter your email"
 						aria-label="Email address"
-						class="dark:bg-slate-900 dark:text-white dark:border-slate-700"
+						class=""
 					/>
 				</div>
 
 				<div class="form-group">
-					<label for="password" class="dark:text-slate-300">Password</label>
+					<label for="password" class="">Password</label>
 					<input
 						id="password"
 						name="password"
@@ -148,7 +148,7 @@
 						aria-label="Password"
 						aria-describedby={password ? 'password-strength' : undefined}
 						minlength="8"
-						class="dark:bg-slate-900 dark:text-white dark:border-slate-700"
+						class=""
 					/>
 					{#if password}
 						<div id="password-strength" class="password-strength" role="status" aria-live="polite">
@@ -165,7 +165,7 @@
 					{/if}
 				</div>
 
-				<p class="legal-notice dark:text-slate-400">
+				<p class="legal-notice ">
 					By signing up, you agree to our <a href="/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a> and
 					<a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
 				</p>

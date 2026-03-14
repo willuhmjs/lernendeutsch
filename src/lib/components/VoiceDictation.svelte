@@ -1,14 +1,21 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
 
-	export let lang: string = 'en-US';
-	export let value: string = '';
-	export let inputElement: HTMLInputElement | HTMLTextAreaElement | null = null;
-	export let disabled: boolean = false;
+	let {
+		lang = 'en-US',
+		value = $bindable(''),
+		inputElement = null,
+		disabled = false
+	}: {
+		lang?: string;
+		value?: string;
+		inputElement?: HTMLInputElement | HTMLTextAreaElement | null;
+		disabled?: boolean;
+	} = $props();
 
-	let isListening = false;
-	let isRequesting = false; // True while awaiting mic permission
-	let errorMsg: string | null = null;
+	let isListening = $state(false);
+	let isRequesting = $state(false); // True while awaiting mic permission
+	let errorMsg = $state<string | null>(null);
 	let recognition: any = null;
 
 	const isSupported =
@@ -124,7 +131,7 @@
 		class:listening={isListening}
 		class:requesting={isRequesting}
 		disabled={(disabled && !isListening) || isRequesting}
-		on:click={handleClick}
+		onclick={handleClick}
 		title={isListening ? 'Stop listening' : isRequesting ? 'Requesting permission…' : 'Dictate your answer'}
 		aria-label={isListening ? 'Stop voice input' : 'Start voice input'}
 		aria-pressed={isListening}

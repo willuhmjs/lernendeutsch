@@ -260,9 +260,9 @@
 					<p class="invite-label">Invite Code</p>
 					<p class="invite-code">{classDetails.inviteCode}</p>
 					<div class="invite-buttons">
-						<button on:click={handleCopyCode} class="invite-btn">Copy Code</button>
-						<button on:click={handleCopyLink} class="invite-btn">Copy Link</button>
-						<button on:click={handleResetCode} class="invite-btn">Reset</button>
+						<button onclick={handleCopyCode} class="invite-btn">Copy Code</button>
+						<button onclick={handleCopyLink} class="invite-btn">Copy Link</button>
+						<button onclick={handleResetCode} class="invite-btn">Reset</button>
 					</div>
 				</div>
 				<div class="action-stack">
@@ -270,8 +270,8 @@
 						>Start Live Session</a
 					>
 					<div class="action-row">
-						<button on:click={handleLeaveClass} class="btn-duo btn-leave">Leave Class</button>
-						<button on:click={handleDeleteClass} class="btn-duo btn-delete-class">Delete Class</button>
+						<button onclick={handleLeaveClass} class="btn-duo btn-leave">Leave Class</button>
+						<button onclick={handleDeleteClass} class="btn-duo btn-delete-class">Delete Class</button>
 					</div>
 				</div>
 			{:else}
@@ -280,7 +280,7 @@
 						>Join Live Session</a
 					>
 					<div class="action-row">
-						<button on:click={handleLeaveClass} class="btn-duo btn-leave">Leave Class</button>
+						<button onclick={handleLeaveClass} class="btn-duo btn-leave">Leave Class</button>
 					</div>
 				</div>
 			{/if}
@@ -295,7 +295,7 @@
 				{#if currentUserRole === 'TEACHER'}
 					<button
 						class="btn-duo btn-primary btn-small"
-						on:click={openCreateAssignmentModal}
+						onclick={openCreateAssignmentModal}
 						disabled={classDetails.assignments.length >= 30}
 						title={classDetails.assignments.length >= 30
 							? 'Assignment limit reached (30)'
@@ -365,7 +365,7 @@
 											type="button"
 											class="btn-duo btn-copy assignment-play-btn text-center"
 											aria-label="Copy assignment link"
-											on:click={() => copyAssignmentLink(assignment.id)}
+											onclick={() => copyAssignmentLink(assignment.id)}
 										>
 											{copiedAssignmentId === assignment.id ? '✓ Copied' : '🔗 Copy Link'}
 										</button>
@@ -485,7 +485,7 @@
 								<div class="member-actions">
 									{#if member.role === 'STUDENT'}
 										<button
-											on:click={() => handlePromoteMember(member.userId)}
+											onclick={() => handlePromoteMember(member.userId)}
 											title="Promote to Teacher"
 											class="action-btn action-promote"
 										>
@@ -493,7 +493,7 @@
 										</button>
 									{/if}
 									<button
-										on:click={() =>
+										onclick={() =>
 											handleKickMember(member.userId, member.user.name || member.user.username)}
 										title="Remove from class"
 										class="action-btn action-remove"
@@ -515,16 +515,16 @@
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
 		class="modal-backdrop"
-		on:click={closeCreateAssignmentModal}
+		onclick={closeCreateAssignmentModal}
 		transition:fly={{ duration: 200, opacity: 0 }}
 	>
-		<div class="modal-content card-duo" on:click|stopPropagation>
+		<div class="modal-content card-duo" onclick={(e) => e.stopPropagation()}>
 			<div class="modal-header">
 				<h3 class="create-form-title">Create New Assignment</h3>
-				<button class="btn-close" on:click={closeCreateAssignmentModal}>&times;</button>
+				<button class="btn-close" onclick={closeCreateAssignmentModal}>&times;</button>
 			</div>
 
-			<form on:submit|preventDefault={handleCreateAssignment} class="create-form">
+			<form onsubmit={(e) => { e.preventDefault(); handleCreateAssignment(); }} class="create-form">
 				<div class="create-form-row">
 					<div class="field">
 						<label for="title">Title <span class="required">*</span></label>
@@ -564,14 +564,14 @@
 								{#each targetVocabList as word}
 									<span class="vocab-tag">
 										{word}
-										<button type="button" class="remove-vocab" on:click={() => removeVocab(word)}>&times;</button>
+										<button type="button" class="remove-vocab" onclick={() => removeVocab(word)}>&times;</button>
 									</span>
 								{/each}
 								<input
 									type="text"
 									id="vocab"
 									bind:value={vocabInput}
-									on:keydown={handleVocabKeydown}
+									onkeydown={handleVocabKeydown}
 									placeholder={targetVocabList.length === 0 ? "Type a word and press Enter" : ""}
 									class="vocab-inline-input"
 								/>
@@ -598,7 +598,7 @@
 										<input 
 											type="checkbox" 
 											checked={selectedGrammarRules.includes(rule.id)}
-											on:change={() => toggleGrammarRule(rule.id)}
+											onchange={() => toggleGrammarRule(rule.id)}
 										/>
 										<div class="grammar-rule-info">
 											<span class="grammar-rule-title">{rule.title}</span>
@@ -682,7 +682,7 @@
 				</div>
 
 				<div class="modal-actions">
-					<button type="button" class="btn-duo btn-secondary" on:click={closeCreateAssignmentModal}>
+					<button type="button" class="btn-duo btn-secondary" onclick={closeCreateAssignmentModal}>
 						Cancel
 					</button>
 					<button type="submit" disabled={isCreatingAssignment} class="btn-duo btn-primary">

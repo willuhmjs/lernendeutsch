@@ -1887,8 +1887,8 @@
 <div class="page-container">
 	<div class="content-wrapper" class:games-active={activeTab === 'games'}>
 		<header class="page-header" in:fly={{ y: 20, duration: 400 }}>
-			<h1 class="dark:text-white">Play Mode</h1>
-			<p class="dark:text-slate-400">Test your skills with personalized challenges.</p>
+			<h1 class="">Play Mode</h1>
+			<p class="">Test your skills with personalized challenges.</p>
 		</header>
 
 		<div class="tabs-container" in:fly={{ y: 20, duration: 400 }}>
@@ -1896,21 +1896,21 @@
 				<button
 					class="tab-btn"
 					class:active={activeTab === 'learn'}
-					on:click={() => (activeTab = 'learn')}
+					onclick={() => (activeTab = 'learn')}
 				>
 					Learn
 				</button>
 				<button
 					class="tab-btn"
 					class:active={activeTab === 'games'}
-					on:click={() => (activeTab = 'games')}
+					onclick={() => (activeTab = 'games')}
 				>
 					Games
 				</button>
 				<button
 					class="tab-btn"
 					class:active={activeTab === 'immerse'}
-					on:click={() => (activeTab = 'immerse')}
+					onclick={() => (activeTab = 'immerse')}
 				>
 					Immerse
 				</button>
@@ -1971,16 +1971,16 @@
 
 			{#if !challenge && !loading}
 				<div
-					class="card card-duo empty-state dark:bg-slate-800 dark:border-slate-700 shadow-none"
+					class="card card-duo empty-state shadow-none"
 					in:fly={{ y: 20, duration: 400 }}
 				>
-					<h2 class="dark:text-white">Ready to test your skills?</h2>
+					<h2 class="">Ready to test your skills?</h2>
 
 					{#if isAbsoluteBeginner}
-						<div class="beginner-tip dark:bg-slate-900 dark:border-slate-700 dark:text-emerald-400">
+						<div class="beginner-tip">
 							<span class="tip-icon">💡</span>
 							<div>
-								<strong class="dark:text-emerald-300">Tip for beginners:</strong> Start with
+								<strong class="">Tip for beginners:</strong> Start with
 								<strong>Multiple Choice</strong>
 								or <strong>{lessonLanguage?.name || 'Target'} to English</strong> — these let you
 								recognize words before producing them. Once you feel confident, try
@@ -1991,11 +1991,11 @@
 					{/if}
 
 					<div class="mode-selector">
-						<span class="mode-label dark:text-slate-400">Game Mode:</span>
+						<span class="mode-label">Game Mode:</span>
 						{#if assignment}
-							<p class="font-bold text-blue-600 dark:text-blue-400 capitalize">
+							<p class="text-blue-600 capitalize">
 								{assignment.gamemode.replace(/-/g, ' ')}
-								<span class="text-gray-400 dark:text-gray-500 font-normal text-sm"
+								<span class="font-normal"
 									>(set by assignment)</span
 								>
 							</p>
@@ -2003,34 +2003,34 @@
 							<div class="mode-buttons">
 								<!-- Easiest first -->
 								<button
-									class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700"
+									class="mode-btn"
 									class:active={gameMode === 'multiple-choice'}
-									on:click={() => (gameMode = 'multiple-choice')}
+									onclick={() => (gameMode = 'multiple-choice')}
 								>
 									🔘 Multiple Choice
 									<span class="mode-difficulty easy">Easiest</span>
 								</button>
 								<button
-									class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700"
+									class="mode-btn"
 									class:active={gameMode === 'target-to-native'}
-									on:click={() => (gameMode = 'target-to-native')}
+									onclick={() => (gameMode = 'target-to-native')}
 								>
 									{lessonLanguage?.flag || '🏁'} → {englishFlag}
 									{lessonLanguage?.name || 'Target'} to English
 									<span class="mode-difficulty easy">Easy</span>
 								</button>
 								<button
-									class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700"
+									class="mode-btn"
 									class:active={gameMode === 'fill-blank'}
-									on:click={() => (gameMode = 'fill-blank')}
+									onclick={() => (gameMode = 'fill-blank')}
 								>
 									✏️ Fill in the Blank
 									<span class="mode-difficulty medium">Medium</span>
 								</button>
 								<button
-									class="mode-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700"
+									class="mode-btn"
 									class:active={gameMode === 'native-to-target'}
-									on:click={() => (gameMode = 'native-to-target')}
+									onclick={() => (gameMode = 'native-to-target')}
 								>
 									{englishFlag} → {lessonLanguage?.flag || '🏁'} English to {lessonLanguage?.name ||
 										'Target'}
@@ -2038,24 +2038,24 @@
 								</button>
 							</div>
 
-							<div class="chat-separator dark:text-slate-500">
-								<span class="separator-line dark:bg-slate-700"></span>
+							<div class="chat-separator">
+								<span class="separator-line"></span>
 								<span class="separator-text">or</span>
-								<span class="separator-line dark:bg-slate-700"></span>
+								<span class="separator-line"></span>
 							</div>
 
 							<button
-								class="chat-cta-btn dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700"
+								class="chat-cta-btn"
 								class:active={gameMode === 'chat'}
-								on:click={() => (gameMode = 'chat')}
+								onclick={() => (gameMode = 'chat')}
 							>
 								💬 AI Chat Practice
-								<span class="chat-cta-subtitle dark:text-slate-400">Practice conversation with an AI tutor</span>
+								<span class="chat-cta-subtitle">Practice conversation with an AI tutor</span>
 							</button>
 						{/if}
 					</div>
 					<button
-						on:click={() => gameMode === 'chat' ? goto('/play/chat') : generateChallenge()}
+						onclick={() => gameMode === 'chat' ? goto('/play/chat') : generateChallenge()}
 						class="btn-duo btn-ai"
 						style="margin-top: 1.5rem; width: 100%;"
 					>
@@ -2067,17 +2067,17 @@
 
 			{#if loading}
 				<div
-					class="card card-duo loading-state dark:bg-slate-800 dark:border-slate-700"
+					class="card card-duo loading-state"
 					in:fade={{ duration: 300 }}
 				>
 					<div class="spinner"></div>
-					<div class="load-progress-track dark:bg-slate-700">
+					<div class="load-progress-track">
 						<div class="load-progress-fill {isLocalMode ? 'local-mode-fill' : ''}" style="width: {loadProgressPct}%"></div>
 					</div>
 					<div class="load-tip-container">
 						{#key loadTipIndex}
 							<p
-								class="load-tip dark:text-slate-400"
+								class="load-tip"
 								in:fade={{ duration: 350, delay: 50 }}
 								out:fade={{ duration: 300 }}
 							>
@@ -2103,37 +2103,37 @@
 
 			{#if challenge && !loading}
 				<div
-					class="card card-duo challenge-card dark:bg-slate-800 dark:border-slate-700"
+					class="card card-duo challenge-card"
 					in:fly={{ y: 20, duration: 400 }}
 				>
 					<button
 						type="button"
-						class="change-mode-link dark:text-slate-400 dark:hover:text-slate-200"
-						on:click={() => { challenge = null; feedback = null; showGrammarRef = false; }}
+						class="change-mode-link"
+						onclick={() => { challenge = null; feedback = null; showGrammarRef = false; }}
 					>
 						&larr; Change Mode
 					</button>
 					<div class="challenge-section">
 						{#if challenge.gameMode === 'fill-blank'}
-							<h3 class="dark:text-slate-400">Fill in the blanks:</h3>
+							<h3 class="">Fill in the blanks:</h3>
 						{:else if challenge.gameMode === 'multiple-choice'}
-							<h3 class="dark:text-slate-400">Choose the correct English translation:</h3>
+							<h3 class="">Choose the correct English translation:</h3>
 						{:else if challenge.gameMode === 'target-to-native'}
-							<h3 class="dark:text-slate-400">Translate this to English:</h3>
+							<h3 class="">Translate this to English:</h3>
 						{:else}
-							<h3 class="dark:text-slate-400">
+							<h3 class="">
 								Translate this to {lessonLanguage?.name || 'Target'}:
 							</h3>
 						{/if}
-						<p class="challenge-text dark:text-white">{@html parsedChallengeText}</p>
+						<p class="challenge-text">{@html parsedChallengeText}</p>
 					</div>
 
 					{#if challenge.gameMode === 'fill-blank' && challenge.hints?.length > 0}
 						<div class="challenge-section">
-							<h3 class="dark:text-slate-400">Hints:</h3>
+							<h3 class="">Hints:</h3>
 							<ul class="hint-list">
 								{#each challenge.hints as hint, i}
-									<li class="dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300">
+									<li class="">
 										<span class="hint-number">Blank {i + 1}:</span>
 										{hint.hint}
 									</li>
@@ -2146,35 +2146,35 @@
 						{#if isStreaming}
 							<div class="ai-magic-loader">
 								<span class="sparkle">✨</span>
-								<span class="dark:text-slate-400 italic"
+								<span class="italic"
 									>AI is analyzing grammar & generating tooltips...</span
 								>
 							</div>
 						{:else}
 						<button
 							type="button"
-							class="grammar-ref-toggle dark:text-slate-400 dark:hover:text-slate-200 dark:border-slate-700"
-							on:click={() => (showGrammarRef = !showGrammarRef)}
+							class="grammar-ref-toggle"
+							onclick={() => (showGrammarRef = !showGrammarRef)}
 						>
 							{showGrammarRef ? 'Hide help' : 'Need help?'}
 							<span class="grammar-ref-chevron" class:expanded={showGrammarRef}>&#9662;</span>
 						</button>
 						{#if showGrammarRef}
 							<div transition:fly={{ y: -5, duration: 200 }}>
-								<h3 class="dark:text-slate-400" style="margin-top: 0.75rem;">Grammar Reference:</h3>
+								<h3 class="" style="margin-top: 0.75rem;">Grammar Reference:</h3>
 								{#if challenge.targetedGrammar?.length > 0}
 									<ul class="concept-list">
 										{#each challenge.targetedGrammar as grammar}
-									<li class="dark:text-slate-300 grammar-item">
+									<li class="grammar-item">
 										<div class="grammar-header">
-											<span class="concept-type dark:bg-slate-700 dark:text-slate-300">Grammar</span
+											<span class="concept-type">Grammar</span
 											>
 											<span class="grammar-title">{grammar.title}</span>
 											{#if grammar.guide}
 												<button
 													type="button"
-													class="guide-toggle-btn dark:text-slate-400 dark:hover:text-slate-200"
-													on:click={() => toggleGrammar(grammar.id)}
+													class="guide-toggle-btn"
+													onclick={() => toggleGrammar(grammar.id)}
 												>
 													{expandedGrammarId === grammar.id ? 'Hide Guide' : 'Show Guide'}
 												</button>
@@ -2182,7 +2182,7 @@
 										</div>
 										{#if grammar.guide && expandedGrammarId === grammar.id}
 											<div
-												class="grammar-guide markdown-body dark:bg-slate-900 dark:border-slate-700"
+												class="grammar-guide markdown-body"
 												transition:fly={{ y: -5, duration: 200 }}
 											>
 												{@html marked(grammar.guide)}
@@ -2192,14 +2192,14 @@
 								{/each}
 									</ul>
 								{:else}
-									<p class="dark:text-slate-400 italic">None found</p>
+									<p class="italic">None found</p>
 								{/if}
 							</div>
 						{/if}
 					{/if}
 					</div>
 
-					<form on:submit|preventDefault={submitAnswer} class="answer-form">
+					<form onsubmit={(e) => { e.preventDefault(); submitAnswer(); }} class="answer-form">
 						{#if challenge.gameMode === 'fill-blank'}
 							<FillInBlankView
 								{challenge}
@@ -2208,7 +2208,6 @@
 								{loading}
 								bind:fillBlankAnswers
 								{lessonLanguage}
-								{submitAnswer}
 							/>
 						{:else if challenge.gameMode === 'multiple-choice'}
 							<MultipleChoiceView
@@ -2229,7 +2228,7 @@
 								{loading}
 								bind:userInput
 								{lessonLanguage}
-								on:submit={submitAnswer}
+								onsubmit={submitAnswer}
 							/>
 						{/if}
 
@@ -2264,19 +2263,19 @@
 
 			{#if feedback}
 				<div
-					class="card card-duo feedback-card dark:bg-slate-800 dark:border-slate-700"
+					class="card card-duo feedback-card"
 					in:fly={{ y: 20, duration: 400 }}
 				>
 					<div class="feedback-header">
-						<h2 class="dark:text-white">Feedback</h2>
+						<h2 class="">Feedback</h2>
 						{#if feedback.feedbackEnglish}
 							<label class="toggle-container">
 								<input type="checkbox" bind:checked={showEnglishFeedback} />
-								<span class="toggle-label dark:text-slate-400">Translate to English</span>
+								<span class="toggle-label">Translate to English</span>
 							</label>
 						{/if}
 						<div class="score-display">
-							<span class="score-label dark:text-slate-400">Score:</span>
+							<span class="score-label">Score:</span>
 							{#if feedback.globalScore === null}
 								<div class="score-spinner"></div>
 							{:else}
@@ -2292,7 +2291,7 @@
 						</div>
 					</div>
 
-					<div class="feedback-message dark:bg-slate-900 dark:border-blue-900 dark:text-blue-300">
+					<div class="feedback-message">
 						<p>
 							{showEnglishFeedback && feedback.feedbackEnglish
 								? feedback.feedbackEnglish
@@ -2301,20 +2300,20 @@
 					</div>
 
 					<div class="feedback-section">
-						<h3 class="dark:text-slate-400">Expected Answer:</h3>
-						<div class="expected-answer dark:bg-slate-900 dark:border-emerald-900">
-							<p class="dark:text-emerald-400">{@html parsedTargetSentence}</p>
+						<h3 class="">Expected Answer:</h3>
+						<div class="expected-answer">
+							<p class="">{@html parsedTargetSentence}</p>
 						</div>
 					</div>
 
 					<div class="feedback-grid">
 						{#if feedback.vocabularyUpdates?.length > 0}
 							<div class="feedback-list-section">
-								<h3 class="dark:text-slate-400">Vocabulary Used</h3>
+								<h3 class="">Vocabulary Used</h3>
 								<ul>
 									{#each feedback.vocabularyUpdates as update}
 										{@const v = challenge.targetedVocabulary.find((v: any) => v.id === update.id)}
-										<li class="dark:text-slate-300">
+										<li class="">
 											<span class="icon">{(update.score ?? 0) >= 0.5 ? '✅' : '❌'}</span>
 											<div class="item-info">
 												<div class="item-row">
@@ -2326,7 +2325,7 @@
 															{update.id}
 														{/if}
 													</span>
-													<span class="elo-display dark:bg-slate-900 dark:text-slate-400">
+													<span class="elo-display">
 														ELO {Math.round(
 															showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000)
 														)}
@@ -2342,7 +2341,7 @@
 														{/if}
 													</span>
 												</div>
-												<div class="progress-bar-container dark:bg-slate-700 dark:border-slate-600">
+												<div class="progress-bar-">
 													<div
 														class="progress-bar-fill {getEloLevelClass(
 															showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000)
@@ -2361,10 +2360,10 @@
 
 						{#if feedback.grammarUpdates?.length > 0}
 							<div class="feedback-list-section">
-								<h3 class="dark:text-slate-400">Grammar Rules Followed</h3>
+								<h3 class="">Grammar Rules Followed</h3>
 								<ul>
 									{#each feedback.grammarUpdates as update}
-										<li class="dark:text-slate-300">
+										<li class="">
 											<span class="icon">{(update.score ?? 0) >= 0.5 ? '✅' : '❌'}</span>
 											<div class="item-info">
 												<div class="item-row">
@@ -2372,7 +2371,7 @@
 														{challenge.targetedGrammar.find((g: any) => g.id === update.id)
 															?.title || update.id}
 													</span>
-													<span class="elo-display dark:bg-slate-900 dark:text-slate-400">
+													<span class="elo-display">
 														ELO {Math.round(
 															showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000)
 														)}
@@ -2388,7 +2387,7 @@
 														{/if}
 													</span>
 												</div>
-												<div class="progress-bar-container dark:bg-slate-700 dark:border-slate-600">
+												<div class="progress-bar-">
 													<div
 														class="progress-bar-fill {getEloLevelClass(
 															showAfterElo ? (update.eloAfter ?? 1000) : (update.eloBefore ?? 1000)
@@ -2407,7 +2406,7 @@
 					</div>
 
 					<button
-						on:click={generateChallenge}
+						onclick={generateChallenge}
 						class="btn-duo btn-ai next-btn"
 						style="margin-top: 1.5rem; width: 100%;"
 					>
@@ -2495,9 +2494,11 @@
 					</h2>
 
 					{#if myGames.length === 0}
-						<div class="empty-state">
-							<p>You haven't created any games yet.</p>
-							<a href="/play/games/create" class="link">Create your first game</a>
+						<div class="empty-state-rich">
+							<div class="empty-state-icon">🎮</div>
+							<p class="empty-state-title">No games yet</p>
+							<p class="empty-state-desc">Create your own vocabulary game to practice or share with your class.</p>
+							<a href="/play/games/create" class="empty-state-btn">Create a Game</a>
 						</div>
 					{:else}
 						<div class="games-grid">
@@ -2543,7 +2544,7 @@
 											<button
 												type="button"
 												class="btn-action live-btn"
-												on:click={() => handlePlayLive(game.id)}
+												onclick={() => handlePlayLive(game.id)}
 											>
 												Play Live
 											</button>
@@ -2577,7 +2578,7 @@
 							<button
 								class="filter-pill"
 								class:active={currentCategory === category}
-								on:click={() => handleCategoryChange(category)}
+								onclick={() => handleCategoryChange(category)}
 							>
 								{category}
 							</button>
@@ -2585,8 +2586,11 @@
 					</div>
 
 					{#if communityGames.length === 0}
-						<div class="empty-state">
-							<p>No community games available right now.</p>
+						<div class="empty-state-rich">
+							<div class="empty-state-icon">🌐</div>
+							<p class="empty-state-title">No games in this category</p>
+							<p class="empty-state-desc">Try a different category, or be the first to create one!</p>
+							<a href="/play/games/create" class="empty-state-btn">Create a Game</a>
 						</div>
 					{:else}
 						<div class="games-grid">
@@ -2625,7 +2629,7 @@
 									<button
 										type="button"
 										class="btn-action live-btn"
-										on:click={() => handlePlayLive(game.id)}
+										onclick={() => handlePlayLive(game.id)}
 									>
 										Play Live
 									</button>
@@ -2638,7 +2642,7 @@
 						
 						{#if communityGames.length < totalCommunityGames}
 							<div class="load-more-container" style="text-align: center; margin-top: 2rem;">
-								<button class="btn-load-more" on:click={loadMore} disabled={loadingMore}>
+								<button class="btn-load-more" onclick={loadMore} disabled={loadingMore}>
 									{loadingMore ? 'Loading...' : 'Load More'}
 								</button>
 							</div>
@@ -2653,17 +2657,17 @@
 {#if showClassModal}
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div class="modal-backdrop" transition:fade={{ duration: 200 }} on:click={() => showClassModal = false}>
-		<div class="modal" on:click|stopPropagation>
+	<div class="modal-backdrop" transition:fade={{ duration: 200 }} onclick={() => showClassModal = false}>
+		<div class="modal" onclick={(e) => e.stopPropagation()}>
 			<div class="modal-header">
 				<h2>Select a Class</h2>
-				<button class="close-btn" on:click={() => showClassModal = false}>×</button>
+				<button class="close-btn" onclick={() => showClassModal = false}>×</button>
 			</div>
 			<div class="modal-body">
 				<p class="modal-desc">Which class do you want to start this live session for?</p>
 				<div class="class-list">
 					{#each teacherClasses as c}
-						<button class="class-btn" on:click={() => {
+						<button class="class-btn" onclick={() => {
 							showClassModal = false;
 							if (selectedGameIdForLive) startLiveSession(selectedGameIdForLive, c.id);
 						}}>
@@ -3178,6 +3182,54 @@
 	:global(html[data-theme='dark']) .empty-state h2 {
 		color: #f1f5f9;
 	}
+
+	/* Rich empty states (#18) */
+	.empty-state-rich {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+		padding: 3.5rem 2rem;
+		background: var(--card-bg, #f8fafc);
+		border: 3px dashed var(--card-border, #cbd5e1);
+		border-radius: 1.25rem;
+		gap: 0.5rem;
+	}
+
+	.empty-state-icon {
+		font-size: 3rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.empty-state-title {
+		font-size: 1.15rem;
+		font-weight: 800;
+		color: var(--text-color, #1e293b);
+		margin: 0;
+	}
+
+	.empty-state-desc {
+		font-size: 0.875rem;
+		color: #64748b;
+		margin: 0;
+		max-width: 300px;
+	}
+
+	.empty-state-btn {
+		display: inline-block;
+		margin-top: 0.75rem;
+		background: #3b82f6;
+		color: white;
+		text-decoration: none;
+		border-radius: 0.75rem;
+		padding: 0.6rem 1.25rem;
+		font-size: 0.875rem;
+		font-weight: 800;
+		box-shadow: 0 3px 0 #2563eb;
+		transition: background 0.15s;
+	}
+
+	.empty-state-btn:hover { background: #2563eb; }
 
 	.loading-state {
 		text-align: center;

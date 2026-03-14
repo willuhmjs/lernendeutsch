@@ -2,6 +2,7 @@
 	import type { PageData } from './$types';
 	import { fly } from 'svelte/transition';
 	import { marked } from 'marked';
+	import { onMount } from 'svelte';
 
 	export let data: PageData;
 
@@ -15,6 +16,7 @@
 	};
 
 	let grammarSortOrder: 'easiest' | 'hardest' = 'easiest';
+	let grammarView: 'web' | 'list' = 'web'; // #15: list fallback for mobile
 
 	// Topologically sort grammar rules to ensure prerequisites come first
 	$: sortedRules = (() => {
@@ -260,6 +262,10 @@
 		}
 	}
 
+	onMount(() => {
+		if (window.innerWidth < 640) grammarView = 'list';
+	});
+
 	function getPrerequisiteProgress(rule: any) {
 		const deps = rule.grammarRule?.dependencies || [];
 		return deps.map((dep: any) => {
@@ -283,10 +289,10 @@
 	}
 </script>
 
-<div class="dashboard-container dark:text-slate-300">
+<div class="dashboard-">
 	<header class="dashboard-header" in:fly={{ y: 20, duration: 400 }}>
-		<h1 class="dark:text-white">Proficiency Dashboard</h1>
-		<p class="dark:text-slate-400">Track your language learning progress.</p>
+		<h1 class="">Proficiency Dashboard</h1>
+		<p class="">Track your language learning progress.</p>
 
 		{#if (data as any).cefrProgress}
 			{@const cp = (data as any).cefrProgress}
@@ -344,53 +350,79 @@
 			{/if}
 			<a href="/play?tab=games" class="btn-duo btn-secondary">Play Game</a>
 		</div>
+
+		{#if (data as any).dueSoonAssignments?.length > 0}
+			<div class="due-soon-banner">
+				<div class="due-soon-icon" aria-hidden="true">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<circle cx="12" cy="12" r="10"/>
+						<polyline points="12 6 12 12 16 14"/>
+					</svg>
+				</div>
+				<div class="due-soon-content">
+					<p class="due-soon-label">Assignments due soon</p>
+					<ul class="due-soon-list">
+						{#each (data as any).dueSoonAssignments as a}
+							{@const hoursLeft = Math.round((new Date(a.dueDate).getTime() - Date.now()) / 3600000)}
+							<li>
+								<a href="/play?assignmentId={a.id}" class="due-soon-link">
+									<span class="due-soon-title">{a.title}</span>
+									<span class="due-soon-class">{a.class.name}</span>
+								</a>
+								<span class="due-soon-time">{hoursLeft}h left</span>
+							</li>
+						{/each}
+					</ul>
+				</div>
+			</div>
+		{/if}
 	</header>
 
 	<section class="summary-section">
-		<h2 class="dark:text-white dark:border-slate-700">Summary Statistics</h2>
+		<h2 class="">Summary Statistics</h2>
 		<div class="summary-grid">
-			<div class="summary-card dark:bg-slate-800 dark:border-slate-700">
-				<h3 class="dark:text-white dark:border-slate-700">Vocabulary</h3>
+			<div class="summary-card">
+				<h3 class="">Vocabulary</h3>
 				<div class="stat-row">
-					<span class="stat-label dark:text-slate-400">Total Terms:</span>
-					<span class="stat-value dark:text-white">{totalVocab}</span>
+					<span class="stat-label">Total Terms:</span>
+					<span class="stat-value">{totalVocab}</span>
 				</div>
 				<div class="stat-row">
-					<span class="stat-label dark:text-slate-400">Average ELO:</span>
-					<span class="stat-value dark:text-white">{avgVocabElo}</span>
+					<span class="stat-label">Average ELO:</span>
+					<span class="stat-value">{avgVocabElo}</span>
 				</div>
 				<div class="srs-breakdown">
-					<h4 class="dark:text-slate-300">SRS State Breakdown</h4>
+					<h4 class="">SRS State Breakdown</h4>
 					{#each Object.entries(srsColors) as [state, color]}
 						<div class="breakdown-row">
 							<div class="breakdown-label">
 								<span class="color-box" style="background-color: {color}"></span>
 								{state}
 							</div>
-							<span class="dark:text-slate-300">{vocabSrsBreakdown[state] || 0}</span>
+							<span class="">{vocabSrsBreakdown[state] || 0}</span>
 						</div>
 					{/each}
 				</div>
 			</div>
-			<div class="summary-card dark:bg-slate-800 dark:border-slate-700">
-				<h3 class="dark:text-white dark:border-slate-700">Grammar</h3>
+			<div class="summary-card">
+				<h3 class="">Grammar</h3>
 				<div class="stat-row">
-					<span class="stat-label dark:text-slate-400">Total Rules:</span>
-					<span class="stat-value dark:text-white">{totalGrammar}</span>
+					<span class="stat-label">Total Rules:</span>
+					<span class="stat-value">{totalGrammar}</span>
 				</div>
 				<div class="stat-row">
-					<span class="stat-label dark:text-slate-400">Average ELO:</span>
-					<span class="stat-value dark:text-white">{avgGrammarElo}</span>
+					<span class="stat-label">Average ELO:</span>
+					<span class="stat-value">{avgGrammarElo}</span>
 				</div>
 				<div class="srs-breakdown">
-					<h4 class="dark:text-slate-300">SRS State Breakdown</h4>
+					<h4 class="">SRS State Breakdown</h4>
 					{#each Object.entries(srsColors) as [state, color]}
 						<div class="breakdown-row">
 							<div class="breakdown-label">
 								<span class="color-box" style="background-color: {color}"></span>
 								{state}
 							</div>
-							<span class="dark:text-slate-300">{grammarSrsBreakdown[state] || 0}</span>
+							<span class="">{grammarSrsBreakdown[state] || 0}</span>
 						</div>
 					{/each}
 				</div>
@@ -400,8 +432,8 @@
 
 	<div class="dashboard-content">
 		<section class="vocabulary-section">
-			<h2 class="dark:text-white dark:border-slate-700">Vocabulary Heatmap</h2>
-			<div class="heatmap-legend dark:text-slate-300">
+			<h2 class="">Vocabulary Heatmap</h2>
+			<div class="heatmap-legend">
 				<div class="legend-item">
 					<span class="color-box" style="background-color: {srsColors.UNSEEN}"></span> Unseen
 				</div>
@@ -417,9 +449,9 @@
 			</div>
 			
 			{#if data.vocabularies.length === 0}
-				<p class="empty-state dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400">No vocabulary data available yet. Start learning!</p>
+				<p class="empty-state">No vocabulary data available yet. Start learning!</p>
 			{:else}
-				<div class="heatmap-grid dark:bg-slate-800 dark:border-slate-700">
+				<div class="heatmap-grid">
 					{#each data.vocabularies as vocab}
 						{@const isUnseen = vocab.srsState === 'UNSEEN'}
 						{@const elo = vocab.eloRating !== undefined ? Math.round(vocab.eloRating) : 1000}
@@ -430,13 +462,13 @@
 						<button 
 							class="heatmap-cell tooltip-trigger" 
 							style="background-color: {cellColor}"
-							on:click={() => openVocabModal(vocab, cellColor, progressPct)}
-							on:keydown={(e) => e.key === 'Enter' && openVocabModal(vocab, cellColor, progressPct)}
+							onclick={() => openVocabModal(vocab, cellColor, progressPct)}
+							onkeydown={(e) => e.key === 'Enter' && openVocabModal(vocab, cellColor, progressPct)}
 							aria-label="View details for {vocab.vocabulary.lemma}"
 						>
 							<span class="sr-only">{vocab.vocabulary.lemma}</span>
-							<div class="tooltip-content dark:bg-slate-700 dark:text-white">
-								<div class="tooltip-header dark:border-slate-600">
+							<div class="tooltip-content">
+								<div class="tooltip-header">
 									{#if vocab.vocabulary.partOfSpeech?.toLowerCase() === 'noun'}
 										{vocab.vocabulary.lemma.charAt(0).toUpperCase() + vocab.vocabulary.lemma.slice(1)}
 									{:else}
@@ -476,46 +508,101 @@
 
 		<section class="grammar-section">
 			<div class="grammar-header-row">
-				<h2 class="dark:text-white dark:border-slate-700">Grammar Web</h2>
-				<div class="sort-control">
-					<label for="grammar-sort" class="dark:text-slate-400">Sort by:</label>
-					<select id="grammar-sort" bind:value={grammarSortOrder} class="dark:bg-slate-800 dark:border-slate-700 dark:text-white">
-						<option value="easiest">Easiest to Hardest</option>
-						<option value="hardest">Hardest to Easiest</option>
-					</select>
+				<h2 class="">Grammar Web</h2>
+				<div class="grammar-header-controls">
+					<div class="sort-control">
+						<label for="grammar-sort" class="">Sort by:</label>
+						<select id="grammar-sort" bind:value={grammarSortOrder} class="">
+							<option value="easiest">Easiest to Hardest</option>
+							<option value="hardest">Hardest to Easiest</option>
+						</select>
+					</div>
+					<!-- View toggle (#15) -->
+					<div class="view-toggle" role="group" aria-label="Grammar view mode">
+						<button
+							class="view-toggle-btn"
+							class:active={grammarView === 'web'}
+							onclick={() => grammarView = 'web'}
+							aria-pressed={grammarView === 'web'}
+							title="Web view"
+						>
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" width="16" height="16">
+								<circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/>
+								<line x1="12" y1="7" x2="5" y2="17"/><line x1="12" y1="7" x2="19" y2="17"/>
+							</svg>
+						</button>
+						<button
+							class="view-toggle-btn"
+							class:active={grammarView === 'list'}
+							onclick={() => grammarView = 'list'}
+							aria-pressed={grammarView === 'list'}
+							title="List view"
+						>
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" width="16" height="16">
+								<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+								<line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+							</svg>
+						</button>
+					</div>
 				</div>
 			</div>
 			{#if grammarWebNodes.length === 0}
-				<p class="empty-state dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400">No grammar rules available for this language.</p>
+				<p class="empty-state">No grammar rules available for this language.</p>
+			{:else if grammarView === 'list'}
+				<!-- List view fallback (#15) -->
+				<div class="grammar-list">
+					{#each grammarWebNodes as rule}
+						{@const srsColor = (srsColors as any)[rule.srsState] || srsColors.LOCKED}
+						{@const eloPercent = rule.isLocked ? 0 : Math.max(0, Math.min(100, rule.srsState === 'LEARNING' ? ((rule.eloRating - 1000) / 50) * 100 : rule.srsState === 'KNOWN' ? ((rule.eloRating - 1050) / 100) * 100 : 100))}
+						<button
+							class="grammar-list-row"
+							class:locked={rule.isLocked}
+							onclick={() => openGrammarModal(rule, srsColor, eloPercent)}
+							aria-label="View grammar rule: {rule.grammarRule.title}"
+						>
+							<div class="grammar-list-dot" style="background-color: {srsColor}"></div>
+							<div class="grammar-list-info">
+								<span class="grammar-list-title">{rule.grammarRule.title}</span>
+								{#if rule.grammarRule.level}
+									<span class="grammar-list-level">{rule.grammarRule.level}</span>
+								{/if}
+							</div>
+							<span class="grammar-list-state" style="color: {srsColor}">{rule.srsState}</span>
+							<svg class="grammar-list-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true" width="14" height="14">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6"/>
+							</svg>
+						</button>
+					{/each}
+				</div>
 			{:else}
-				<div class="grammar-web-container dark:bg-slate-800 dark:border-slate-700">
+				<div class="grammar-web-">
 					<div class="grammar-web-scroll-content">
 						<!-- Visual web lines drawing actual connections -->
 						<svg class="web-svg-lines" width="100%" height="100%">
 							{#each grammarWebNodes as rule, i}
 								{#if i < grammarWebNodes.length - 1}
-									<line 
-										x1="50%" 
-										y1="{100 / grammarWebNodes.length * i + (100 / grammarWebNodes.length / 2)}%" 
-										x2="50%" 
-										y2="{100 / grammarWebNodes.length * (i + 1) + (100 / grammarWebNodes.length / 2)}%" 
+									<line
+										x1="50%"
+										y1="{100 / grammarWebNodes.length * i + (100 / grammarWebNodes.length / 2)}%"
+										x2="50%"
+										y2="{100 / grammarWebNodes.length * (i + 1) + (100 / grammarWebNodes.length / 2)}%"
 										class="web-connection-line"
 									/>
 								{/if}
 							{/each}
 						</svg>
-						
+
 						<div class="web-tree-layout">
 						{#each grammarWebNodes as rule}
 							{@const srsColor = (srsColors as any)[rule.srsState] || srsColors.LOCKED}
 							{@const eloPercent = rule.isLocked ? 0 : Math.max(0, Math.min(100, rule.srsState === 'LEARNING' ? ((rule.eloRating - 1000) / 50) * 100 : rule.srsState === 'KNOWN' ? ((rule.eloRating - 1050) / 100) * 100 : 100))}
-							
-							<button 
-								class="web-node-pill" 
+
+							<button
+								class="web-node-pill"
 								class:locked={rule.isLocked}
 								style="--node-color: {srsColor}"
-								on:click={() => openGrammarModal(rule, srsColor, eloPercent)}
-								on:keydown={(e) => e.key === 'Enter' && openGrammarModal(rule, srsColor, eloPercent)}
+								onclick={() => openGrammarModal(rule, srsColor, eloPercent)}
+								onkeydown={(e) => e.key === 'Enter' && openGrammarModal(rule, srsColor, eloPercent)}
 								aria-label="View grammar rule: {rule.grammarRule.title}"
 							>
 								<div class="node-pill-content tooltip-trigger">
@@ -523,9 +610,9 @@
 										<span class="sr-only">{rule.srsState}</span>
 									</div>
 									<span class="node-title">{rule.grammarRule.title}</span>
-									
-									<div class="tooltip-content dark:bg-slate-700 dark:text-white">
-										<div class="tooltip-header dark:border-slate-600">
+
+									<div class="tooltip-content">
+										<div class="tooltip-header">
 											{rule.grammarRule.title}
 										</div>
 										<div class="tooltip-body">
@@ -559,11 +646,11 @@
 {#if selectedModalItem}
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div class="modal-backdrop" on:click={closeModal} on:keydown={(e) => e.key === 'Escape' && closeModal()}>
+	<div class="modal-backdrop" onclick={closeModal} onkeydown={(e) => e.key === 'Escape' && closeModal()}>
 		<!-- svelte-ignore a11y_click_events_have_key_events -->
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<div class="modal-content dark:bg-slate-800 dark:border-slate-700" on:click|stopPropagation>
-			<button class="modal-close dark:text-slate-400 dark:hover:text-white" on:click={closeModal}>&times;</button>
+		<div class="modal-content" onclick={(e) => e.stopPropagation()}>
+			<button class="modal-close" onclick={closeModal}>&times;</button>
 
 			{#if selectedModalItem.type === 'vocab'}
 				{@const vocab = selectedModalItem.data}
@@ -571,7 +658,7 @@
 				{@const elo = vocab.eloRating !== undefined ? Math.round(vocab.eloRating) : 1000}
 				{@const levelText = isUnseen ? 'Unseen' : vocab.srsState.charAt(0) + vocab.srsState.slice(1).toLowerCase()}
 
-				<h3 class="modal-title dark:text-white">
+				<h3 class="modal-title">
 					{#if vocab.vocabulary.partOfSpeech?.toLowerCase() === 'noun'}
 						{vocab.vocabulary.lemma.charAt(0).toUpperCase() + vocab.vocabulary.lemma.slice(1)}
 					{:else}
@@ -579,11 +666,11 @@
 					{/if}
 				</h3>
 
-				<div class="modal-body dark:text-slate-300">
+				<div class="modal-body">
 					{#if !isUnseen}
 						<div class="modal-elo-section">
 							<div class="modal-elo-header">
-								<span class="dark:text-slate-400">Mastery: {levelText}</span>
+								<span class="">Mastery: {levelText}</span>
 								<span class="modal-elo-score" style="color: {selectedModalItem.color}">ELO {elo}</span>
 							</div>
 							<div class="elo-progress-track">
@@ -592,32 +679,32 @@
 						</div>
 					{:else}
 						<div class="modal-elo-section">
-							<div class="modal-elo-header"><span class="dark:text-slate-400">Status: {levelText}</span></div>
+							<div class="modal-elo-header"><span class="">Status: {levelText}</span></div>
 						</div>
 					{/if}
 
 					<div class="modal-details">
 						{#if vocab.vocabulary.partOfSpeech}
 							<div class="modal-detail-row">
-								<span class="detail-label dark:text-slate-400">POS:</span>
+								<span class="detail-label">POS:</span>
 								<span>{vocab.vocabulary.partOfSpeech}</span>
 							</div>
 						{/if}
 						{#if vocab.vocabulary.partOfSpeech?.toLowerCase() === 'noun' && vocab.vocabulary.gender}
 							<div class="modal-detail-row">
-								<span class="detail-label dark:text-slate-400">Gender:</span>
+								<span class="detail-label">Gender:</span>
 								<span>{vocab.vocabulary.gender}</span>
 							</div>
 						{/if}
 						{#if vocab.vocabulary.plural}
 							<div class="modal-detail-row">
-								<span class="detail-label dark:text-slate-400">Plural:</span>
+								<span class="detail-label">Plural:</span>
 								<span>{vocab.vocabulary.plural}</span>
 							</div>
 						{/if}
 						{#if (vocab.vocabulary as any).meaning}
 							<div class="modal-detail-row">
-								<span class="detail-label dark:text-slate-400">Meaning:</span>
+								<span class="detail-label">Meaning:</span>
 								<span>{(vocab.vocabulary as any).meaning}</span>
 							</div>
 						{/if}
@@ -632,7 +719,7 @@
 
 				<!-- Back navigation -->
 				{#if grammarModalPhase !== 'detail' || modalStack.length > 1}
-					<button class="modal-back-btn dark:text-slate-400 dark:hover:text-white" on:click={goBack}>
+					<button class="modal-back-btn" onclick={goBack}>
 						←
 						{#if grammarModalPhase !== 'detail'}
 							Back to Details
@@ -643,12 +730,12 @@
 				{/if}
 
 				{#if grammarModalPhase === 'detail'}
-					<h3 class="modal-title dark:text-white">{rule.grammarRule.title}</h3>
+					<h3 class="modal-title">{rule.grammarRule.title}</h3>
 
-					<div class="modal-body dark:text-slate-300">
+					<div class="modal-body">
 						<div class="modal-elo-section">
 							<div class="modal-elo-header">
-								<span class="dark:text-slate-400">Status: {rule.srsState}</span>
+								<span class="">Status: {rule.srsState}</span>
 								{#if !rule.isLocked}
 									<span class="modal-elo-score" style="color: {selectedModalItem.color}">ELO {Math.ceil(rule.eloRating)}</span>
 								{/if}
@@ -662,19 +749,19 @@
 
 						{#if prereqs.length > 0}
 							<div class="prereq-section">
-								<h4 class="prereq-heading dark:text-slate-400">{rule.isLocked ? 'Prerequisites to Unlock' : 'Prerequisites'}</h4>
+								<h4 class="prereq-heading">{rule.isLocked ? 'Prerequisites to Unlock' : 'Prerequisites'}</h4>
 								<div class="prereq-list">
 									{#each prereqs as prereq}
 										<button
-											class="prereq-item prereq-item-clickable dark:hover:bg-slate-700"
-											on:click={() => navigateToPrereq(prereq.id)}
+											class="prereq-item prereq-item-clickable"
+											onclick={() => navigateToPrereq(prereq.id)}
 											title="View {prereq.title}"
 										>
 											<div class="prereq-item-header">
 												<span class="prereq-dot" style="background-color: {prereq.color}"></span>
-												<span class="prereq-title dark:text-slate-200">{prereq.title}</span>
+												<span class="prereq-title">{prereq.title}</span>
 												<span class="prereq-status" style="color: {prereq.color}">{prereq.srsState}</span>
-												<span class="prereq-arrow dark:text-slate-500">›</span>
+												<span class="prereq-arrow">›</span>
 											</div>
 											<div class="prereq-bar-track">
 												<div class="prereq-bar-fill" style="width: {prereq.percent}%; background-color: {prereq.color}"></div>
@@ -688,10 +775,10 @@
 						{#if canTestOut}
 							<div class="test-out-section">
 								<div class="test-out-divider"></div>
-								<p class="test-out-hint dark:text-slate-400">
+								<p class="test-out-hint">
 									All prerequisites mastered! You can test out of this rule by answering 9 out of 10 questions correctly.
 								</p>
-								<button class="test-out-btn" on:click={() => startTestOut(rule.grammarRule.id)}>
+								<button class="test-out-btn" onclick={() => startTestOut(rule.grammarRule.id)}>
 									Test Out of {rule.grammarRule.title}
 								</button>
 							</div>
@@ -704,7 +791,7 @@
 						<div class="modal-details">
 							<p class="modal-desc">{rule.grammarRule.description || 'No description available.'}</p>
 							{#if rule.grammarRule.guide}
-								<div class="grammar-guide markdown-body dark:bg-slate-900 dark:border-slate-700">
+								<div class="grammar-guide markdown-body">
 									{@html marked(rule.grammarRule.guide)}
 								</div>
 							{/if}
@@ -712,9 +799,9 @@
 					</div>
 
 				{:else if grammarModalPhase === 'testing'}
-					<h3 class="modal-title dark:text-white">Test Out: {rule.grammarRule.title}</h3>
+					<h3 class="modal-title">Test Out: {rule.grammarRule.title}</h3>
 
-					<div class="modal-body dark:text-slate-300">
+					<div class="modal-body">
 						{#if testOutLoading}
 							<div class="test-loading">
 								<div class="test-loading-spinner"></div>
@@ -723,33 +810,33 @@
 						{:else if testOutError && !testOutQuestions}
 							<div class="test-error-state">
 								<p>{testOutError}</p>
-								<button class="test-retry-btn" on:click={() => startTestOut(rule.grammarRule.id)}>Try Again</button>
+								<button class="test-retry-btn" onclick={() => startTestOut(rule.grammarRule.id)}>Try Again</button>
 							</div>
 						{:else if testOutQuestions}
 							{@const q = testOutQuestions[testOutCurrentIndex]}
 							{@const lastScore = testOutScores[testOutScores.length - 1]}
 
 							<div class="test-progress-header">
-								<span class="test-q-count dark:text-slate-400">Question {testOutCurrentIndex + 1} / {testOutTotalQuestions}</span>
-								<span class="test-score-preview dark:text-slate-400">{testOutPassedCount} correct so far</span>
+								<span class="test-q-count">Question {testOutCurrentIndex + 1} / {testOutTotalQuestions}</span>
+								<span class="test-score-preview">{testOutPassedCount} correct so far</span>
 							</div>
 							<div class="test-progress-bar-track">
 								<div class="test-progress-bar-fill" style="width: {((testOutCurrentIndex) / testOutTotalQuestions) * 100}%"></div>
 							</div>
 
-							<div class="test-question-card dark:bg-slate-900 dark:border-slate-700">
+							<div class="test-question-card">
 								<p class="test-sentence">{q.sentence}</p>
-								<p class="test-context dark:text-slate-500">{q.context}</p>
+								<p class="test-context">{q.context}</p>
 							</div>
 
 							<div class="test-options">
 								{#each q.options as option, i}
 									<button
-										class="test-option dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200"
+										class="test-option"
 										class:option-correct={testOutAnsweredCurrent && i === q.correctIndex}
 										class:option-incorrect={testOutAnsweredCurrent && i === testOutSelectedAnswer && i !== q.correctIndex}
 										class:option-disabled={testOutAnsweredCurrent && i !== q.correctIndex && i !== testOutSelectedAnswer}
-										on:click={() => handleTestAnswer(i)}
+										onclick={() => handleTestAnswer(i)}
 										disabled={testOutAnsweredCurrent}
 									>
 										<span class="option-letter">{String.fromCharCode(65 + i)}</span>
@@ -763,11 +850,11 @@
 									<span class="feedback-icon">{lastScore ? '✓' : '✗'}</span>
 									<div class="feedback-content">
 										<span class="feedback-label">{lastScore ? 'Correct!' : `Incorrect — correct answer: ${q.options[q.correctIndex]}`}</span>
-										<p class="feedback-explanation dark:text-slate-400">{q.explanation}</p>
+										<p class="feedback-explanation">{q.explanation}</p>
 									</div>
 								</div>
 								{@const wrongSoFar = testOutScores.filter((s) => !s).length}
-								<button class="test-next-btn" on:click={nextTestQuestion}>
+								<button class="test-next-btn" onclick={nextTestQuestion}>
 									{testOutCurrentIndex >= testOutTotalQuestions - 1 || wrongSoFar >= 2 ? 'See Results →' : 'Next Question →'}
 								</button>
 							{/if}
@@ -776,9 +863,9 @@
 
 				{:else if grammarModalPhase === 'results'}
 					{@const endedEarly = testOutScores.filter((s) => !s).length >= 2 && testOutScores.length < testOutTotalQuestions}
-					<h3 class="modal-title dark:text-white">Results: {rule.grammarRule.title}</h3>
+					<h3 class="modal-title">Results: {rule.grammarRule.title}</h3>
 
-					<div class="modal-body dark:text-slate-300">
+					<div class="modal-body">
 						<div class="results-score-display" class:results-pass={testOutPassed} class:results-fail={!testOutPassed}>
 							<span class="results-number">{testOutPassedCount}/{testOutScores.length}</span>
 							<span class="results-label">correct</span>
@@ -797,20 +884,20 @@
 								You've demonstrated mastery of {rule.grammarRule.title}!
 							</p>
 							{#if testOutMasteryDone}
-								<div class="mastery-confirmed dark:bg-green-900 dark:border-green-700">
+								<div class="mastery-confirmed">
 									<span>✓ Marked as Mastered!</span>
 								</div>
 							{:else}
 								<button
 									class="master-confirm-btn"
-									on:click={() => submitMastery(rule.grammarRule.id)}
+									onclick={() => submitMastery(rule.grammarRule.id)}
 									disabled={testOutMastering}
 								>
 									{testOutMastering ? 'Saving…' : 'Mark as Mastered →'}
 								</button>
 							{/if}
 						{:else}
-							<p class="results-message results-fail-msg dark:text-slate-400">
+							<p class="results-message results-fail-msg">
 								{#if endedEarly}
 									Test ended early — 2 wrong answers means passing is no longer possible. Keep practicing and try again!
 								{:else}
@@ -818,10 +905,10 @@
 								{/if}
 							</p>
 							<div class="results-actions">
-								<button class="results-retry-btn" on:click={() => startTestOut(rule.grammarRule.id)}>
+								<button class="results-retry-btn" onclick={() => startTestOut(rule.grammarRule.id)}>
 									Try Again
 								</button>
-								<button class="results-back-btn dark:border-slate-600 dark:text-slate-300" on:click={goBack}>
+								<button class="results-back-btn" onclick={goBack}>
 									Back to Details
 								</button>
 							</div>
@@ -984,6 +1071,96 @@
 		justify-content: center;
 		gap: 1rem;
 		flex-wrap: wrap;
+	}
+
+	/* Assignment due-soon banner (#10) */
+	.due-soon-banner {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.75rem;
+		background: rgba(245, 158, 11, 0.15);
+		border: 1.5px solid rgba(245, 158, 11, 0.4);
+		border-radius: 1rem;
+		padding: 0.85rem 1.1rem;
+		margin-top: 1.25rem;
+		text-align: left;
+		max-width: 480px;
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	.due-soon-icon {
+		flex-shrink: 0;
+		width: 1.5rem;
+		height: 1.5rem;
+		color: #d97706;
+		margin-top: 0.1rem;
+	}
+
+	.due-soon-icon svg { width: 100%; height: 100%; }
+
+	.due-soon-content { flex: 1; min-width: 0; }
+
+	.due-soon-label {
+		font-size: 0.7rem;
+		font-weight: 800;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: #d97706;
+		margin: 0 0 0.35rem;
+	}
+
+	.due-soon-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.3rem;
+	}
+
+	.due-soon-list li {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+	}
+
+	.due-soon-link {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		text-decoration: none;
+		min-width: 0;
+	}
+
+	.due-soon-link:hover .due-soon-title {
+		text-decoration: underline;
+	}
+
+	.due-soon-title {
+		font-size: 0.875rem;
+		font-weight: 700;
+		color: #fff;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		max-width: 180px;
+	}
+
+	.due-soon-class {
+		font-size: 0.7rem;
+		font-weight: 600;
+		color: #94a3b8;
+		white-space: nowrap;
+	}
+
+	.due-soon-time {
+		font-size: 0.75rem;
+		font-weight: 800;
+		color: #f59e0b;
+		white-space: nowrap;
+		flex-shrink: 0;
 	}
 
 	.re-onboard-link {
@@ -1358,10 +1535,129 @@
 		justify-content: space-between;
 		align-items: center;
 		margin-bottom: 1.5rem;
+		flex-wrap: wrap;
+		gap: 0.75rem;
 	}
 
 	.grammar-header-row h2 {
 		margin-bottom: 0;
+	}
+
+	.grammar-header-controls {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		flex-wrap: wrap;
+	}
+
+	/* View toggle (#15) */
+	.view-toggle {
+		display: flex;
+		border: 2px solid #334155;
+		border-radius: 0.6rem;
+		overflow: hidden;
+	}
+
+	.view-toggle-btn {
+		background: none;
+		border: none;
+		padding: 0.35rem 0.6rem;
+		cursor: pointer;
+		color: #64748b;
+		display: flex;
+		align-items: center;
+		transition: background 0.15s, color 0.15s;
+		line-height: 0;
+	}
+
+	.view-toggle-btn:first-child {
+		border-right: 1px solid #334155;
+	}
+
+	.view-toggle-btn.active {
+		background: #334155;
+		color: #f1f5f9;
+	}
+
+	.view-toggle-btn:hover:not(.active) {
+		background: #1e293b;
+		color: #94a3b8;
+	}
+
+	/* Grammar list view (#15) */
+	.grammar-list {
+		background: #1e293b;
+		border: 2px solid #334155;
+		border-radius: 1rem;
+		overflow: hidden;
+	}
+
+	.grammar-list-row {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		width: 100%;
+		padding: 0.85rem 1rem;
+		background: none;
+		border: none;
+		border-bottom: 1px solid #334155;
+		cursor: pointer;
+		text-align: left;
+		transition: background 0.15s;
+		font-family: inherit;
+	}
+
+	.grammar-list-row:last-child { border-bottom: none; }
+
+	.grammar-list-row:hover { background: rgba(255,255,255,0.04); }
+
+	.grammar-list-row.locked { opacity: 0.5; cursor: not-allowed; }
+
+	.grammar-list-dot {
+		width: 0.75rem;
+		height: 0.75rem;
+		border-radius: 50%;
+		flex-shrink: 0;
+	}
+
+	.grammar-list-info {
+		flex: 1;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		min-width: 0;
+	}
+
+	.grammar-list-title {
+		font-size: 0.9rem;
+		font-weight: 700;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		color: #e2e8f0;
+	}
+
+	.grammar-list-level {
+		font-size: 0.65rem;
+		font-weight: 800;
+		background: #334155;
+		color: #94a3b8;
+		padding: 0.15rem 0.45rem;
+		border-radius: 0.35rem;
+		flex-shrink: 0;
+	}
+
+	.grammar-list-state {
+		font-size: 0.65rem;
+		font-weight: 800;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		flex-shrink: 0;
+	}
+
+	.grammar-list-chevron {
+		flex-shrink: 0;
+		color: #475569;
 	}
 
 	.sort-control {

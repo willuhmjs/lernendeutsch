@@ -68,6 +68,7 @@ model User {
   longestStreak    Int       @default(0)
   lastActivityDate DateTime?
   totalXp          Int       @default(0)
+  streakFreezes    Int       @default(0) // Purchasable streak shields
   timezone         String?   // IANA timezone e.g. "America/New_York"
 
   createdGames          Game[]

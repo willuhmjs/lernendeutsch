@@ -1,19 +1,30 @@
 <script lang="ts">
-	export let challenge: any;
-	export let submitting: boolean;
-	export let feedback: any;
-	export let loading: boolean;
-	export let shuffledChoices: string[];
-	export let selectedChoice: string | null;
-	export let hasSubmittedMc: boolean;
-	export let submitAnswer: () => void;
+	let {
+		challenge,
+		submitting,
+		feedback,
+		loading,
+		shuffledChoices,
+		selectedChoice = $bindable(null),
+		hasSubmittedMc,
+		submitAnswer
+	}: {
+		challenge: any;
+		submitting: boolean;
+		feedback: any;
+		loading: boolean;
+		shuffledChoices: string[];
+		selectedChoice: string | null;
+		hasSubmittedMc: boolean;
+		submitAnswer: () => void;
+	} = $props();
 </script>
 
 <div class="mc-choices">
 	{#each shuffledChoices as choice}
 		<button
 			type="button"
-			class="mc-choice-btn dark:bg-slate-900 dark:text-slate-200 dark:border-slate-700"
+			class="mc-choice-btn"
 			class:selected={selectedChoice === choice}
 			class:correct={(feedback || hasSubmittedMc) &&
 				choice === challenge.targetSentence}
@@ -21,7 +32,7 @@
 				selectedChoice === choice &&
 				choice !== challenge.targetSentence}
 			disabled={submitting || feedback !== null || loading || hasSubmittedMc}
-			on:click={() => {
+			onclick={() => {
 				selectedChoice = choice;
 				submitAnswer();
 			}}

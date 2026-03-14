@@ -19,7 +19,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 				llmBaseUrl: true,
 				llmApiKey: true,
 				llmModel: true,
-				theme: true
+				theme: true,
+				totalXp: true,
+				streakFreezes: true
 			}
 		}),
 		getSiteSettings(),

@@ -2,10 +2,17 @@
 	import { fly, fade } from 'svelte/transition';
 	import toast from 'svelte-french-toast';
 
-	export let language: { name: string; flag?: string } | null = null;
-	export const cefrLevel: string = 'A1';
-	export let assignmentId: string | null = null;
-	export let assignmentProgress: { score: number; targetScore: number; passed: boolean } | null = null;
+	let {
+		language = null,
+		cefrLevel = 'A1',
+		assignmentId = null,
+		assignmentProgress = $bindable(null)
+	}: {
+		language?: { name: string; flag?: string } | null;
+		cefrLevel?: string;
+		assignmentId?: string | null;
+		assignmentProgress?: { score: number; targetScore: number; passed: boolean } | null;
+	} = $props();
 
 	type MediaType =
 		| 'news_article'
@@ -54,10 +61,10 @@
 		'letter'
 	];
 
-	let selectedMediaType: MediaType | 'random' = 'random';
-	let session: ImmersionSession | null = null;
-	let loading = false;
-	let error = '';
+	let selectedMediaType: MediaType | 'random' = $state('random');
+	let session = $state<ImmersionSession | null>(null);
+	let loading = $state(false);
+	let error = $state('');
 
 	// Answer tracking
 	type AnswerState = {
@@ -72,11 +79,11 @@
 		frFeedback?: string;
 		frSubmitted?: boolean;
 	};
-	let answers: Record<string, AnswerState> = {};
+	let answers: Record<string, AnswerState> = $state({});
 
-	let totalXpEarned = 0;
-	let sessionComplete = false;
-	let mcqXpAwarded = false; // tracks if MCQ XP was awarded via API
+	let totalXpEarned = $state(0);
+	let sessionComplete = $state(false);
+	let mcqXpAwarded = $state(false); // tracks if MCQ XP was awarded via API
 
 	async function generate() {
 		if (loading) return;
@@ -223,17 +230,87 @@
 		return 'score-poor';
 	}
 
-	$: allAnswered =
+	const allAnswered = $derived(
 		session?.questions.every((q) => {
 			const a = answers[q.id];
 			if (q.type === 'multiple_choice') return a?.mcqSubmitted;
 			if (q.type === 'free_response') return a?.frSubmitted;
 			return false;
-		}) ?? false;
+		}) ?? false
+	);
 
-	$: pendingFreeResponses = session?.questions.filter(
-		(q) => q.type === 'free_response' && !answers[q.id]?.frSubmitted
-	) ?? [];
+	const pendingFreeResponses = $derived(
+		session?.questions.filter(
+			(q) => q.type === 'free_response' && !answers[q.id]?.frSubmitted
+		) ?? []
+	);
+
+	// Bookmarks (#16) — persisted to localStorage
+	const BOOKMARK_KEY = 'immersion_bookmarks';
+	const MAX_BOOKMARKS = 10;
+
+	type Bookmark = {
+		id: string;
+		savedAt: string;
+		mediaType: MediaType;
+		mediaLabel: string;
+		headline: string; // best title field we can extract
+		session: ImmersionSession;
+	};
+
+	let bookmarks: Bookmark[] = $state([]);
+	let showBookmarks = $state(false);
+
+	import { onMount } from 'svelte';
+	onMount(() => {
+		try {
+			bookmarks = JSON.parse(localStorage.getItem(BOOKMARK_KEY) || '[]');
+		} catch { bookmarks = []; }
+	});
+
+	const isBookmarked = $derived(session ? bookmarks.some((b) => b.id === sessionId(session!)) : false);
+
+	function sessionId(s: ImmersionSession): string {
+		// Use first question text as a stable identifier
+		return btoa(encodeURIComponent(s.questions[0]?.question || JSON.stringify(s).slice(0, 80))).slice(0, 24);
+	}
+
+	function getHeadline(s: ImmersionSession): string {
+		const d = s.templateData;
+		return d.headline || d.title || d.restaurantName || d.brand || d.subject || 'Immersion Content';
+	}
+
+	function toggleBookmark() {
+		if (!session) return;
+		const id = sessionId(session);
+		if (isBookmarked) {
+			bookmarks = bookmarks.filter((b) => b.id !== id);
+		} else {
+			const bm: Bookmark = {
+				id,
+				savedAt: new Date().toISOString(),
+				mediaType: session.mediaType,
+				mediaLabel: MEDIA_LABELS[session.mediaType]?.label ?? session.mediaType,
+				headline: getHeadline(session),
+				session
+			};
+			bookmarks = [bm, ...bookmarks].slice(0, MAX_BOOKMARKS);
+		}
+		localStorage.setItem(BOOKMARK_KEY, JSON.stringify(bookmarks));
+	}
+
+	function loadBookmark(bm: Bookmark) {
+		session = bm.session;
+		answers = {};
+		totalXpEarned = 0;
+		sessionComplete = false;
+		showBookmarks = false;
+	}
+
+	function deleteBookmark(id: string) {
+		bookmarks = bookmarks.filter((b) => b.id !== id);
+		localStorage.setItem(BOOKMARK_KEY, JSON.stringify(bookmarks));
+	}
 </script>
 
 <div class="immersion-root">
@@ -258,7 +335,7 @@
 					<button
 						class="type-pill"
 						class:active={selectedMediaType === type}
-						on:click={() => (selectedMediaType = type)}
+						onclick={() => (selectedMediaType = type)}
 					>
 						{type === 'random'
 							? '🎲 Random'
@@ -268,18 +345,70 @@
 			</div>
 		</div>
 
-		<button class="generate-btn" on:click={generate} disabled={loading}>
-			{#if loading}
-				<span class="spinner"></span>
-				Generating...
-			{:else if session}
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.1rem;height:1.1rem;flex-shrink:0;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
-				Generate New
-			{:else}
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.1rem;height:1.1rem;flex-shrink:0;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
-				Generate Content
-			{/if}
-		</button>
+		<div class="generate-row">
+			<button class="generate-btn" onclick={generate} disabled={loading}>
+				{#if loading}
+					<span class="spinner"></span>
+					Generating...
+				{:else if session}
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.1rem;height:1.1rem;flex-shrink:0;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+					Generate New
+				{:else}
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.1rem;height:1.1rem;flex-shrink:0;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+					Generate Content
+				{/if}
+			</button>
+
+			<!-- Bookmark actions (#16) -->
+			<div class="bookmark-actions">
+				{#if session}
+					<button
+						class="bookmark-btn"
+						class:bookmarked={isBookmarked}
+						onclick={toggleBookmark}
+						title={isBookmarked ? 'Remove bookmark' : 'Save this content'}
+						aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark this content'}
+					>
+						<svg viewBox="0 0 24 24" fill={isBookmarked ? 'currentColor' : 'none'} stroke="currentColor" stroke-width="2" aria-hidden="true" width="18" height="18">
+							<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+						</svg>
+					</button>
+				{/if}
+				{#if bookmarks.length > 0}
+					<button
+						class="bookmark-list-btn"
+						onclick={() => showBookmarks = !showBookmarks}
+						title="Saved content"
+					>
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" width="16" height="16">
+							<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+						</svg>
+						{bookmarks.length}
+					</button>
+				{/if}
+			</div>
+		</div>
+
+		<!-- Bookmarks panel (#16) -->
+		{#if showBookmarks}
+			<div class="bookmarks-panel" in:fly={{ y: -8, duration: 200 }}>
+				<p class="bookmarks-panel-title">Saved Content</p>
+				<ul class="bookmarks-list">
+					{#each bookmarks as bm}
+						<li class="bookmark-item">
+							<button class="bookmark-load-btn" onclick={() => loadBookmark(bm)}>
+								<span class="bookmark-icon">{MEDIA_LABELS[bm.mediaType]?.icon ?? '📄'}</span>
+								<span class="bookmark-headline">{bm.headline}</span>
+								<span class="bookmark-type">{bm.mediaLabel}</span>
+							</button>
+							<button class="bookmark-delete-btn" onclick={() => deleteBookmark(bm.id)} aria-label="Delete bookmark" title="Remove">
+								&times;
+							</button>
+						</li>
+					{/each}
+				</ul>
+			</div>
+		{/if}
 	</div>
 
 	{#if loading}
@@ -479,7 +608,7 @@
 											idx !== question.correctIndex}
 										class:dimmed={state.mcqSubmitted && idx !== question.correctIndex && state.selectedOption !== idx}
 										disabled={state.mcqSubmitted}
-										on:click={() => handleMcqSelect(question.id, idx, question)}
+										onclick={() => handleMcqSelect(question.id, idx, question)}
 									>
 										<span class="option-letter">{String.fromCharCode(65 + idx)}</span>
 										{option}
@@ -505,13 +634,13 @@
 								placeholder="Type your answer here..."
 								bind:value={state.frText}
 								disabled={state.frSubmitted || state.frSubmitting}
-								on:input={() => { answers[question.id] = state; answers = answers; }}
+								oninput={() => { answers[question.id] = state; answers = answers; }}
 							></textarea>
 							{#if !state.frSubmitted}
 								<button
 									class="fr-submit-btn"
 									disabled={!state.frText?.trim() || state.frSubmitting}
-									on:click={() => submitFreeResponse(question)}
+									onclick={() => submitFreeResponse(question)}
 								>
 									{state.frSubmitting ? 'Grading...' : 'Submit Answer'}
 								</button>
@@ -547,7 +676,7 @@
 					<div class="summary-icon">🎉</div>
 					<h3>Session Complete!</h3>
 					<p class="summary-xp">You earned <strong>{totalXpEarned} XP</strong> this session.</p>
-					<button class="generate-btn" on:click={generate}>
+					<button class="generate-btn" onclick={generate}>
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.1rem;height:1.1rem;flex-shrink:0;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
 						Read Another
 					</button>
@@ -657,6 +786,145 @@
 		background: #1cb0f6;
 		color: #fff;
 	}
+
+	.generate-row {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		flex-wrap: wrap;
+	}
+
+	/* Bookmark styles (#16) */
+	.bookmark-actions {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.bookmark-btn {
+		background: none;
+		border: 2px solid rgba(255,255,255,0.2);
+		border-radius: 0.6rem;
+		padding: 0.55rem;
+		cursor: pointer;
+		color: rgba(255,255,255,0.5);
+		display: flex;
+		align-items: center;
+		transition: color 0.15s, border-color 0.15s, background 0.15s;
+		line-height: 0;
+	}
+
+	.bookmark-btn:hover { color: #fbbf24; border-color: #fbbf24; }
+
+	.bookmark-btn.bookmarked {
+		color: #fbbf24;
+		border-color: #fbbf24;
+		background: rgba(251, 191, 36, 0.1);
+	}
+
+	.bookmark-list-btn {
+		display: flex;
+		align-items: center;
+		gap: 0.35rem;
+		background: rgba(255,255,255,0.08);
+		border: 2px solid rgba(255,255,255,0.15);
+		border-radius: 0.6rem;
+		padding: 0.45rem 0.75rem;
+		font-size: 0.8rem;
+		font-weight: 700;
+		color: rgba(255,255,255,0.6);
+		cursor: pointer;
+		transition: background 0.15s, color 0.15s;
+	}
+
+	.bookmark-list-btn:hover {
+		background: rgba(255,255,255,0.15);
+		color: #fff;
+	}
+
+	.bookmarks-panel {
+		background: rgba(255,255,255,0.06);
+		border: 1px solid rgba(255,255,255,0.12);
+		border-radius: 0.75rem;
+		padding: 0.75rem;
+		margin-top: 0.5rem;
+	}
+
+	.bookmarks-panel-title {
+		font-size: 0.65rem;
+		font-weight: 800;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		color: rgba(255,255,255,0.4);
+		margin: 0 0 0.5rem;
+	}
+
+	.bookmarks-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.35rem;
+	}
+
+	.bookmark-item {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.bookmark-load-btn {
+		flex: 1;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		background: rgba(255,255,255,0.04);
+		border: 1px solid rgba(255,255,255,0.1);
+		border-radius: 0.5rem;
+		padding: 0.5rem 0.75rem;
+		cursor: pointer;
+		text-align: left;
+		transition: background 0.15s;
+		min-width: 0;
+		font-family: inherit;
+	}
+
+	.bookmark-load-btn:hover { background: rgba(255,255,255,0.1); }
+
+	.bookmark-icon { font-size: 1rem; flex-shrink: 0; }
+
+	.bookmark-headline {
+		flex: 1;
+		font-size: 0.85rem;
+		font-weight: 600;
+		color: #e2e8f0;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.bookmark-type {
+		font-size: 0.65rem;
+		font-weight: 700;
+		color: rgba(255,255,255,0.35);
+		flex-shrink: 0;
+	}
+
+	.bookmark-delete-btn {
+		background: none;
+		border: none;
+		color: rgba(255,255,255,0.3);
+		font-size: 1.2rem;
+		cursor: pointer;
+		padding: 0.25rem 0.4rem;
+		border-radius: 0.35rem;
+		line-height: 1;
+		transition: color 0.15s, background 0.15s;
+		flex-shrink: 0;
+	}
+
+	.bookmark-delete-btn:hover { color: #f87171; background: rgba(248,113,113,0.1); }
 
 	.generate-btn {
 		padding: 0.8rem 1.5rem;

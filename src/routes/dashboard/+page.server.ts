@@ -51,7 +51,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 		orderBy: { level: 'asc' }
 	});
 
-	const [dueVocabReviewCount, dueGrammarReviewCount] = await Promise.all([
+	const in48h = new Date(Date.now() + 48 * 60 * 60 * 1000);
+
+	const [dueVocabReviewCount, dueGrammarReviewCount, dueSoonAssignments] = await Promise.all([
 		prisma.userVocabularyProgress.count({
 			where: {
 				userId: user.id,
@@ -63,6 +65,29 @@ export const load: PageServerLoad = async ({ locals }) => {
 				userId: user.id,
 				nextReviewDate: { lte: new Date() }
 			}
+		}),
+		// Assignments due within 48 hours that the user hasn't passed yet (#10)
+		prisma.assignment.findMany({
+			where: {
+				dueDate: { lte: in48h, gte: new Date() },
+				class: {
+					members: {
+						some: { userId: user.id, role: 'STUDENT' }
+					}
+				},
+				NOT: {
+					scores: { some: { userId: user.id, passed: true } }
+				}
+			},
+			select: {
+				id: true,
+				title: true,
+				dueDate: true,
+				classId: true,
+				class: { select: { name: true } }
+			},
+			orderBy: { dueDate: 'asc' },
+			take: 5
 		})
 	]);
 
@@ -77,6 +102,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		grammarRules,
 		allGrammarRules,
 		dueReviewCount,
-		cefrProgress
+		cefrProgress,
+		dueSoonAssignments
 	};
 };

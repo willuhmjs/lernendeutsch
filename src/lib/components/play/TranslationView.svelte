@@ -4,22 +4,30 @@
 	import VoiceDictation from '$lib/components/VoiceDictation.svelte';
 	import { charSets } from '$lib/utils/keyboard';
 
-	export let challenge: any;
-	export let submitting: boolean;
-	export let feedback: any;
-	export let loading: boolean;
-	export let userInput: string;
-	export let lessonLanguage: { name: string } | null | undefined;
+	let {
+		challenge,
+		submitting,
+		feedback,
+		loading,
+		userInput = $bindable(''),
+		lessonLanguage,
+		onsubmit
+	}: {
+		challenge: any;
+		submitting: boolean;
+		feedback: any;
+		loading: boolean;
+		userInput?: string;
+		lessonLanguage?: { name: string } | null;
+		onsubmit?: () => void;
+	} = $props();
 
-	let inputEl: HTMLTextAreaElement | null = null;
+	let inputEl = $state<HTMLTextAreaElement | null>(null);
 
-	// Only show special keyboard when typing in the target language and chars are available
-	$: isTargetToNative = challenge?.gameMode === 'target-to-native';
-	$: langKey = lessonLanguage?.name?.toLowerCase() || '';
-	$: showSpecialKeyboard = !isTargetToNative && langKey in charSets;
-
-	// Speech recognition language: English for target-to-native, target lang otherwise
-	$: speechLang = isTargetToNative ? 'en-US' : getLangCode(lessonLanguage?.name);
+	const isTargetToNative = $derived(challenge?.gameMode === 'target-to-native');
+	const langKey = $derived(lessonLanguage?.name?.toLowerCase() || '');
+	const showSpecialKeyboard = $derived(!isTargetToNative && langKey in charSets);
+	const speechLang = $derived(isTargetToNative ? 'en-US' : getLangCode(lessonLanguage?.name));
 
 	function getLangCode(name: string | undefined): string {
 		const map: Record<string, string> = {
@@ -36,17 +44,13 @@
 		return map[(name || '').toLowerCase()] || 'en-US';
 	}
 
-	import { createEventDispatcher } from 'svelte';
-	const dispatch = createEventDispatcher();
-
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === 'Enter' && !e.shiftKey && !submitting && !feedback && !loading) {
 			e.preventDefault();
-			dispatch('submit');
+			onsubmit?.();
 		}
 	}
 
-	// Auto-focus when the component mounts (challenge is ready since parent only renders this when !loading)
 	onMount(() => {
 		inputEl?.focus();
 	});
@@ -54,7 +58,7 @@
 
 <div class="form-group">
 	<div class="input-label-row">
-		<label for="answer" class="dark:text-slate-300">Your Translation</label>
+		<label for="answer">Your Translation</label>
 		<VoiceDictation
 			lang={speechLang}
 			bind:value={userInput}
@@ -82,8 +86,8 @@
 			: challenge?.gameMode === 'target-to-native'
 				? 'Type your English translation here... (Enter to submit)'
 				: `Type your ${lessonLanguage?.name || 'Target'} translation here... (Enter to submit)`}
-		class="dark:bg-slate-900 dark:text-white dark:border-slate-700"
-		on:keydown={handleKeydown}
+
+		onkeydown={handleKeydown}
 	></textarea>
 </div>
 

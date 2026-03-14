@@ -3,20 +3,26 @@
 
 	import { charSets } from '$lib/utils/keyboard';
 
-	export let value: string = '';
-	export let inputElement: HTMLInputElement | HTMLTextAreaElement | null = null;
-	export let language: string = 'en';
+	let {
+		value = $bindable(''),
+		inputElement = null,
+		language = 'en'
+	}: {
+		value?: string;
+		inputElement?: HTMLInputElement | HTMLTextAreaElement | null;
+		language?: string;
+	} = $props();
 
-	let isExpanded = false;
-	let isShift = false;
+	let isExpanded = $state(false);
+	let isShift = $state(false);
 
-	$: normalizedLang = language?.toLowerCase() || 'en';
-	$: activeChars =
+	const normalizedLang = $derived(language?.toLowerCase() || 'en');
+	const activeChars = $derived(
 		charSets[normalizedLang]
 			? charSets[normalizedLang]
-			: Array.from(new Set([...charSets.fr, ...charSets.es, ...charSets.de]));
-
-	$: displayChars = isShift ? activeChars.map((c) => c.toUpperCase()) : activeChars;
+			: Array.from(new Set([...charSets.fr, ...charSets.es, ...charSets.de]))
+	);
+	const displayChars = $derived(isShift ? activeChars.map((c) => c.toUpperCase()) : activeChars);
 
 	function insertChar(char: string) {
 		const c: string = char;
@@ -53,7 +59,7 @@
 	<button
 		type="button"
 		class="toggle-button"
-		on:click={toggleKeyboard}
+		onclick={toggleKeyboard}
 		aria-expanded={isExpanded}
 		aria-label="{isExpanded ? 'Hide' : 'Show'} special character keyboard"
 	>
@@ -75,7 +81,7 @@
 				<button
 					type="button"
 					class="shift-button {isShift ? 'active' : ''}"
-					on:click={toggleShift}
+					onclick={toggleShift}
 					aria-pressed={isShift}
 					aria-label="Toggle uppercase"
 				>
@@ -86,7 +92,7 @@
 						<button
 							type="button"
 							class="char-key"
-							on:click={() => insertChar(char)}
+							onclick={() => insertChar(char)}
 						>
 							{char}
 						</button>
@@ -148,13 +154,19 @@
 		gap: 0.5rem;
 		background-color: var(--color-gray-50, #f9fafb);
 		padding: 0.5rem;
-		border-radius: 0.375rem;
+		border-radius: 0.5rem;
 		border: 1px solid var(--color-gray-200, #e5e7eb);
 		overflow-x: auto;
 		align-items: center;
 		/* Custom scrollbar for better look */
 		scrollbar-width: thin;
 		scrollbar-color: var(--color-gray-300, #d1d5db) transparent;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	:global(html[data-theme='dark']) .keyboard-panel {
+		background-color: #1e293b;
+		border-color: #334155;
 	}
 
 	.keyboard-panel::-webkit-scrollbar {
@@ -224,14 +236,24 @@
 
 	@media (max-width: 640px) {
 		.char-key {
-			width: 2.75rem;
-			height: 2.75rem;
-			font-size: 1rem;
+			width: 3rem;
+			height: 3rem;
+			font-size: 1.1rem;
+			border-radius: 0.5rem;
+			box-shadow: 0 2px 0 rgba(0,0,0,0.12);
 		}
 
 		.shift-button {
-			height: 2.75rem;
-			padding: 0 0.75rem;
+			height: 3rem;
+			padding: 0 1rem;
+			font-size: 0.9rem;
+			border-radius: 0.5rem;
+		}
+
+		.toggle-button {
+			font-size: 0.875rem;
+			min-height: 3rem;
+			gap: 0.4rem;
 		}
 	}
 
@@ -250,5 +272,37 @@
 	.shift-button:focus-visible {
 		outline: 2px solid var(--color-blue-500, #3b82f6);
 		outline-offset: 1px;
+	}
+
+	:global(html[data-theme='dark']) .char-key {
+		background-color: #334155;
+		color: #e2e8f0;
+		border-color: #475569;
+		box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+	}
+
+	:global(html[data-theme='dark']) .char-key:hover {
+		background-color: #475569;
+		border-color: #64748b;
+	}
+
+	:global(html[data-theme='dark']) .shift-button {
+		background-color: #334155;
+		color: #e2e8f0;
+		border-color: #475569;
+	}
+
+	:global(html[data-theme='dark']) .shift-button.active {
+		background-color: #64748b;
+		color: white;
+		border-color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .toggle-button {
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .toggle-button:hover {
+		color: #cbd5e1;
 	}
 </style>

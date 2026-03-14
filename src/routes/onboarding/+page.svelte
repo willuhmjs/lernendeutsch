@@ -246,35 +246,35 @@
 >
 	{#if selectedPath === 'language' && !completed}
 		   <header class="page-header" in:fly={{ y: 20, duration: 400 }}>
-			   <h1 class="dark:text-white">Choose Your New Language</h1>
-			   <p class="dark:text-slate-400">Which language would you like to start learning?</p>
+			   <h1 class="">Choose Your New Language</h1>
+			   <p class="">Which language would you like to start learning?</p>
 		   </header>
 		   <div class="path-selection horizontal" in:fly={{ y: 20, duration: 400, delay: 100 }}>
 			   {#each data.languages || [] as lang}
-				   <button class="path-card dark:bg-slate-900 dark:border-slate-700" on:click={() => selectLanguage(lang.id)}>
+				   <button class="path-card" onclick={() => selectLanguage(lang.id)}>
 					   <span class="path-icon">{lang.flag || '🌐'}</span>
-					   <h2 class="dark:text-white">{lang.name}</h2>
+					   <h2 class="">{lang.name}</h2>
 				   </button>
 			   {/each}
 		   </div>
 	{:else if selectedPath === 'choose' && !completed}
 		<!-- Path Selection Screen -->
 		<header class="page-header" in:fly={{ y: 20, duration: 400 }}>
-			<h1 class="dark:text-white">Welcome to LingoLearn!</h1>
-			<p class="dark:text-slate-400">
+			<h1 class="">Welcome to LingoLearn!</h1>
+			<p class="">
 				Let's set up your learning experience. Choose the option that best describes you:
 			</p>
 		</header>
 
 		<div class="path-selection" in:fly={{ y: 20, duration: 400, delay: 100 }}>
 			<button
-				class="path-card beginner-card dark:bg-slate-900 dark:border-emerald-900"
-				on:click={handleBeginnerPath}
+				class="path-card beginner-card"
+				onclick={handleBeginnerPath}
 				disabled={isSubmittingBeginner}
 			>
 				<span class="path-icon">🌱</span>
-				<h2 class="dark:text-white">I'm a Complete Beginner</h2>
-				<p class="dark:text-slate-400">
+				<h2 class="">I'm a Complete Beginner</h2>
+				<p class="">
 					I have zero or almost zero language knowledge. Start me from the very basics — greetings,
 					pronouns, simple words.
 				</p>
@@ -282,28 +282,28 @@
 			</button>
 
 			<button
-				class="path-card test-card dark:bg-slate-900 dark:border-emerald-900"
-				on:click={startPlacementTest}
+				class="path-card test-card"
+				onclick={startPlacementTest}
 			>
 				<span class="path-icon">💬</span>
-				<h2 class="dark:text-white">I Know Some {data?.user?.activeLanguage?.name}</h2>
-				<p class="dark:text-slate-400">
+				<h2 class="">I Know Some {data?.user?.activeLanguage?.name}</h2>
+				<p class="">
 					I have some language knowledge. Chat with our AI teacher to find my level so I don't
 					repeat what I already know.
 				</p>
 				<span class="path-badge test-badge">Takes 2-5 minutes</span>
 			</button>
 
-			<div class="manual-section dark:bg-slate-800 dark:border-slate-700">
-				<p class="dark:text-slate-400">
+			<div class="manual-section">
+				<p class="">
 					Or, if you already know your CEFR level, pick it directly:
 				</p>
 				<div class="level-buttons">
 					{#each ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as lvl}
 						<button
-							class="btn btn-level dark:bg-slate-700 dark:text-slate-200"
+							class="btn btn-level"
 							disabled={isSubmittingManual || isSubmittingBeginner}
-							on:click={() => handleManualPlacement(lvl)}
+							onclick={() => handleManualPlacement(lvl)}
 						>
 							{lvl}
 						</button>
@@ -316,29 +316,27 @@
 		<!-- Placement Test / Completion -->
 		<header class="page-header" in:fly={{ y: 20, duration: 400 }}>
 			{#if completed}
-				<h1 class="dark:text-white">You're All Set!</h1>
-				<p class="dark:text-slate-400">We've prepared a personalized curriculum for you.</p>
+				<h1 class="">You're All Set!</h1>
+				<p class="">We've prepared a personalized curriculum for you.</p>
 			{:else}
-				<h1 class="dark:text-white">Placement Test</h1>
-				<p class="dark:text-slate-400">
+				<h1 class="">Placement Test</h1>
+				<p class="">
 					Chat with our AI teacher to determine your starting level.
 				</p>
 			{/if}
 		</header>
 
 		<div class="content-layout" in:fly={{ y: 20, duration: 400, delay: 100 }}>
-			<div class="chat-container dark:bg-slate-800 dark:border-slate-700">
+			<div class="chat-">
 				{#if messages.length > 0 || loading}
-					<div class="chat-messages dark:bg-slate-900">
+					<div class="chat-messages">
 						{#each messages as msg}
 							<div class="message-wrapper {msg.role === 'user' ? 'user' : 'assistant'}">
-								<span class="message-sender dark:text-slate-500"
+								<span class="message-sender"
 									>{msg.role === 'user' ? 'You' : 'Teacher'}</span
 								>
 								<div
-									class="message-bubble {msg.role === 'user'
-										? 'user'
-										: 'assistant dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700'}"
+									class="message-bubble {msg.role === 'user' ? 'user' : 'assistant '}"
 								>
 									{msg.content}
 								</div>
@@ -347,9 +345,9 @@
 
 						{#if loading}
 							<div class="message-wrapper assistant">
-								<span class="message-sender dark:text-slate-500">Teacher</span>
+								<span class="message-sender">Teacher</span>
 								<div
-									class="message-bubble assistant loading dark:bg-slate-800 dark:text-slate-500 dark:border-slate-700"
+									class="message-bubble assistant"
 								>
 									Thinking...
 								</div>
@@ -361,42 +359,42 @@
 
 				{#if completed}
 					<div
-						class="completion-card dark:bg-slate-900 dark:border-emerald-900"
+						class="completion-card"
 						class:no-messages={messages.length === 0}
 					>
-						<h2 class="dark:text-emerald-400">Onboarding Complete!</h2>
+						<h2 class="">Onboarding Complete!</h2>
 						<div class="level-result">
-							<span class="dark:text-emerald-500">Your assessed level:</span>
-							<strong class="level-badge dark:bg-emerald-900 dark:text-emerald-300"
+							<span class="">Your assessed level:</span>
+							<strong class="level-badge"
 								>{completionData.level}</strong
 							>
 						</div>
 						{#if completionData.feedback}
-							<p class="feedback-text dark:text-emerald-500">
+							<p class="feedback-text">
 								<strong>Feedback:</strong>
 								{completionData.feedback}
 							</p>
 						{/if}
-						<div class="completion-actions dark:border-emerald-900">
+						<div class="completion-actions">
 							{#if selectedPath === 'beginner'}
-								<p class="action-note dark:text-emerald-500">
+								<p class="action-note">
 									We've loaded essential starter vocabulary and grammar for you. Your lessons will
 									begin with the very basics — no prior language knowledge needed!
 								</p>
 							{:else}
-								<p class="action-note dark:text-emerald-500">
+								<p class="action-note">
 									Your personalized curriculum has been bulk-generated. We've marked the basics you
 									already know as Mastered!
 								</p>
 							{/if}
 							<div class="completion-buttons">
-								<button class="btn btn-primary btn-large" on:click={() => (window.location.href = '/play')}>
+								<button class="btn btn-primary btn-large" onclick={() => (window.location.href = '/play')}>
 									Start Learning
 								</button>
-								<button class="btn btn-outlined" on:click={() => (window.location.href = '/')}>
+								<button class="btn btn-outlined" onclick={() => (window.location.href = '/')}>
 									Go to Dashboard
 								</button>
-								<button class="btn-text-link" on:click={restartOnboarding}>
+								<button class="btn-text-link" onclick={restartOnboarding}>
 									Restart Onboarding
 								</button>
 							</div>
@@ -404,15 +402,15 @@
 					</div>
 				{:else}
 					<form
-						class="chat-input-form dark:bg-slate-800 dark:border-slate-700"
-						on:submit|preventDefault={sendMessage}
+						class="chat-input-form"
+						onsubmit={(e) => { e.preventDefault(); sendMessage(); }}
 					>
 						<input
 							type="text"
 							bind:value={userInput}
 							disabled={loading || completed}
 							placeholder="Type your reply here..."
-							class="chat-input dark:bg-slate-900 dark:text-white dark:border-slate-700"
+							class="chat-input"
 						/>
 						<button
 							type="submit"
@@ -427,7 +425,7 @@
 								type="button"
 								class="btn btn-secondary"
 								disabled={loading || completed || isEndingEarly}
-								on:click={handleEndEarly}
+								onclick={handleEndEarly}
 							>
 								End Early
 							</button>
