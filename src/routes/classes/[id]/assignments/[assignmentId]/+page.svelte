@@ -71,6 +71,7 @@
 	let vocabInput = '';
 	let vocabInputRef: HTMLInputElement;
 	let grammarSearchQuery = '';
+	let editGameId = '';
 	let isSaving = false;
 
 	function openEditModal() {
@@ -86,6 +87,7 @@
 		targetVocabList = assignment.targetVocab ? [...assignment.targetVocab] : [];
 		vocabInput = '';
 		grammarSearchQuery = '';
+		editGameId = assignment.gameId || '';
 		showEditModal = true;
 	}
 
@@ -1062,6 +1064,10 @@
 		}
 	}
 
+
+	.quiz-picker-field {
+		grid-column: 1 / -1;
+	}
 	.field-small {
 		max-width: 140px;
 	}

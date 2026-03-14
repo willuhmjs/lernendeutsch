@@ -121,7 +121,7 @@
 				</div>
 
 				<button class="btn-primary w-full btn-large mt-large" onclick={startGame} disabled={students.length === 0}>
-					Start Game
+					Start Quiz
 				</button>
 			{:else if session.status === 'active' || session.status === 'showing_answer'}
 				<div class="progress-info">

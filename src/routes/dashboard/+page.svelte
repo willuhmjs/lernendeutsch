@@ -348,7 +348,7 @@
 			{#if data.dueReviewCount > 0}
 				<a href="/review" class="btn-duo btn-secondary">Review Vocabulary</a>
 			{/if}
-			<a href="/play?tab=games" class="btn-duo btn-secondary">Play Game</a>
+			<a href="/play?tab=games" class="btn-duo btn-secondary">Play a Quiz</a>
 		</div>
 
 		{#if (data as any).dueSoonAssignments?.length > 0}

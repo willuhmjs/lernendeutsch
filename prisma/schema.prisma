@@ -344,6 +344,7 @@ model Game {
   creator      User           @relation(fields: [creatorId], references: [id])
   questions    GameQuestion[]
   liveSessions LiveSession[]
+  assignments  Assignment[]
 }
 
 model GameQuestion {
@@ -398,6 +399,7 @@ model Assignment {
   title           String
   description     String?
   gamemode        String
+  gameId          String?
   language        String
   targetScore     Int
   passThreshold   Int       @default(50)
@@ -410,6 +412,7 @@ model Assignment {
   updatedAt       DateTime  @updatedAt
 
   class  Class             @relation(fields: [classId], references: [id], onDelete: Cascade)
+  game   Game?             @relation(fields: [gameId], references: [id], onDelete: SetNull)
   scores AssignmentScore[]
 }
 

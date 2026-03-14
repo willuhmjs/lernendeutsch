@@ -64,17 +64,36 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		error(404, 'Assignment not found');
 	}
 
-	const languages = await prisma.language.findMany({
-		include: {
-			grammarRules: {
-				orderBy: [{ level: 'asc' }, { title: 'asc' }]
+	const [languages, teacherGames] = await Promise.all([
+		prisma.language.findMany({
+			include: {
+				grammarRules: {
+					orderBy: [{ level: 'asc' }, { title: 'asc' }]
+				}
 			}
-		}
-	});
+		}),
+		prisma.game.findMany({
+			where: {
+				OR: [
+					{ creatorId: locals.user!.id },
+					{ isPublished: true }
+				]
+			},
+			select: {
+				id: true,
+				title: true,
+				language: true,
+				isPublished: true,
+				_count: { select: { questions: true } }
+			},
+			orderBy: { createdAt: 'desc' }
+		})
+	]);
 
 	return {
 		assignment,
 		classDetails,
-		languages
+		languages,
+		teacherGames
 	};
 };

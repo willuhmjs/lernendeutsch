@@ -31,7 +31,10 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 			},
 			assignments: {
 				include: {
-					scores: true
+					scores: true,
+					game: {
+						select: { id: true, title: true, isPublished: true, _count: { select: { questions: true } } }
+					}
 				},
 				orderBy: {
 					createdAt: 'desc'
@@ -52,19 +55,39 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	}
 
 	let languages: any[] = [];
+	let teacherGames: any[] = [];
 	if (currentUserMember.role === 'TEACHER') {
-		languages = await prisma.language.findMany({
-			include: {
-				grammarRules: {
-					orderBy: [{ level: 'asc' }, { title: 'asc' }]
+		[languages, teacherGames] = await Promise.all([
+			prisma.language.findMany({
+				include: {
+					grammarRules: {
+						orderBy: [{ level: 'asc' }, { title: 'asc' }]
+					}
 				}
-			}
-		});
+			}),
+			prisma.game.findMany({
+				where: {
+					OR: [
+						{ creatorId: locals.user!.id },
+						{ isPublished: true }
+					]
+				},
+				select: {
+					id: true,
+					title: true,
+					language: true,
+					isPublished: true,
+					_count: { select: { questions: true } }
+				},
+				orderBy: { createdAt: 'desc' }
+			})
+		]);
 	}
 
 	return {
 		classDetails,
 		currentUserRole: currentUserMember.role,
-		languages
+		languages,
+		teacherGames
 	};
 };

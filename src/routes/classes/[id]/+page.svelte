@@ -27,6 +27,7 @@
 	let targetVocabList: string[] = [];
 	let vocabInput = '';
 	let grammarSearchQuery = '';
+	let createAssignmentGameId = '';
 	let isCreatingAssignment = false;
 
 	function openCreateAssignmentModal() {
@@ -43,6 +44,7 @@
 		targetVocabList = [];
 		vocabInput = '';
 		grammarSearchQuery = '';
+		createAssignmentGameId = '';
 	}
 
 	function closeCreateAssignmentModal() {
@@ -164,8 +166,10 @@
 
 	let copiedAssignmentId: string | null = null;
 
-	async function copyAssignmentLink(assignmentId: string) {
-		const url = `${window.location.origin}/play?assignmentId=${assignmentId}`;
+	async function copyAssignmentLink(assignmentId: string, gameId?: string | null) {
+		const url = gameId
+			? `${window.location.origin}/play/games/${gameId}/play?assignmentId=${assignmentId}`
+			: `${window.location.origin}/play?assignmentId=${assignmentId}`;
 		await navigator.clipboard.writeText(url);
 		copiedAssignmentId = assignmentId;
 		setTimeout(() => {
@@ -347,12 +351,14 @@
 								</div>
 								<div class="assignment-actions-row">
 									<a
-										href="/play?assignmentId={assignment.id}"
+										href={assignment.gamemode === 'quiz' && assignment.gameId
+											? `/play/games/${assignment.gameId}/play?assignmentId=${assignment.id}`
+											: `/play?assignmentId=${assignment.id}`}
 										class="btn-duo {passed
 											? 'btn-secondary'
 											: 'btn-primary'} assignment-play-btn text-center"
 									>
-										{passed ? 'Learn Again' : myScore ? 'Keep Learning' : 'Start'}
+										{passed ? 'Play Again' : myScore ? 'Continue' : 'Start'}
 									</a>
 									{#if currentUserRole === 'TEACHER'}
 										<a
@@ -365,7 +371,7 @@
 											type="button"
 											class="btn-duo btn-copy assignment-play-btn text-center"
 											aria-label="Copy assignment link"
-											onclick={() => copyAssignmentLink(assignment.id)}
+											onclick={() => copyAssignmentLink(assignment.id, assignment.gamemode === 'quiz' ? assignment.gameId : null)}
 										>
 											{copiedAssignmentId === assignment.id ? '✓ Copied' : '🔗 Copy Link'}
 										</button>
@@ -623,8 +629,20 @@
 							<option value="fill-blank">Fill in the Blank</option>
 							<option value="chat">Chat</option>
 							<option value="immerse">Immerse</option>
+							<option value="quiz">Quiz</option>
 						</select>
 					</div>
+					{#if createAssignmentMode === 'quiz'}
+					<div class="field quiz-picker-field">
+						<label for="quizPicker">Select Quiz <span class="required">*</span></label>
+						<select id="quizPicker" bind:value={createAssignmentGameId}>
+							<option value="">— Choose a quiz —</option>
+							{#each data.teacherGames || [] as quiz}
+								<option value={quiz.id}>{quiz.title} ({quiz._count.questions} questions){quiz.isPublished ? '' : ' (draft)'}</option>
+							{/each}
+						</select>
+					</div>
+					{/if}
 					<div class="field field-small">
 						<label for="language">Language</label>
 						<select id="language" bind:value={createAssignmentLanguage}>
@@ -652,6 +670,8 @@
 								Target Turns
 							{:else if createAssignmentMode === 'immerse'}
 								Target Questions
+							{:else if createAssignmentMode === 'quiz'}
+								Correct Answers
 							{:else}
 								Pass Score
 							{/if}
@@ -1015,6 +1035,10 @@
 		border-color: #22c55e;
 	}
 
+
+	.quiz-picker-field {
+		grid-column: 1 / -1;
+	}
 	.field-small {
 		max-width: 140px;
 	}

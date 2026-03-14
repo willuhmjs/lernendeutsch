@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
+	import { page } from '$app/stores';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 
 	let currentQuestionIndex = $state(0);
 	let score = $state(0);
-	let isGameOver = $state(false);
+	let isQuizOver = $state(false);
 	let selectedOption: string | null = $state(null);
 	let isAnswerCorrect: boolean | null = $state(null);
 	let showResult = $state(false);
@@ -14,22 +14,30 @@
 	let game = $derived(data.game);
 	let questions = $derived(game.questions || []);
 	let currentQuestion = $derived(questions[currentQuestionIndex]);
-	
+
+	// Assignment context
+	let assignment = $derived(data.assignment ?? null);
+	let assignmentProgress = $state(
+		data.assignmentScore
+			? { score: data.assignmentScore.score, targetScore: assignment?.targetScore ?? 0, passed: data.assignmentScore.passed }
+			: assignment
+				? { score: 0, targetScore: assignment.targetScore, passed: false }
+				: null
+	);
+
 	let options = $state<string[]>([]);
 
 	$effect(() => {
 		if (currentQuestion) {
-			const rawOptions = Array.isArray(currentQuestion.options) 
-				? currentQuestion.options 
-				: (typeof currentQuestion.options === 'string' 
-					? JSON.parse(currentQuestion.options) 
+			const rawOptions = Array.isArray(currentQuestion.options)
+				? currentQuestion.options
+				: (typeof currentQuestion.options === 'string'
+					? JSON.parse(currentQuestion.options)
 					: []);
-					
-			// Ensure answer is in options, but not duplicated
-			const opts = [...rawOptions].filter(opt => opt !== currentQuestion.answer);
+
+			const opts = [...rawOptions].filter((opt: string) => opt !== currentQuestion.answer);
 			opts.push(currentQuestion.answer);
-			
-			// Shuffle options
+
 			for (let i = opts.length - 1; i > 0; i--) {
 				const j = Math.floor(Math.random() * (i + 1));
 				[opts[i], opts[j]] = [opts[j], opts[i]];
@@ -38,7 +46,7 @@
 		}
 	});
 
-	function selectOption(option: string) {
+	async function selectOption(option: string) {
 		if (showResult) return;
 
 		selectedOption = option;
@@ -47,6 +55,26 @@
 			score++;
 		}
 		showResult = true;
+
+		// Report to assignment if in assignment context
+		if (assignment) {
+			try {
+				const res = await fetch('/api/quiz-assignment-answer', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						assignmentId: assignment.id,
+						isCorrect: isAnswerCorrect
+					})
+				});
+				if (res.ok) {
+					const result = await res.json();
+					assignmentProgress = result.assignmentProgress;
+				}
+			} catch (e) {
+				// non-critical
+			}
+		}
 	}
 
 	function nextQuestion() {
@@ -56,25 +84,49 @@
 			isAnswerCorrect = null;
 			showResult = false;
 		} else {
-			isGameOver = true;
+			isQuizOver = true;
 		}
 	}
 </script>
 
 <div class="learn-container">
 	<nav class="breadcrumb">
-		<a href="/play?tab=games">Games</a>
+		<a href="/play?tab=games">Quizzes</a>
 		<span class="breadcrumb-sep">/</span>
 		<span class="breadcrumb-current">{game.title}</span>
 	</nav>
 
-	{#if isGameOver}
+	{#if assignment && assignmentProgress}
+		<div class="assignment-banner {assignmentProgress.passed ? 'passed' : 'active'}">
+			<div class="assignment-info">
+				<span class="assignment-label">📋 {assignment.title}</span>
+				<span class="assignment-class">{assignment.class?.name ?? 'Class'}</span>
+			</div>
+			<div class="assignment-progress">
+				<span class="progress-value {assignmentProgress.passed ? 'passed' : ''}">
+					{assignmentProgress.score}<span class="progress-target">/{assignmentProgress.targetScore}</span>
+				</span>
+				{#if assignmentProgress.passed}
+					<span class="passed-badge">✓ Passed</span>
+				{/if}
+			</div>
+		</div>
+	{/if}
+
+	{#if isQuizOver}
 		<div class="card-duo game-over-card">
-			<h1>Game Over!</h1>
+			<h1>Quiz Complete!</h1>
 			<p class="score-text">
 				Your Score: {score} / {questions.length}
 			</p>
-			<a href="/play?tab=games" class="btn-primary link-btn-primary">Return to Games</a>
+			{#if assignmentProgress?.passed}
+				<p class="passed-text">🏆 Assignment passed!</p>
+			{/if}
+			{#if assignment}
+				<a href="/classes/{assignment.classId}" class="btn-primary link-btn-primary">Back to Class</a>
+			{:else}
+				<a href="/play?tab=games" class="btn-primary link-btn-primary">Return to Quizzes</a>
+			{/if}
 		</div>
 	{:else if currentQuestion}
 		<div class="game-header">
@@ -107,15 +159,15 @@
 						{/if}
 					</div>
 					<button class="btn-primary next-btn" onclick={nextQuestion}>
-						{currentQuestionIndex === questions.length - 1 ? 'Finish Game' : 'Next Question'}
+						{currentQuestionIndex === questions.length - 1 ? 'Finish Quiz' : 'Next Question'}
 					</button>
 				</div>
 			{/if}
 		</div>
 	{:else}
 		<div class="card-duo empty-card">
-			<h1>No questions available for this game.</h1>
-			<a href="/play?tab=games" class="btn-primary link-btn-primary mt-4">Return to Games</a>
+			<h1>No questions available for this quiz.</h1>
+			<a href="/play?tab=games" class="btn-primary link-btn-primary mt-4">Return to Quizzes</a>
 		</div>
 	{/if}
 </div>
@@ -151,8 +203,85 @@
 		color: #9ca3af;
 	}
 
+	.assignment-banner {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0.75rem 1.25rem;
+		border-radius: 1rem;
+		margin-bottom: 1.25rem;
+		border: 2px solid #bfdbfe;
+		background: #eff6ff;
+		font-weight: 700;
+		gap: 1rem;
+		flex-wrap: wrap;
+	}
+
+	.assignment-banner.passed {
+		background: #f0fdf4;
+		border-color: #86efac;
+	}
+
+	:global(html[data-theme='dark']) .assignment-banner {
+		background: #1e3a5f;
+		border-color: #3b82f6;
+	}
+
+	:global(html[data-theme='dark']) .assignment-banner.passed {
+		background: #14532d;
+		border-color: #22c55e;
+	}
+
+	.assignment-info {
+		display: flex;
+		flex-direction: column;
+		gap: 0.15rem;
+	}
+
+	.assignment-label {
+		font-size: 0.9rem;
+		color: var(--text-color, #1e293b);
+	}
+
+	.assignment-class {
+		font-size: 0.75rem;
+		color: #64748b;
+		font-weight: 600;
+	}
+
+	.assignment-progress {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+	}
+
+	.progress-value {
+		font-size: 1.25rem;
+		font-weight: 900;
+		color: #3b82f6;
+	}
+
+	.progress-value.passed {
+		color: #16a34a;
+	}
+
+	.progress-target {
+		font-size: 0.85rem;
+		font-weight: 700;
+		color: #94a3b8;
+	}
+
+	.passed-badge {
+		font-size: 0.75rem;
+		font-weight: 800;
+		background: #dcfce7;
+		color: #16a34a;
+		padding: 0.2rem 0.6rem;
+		border-radius: 9999px;
+	}
+
 	.learn-container {
-		max-width: 42rem; /* 2xl */
+		max-width: 42rem;
 		margin: 0 auto;
 		padding: 2rem 1rem;
 	}
@@ -172,7 +301,14 @@
 	.score-text {
 		font-size: 1.5rem;
 		color: #475569;
-		margin: 0 0 2rem;
+		margin: 0 0 1rem;
+	}
+
+	.passed-text {
+		font-size: 1.1rem;
+		font-weight: 700;
+		color: #16a34a;
+		margin: 0 0 1.5rem;
 	}
 
 	.link-btn-primary {

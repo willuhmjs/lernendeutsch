@@ -83,7 +83,7 @@
 
 			if (res.ok) {
 				isPublished = false;
-				toast.success('Question updated! Game set to Draft status.');
+				toast.success('Question updated! Quiz set to Draft status.');
 				cancelEditQuestion();
 				await invalidateAll();
 			} else {
@@ -108,14 +108,14 @@
 			});
 			if (res.ok) {
 				isPublished = false;
-				toast.success('Game details updated! Game set to Draft status.');
+				toast.success('Quiz details updated! Quiz set to Draft status.');
 				isEditingDetails = false;
 				await invalidateAll();
 			} else {
-				toast.error('Failed to update game details');
+				toast.error('Failed to update quiz details');
 			}
 		} catch (error) {
-			toast.error('Error updating game');
+			toast.error('Error updating quiz');
 		}
 	}
 
@@ -130,18 +130,18 @@
 				});
 				if (res.ok) {
 					isPublished = false;
-					toast.success('Game unpublished');
+					toast.success('Quiz unpublished');
 					await invalidateAll();
 				} else {
-					toast.error('Failed to unpublish game');
+					toast.error('Failed to unpublish quiz');
 				}
 			} catch (error) {
-				toast.error('Error unpublishing game');
+				toast.error('Error unpublishing quiz');
 			}
 		} else {
 			// Publish (triggers LLM review)
 			isPublishing = true;
-			toast.loading('Reviewing game...', { id: 'publish' });
+			toast.loading('Reviewing quiz...', { id: 'publish' });
 			try {
 				const res = await fetch(`/api/games/${game.id}/publish`, {
 					method: 'POST'
@@ -149,13 +149,13 @@
 				const data = await res.json();
 				if (res.ok) {
 					isPublished = true;
-					toast.success('Game published successfully!', { id: 'publish' });
+					toast.success('Quiz published successfully!', { id: 'publish' });
 					await invalidateAll();
 				} else {
-					toast.error(data.error || 'Failed to publish game', { id: 'publish' });
+					toast.error(data.error || 'Failed to publish quiz', { id: 'publish' });
 				}
 			} catch (error) {
-				toast.error('Error publishing game', { id: 'publish' });
+				toast.error('Error publishing quiz', { id: 'publish' });
 			} finally {
 				isPublishing = false;
 			}
@@ -163,17 +163,17 @@
 	}
 
 	async function deleteGame() {
-		if (!(await modal.confirm('Are you sure you want to delete this game? This cannot be undone.')))
+		if (!(await modal.confirm('Are you sure you want to delete this quiz? This cannot be undone.')))
 			return;
 		try {
 			const res = await fetch(`/api/games/${game.id}`, { method: 'DELETE' });
 			if (res.ok) {
 				window.location.href = '/play?tab=games';
 			} else {
-				toast.error('Failed to delete game');
+				toast.error('Failed to delete quiz');
 			}
 		} catch (error) {
-			toast.error('Error deleting game');
+			toast.error('Error deleting quiz');
 		}
 	}
 
@@ -198,7 +198,7 @@
 
 			if (res.ok) {
 				isPublished = false; // Reset to draft when generating questions
-				toast.success('Questions generated! Game set to Draft status.', { id: 'gen' });
+				toast.success('Questions generated! Quiz set to Draft status.', { id: 'gen' });
 				generateTopic = '';
 				await invalidateAll();
 			} else {
@@ -232,7 +232,7 @@
 
 			if (res.ok) {
 				isPublished = false; // Reset to draft when adding a question
-				toast.success('Question added! Game set to Draft status.');
+				toast.success('Question added! Quiz set to Draft status.');
 				newQuestion = '';
 				newAnswer = '';
 				newOptions = ['', '', ''];
@@ -254,7 +254,7 @@
 			});
 			if (res.ok) {
 				isPublished = false; // Reset to draft when deleting a question
-				toast.success('Question deleted. Game set to Draft status.');
+				toast.success('Question deleted. Quiz set to Draft status.');
 				await invalidateAll();
 			} else {
 				toast.error('Failed to delete question');
@@ -266,35 +266,35 @@
 </script>
 
 <svelte:head>
-	<title>{game.title} - Game Editor | LingoLearn</title>
+	<title>{game.title} - Quiz Editor | LingoLearn</title>
 </svelte:head>
 
 <div class="editor-container">
 	<div class="header-section">
 		<div>
 			<nav class="breadcrumb">
-				<a href="/play?tab=games">Games</a>
+				<a href="/play?tab=games">Quizzes</a>
 				<span class="breadcrumb-sep">/</span>
 				<span class="breadcrumb-current">{game.title || 'Edit'}</span>
 			</nav>
-			<h1>Game Editor</h1>
+			<h1>Quiz Editor</h1>
 		</div>
 		<div class="header-actions">
 			<button onclick={togglePublish} disabled={isPublishing} class="btn-toggle {isPublished ? 'published' : 'draft'} {isPublishing ? 'publishing' : ''}">
 				{isPublishing ? 'Publishing...' : (isPublished ? 'Published' : 'Draft')}
 			</button>
 			<button onclick={deleteGame} disabled={isPublishing} class="btn-delete">
-				Delete Game
+				Delete Quiz
 			</button>
 		</div>
 	</div>
 
-	<!-- Game Details Section -->
+	<!-- Quiz Details Section -->
 	<div class="card-duo details-card" style={isPublishing ? "opacity: 0.6; pointer-events: none;" : ""}>
 		<div class="card-header-flex">
 			<h2>
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-				Game Details
+				Quiz Details
 			</h2>
 			<button onclick={() => isEditingDetails = !isEditingDetails} disabled={isPublishing} class="link-btn">
 				{isEditingDetails ? 'Cancel' : 'Edit'}
@@ -333,7 +333,7 @@
 			Auto-Generate Questions
 		</h2>
 		<p class="ai-desc">
-			Use AI to instantly create vocabulary or grammar questions for this game.
+			Use AI to instantly create vocabulary or grammar questions for this quiz.
 		</p>
 		<div class="ai-form">
 			<input 

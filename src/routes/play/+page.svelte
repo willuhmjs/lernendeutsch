@@ -1896,7 +1896,7 @@
 					class:active={activeTab === 'games'}
 					onclick={() => (activeTab = 'games')}
 				>
-					Games
+					Quizzes
 				</button>
 				<button
 					class="tab-btn"
@@ -2459,8 +2459,8 @@
 		{:else}
 			<div class="games-wrapper" in:fly={{ y: 20, duration: 400, delay: 100 }}>
 				<div class="header-section">
-					<h2>Games Gallery</h2>
-					<a href="/play/games/create" class="btn-primary create-btn"> + Create Game </a>
+					<h2>Quiz Library</h2>
+					<a href="/play/games/create" class="btn-primary create-btn"> + Create Quiz </a>
 				</div>
 
 				<div class="games-section">
@@ -2473,15 +2473,15 @@
 								d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
 							/>
 						</svg>
-						My Games
+						My Quizzes
 					</h2>
 
 					{#if myGames.length === 0}
 						<div class="empty-state-rich">
 							<div class="empty-state-icon">🎮</div>
-							<p class="empty-state-title">No games yet</p>
-							<p class="empty-state-desc">Create your own vocabulary game to practice or share with your class.</p>
-							<a href="/play/games/create" class="empty-state-btn">Create a Game</a>
+							<p class="empty-state-title">No quizzes yet</p>
+							<p class="empty-state-desc">Create your own vocabulary quiz to practice or share with your class.</p>
+							<a href="/play/games/create" class="empty-state-btn">Create a Quiz</a>
 						</div>
 					{:else}
 						<div class="games-grid">
@@ -2553,7 +2553,7 @@
 								d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
 							/>
 						</svg>
-						Community Games
+						Community Quizzes
 					</h2>
 
 					<div class="category-pills">
@@ -2571,9 +2571,9 @@
 					{#if communityGames.length === 0}
 						<div class="empty-state-rich">
 							<div class="empty-state-icon">🌐</div>
-							<p class="empty-state-title">No games in this category</p>
+							<p class="empty-state-title">No quizzes in this category</p>
 							<p class="empty-state-desc">Try a different category, or be the first to create one!</p>
-							<a href="/play/games/create" class="empty-state-btn">Create a Game</a>
+							<a href="/play/games/create" class="empty-state-btn">Create a Quiz</a>
 						</div>
 					{:else}
 						<div class="games-grid">

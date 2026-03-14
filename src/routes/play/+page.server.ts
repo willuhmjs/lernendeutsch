@@ -36,6 +36,11 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			if (!member) {
 				assignment = null; // Hide assignment if user is not a member
 			} else {
+				// Quiz assignments are played on the quiz play page directly
+				if (assignment.gamemode === 'quiz' && assignment.gameId) {
+					throw redirect(302, `/play/games/${assignment.gameId}/play?assignmentId=${assignmentId}`);
+				}
+
 				assignmentScore = await prisma.assignmentScore.findUnique({
 					where: {
 						assignmentId_userId: {

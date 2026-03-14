@@ -14,6 +14,7 @@ export const POST: RequestHandler = async ({ request, params, locals }) => {
 			title,
 			description,
 			gamemode,
+			gameId,
 			language,
 			targetScore,
 			passThreshold,
@@ -29,6 +30,10 @@ export const POST: RequestHandler = async ({ request, params, locals }) => {
 				{ error: 'Title, gamemode, language, and targetScore are required' },
 				{ status: 400 }
 			);
+		}
+
+		if (gamemode === 'quiz' && !gameId) {
+			return json({ error: 'A quiz must be selected for quiz assignments' }, { status: 400 });
 		}
 
 		// Verify the user is a TEACHER in this class
@@ -55,6 +60,7 @@ export const POST: RequestHandler = async ({ request, params, locals }) => {
 				title,
 				description: description || null,
 				gamemode,
+				gameId: gameId || null,
 				language,
 				targetScore: Number(targetScore),
 				passThreshold: passThreshold !== undefined ? Number(passThreshold) : 50,
