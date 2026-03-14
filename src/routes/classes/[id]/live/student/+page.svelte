@@ -483,4 +483,81 @@
 		font-size: 1.25rem;
 		color: #1f2937;
 	}
+
+	/* Dark mode */
+	:global(html[data-theme='dark']) .status-text {
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .battle-card {
+		background-color: var(--card-bg, #21252e);
+		color: var(--text-color, #e2e8f0);
+		border-color: var(--card-border, #2d3340);
+		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+	}
+
+	:global(html[data-theme='dark']) .card-title {
+		color: var(--text-color, #e2e8f0);
+	}
+
+	:global(html[data-theme='dark']) .card-desc {
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .spinner {
+		border-color: rgba(255, 255, 255, 0.1);
+		border-left-color: #60a5fa;
+	}
+
+	:global(html[data-theme='dark']) .question-title {
+		color: var(--text-color, #e2e8f0);
+	}
+
+	:global(html[data-theme='dark']) .hint-text {
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .score-board {
+		background-color: #2a303c;
+		border-color: #3a4150;
+	}
+
+	:global(html[data-theme='dark']) .score-text {
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .answered-state {
+		background-color: rgba(20, 83, 45, 0.2);
+		border-color: rgba(74, 222, 128, 0.4);
+	}
+
+	:global(html[data-theme='dark']) .answered-state h3 {
+		color: #4ade80;
+	}
+
+	:global(html[data-theme='dark']) .answered-state p {
+		color: #86efac;
+	}
+
+	:global(html[data-theme='dark']) .reveal-state.correct {
+		background-color: rgba(20, 83, 45, 0.2);
+		border-color: #4ade80;
+	}
+
+	:global(html[data-theme='dark']) .reveal-state.correct h3 {
+		color: #4ade80;
+	}
+
+	:global(html[data-theme='dark']) .reveal-state.incorrect {
+		background-color: rgba(127, 29, 29, 0.2);
+		border-color: #f87171;
+	}
+
+	:global(html[data-theme='dark']) .reveal-state.incorrect h3 {
+		color: #f87171;
+	}
+
+	:global(html[data-theme='dark']) .reveal-state p {
+		color: #cbd5e1;
+	}
 </style>

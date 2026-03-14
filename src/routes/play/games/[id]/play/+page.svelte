@@ -453,4 +453,40 @@
 		color: var(--text-color, #1e293b);
 		margin: 0 0 1rem;
 	}
+
+	/* Dark mode */
+	:global(html[data-theme='dark']) .option-btn {
+		background-color: #2a303c;
+		border-color: #3a4150;
+		color: #cbd5e1;
+		box-shadow: 0 2px 0 #3a4150;
+	}
+
+	:global(html[data-theme='dark']) .option-btn:not(:disabled):hover {
+		border-color: #60a5fa;
+		color: #93c5fd;
+		box-shadow: 0 4px 0 #3b82f6;
+	}
+
+	:global(html[data-theme='dark']) .correct-btn {
+		background-color: rgba(20, 83, 45, 0.3) !important;
+		border-color: #4ade80 !important;
+		color: #4ade80 !important;
+		box-shadow: 0 2px 0 rgba(20, 83, 45, 0.5) !important;
+	}
+
+	:global(html[data-theme='dark']) .incorrect-btn {
+		background-color: rgba(127, 29, 29, 0.3) !important;
+		border-color: #f87171 !important;
+		color: #f87171 !important;
+		box-shadow: 0 2px 0 rgba(127, 29, 29, 0.5) !important;
+	}
+
+	:global(html[data-theme='dark']) .result-section {
+		border-top-color: #3a4150;
+	}
+
+	:global(html[data-theme='dark']) .result-message {
+		color: #cbd5e1;
+	}
 </style>

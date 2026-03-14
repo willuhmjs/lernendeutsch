@@ -165,8 +165,8 @@
 	}
 
 	:global(html[data-theme='dark']) .keyboard-panel {
-		background-color: #1e293b;
-		border-color: #334155;
+		background-color: #2a303c;
+		border-color: #3a4150;
 	}
 
 	.keyboard-panel::-webkit-scrollbar {
@@ -224,9 +224,9 @@
 		align-items: center;
 		justify-content: center;
 		font-size: 0.9rem;
-		background-color: white;
-		color: var(--color-gray-800, #1f2937);
-		border: 1px solid var(--color-gray-300, #d1d5db);
+		background-color: var(--input-bg, #ffffff);
+		color: var(--input-text, #1f2937);
+		border: 1px solid var(--input-border, #d1d5db);
 		border-radius: 0.25rem;
 		cursor: pointer;
 		touch-action: manipulation;
@@ -275,21 +275,21 @@
 	}
 
 	:global(html[data-theme='dark']) .char-key {
-		background-color: #334155;
+		background-color: #3a4150;
 		color: #e2e8f0;
-		border-color: #475569;
+		border-color: #4a5260;
 		box-shadow: 0 1px 2px rgba(0,0,0,0.3);
 	}
 
 	:global(html[data-theme='dark']) .char-key:hover {
-		background-color: #475569;
+		background-color: #4a5260;
 		border-color: #64748b;
 	}
 
 	:global(html[data-theme='dark']) .shift-button {
-		background-color: #334155;
+		background-color: #3a4150;
 		color: #e2e8f0;
-		border-color: #475569;
+		border-color: #4a5260;
 	}
 
 	:global(html[data-theme='dark']) .shift-button.active {

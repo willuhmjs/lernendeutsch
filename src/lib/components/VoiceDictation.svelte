@@ -150,19 +150,8 @@
 				<circle cx="12" cy="12" r="9" stroke-opacity="0.25" />
 				<path d="M12 3a9 9 0 0 1 9 9" />
 			</svg>
-		{:else if isListening}
-			<!-- Stop icon -->
-			<svg
-				viewBox="0 0 24 24"
-				fill="currentColor"
-				xmlns="http://www.w3.org/2000/svg"
-				class="voice-icon"
-				aria-hidden="true"
-			>
-				<rect x="6" y="6" width="12" height="12" rx="2" />
-			</svg>
 		{:else}
-			<!-- Mic icon -->
+			<!-- Mic icon (animated while listening) -->
 			<svg
 				viewBox="0 0 24 24"
 				fill="none"
@@ -172,6 +161,7 @@
 				stroke-linejoin="round"
 				xmlns="http://www.w3.org/2000/svg"
 				class="voice-icon"
+				class:mic-active={isListening}
 				aria-hidden="true"
 			>
 				<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
@@ -196,8 +186,8 @@
 		height: 2.5rem;
 		min-width: 2.5rem;
 		border-radius: 50%;
-		border: 2px solid var(--color-gray-200, #e5e7eb);
-		background: white;
+		border: 2px solid var(--input-border, #e5e7eb);
+		background: var(--input-bg, #ffffff);
 		color: var(--color-gray-500, #6b7280);
 		cursor: pointer;
 		transition: all 0.2s ease;
@@ -238,6 +228,15 @@
 		height: 1.125rem;
 	}
 
+	.voice-icon.mic-active {
+		animation: mic-pulse 1.2s ease-in-out infinite;
+	}
+
+	@keyframes mic-pulse {
+		0%, 100% { transform: scale(1); opacity: 1; }
+		50% { transform: scale(1.2); opacity: 0.7; }
+	}
+
 	.voice-icon.spinning {
 		animation: spin 0.9s linear infinite;
 	}
@@ -260,8 +259,8 @@
 	}
 
 	:global(html[data-theme='dark']) .voice-btn {
-		background: #1e293b;
-		border-color: #334155;
+		background: #2a303c;
+		border-color: #3a4150;
 		color: #94a3b8;
 	}
 

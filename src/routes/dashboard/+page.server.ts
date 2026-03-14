@@ -66,10 +66,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 				nextReviewDate: { lte: new Date() }
 			}
 		}),
-		// Assignments due within 48 hours that the user hasn't passed yet (#10)
+		// Assignments due within 48 hours (or already overdue) that the user hasn't passed yet
 		prisma.assignment.findMany({
 			where: {
-				dueDate: { lte: in48h, gte: new Date() },
+				dueDate: { lte: in48h },
 				class: {
 					members: {
 						some: { userId: user.id, role: 'STUDENT' }

@@ -191,11 +191,11 @@
 
 	:global(html[data-theme='dark']) .modal-btn-cancel {
 		color: #94a3b8;
-		border-color: #374151;
+		border-color: #3a4150;
 	}
 
 	:global(html[data-theme='dark']) .modal-btn-cancel:hover {
-		background-color: #1f2937;
+		background-color: #2a303c;
 		color: #cbd5e1;
 	}
 

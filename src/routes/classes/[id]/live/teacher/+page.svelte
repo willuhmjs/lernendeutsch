@@ -372,4 +372,91 @@
 		font-weight: 800;
 		color: #15803d;
 	}
+
+	/* Dark mode */
+	:global(html[data-theme='dark']) .battle-title {
+		color: #60a5fa;
+	}
+
+	:global(html[data-theme='dark']) .btn-end {
+		background-color: rgba(239, 68, 68, 0.15);
+		color: #f87171;
+	}
+
+	:global(html[data-theme='dark']) .btn-end:hover {
+		background-color: rgba(239, 68, 68, 0.25);
+	}
+
+	:global(html[data-theme='dark']) .status-text {
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .battle-card {
+		background-color: var(--card-bg, #21252e);
+		border-color: var(--card-border, #2d3340);
+		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+	}
+
+	:global(html[data-theme='dark']) .card-title {
+		color: var(--text-color, #e2e8f0);
+	}
+
+	:global(html[data-theme='dark']) .card-desc {
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .btn-primary:disabled {
+		background-color: #3a4150;
+		box-shadow: 0 4px 0 #2d3340;
+	}
+
+	:global(html[data-theme='dark']) .participant-badge {
+		background-color: #2a303c;
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .participant-badge.answered {
+		background-color: rgba(20, 83, 45, 0.35);
+		color: #4ade80;
+	}
+
+	:global(html[data-theme='dark']) .participant-badge.waiting {
+		background-color: rgba(120, 53, 15, 0.35);
+		color: #fbbf24;
+	}
+
+	:global(html[data-theme='dark']) .progress-info {
+		background-color: #2a303c;
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .question-title {
+		color: var(--text-color, #e2e8f0);
+	}
+
+	:global(html[data-theme='dark']) .stat-box {
+		background-color: #2a303c;
+		border-color: #3a4150;
+	}
+
+	:global(html[data-theme='dark']) .stat-label {
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .stat-value {
+		color: #e2e8f0;
+	}
+
+	:global(html[data-theme='dark']) .correct-answer-board {
+		background-color: rgba(20, 83, 45, 0.2);
+		border-color: #4ade80;
+	}
+
+	:global(html[data-theme='dark']) .correct-answer-board h3 {
+		color: #4ade80;
+	}
+
+	:global(html[data-theme='dark']) .correct-answer-text {
+		color: #4ade80;
+	}
 </style>

@@ -984,9 +984,9 @@
 	}
 
 	:global(html[data-theme='dark']) .topic-change-input {
-		background-color: #0f172a;
-		border-color: #334155;
-		color: white;
+		background-color: var(--input-bg, #2a303c);
+		border-color: var(--input-border, #3a4150);
+		color: var(--input-text, #e2e8f0);
 	}
 
 	.randomize-inline-btn {
@@ -1310,6 +1310,18 @@
 	.textarea-container textarea:disabled {
 		opacity: 0.7;
 		cursor: not-allowed;
+	}
+
+	.textarea-container textarea::placeholder {
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .textarea-container textarea::placeholder {
+		color: #4a5260;
+	}
+
+	:global(html[data-theme='dark']) .textarea-container textarea:focus {
+		background-color: var(--card-bg, #21252e);
 	}
 
 	.send-btn {

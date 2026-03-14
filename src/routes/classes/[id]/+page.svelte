@@ -1411,6 +1411,20 @@
 		border: 1px solid var(--card-border, #e5e7eb) !important;
 		border-radius: 0.5rem !important;
 		font-size: 0.85rem !important;
+		background-color: var(--input-bg, #ffffff);
+		color: var(--input-text, #0f172a);
+	}
+
+	.grammar-search-input::placeholder {
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .grammar-search-input::placeholder {
+		color: #4a5260;
+	}
+
+	:global(html[data-theme='dark']) .vocab-inline-input {
+		color: var(--input-text, #e2e8f0);
 	}
 
 	.grammar-rules-list {
@@ -1952,5 +1966,82 @@
 		.modal-actions {
 			flex-direction: column;
 		}
+	}
+
+	/* Dark mode overrides for assignment creation modal */
+	:global(html[data-theme='dark']) .btn-close {
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .btn-close:hover {
+		background: #3a4150;
+		color: #e2e8f0;
+	}
+
+	:global(html[data-theme='dark']) .field label,
+	:global(html[data-theme='dark']) .field-label {
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .mode-btn:hover {
+		background: var(--card-bg, #21252e);
+	}
+
+	:global(html[data-theme='dark']) .empty-hint {
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .quiz-option.quiz-selected {
+		background: rgba(20, 83, 45, 0.25);
+	}
+
+	:global(html[data-theme='dark']) .grammar-rules-container {
+		background: var(--input-bg, #2a303c);
+	}
+
+	:global(html[data-theme='dark']) .grammar-rule-item {
+		border-bottom-color: #2d3340;
+	}
+
+	:global(html[data-theme='dark']) .grammar-rule-item:hover {
+		background-color: #2a303c;
+	}
+
+	:global(html[data-theme='dark']) .grammar-rule-item.selected {
+		background-color: rgba(20, 83, 45, 0.25);
+	}
+
+	:global(html[data-theme='dark']) .grammar-rule-title {
+		color: #e2e8f0;
+	}
+
+	:global(html[data-theme='dark']) .no-grammar-rules {
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .vocab-tag {
+		background-color: rgba(3, 105, 161, 0.25);
+		color: #7dd3fc;
+	}
+
+	:global(html[data-theme='dark']) .remove-vocab {
+		color: #7dd3fc;
+	}
+
+	:global(html[data-theme='dark']) .remove-vocab:hover {
+		color: #bae6fd;
+	}
+
+	:global(html[data-theme='dark']) .action-promote:hover {
+		background-color: rgba(59, 130, 246, 0.15);
+	}
+
+	:global(html[data-theme='dark']) .action-remove:hover {
+		background-color: rgba(239, 68, 68, 0.15);
+	}
+
+	:global(html[data-theme='dark']) .member-avatar {
+		background-color: rgba(59, 130, 246, 0.2);
+		border-color: rgba(59, 130, 246, 0.3);
 	}
 </style>

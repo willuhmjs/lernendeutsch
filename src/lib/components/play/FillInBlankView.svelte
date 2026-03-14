@@ -120,11 +120,11 @@
 	.blank-input {
 		width: 100%;
 		padding: 0.875rem;
-		border: 1px solid #cbd5e1;
+		border: 2px solid var(--input-border, #cbd5e1);
 		border-radius: 8px;
 		font-family: inherit;
 		font-size: 1rem;
-		color: #0f172a;
+		color: var(--input-text, #0f172a);
 		background: var(--input-bg, #ffffff);
 		box-sizing: border-box;
 		transition:
@@ -132,9 +132,18 @@
 			box-shadow 0.15s;
 	}
 
+	.blank-input::placeholder {
+		color: #94a3b8;
+	}
+
 	:global(html[data-theme='dark']) .blank-input {
-		border-color: #4b5563;
-		color: #f9fafb;
+		border-color: var(--input-border, #3a4150);
+		color: var(--input-text, #e2e8f0);
+		background: var(--input-bg, #2a303c);
+	}
+
+	:global(html[data-theme='dark']) .blank-input::placeholder {
+		color: #4a5260;
 	}
 
 	.blank-input:focus {
@@ -150,7 +159,7 @@
 	}
 
 	:global(html[data-theme='dark']) .blank-input:disabled {
-		background-color: #1e293b;
+		background-color: #2a303c;
 		color: #64748b;
 	}
 

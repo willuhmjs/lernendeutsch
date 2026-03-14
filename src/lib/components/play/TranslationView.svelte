@@ -116,7 +116,7 @@
 	.form-group textarea {
 		width: 100%;
 		padding: 0.875rem;
-		border: 1px solid var(--input-border, #cbd5e1);
+		border: 2px solid var(--input-border, #cbd5e1);
 		border-radius: 8px;
 		font-family: inherit;
 		font-size: 1rem;
@@ -129,6 +129,14 @@
 			box-shadow 0.15s;
 		/* Larger minimum on mobile for comfortable typing */
 		min-height: 5rem;
+	}
+
+	.form-group textarea::placeholder {
+		color: #94a3b8;
+	}
+
+	:global(html[data-theme='dark']) .form-group textarea::placeholder {
+		color: #4a5260;
 	}
 
 	.form-group textarea:focus {
@@ -144,7 +152,7 @@
 	}
 
 	:global(html[data-theme='dark']) .form-group textarea:disabled {
-		background-color: #1e293b;
+		background-color: #2a303c;
 		color: #64748b;
 	}
 

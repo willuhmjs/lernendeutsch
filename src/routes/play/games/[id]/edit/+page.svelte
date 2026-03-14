@@ -679,6 +679,11 @@
 		border-color: #22c55e;
 	}
 
+	:global(html[data-theme='dark']) .answer-input {
+		background-color: rgba(20, 83, 45, 0.2);
+		border-color: rgba(74, 222, 128, 0.4);
+	}
+
 	.save-btn {
 		padding: 0.5rem 1.5rem;
 		border-radius: 0.75rem;
@@ -946,6 +951,20 @@
 	}
 
 	.q-answer.incorrect svg {
+		color: #94a3b8;
+	}
+
+	/* Dark mode */
+	:global(html[data-theme='dark']) .ai-input,
+	:global(html[data-theme='dark']) .count-select {
+		background-color: var(--input-bg, #2a303c);
+		border-color: #3a4150;
+		color: var(--input-text, #e2e8f0);
+	}
+
+	:global(html[data-theme='dark']) .q-answer.incorrect {
+		background-color: #2a303c;
+		border-color: #3a4150;
 		color: #94a3b8;
 	}
 </style>

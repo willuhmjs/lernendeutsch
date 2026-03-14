@@ -99,9 +99,9 @@
 	}
 
 	:global(html[data-theme='dark']) .mc-choice-btn.correct {
-		background: #052e16;
+		background: rgba(20, 83, 45, 0.3);
 		color: #86efac;
-		box-shadow: 0 2px 0 #14532d;
+		box-shadow: 0 2px 0 rgba(20, 83, 45, 0.5);
 	}
 
 	.mc-choice-btn.incorrect {
@@ -112,9 +112,9 @@
 	}
 
 	:global(html[data-theme='dark']) .mc-choice-btn.incorrect {
-		background: #450a0a;
+		background: rgba(127, 29, 29, 0.3);
 		color: #fca5a5;
-		box-shadow: 0 2px 0 #7f1d1d;
+		box-shadow: 0 2px 0 rgba(127, 29, 29, 0.5);
 	}
 
 	.mc-choice-btn:disabled {
