@@ -652,77 +652,77 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		padding: 0.75rem 1.5rem;
-		font-weight: 700;
-		font-size: 0.9rem;
-		border-radius: 0.75rem;
+		padding: 0.875rem 1.75rem;
+		font-weight: 800;
+		font-size: 1rem;
+		letter-spacing: 0.025em;
+		border-radius: 1rem;
 		border: 2px solid transparent;
 		transition:
-			transform 0.1s,
-			box-shadow 0.1s;
+			all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 		cursor: pointer;
 		text-decoration: none;
 		outline: none;
+		user-select: none;
 	}
 
 	:global(.btn-primary) {
-		background-color: #22c55e;
+		background-color: #58cc02;
 		color: white;
 		border-color: transparent;
-		box-shadow: 0 4px 0 #16a34a;
+		box-shadow: 0 4px 0 #58a700;
 	}
 	:global(.btn-primary:hover) {
-		background-color: #4ade80;
-		transform: scale(1.02);
+		background-color: #61e002;
+		filter: brightness(1.05);
 	}
 	:global(.btn-primary:active) {
-		transform: scale(0.98) translateY(2px);
-		box-shadow: 0 2px 0 #16a34a;
+		transform: translateY(4px);
+		box-shadow: 0 0 0 #58a700;
 	}
 
 	:global(.btn-secondary) {
-		background-color: #64748b;
-		color: white;
+		background-color: #e5e5e5;
+		color: #afafaf;
 		border-color: transparent;
-		box-shadow: 0 4px 0 #475569;
+		box-shadow: 0 4px 0 #e5e5e5;
 	}
 	:global(.btn-secondary:hover) {
-		background-color: #94a3b8;
-		transform: scale(1.02);
+		background-color: #f0f0f0;
 	}
 	:global(.btn-secondary:active) {
-		transform: scale(0.98) translateY(2px);
-		box-shadow: 0 2px 0 #475569;
+		transform: translateY(4px);
+		box-shadow: 0 0 0 #e5e5e5;
 	}
 
 	:global(.btn-ai) {
-		background-color: #8b5cf6;
+		background-color: #ce82ff;
 		color: white;
 		border-color: transparent;
-		box-shadow: 0 4px 0 #7c3aed;
+		box-shadow: 0 4px 0 #a561d4;
 	}
 	:global(.btn-ai:hover) {
-		background-color: #a78bfa;
-		transform: scale(1.02);
+		background-color: #d697ff;
+		filter: brightness(1.05);
 	}
 	:global(.btn-ai:active) {
-		transform: scale(0.98) translateY(2px);
-		box-shadow: 0 2px 0 #7c3aed;
+		transform: translateY(4px);
+		box-shadow: 0 0 0 #a561d4;
 	}
 
 	:global(.btn-danger) {
-		background-color: #ef4444;
+		background-color: #ff4b4b;
 		color: white;
 		border-color: transparent;
-		box-shadow: 0 4px 0 #dc2626;
+		box-shadow: 0 4px 0 #ea2b2b;
 	}
 	:global(.btn-danger:hover) {
-		background-color: #f87171;
-		transform: scale(1.02);
+		background-color: #ff6666;
+		filter: brightness(1.05);
 	}
 	:global(.btn-danger:active) {
-		transform: scale(0.98) translateY(2px);
-		box-shadow: 0 2px 0 #dc2626;
+		transform: translateY(4px);
+		box-shadow: 0 0 0 #ea2b2b;
 	}
 
 	:global(.card-duo) {
@@ -732,8 +732,7 @@
 		padding: 1.5rem;
 		box-shadow: 0 4px 0 var(--card-border, #e5e7eb);
 		transition:
-			transform 0.2s,
-			box-shadow 0.2s;
+			all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 		box-sizing: border-box;
 	}
 

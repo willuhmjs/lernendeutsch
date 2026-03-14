@@ -108,15 +108,15 @@
 		align-items: center;
 		justify-content: center;
 		padding: 1rem;
-		background-color: rgba(0, 0, 0, 0.5);
-		backdrop-filter: blur(4px);
+		background-color: rgba(0, 0, 0, 0.4);
+		backdrop-filter: blur(8px);
 	}
 
 	.modal-container {
 		background-color: var(--card-bg, #ffffff);
 		border: 2px solid var(--card-border, #e5e7eb);
 		border-radius: 1.5rem;
-		box-shadow: 0 4px 0 var(--card-border, #e5e7eb);
+		box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1), 0 4px 0 var(--card-border, #e5e7eb);
 		max-width: 28rem;
 		width: 100%;
 		overflow: hidden;
