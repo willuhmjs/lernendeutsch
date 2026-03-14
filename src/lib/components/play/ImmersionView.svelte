@@ -125,6 +125,8 @@
 		error: string;
 	};
 	let wordPopup = $state<WordPopup | null>(null);
+
+	const skeletonType = $derived(selectedMediaType === 'random' ? 'news_article' : selectedMediaType);
 	let wordLookupCache = new Map<string, any>();
 
 	function extractClickedWord(e: MouseEvent): string {
@@ -525,7 +527,6 @@
 	</div>
 
 	{#if loading}
-		{@const skeletonType = selectedMediaType === 'random' ? 'news_article' : selectedMediaType}
 		<div class="loading-card skeleton-card" in:fade={{ duration: 200 }} aria-busy="true" aria-label="Generating content">
 			<!-- Shared: media type badge -->
 			<div class="skeleton-badge"></div>
