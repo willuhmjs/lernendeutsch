@@ -5,7 +5,16 @@ import { generateLessonRateLimiter } from '$lib/server/ratelimit';
 import { buildLessonPrompt, type GameMode } from '$lib/server/promptBuilder';
 import { generateLessonStream } from '$lib/server/lessonLlmService';
 import { isQuotaExceeded, recordTokenUsage } from '$lib/server/aiQuota';
-import { LESSON_CONFIG } from '$lib/server/srsConfig';
+import {
+	LESSON_CONFIG,
+	computeAdaptiveNewWordCap,
+	parseBanditState,
+	thompsonSampleInterleave
+} from '$lib/server/srsConfig';
+import { pfaPredictCorrect } from '$lib/server/pfa';
+import { loadHlrWeights, hlrInitialStability } from '$lib/server/hlr';
+import { loadErrorCoMatrix, getRelatedErrorTypes } from '$lib/server/errorCoMatrix';
+import type { ErrorType } from '$lib/server/grader';
 
 export async function POST(event) {
 	const { request, locals } = event;
@@ -16,7 +25,7 @@ export async function POST(event) {
 
 	const user = await prisma.user.findUnique({
 		where: { id: locals.user.id },
-		select: { useLocalLlm: true }
+		select: { useLocalLlm: true, sessionSuccessEma: true, interleaveBanditState: true }
 	});
 
 	if (!user?.useLocalLlm && (await generateLessonRateLimiter.isLimited(event))) {
@@ -102,7 +111,8 @@ export async function POST(event) {
 					srsState: SrsState.LEARNING
 				}
 			});
-			const dailyHeadroom = Math.max(0, LESSON_CONFIG.NEW_WORDS_PER_DAY_CAP - newWordsToday);
+			const adaptiveCap = computeAdaptiveNewWordCap(user?.sessionSuccessEma ?? 0.75);
+			const dailyHeadroom = Math.max(0, adaptiveCap - newWordsToday);
 			const needed = Math.min(LESSON_CONFIG.LEARNING_POOL_MAX - learningPool.length, dailyHeadroom);
 
 			const knownVocabIds = await prisma.userVocabulary.findMany({
@@ -208,7 +218,7 @@ export async function POST(event) {
 			isEarlyReview = learningPool.length > 0;
 		}
 
-		// Fetch lastErrorType and FSRS stability/lastReviewDate for retrievability scoring.
+		// Fetch lastErrorType, FSRS stability/lastReviewDate, and reviewCount for scoring.
 		const selectedVocabIds = selectedLearning.map((uv) => uv.vocabularyId);
 		const progressRows =
 			selectedVocabIds.length > 0
@@ -218,11 +228,13 @@ export async function POST(event) {
 							vocabularyId: true,
 							lastErrorType: true,
 							stability: true,
-							lastReviewDate: true
+							lastReviewDate: true,
+							reviewCount: true
 						}
 					})
 				: [];
 		const errorTypeMap = new Map(progressRows.map((r) => [r.vocabularyId, r.lastErrorType]));
+		const reviewCountMap = new Map(progressRows.map((r) => [r.vocabularyId, r.reviewCount]));
 
 		// Compute current retrievability R(t) = (1 + t/(9*S))^-1 for each item.
 		// Items with lowest retrievability (most forgotten) are most urgent.
@@ -237,15 +249,29 @@ export async function POST(event) {
 			}
 		}
 
-		// Final selection: items with a recent error come first, then sorted by lowest
-		// retrievability (most forgotten), then by most overdue review date as tiebreaker.
+		// UCB1 exploration bonus: items with few reviews get a bonus that pulls them
+		// forward in the ranking so we don't permanently ignore low-review-count items.
+		// Bonus = sqrt(2 * ln(totalReviews + 1) / (reviewCount + 1))
+		// This converges to 0 as reviewCount → totalReviews (pure exploitation).
+		const totalReviews = progressRows.reduce((s, r) => s + r.reviewCount, 0);
+		const ucb1Score = (vocabId: string): number => {
+			const n = reviewCountMap.get(vocabId) ?? 0;
+			if (totalReviews === 0) return 0;
+			return Math.sqrt((2 * Math.log(totalReviews + 1)) / (n + 1));
+		};
+
+		// Final selection: items with a recent error come first, then sorted by a combined
+		// urgency score (1 - retrievability + UCB1 bonus), then by overdue date as tiebreaker.
 		selectedLearning.sort((a, b) => {
 			const aHasError = !!errorTypeMap.get(a.vocabularyId);
 			const bHasError = !!errorTypeMap.get(b.vocabularyId);
 			if (aHasError !== bHasError) return aHasError ? -1 : 1;
 			const aRet = retrievabilityMap.get(a.vocabularyId) ?? 1;
 			const bRet = retrievabilityMap.get(b.vocabularyId) ?? 1;
-			if (Math.abs(aRet - bRet) > 0.01) return aRet - bRet; // lower ret = more urgent
+			// UCB1 bonus capped at 0.15 so it can shift items but not override large retention gaps
+			const aScore = 1 - aRet + Math.min(0.15, ucb1Score(a.vocabularyId));
+			const bScore = 1 - bRet + Math.min(0.15, ucb1Score(b.vocabularyId));
+			if (Math.abs(aScore - bScore) > 0.01) return bScore - aScore; // higher score = more urgent
 			const aTime = a.nextReviewDate ? a.nextReviewDate.getTime() : 0;
 			const bTime = b.nextReviewDate ? b.nextReviewDate.getTime() : 0;
 			return aTime - bTime;
@@ -314,7 +340,7 @@ export async function POST(event) {
 
 		const masteredGrammarIds = new Set(allMasteredGrammarIdsQuery.map((g) => g.grammarRuleId));
 
-		const learningGrammarDbQuery = await prisma.userGrammarRule.findMany({
+		const learningGrammarDbQueryRaw = await prisma.userGrammarRule.findMany({
 			where: {
 				userId,
 				srsState: { in: [SrsState.UNSEEN, SrsState.LEARNING] },
@@ -327,6 +353,99 @@ export async function POST(event) {
 					include: { dependencies: { select: { id: true } } }
 				}
 			}
+		});
+
+		// Fetch FSRS progress for these grammar rules to get per-user success/failure counts
+		// needed for PFA P(correct) prediction.
+		const learningGrammarRuleIds = learningGrammarDbQueryRaw.map((ug: any) => ug.grammarRuleId);
+		const grammarProgressForPfa =
+			learningGrammarRuleIds.length > 0
+				? await prisma.userGrammarRuleProgress.findMany({
+						where: { userId, grammarRuleId: { in: learningGrammarRuleIds } },
+						select: { grammarRuleId: true, repetitions: true, lapses: true }
+					})
+				: [];
+		const grammarProgressPfaMap = new Map(
+			grammarProgressForPfa.map((p: any) => [p.grammarRuleId, p])
+		);
+
+		// Load error co-occurrence matrix (cached via module-level cache in maintenance).
+		// Use it to identify error types related to the user's recent mistakes, then boost
+		// grammar rules whose ruleType maps to those related error types.
+		const coMatrix = await loadErrorCoMatrix();
+
+		// Collect the user's current active error types across vocab and grammar progress.
+		const [recentVocabErrors, recentGrammarErrors] = await Promise.all([
+			prisma.userVocabularyProgress.findMany({
+				where: { userId, lastErrorType: { not: null } },
+				select: { lastErrorType: true },
+				take: 20,
+				orderBy: { updatedAt: 'desc' }
+			}),
+			prisma.userGrammarRuleProgress.findMany({
+				where: { userId, lastErrorType: { not: null } },
+				select: { lastErrorType: true },
+				take: 20,
+				orderBy: { updatedAt: 'desc' }
+			})
+		]);
+
+		// Build a set of error types to boost (user's own errors + their top co-occurring partners)
+		const activeErrorTypes = new Set<ErrorType>();
+		for (const row of [...recentVocabErrors, ...recentGrammarErrors]) {
+			if (row.lastErrorType) activeErrorTypes.add(row.lastErrorType as ErrorType);
+		}
+		const boostedErrorTypes = new Set<ErrorType>(activeErrorTypes);
+		for (const et of activeErrorTypes) {
+			for (const related of getRelatedErrorTypes(coMatrix, et).slice(0, 2)) {
+				boostedErrorTypes.add(related);
+			}
+		}
+
+		// Map error types to grammar ruleType categories (best-effort heuristic).
+		// Grammar rules with a ruleType matching a boosted error type get a priority boost.
+		const errorTypeToRuleType: Partial<Record<ErrorType, string[]>> = {
+			wrong_case: ['case_marking', 'preposition_case', 'adjective_declension'],
+			wrong_gender: ['article_gender', 'noun_gender'],
+			wrong_tense: ['verb_tense', 'verb_conjugation', 'auxiliary_verb'],
+			word_order: ['word_order', 'sentence_structure', 'verb_position'],
+			spelling: ['spelling'],
+			vocabulary_gap: []
+		};
+		const boostedRuleTypes = new Set<string>();
+		for (const et of boostedErrorTypes) {
+			for (const rt of errorTypeToRuleType[et] ?? []) {
+				boostedRuleTypes.add(rt);
+			}
+		}
+
+		// Re-sort by PFA P(correct) ascending (most at-risk first) when params are available.
+		// Falls back to the original ELO/nextReviewDate order when PFA has no data for a rule.
+		const learningGrammarDbQuery = [...learningGrammarDbQueryRaw].sort((a: any, b: any) => {
+			const aRule = a.grammarRule;
+			const bRule = b.grammarRule;
+			const aProgress = grammarProgressPfaMap.get(a.grammarRuleId);
+			const bProgress = grammarProgressPfaMap.get(b.grammarRuleId);
+			const aP = pfaPredictCorrect(
+				aRule.pfaGamma ?? null,
+				aRule.pfaRho ?? null,
+				aRule.pfaDelta ?? null,
+				aProgress ? aProgress.repetitions - aProgress.lapses : 0,
+				aProgress ? aProgress.lapses : 0
+			);
+			const bP = pfaPredictCorrect(
+				bRule.pfaGamma ?? null,
+				bRule.pfaRho ?? null,
+				bRule.pfaDelta ?? null,
+				bProgress ? bProgress.repetitions - bProgress.lapses : 0,
+				bProgress ? bProgress.lapses : 0
+			);
+			// Co-occurrence boost: rules whose ruleType addresses a boosted error type
+			// are surfaced earlier (subtract 0.1 from their P(correct) for sorting purposes).
+			const aBoost = boostedRuleTypes.has(aRule.ruleType ?? '') ? 0.1 : 0;
+			const bBoost = boostedRuleTypes.has(bRule.ruleType ?? '') ? 0.1 : 0;
+			// Null means no PFA data — treat as middle-ground (0.5)
+			return (aP ?? 0.5) - aBoost - ((bP ?? 0.5) - bBoost);
 		});
 
 		// Full transitive prerequisite resolution via DFS. Fetches the full dep graph
@@ -488,16 +607,18 @@ export async function POST(event) {
 				srsState: uv.srsState ?? 'UNSEEN'
 			}));
 
-		// Interleaved review: pull a small number of due MASTERED items and inject them
-		// as active targets alongside learning vocabulary. Mixed practice (Kornell & Bjork
-		// 2008) improves long-term retention over blocked (same-state-only) practice.
-		// These items are due by their FSRS nextReviewDate so reviewing them now is on-time.
-		// We take from masteredVocabDb (already filtered to lte:now above) rather than
-		// adding a new DB query. Shuffle for variety, then cap at the configured count.
+		// Interleaved review: Thompson-sample the bandit to pick how many MASTERED items to
+		// interleave alongside learning vocabulary. Mixed practice (Kornell & Bjork 2008)
+		// improves long-term retention over blocked practice. The bandit learns per-user
+		// the optimal interleave count by observing whether higher/lower counts lead to
+		// more correct answers. The chosen arm is forwarded to the client so submit-answer
+		// can update the posterior.
+		const banditState = parseBanditState(user?.interleaveBanditState);
+		const interleavedCount = thompsonSampleInterleave(banditState);
 		const interleavedVocabDb = [...masteredVocabDb]
 			.filter((uv: any) => !EXCLUDED_POS.has(uv.vocabulary?.partOfSpeech))
 			.sort(() => Math.random() - 0.5)
-			.slice(0, LESSON_CONFIG.INTERLEAVE_MASTERED_COUNT);
+			.slice(0, interleavedCount);
 		const interleavedVocab = interleavedVocabDb.map((uv: any) => ({
 			...uv.vocabulary,
 			eloRating: uv.eloRating ?? 1000,
@@ -684,6 +805,7 @@ export async function POST(event) {
 			userLevel,
 			isAbsoluteBeginner,
 			isEarlyReview,
+			interleavedArm: interleavedCount, // bandit arm used — forwarded to client for posterior update
 			activeLangName,
 			activeLanguageId,
 			masteredVocab: masteredVocabBackground,

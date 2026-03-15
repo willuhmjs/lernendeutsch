@@ -15,6 +15,7 @@ export async function generateLessonStream({
 	userLevel,
 	isAbsoluteBeginner,
 	isEarlyReview,
+	interleavedArm = 0,
 	activeLangName,
 	activeLanguageId,
 	masteredVocab,
@@ -34,6 +35,7 @@ export async function generateLessonStream({
 	userLevel: string;
 	isAbsoluteBeginner: boolean;
 	isEarlyReview: boolean;
+	interleavedArm?: number;
 	activeLangName: string;
 	activeLanguageId: string;
 	masteredVocab: any[];
@@ -96,7 +98,8 @@ export async function generateLessonStream({
 							idMap,
 							userLevel,
 							isAbsoluteBeginner,
-							isEarlyReview
+							isEarlyReview,
+							interleavedArm
 						}
 					}) + '\n'
 				)

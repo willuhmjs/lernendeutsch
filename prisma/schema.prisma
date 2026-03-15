@@ -79,7 +79,9 @@ model User {
   localLoadTimeSamples  Int[]  @default([])
   aiUsage               UserAiUsage[]
   fsrsRetention         Float  @default(0.9) // FSRS target retention [0.7, 0.97]
-  fsrsWeights           Float[] @default([]) // Per-user optimized FSRS weights (17 values); empty = use global defaults
+  fsrsWeights           Float[] @default([]) // Per-user optimized FSRS-5 weights (19 values); empty = use global defaults
+  sessionSuccessEma     Float  @default(0.75) // EMA of per-session correct rate [0,1]; drives adaptive new-word cap
+  interleaveBanditState String? // JSON: {arms:[{alpha,beta}]} for Thompson-sampling interleave count (0..MAX_INTERLEAVE)
 }
 
 model UserProgress {
@@ -182,6 +184,9 @@ model GrammarRule {
   level       String            @default("A1")
   ruleType    String?           // snake_case category e.g. "case_marking", "verb_conjugation"
   targetForms String[]          // surface forms the LLM should produce e.g. ["den", "einen"]
+  pfaGamma    Float?            // PFA: baseline log-odds of correctness (higher = easier rule globally)
+  pfaRho      Float?            // PFA: learning rate per successful attempt
+  pfaDelta    Float?            // PFA: forgetting rate per failed attempt
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
   users    UserGrammarRule[]
@@ -203,6 +208,7 @@ model UserVocabulary {
   userId         String
   vocabularyId   String
   eloRating      Float     @default(1200)
+  eloVariance    Float     @default(400) // Bayesian ELO: initial variance σ² (σ≈20 → high uncertainty)
   srsState       SrsState  @default(UNSEEN)
   nextReviewDate DateTime?
   createdAt      DateTime  @default(now())
@@ -225,11 +231,13 @@ model UserVocabularyProgress {
   retrievability Float     @default(1.0) // FSRS: current memory strength [0, 1]
   repetitions    Int       @default(0)
   lapses         Int       @default(0)
-  overrideCount  Int       @default(0) // times user overrode an incorrect grade to correct
-  lastErrorType  String?   // most recent structured error category, null when last answer was correct
-  lastReviewDate DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  overrideCount      Int       @default(0) // times user overrode an incorrect grade to correct
+  lastErrorType      String?   // most recent structured error category, null when last answer was correct
+  lastReviewDate     DateTime?
+  medianResponseMs   Int?      // running median response time in ms (updated each review)
+  reviewCount        Int       @default(0) // total reviews — used to update running median
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   vocabulary Vocabulary @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
@@ -243,6 +251,7 @@ model UserGrammarRule {
   userId         String
   grammarRuleId  String
   eloRating      Float     @default(1200)
+  eloVariance    Float     @default(400) // Bayesian ELO: initial variance σ² (σ≈20 → high uncertainty)
   srsState       SrsState  @default(UNSEEN)
   nextReviewDate DateTime?
   createdAt      DateTime  @default(now())
@@ -265,10 +274,12 @@ model UserGrammarRuleProgress {
   retrievability Float     @default(1.0) // FSRS: current memory strength [0, 1]
   repetitions    Int       @default(0)
   lapses         Int       @default(0)
-  lastErrorType  String?   // most recent structured error category, null when last answer was correct
-  lastReviewDate DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  lastErrorType    String?   // most recent structured error category, null when last answer was correct
+  lastReviewDate   DateTime?
+  medianResponseMs Int?      // running median response time in ms
+  reviewCount      Int       @default(0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   grammarRule GrammarRule @relation(fields: [grammarRuleId], references: [id], onDelete: Cascade)
@@ -277,21 +288,22 @@ model UserGrammarRuleProgress {
   @@index([nextReviewDate])
 }
 
-// Per-review event log used by the FSRS weight optimizer.
-// Rows are hard-pruned to a 30-day rolling window by the maintenance job —
-// the optimizer only needs ~50 reviews per card to converge, so older data
-// provides no marginal benefit and keeping it would grow without bound.
+// Per-review event log used by the FSRS weight optimizer and HLR fitter.
+// Rows are pruned to a 1-year rolling window by the maintenance job.
+// Longer history lets the optimizer converge on mature cards with multi-month
+// intervals that would be invisible inside a 30-day window.
 model ReviewLog {
-  id           String   @id @default(uuid())
-  userId       String
-  itemId       String   // vocabularyId or grammarRuleId
-  itemType     String   // 'vocabulary' | 'grammar'
-  rating       Int      // FSRS rating 1-4 (Again/Hard/Good/Easy)
-  elapsedDays  Float    // days since last review of this item
-  scheduledDays Float   // interval that was scheduled (0 for first review)
-  stability    Float    // stability before this review
-  difficulty   Float    // difficulty before this review
-  createdAt    DateTime @default(now())
+  id            String   @id @default(uuid())
+  userId        String
+  itemId        String   // vocabularyId or grammarRuleId
+  itemType      String   // 'vocabulary' | 'grammar'
+  rating        Int      // FSRS rating 1-4 (Again/Hard/Good/Easy)
+  elapsedDays   Float    // days since last review of this item
+  scheduledDays Float    // interval that was scheduled (0 for first review)
+  stability     Float    // stability before this review
+  difficulty    Float    // difficulty before this review
+  responseTimeMs Int?    // ms from question render to submission (null = not collected)
+  createdAt     DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -324,6 +336,9 @@ model SiteSettings {
   llmEndpoint           String?
   llmModel              String?
   llmApiKey             String?
+  hlrWeights            String? // JSON-encoded HlrWeights (fitted daily by maintenance)
+  pfaUpdatedAt          DateTime? // last time PFA params were fitted
+  errorCoMatrix         String? // JSON-encoded error co-occurrence matrix {[typeA]:{[typeB]:count}}
 }
 
 enum ClassRole {

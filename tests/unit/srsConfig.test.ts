@@ -85,10 +85,6 @@ describe('CEFR_CONFIG', () => {
 });
 
 describe('ELO_CONFIG', () => {
-	it('K_MIN is less than K_FACTOR', () => {
-		expect(ELO_CONFIG.K_MIN).toBeLessThan(ELO_CONFIG.K_FACTOR);
-	});
-
 	it('all K_MULTIPLIERS are positive', () => {
 		for (const val of Object.values(ELO_CONFIG.K_MULTIPLIERS)) {
 			expect(val).toBeGreaterThan(0);
@@ -111,7 +107,10 @@ describe('LESSON_CONFIG', () => {
 		expect(LESSON_CONFIG.LESSON_VOCAB_MAX).toBeLessThanOrEqual(LESSON_CONFIG.LEARNING_POOL_MAX);
 	});
 
-	it('NEW_WORDS_PER_DAY_CAP is positive', () => {
-		expect(LESSON_CONFIG.NEW_WORDS_PER_DAY_CAP).toBeGreaterThan(0);
+	it('adaptive new-word cap bounds are valid', () => {
+		expect(LESSON_CONFIG.NEW_WORDS_PER_DAY_CAP_MIN).toBeGreaterThan(0);
+		expect(LESSON_CONFIG.NEW_WORDS_PER_DAY_CAP_MAX).toBeGreaterThan(
+			LESSON_CONFIG.NEW_WORDS_PER_DAY_CAP_MIN
+		);
 	});
 });

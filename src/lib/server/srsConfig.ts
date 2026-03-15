@@ -5,24 +5,16 @@
 
 // ELO Rating System Configuration
 export const ELO_CONFIG = {
-	// K-factor determines how much ratings change per game
-	K_FACTOR: 96,
-
-	// K-factor multipliers by game mode (affects learning evidence weight)
+	// Mode weights: scale the Bayesian ELO update by task difficulty.
+	// Higher weight = more evidence from a correct answer.
 	K_MULTIPLIERS: {
-		MULTIPLE_CHOICE: 0.5, // Recognition tasks provide less evidence
-		TARGET_TO_NATIVE: 0.5, // Translation from target to native (recognition)
-		NATIVE_TO_TARGET: 1.2, // Production into target language (most difficult)
-		FILL_BLANK: 1.0 // Default multiplier
+		MULTIPLE_CHOICE: 0.5, // Recognition task — less evidence than production
+		TARGET_TO_NATIVE: 0.5, // Translation to native — recognition
+		NATIVE_TO_TARGET: 1.2, // Production in target language — strongest signal
+		FILL_BLANK: 1.0 // Default
 	},
 
-	// K-factor decay: reduces sensitivity as the user accumulates repetitions.
-	// Effective K = max(K_MIN, K_FACTOR - repetitions * K_DECAY_PER_REP)
-	// This keeps new learners responsive while stabilising experienced users.
-	K_DECAY_PER_REP: 1.5,
-	K_MIN: 24,
-
-	// Default starting ELO ratings
+	// Default starting ELO rating
 	DEFAULT_ELO: 1000
 } as const;
 
@@ -111,14 +103,153 @@ export const LESSON_CONFIG = {
 	LEARNING_POOL_MIN: 3,
 	// How many words to surface per lesson from the learning pool
 	LESSON_VOCAB_MAX: 6,
-	// Maximum number of brand-new (UNSEEN) words that can be introduced per calendar day.
-	// Prevents working-memory overload for motivated users doing many lessons in a row.
-	NEW_WORDS_PER_DAY_CAP: 10,
+	// Adaptive new-word cap bounds. The actual daily cap floats between these values
+	// based on the user's recent session success EMA (see computeAdaptiveNewWordCap).
+	NEW_WORDS_PER_DAY_CAP_MIN: 5,
+	NEW_WORDS_PER_DAY_CAP_MAX: 20,
+	// EMA smoothing factor α for session success rate updates.
+	// α = 0.2 → each session contributes 20% weight; prior ~5 sessions dominate.
+	SESSION_SUCCESS_EMA_ALPHA: 0.2,
 	// Number of due MASTERED vocab items to interleave into each lesson.
 	// Research (Kornell & Bjork 2008) shows mixed practice improves long-term retention
 	// over blocked (same-state-only) practice. Kept small so new learning isn't crowded out.
 	INTERLEAVE_MASTERED_COUNT: 2
 } as const;
+
+/**
+ * Compute the per-day new-word cap from the user's recent session success EMA.
+ *
+ * A success EMA near 1.0 → user is sailing through material → raise the cap.
+ * A success EMA near 0.0 → user is struggling → lower the cap to reduce overload.
+ *
+ * The cap is linearly interpolated between MIN and MAX:
+ *   cap = MIN + (MAX - MIN) * ema
+ *
+ * Example (MIN=5, MAX=20):
+ *   ema=0.9 → cap=18  (strong performer, push the pace)
+ *   ema=0.75 → cap=16 (default / neutral)
+ *   ema=0.5 → cap=12  (struggling, slow down)
+ *   ema=0.3 → cap=9   (significant difficulty, protect working memory)
+ */
+export function computeAdaptiveNewWordCap(sessionSuccessEma: number): number {
+	const ema = Math.max(0, Math.min(1, sessionSuccessEma));
+	const raw =
+		LESSON_CONFIG.NEW_WORDS_PER_DAY_CAP_MIN +
+		(LESSON_CONFIG.NEW_WORDS_PER_DAY_CAP_MAX - LESSON_CONFIG.NEW_WORDS_PER_DAY_CAP_MIN) * ema;
+	return Math.round(raw);
+}
+
+/**
+ * Update the session success EMA after a lesson answer is graded.
+ * @param currentEma The stored EMA value [0, 1]
+ * @param wasCorrect Whether this answer was correct (score >= 0.5)
+ * @returns Updated EMA value
+ */
+export function updateSessionSuccessEma(currentEma: number, wasCorrect: boolean): number {
+	const outcome = wasCorrect ? 1.0 : 0.0;
+	return currentEma + LESSON_CONFIG.SESSION_SUCCESS_EMA_ALPHA * (outcome - currentEma);
+}
+
+// ---------------------------------------------------------------------------
+// Thompson-sampling bandit for interleave count selection
+// ---------------------------------------------------------------------------
+
+/**
+ * Maximum number of MASTERED items the bandit may choose to interleave.
+ * Arms are indexed 0..MAX_INTERLEAVE (arm k = interleave k items).
+ */
+export const MAX_INTERLEAVE = 4;
+
+export interface BanditArm {
+	alpha: number; // Beta distribution shape — successes + 1
+	beta: number; // Beta distribution shape — failures + 1
+}
+
+export interface BanditState {
+	arms: BanditArm[]; // one per possible interleave count (0..MAX_INTERLEAVE)
+}
+
+/** Parse stored JSON into BanditState, falling back to uninformative priors. */
+export function parseBanditState(raw: string | null | undefined): BanditState {
+	if (raw) {
+		try {
+			const parsed = JSON.parse(raw);
+			if (Array.isArray(parsed.arms) && parsed.arms.length === MAX_INTERLEAVE + 1) {
+				return parsed as BanditState;
+			}
+		} catch {
+			// fall through to default
+		}
+	}
+	// Uninformative Beta(1,1) priors — every arm equally likely to be best.
+	return { arms: Array.from({ length: MAX_INTERLEAVE + 1 }, () => ({ alpha: 1, beta: 1 })) };
+}
+
+/**
+ * Sample a Beta(α, β) random variate using the Johnk method.
+ * Pure TS — no external library required.
+ */
+function sampleBeta(alpha: number, beta: number): number {
+	// Johnk's method: sample X~Gamma(α,1), Y~Gamma(β,1), return X/(X+Y)
+	// For small integer-ish α,β, Gamma can be sampled via the log-sum-of-uniforms trick.
+	const gammaApprox = (shape: number): number => {
+		// Marsaglia–Tsang's method approximation for shape >= 1
+		if (shape < 1) return gammaApprox(1 + shape) * Math.pow(Math.random(), 1 / shape);
+		const d = shape - 1 / 3;
+		const c = 1 / Math.sqrt(9 * d);
+		for (;;) {
+			let x: number;
+			let v: number;
+			do {
+				x = (Math.random() * 2 - 1) * 3; // rough normal approximation via Box-Muller is better, but this converges
+				// Use Box-Muller for a proper normal sample
+				const u1 = Math.random();
+				const u2 = Math.random();
+				x = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+				v = 1 + c * x;
+			} while (v <= 0);
+			v = v * v * v;
+			const u = Math.random();
+			if (u < 1 - 0.0331 * (x * x) * (x * x)) return d * v;
+			if (Math.log(u) < 0.5 * x * x + d * (1 - v + Math.log(v))) return d * v;
+		}
+	};
+	const x = gammaApprox(alpha);
+	const y = gammaApprox(beta);
+	return x / (x + y);
+}
+
+/**
+ * Thompson-sample the bandit to pick how many MASTERED items to interleave.
+ * Returns an integer in [0, MAX_INTERLEAVE].
+ */
+export function thompsonSampleInterleave(state: BanditState): number {
+	let bestArm = 0;
+	let bestSample = -Infinity;
+	for (let k = 0; k <= MAX_INTERLEAVE; k++) {
+		const { alpha, beta } = state.arms[k];
+		const sample = sampleBeta(alpha, beta);
+		if (sample > bestSample) {
+			bestSample = sample;
+			bestArm = k;
+		}
+	}
+	return bestArm;
+}
+
+/**
+ * Update the bandit posterior for the chosen arm after observing an outcome.
+ * @param state Current bandit state
+ * @param arm The arm that was played (interleave count used)
+ * @param wasCorrect Whether the answer for that lesson was correct (score >= 0.5)
+ * @returns Updated BanditState (immutable — returns new object)
+ */
+export function updateBandit(state: BanditState, arm: number, wasCorrect: boolean): BanditState {
+	const newArms = state.arms.map((a, i) =>
+		i === arm ? { alpha: a.alpha + (wasCorrect ? 1 : 0), beta: a.beta + (wasCorrect ? 0 : 1) } : a
+	);
+	return { arms: newArms };
+}
 
 // Gamification Configuration
 export const GAMIFICATION_CONFIG = {

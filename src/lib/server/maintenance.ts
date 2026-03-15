@@ -14,6 +14,9 @@
 import { prisma } from './prisma';
 import { CefrService } from './cefrService';
 import { optimizeFsrsWeightsForUser } from './fsrsOptimizer';
+import { runHlrFit } from './hlr';
+import { runPfaFit } from './pfa';
+import { runErrorCoMatrixFit } from './errorCoMatrix';
 
 // ---------------------------------------------------------------------------
 // Intervals
@@ -25,7 +28,16 @@ const ELO_DECAY_INTERVAL_MS = 24 * 60 * 60 * 1000;
 /** FSRS weight optimization: once per day (ms) */
 const FSRS_OPTIMIZE_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
-/** ReviewLog prune: once per day (ms) — keeps the last 30 days of rows */
+/** HLR weight fitting: once per day (ms) */
+const HLR_FIT_INTERVAL_MS = 24 * 60 * 60 * 1000;
+
+/** PFA parameter fitting: once per day (ms) */
+const PFA_FIT_INTERVAL_MS = 24 * 60 * 60 * 1000;
+
+/** Error co-occurrence matrix fitting: once per day (ms) */
+const ERROR_CO_MATRIX_INTERVAL_MS = 24 * 60 * 60 * 1000;
+
+/** ReviewLog prune: once per day (ms) — keeps the last 365 days of rows */
 const REVIEW_LOG_PRUNE_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
 /** Chat message prune: once per day — keeps last 90 days */
@@ -44,6 +56,9 @@ const LIVE_SESSION_PRUNE_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
 let lastEloDecay = 0;
 let lastFsrsOptimize = 0;
+let lastHlrFit = 0;
+let lastPfaFit = 0;
+let lastErrorCoMatrixFit = 0;
 let lastReviewLogPrune = 0;
 let lastMessagePrune = 0;
 let lastAiUsagePrune = 0;
@@ -103,12 +118,12 @@ async function runEloDecay(): Promise<void> {
 }
 
 async function pruneReviewLogs(): Promise<void> {
-	const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+	const cutoff = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const result = await (prisma as any).reviewLog.deleteMany({
 		where: { createdAt: { lt: cutoff } }
 	});
-	console.log(`[maintenance] ReviewLog prune: deleted ${result.count} rows older than 30 days`);
+	console.log(`[maintenance] ReviewLog prune: deleted ${result.count} rows older than 1 year`);
 }
 
 async function pruneMessages(): Promise<void> {
@@ -165,6 +180,30 @@ export function runMaintenanceIfDue(): void {
 		runFsrsOptimization().catch((err) => {
 			console.error('[maintenance] FSRS optimization job failed:', err);
 			lastFsrsOptimize = 0;
+		});
+	}
+
+	if (now - lastHlrFit > HLR_FIT_INTERVAL_MS) {
+		lastHlrFit = now;
+		runHlrFit().catch((err) => {
+			console.error('[maintenance] HLR fit job failed:', err);
+			lastHlrFit = 0;
+		});
+	}
+
+	if (now - lastPfaFit > PFA_FIT_INTERVAL_MS) {
+		lastPfaFit = now;
+		runPfaFit().catch((err) => {
+			console.error('[maintenance] PFA fit job failed:', err);
+			lastPfaFit = 0;
+		});
+	}
+
+	if (now - lastErrorCoMatrixFit > ERROR_CO_MATRIX_INTERVAL_MS) {
+		lastErrorCoMatrixFit = now;
+		runErrorCoMatrixFit().catch((err) => {
+			console.error('[maintenance] Error co-occurrence matrix fit failed:', err);
+			lastErrorCoMatrixFit = 0;
 		});
 	}
 

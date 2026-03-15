@@ -3,6 +3,11 @@ import { prisma } from '$lib/server/prisma';
 import { redirect } from '@sveltejs/kit';
 import { CefrService } from '$lib/server/cefrService';
 import { loadRetentionStats } from '$lib/server/retentionStats';
+import { computeAdaptiveNewWordCap } from '$lib/server/srsConfig';
+import { parseBanditState } from '$lib/server/srsConfig';
+import { pfaPredictCorrect } from '$lib/server/pfa';
+import { loadErrorCoMatrix, getRelatedErrorTypes } from '$lib/server/errorCoMatrix';
+import type { ErrorType } from '$lib/server/grader';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) {
@@ -10,6 +15,17 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 
 	const user = locals.user;
+
+	// Fetch user fields needed for new algorithm panels
+	const userRecord = await prisma.user.findUnique({
+		where: { id: user.id },
+		select: {
+			sessionSuccessEma: true,
+			interleaveBanditState: true,
+			fsrsWeights: true,
+			fsrsRetention: true
+		}
+	});
 
 	if (user.activeLanguage?.id) {
 		const progress = await prisma.userProgress.findUnique({
@@ -208,6 +224,81 @@ export const load: PageServerLoad = async ({ locals }) => {
 		available: totalGrammarRuleCount - interactedGrammarCount - lockedGrammarCount
 	};
 
+	// --- Adaptive learning signals ---
+
+	const sessionEma = userRecord?.sessionSuccessEma ?? 0.75;
+	const adaptiveCap = computeAdaptiveNewWordCap(sessionEma);
+
+	// Bandit state: arm means (expected success rate) for each interleave count
+	const banditState = parseBanditState(userRecord?.interleaveBanditState ?? null);
+	const banditArmMeans = banditState.arms.map((arm, i) => ({
+		interleaveCount: i,
+		mean: Math.round((arm.alpha / (arm.alpha + arm.beta)) * 100),
+		observations: arm.alpha + arm.beta - 2 // subtract priors
+	}));
+	const bestBanditArm = banditArmMeans.reduce((best, arm) => (arm.mean > best.mean ? arm : best));
+
+	// ELO confidence: vocab items with highest variance (most uncertain)
+	const highVarianceVocab = await prisma.userVocabulary.findMany({
+		where: { userId: user.id, vocabulary: { languageId: user.activeLanguage?.id } },
+		orderBy: { eloVariance: 'desc' },
+		take: 8,
+		select: {
+			eloRating: true,
+			eloVariance: true,
+			vocabulary: { select: { lemma: true, cefrLevel: true } }
+		}
+	});
+
+	// PFA grammar health: rules where P(correct) is low (most at-risk)
+	const grammarWithPfa = await prisma.userGrammarRule.findMany({
+		where: { userId: user.id, grammarRule: { languageId: user.activeLanguage?.id } },
+		select: {
+			grammarRuleId: true,
+			grammarRule: {
+				select: { title: true, level: true, pfaGamma: true, pfaRho: true, pfaDelta: true }
+			}
+		}
+	});
+	const grammarProgressForDash = await prisma.userGrammarRuleProgress.findMany({
+		where: { userId: user.id, grammarRuleId: { in: grammarWithPfa.map((g) => g.grammarRuleId) } },
+		select: { grammarRuleId: true, repetitions: true, lapses: true }
+	});
+	const grammarProgressDashMap = new Map(grammarProgressForDash.map((p) => [p.grammarRuleId, p]));
+
+	const pfaAtRisk = grammarWithPfa
+		.map((g) => {
+			const prog = grammarProgressDashMap.get(g.grammarRuleId);
+			const successes = prog ? Math.max(0, prog.repetitions - prog.lapses) : 0;
+			const failures = prog?.lapses ?? 0;
+			const p = pfaPredictCorrect(
+				g.grammarRule.pfaGamma,
+				g.grammarRule.pfaRho,
+				g.grammarRule.pfaDelta,
+				successes,
+				failures
+			);
+			return { title: g.grammarRule.title, level: g.grammarRule.level, pCorrect: p };
+		})
+		.filter((g) => g.pCorrect !== null && g.pCorrect < 0.6)
+		.sort((a, b) => (a.pCorrect ?? 1) - (b.pCorrect ?? 1))
+		.slice(0, 6);
+
+	// Error co-occurrence: top related error pairs for the user's active errors
+	const coMatrix = await loadErrorCoMatrix();
+	const activeErrorTypes = Object.keys(errorTypeCounts) as ErrorType[];
+	const coOccurrencePairs: { from: ErrorType; to: ErrorType; strength: string }[] = [];
+	for (const et of activeErrorTypes) {
+		const related = getRelatedErrorTypes(coMatrix, et).slice(0, 2);
+		for (const rel of related) {
+			if (!coOccurrencePairs.find((p) => p.from === rel && p.to === et)) {
+				const count = coMatrix[et]?.[rel] ?? 0;
+				const strength = count > 20 ? 'strong' : count > 5 ? 'moderate' : 'weak';
+				coOccurrencePairs.push({ from: et, to: rel, strength });
+			}
+		}
+	}
+
 	return {
 		vocabularies,
 		grammarRules,
@@ -220,6 +311,21 @@ export const load: PageServerLoad = async ({ locals }) => {
 		urgentItems,
 		errorTypeCounts,
 		totalOverrides,
-		grammarCoverage
+		grammarCoverage,
+		// New algorithm signals
+		sessionEma: Math.round(sessionEma * 100),
+		adaptiveCap,
+		banditArmMeans,
+		bestBanditArm,
+		highVarianceVocab: highVarianceVocab.map((v) => ({
+			lemma: v.vocabulary.lemma,
+			level: v.vocabulary.cefrLevel,
+			elo: Math.round(v.eloRating),
+			sigma: Math.round(Math.sqrt(v.eloVariance))
+		})),
+		pfaAtRisk,
+		coOccurrencePairs,
+		hasPersonalizedWeights: (userRecord?.fsrsWeights?.length ?? 0) === 19,
+		fsrsRetention: Math.round((userRecord?.fsrsRetention ?? 0.9) * 100)
 	};
 };

@@ -1,7 +1,25 @@
 import { prisma } from './prisma';
 import { ELO_CONFIG, CEFR_CONFIG } from './srsConfig';
 import { reviewCard, scoreToRating, deriveSrsStateFromFsrs, DEFAULT_FSRS_PARAMETERS } from './fsrs';
-import type { FsrsCard } from './fsrs';
+import type { FsrsCard, Rating } from './fsrs';
+import { loadHlrWeights, hlrInitialStability } from './hlr';
+import type { HlrWeights } from './hlr';
+
+// Module-level HLR weight cache — refreshed at most once per hour to avoid
+// a DB read on every review without going stale for too long after a daily fit.
+let _hlrWeightsCache: HlrWeights | null = null;
+let _hlrWeightsCachedAt = 0;
+const HLR_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+async function getHlrWeights(): Promise<HlrWeights | null> {
+	const now = Date.now();
+	if (_hlrWeightsCache && now - _hlrWeightsCachedAt < HLR_CACHE_TTL_MS) {
+		return _hlrWeightsCache;
+	}
+	_hlrWeightsCache = await loadHlrWeights();
+	_hlrWeightsCachedAt = now;
+	return _hlrWeightsCache;
+}
 
 /**
  * Fire-and-forget ReviewLog write. Never awaited — must not block grading.
@@ -14,13 +32,12 @@ function logReview(
 	rating: number,
 	priorStability: number,
 	priorDifficulty: number,
-	priorLastReviewDate: Date | null
+	priorLastReviewDate: Date | null,
+	responseTimeMs: number | null = null
 ): void {
 	const elapsedDays = priorLastReviewDate
 		? (Date.now() - priorLastReviewDate.getTime()) / (1000 * 60 * 60 * 24)
 		: 0;
-	// scheduledDays: how many days were scheduled between last review and now.
-	// Same as elapsedDays for real reviews; 0 means first review.
 	const scheduledDays = priorLastReviewDate ? elapsedDays : 0;
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -34,7 +51,8 @@ function logReview(
 				elapsedDays,
 				scheduledDays,
 				stability: priorStability,
-				difficulty: priorDifficulty
+				difficulty: priorDifficulty,
+				...(responseTimeMs !== null ? { responseTimeMs } : {})
 			}
 		})
 		.catch((err: unknown) => console.error('[ReviewLog] write failed:', err));
@@ -333,37 +351,83 @@ export function mapLevelToElo(level: string): number {
 	);
 }
 
+/**
+ * Bayesian ELO update (Glicko-inspired).
+ *
+ * Maintains a per-item variance σ² that starts high (large uncertainty about
+ * the item's true difficulty for this user) and shrinks with each observation.
+ * The effective update step is derived from σ², so new items are highly
+ * responsive and well-reviewed items are stable — eliminating the manual
+ * K-decay heuristic.
+ *
+ * Returns { newMu, newVariance }.
+ */
 function calculateNewElo(
-	currentElo: number,
+	currentMu: number,
+	currentVariance: number,
 	score: number,
 	baseDifficulty: number,
-	gameMode: string,
-	repetitions: number = 0
-): number {
-	const expectedScore = 1 / (1 + Math.pow(10, (baseDifficulty - currentElo) / 400));
+	gameMode: string
+): { newMu: number; newVariance: number } {
+	let modeWeight = 1.0;
+	if (gameMode === 'multiple-choice') modeWeight = ELO_CONFIG.K_MULTIPLIERS.MULTIPLE_CHOICE;
+	else if (gameMode === 'target-to-native') modeWeight = ELO_CONFIG.K_MULTIPLIERS.TARGET_TO_NATIVE;
+	else if (gameMode === 'native-to-target') modeWeight = ELO_CONFIG.K_MULTIPLIERS.NATIVE_TO_TARGET;
+	else if (gameMode === 'fill-blank') modeWeight = ELO_CONFIG.K_MULTIPLIERS.FILL_BLANK;
 
-	let kMultiplier = 1.0;
-	// Use configured K-factor multipliers by game mode
-	if (gameMode === 'multiple-choice') kMultiplier = ELO_CONFIG.K_MULTIPLIERS.MULTIPLE_CHOICE;
-	else if (gameMode === 'target-to-native') kMultiplier = ELO_CONFIG.K_MULTIPLIERS.TARGET_TO_NATIVE;
-	else if (gameMode === 'native-to-target') kMultiplier = ELO_CONFIG.K_MULTIPLIERS.NATIVE_TO_TARGET;
-	else if (gameMode === 'fill-blank') kMultiplier = ELO_CONFIG.K_MULTIPLIERS.FILL_BLANK;
+	const q = Math.log(10) / 400; // ≈ 0.005756
+	const expected = 1 / (1 + Math.pow(10, (baseDifficulty - currentMu) / 400));
+	// Uncertainty attenuation factor g ∈ (0, modeWeight] — shrinks as σ² grows
+	const g = modeWeight / Math.sqrt(1 + (3 * q * q * currentVariance) / (Math.PI * Math.PI));
+	// Information gain from this observation
+	const d2 = 1 / (g * g * expected * (1 - expected) + 1e-8);
+	// Posterior mean update
+	const updateStep = ((score - expected) * g) / (1 / currentVariance + 1 / d2);
+	const newMu = Math.max(500, Math.min(2500, currentMu + (1 / q) * updateStep));
+	// Posterior variance shrinks with each observation; floor at 25 (σ=5) to retain responsiveness
+	const newVariance = Math.max(25, 1 / (1 / currentVariance + 1 / d2));
 
-	// Decay K-factor as the user accumulates repetitions on this item, keeping
-	// new learners highly responsive while stabilising experienced users.
-	const decayedK = Math.max(
-		ELO_CONFIG.K_MIN,
-		ELO_CONFIG.K_FACTOR - repetitions * ELO_CONFIG.K_DECAY_PER_REP
-	);
-	const effectiveK = decayedK * kMultiplier;
-	return currentElo + effectiveK * (score - expectedScore);
+	return { newMu, newVariance };
 }
 
 /**
  * Runs FSRS review on a card loaded from the DB progress record.
  * Returns updated FSRS fields and the next review date.
  */
-function computeFsrsUpdate(
+/**
+ * Adjust a base FSRS rating using response time relative to the item's stored median.
+ *
+ * Rules (only applied when responseTimeMs and medianResponseMs are both available):
+ *   - Correct + very fast (< 50% of median): upgrade Good→Easy (3→4). Fluent recall.
+ *   - Correct + very slow (> 200% of median): downgrade Easy→Good or Good→Hard (4→3, 3→2).
+ *     Effortful retrieval is still learning — don't over-reward.
+ *   - Incorrect + very fast (< 50% of median): downgrade Again by 0 (keep 1). Likely a
+ *     guess or inattention — don't double-penalise, but don't soften either.
+ *
+ * Thresholds are intentionally conservative to avoid over-correcting on sparse data.
+ */
+function adjustRatingForResponseTime(
+	baseRating: Rating,
+	score: number,
+	responseTimeMs: number | null,
+	medianResponseMs: number | null
+): Rating {
+	if (responseTimeMs === null || medianResponseMs === null || medianResponseMs <= 0) {
+		return baseRating;
+	}
+	const ratio = responseTimeMs / medianResponseMs;
+	const correct = score >= 0.5;
+
+	if (correct) {
+		if (ratio < 0.5 && baseRating === 3) return 4; // fast correct Good → Easy
+		if (ratio > 2.0 && baseRating === 4) return 3; // slow correct Easy → Good
+		if (ratio > 2.0 && baseRating === 3) return 2; // slow correct Good → Hard
+	}
+	// For incorrect answers, rating stays as-is — response time doesn't change the failure penalty.
+	return baseRating;
+}
+
+async function computeFsrsUpdate(
 	score: number,
 	current: {
 		difficulty: number;
@@ -372,22 +436,49 @@ function computeFsrsUpdate(
 		repetitions: number;
 		lapses: number;
 		lastReviewDate: Date | null;
+		medianResponseMs?: number | null;
+		// Optional item metadata used for HLR initial stability on first review
+		frequencyRank?: number | null;
+		cefrLevel?: string | null;
+		partOfSpeech?: string | null;
 	},
 	requestRetention: number = DEFAULT_FSRS_PARAMETERS.requestRetention,
-	userWeights?: number[]
+	userWeights?: number[],
+	responseTimeMs: number | null = null
 ) {
+	// On first review, use HLR to compute a better initial stability prior.
+	// This replaces the generic w[0..3] FSRS initialization with an item-informed estimate.
+	let overrideStability: number | undefined;
+	if (current.repetitions === 0 && (current.frequencyRank !== undefined || current.cefrLevel)) {
+		const hlrWeights = await getHlrWeights();
+		if (hlrWeights) {
+			overrideStability = hlrInitialStability(
+				current.frequencyRank ?? null,
+				current.cefrLevel ?? 'A1',
+				current.partOfSpeech ?? null,
+				hlrWeights
+			);
+		}
+	}
+
 	const card: FsrsCard = {
 		difficulty: current.difficulty,
-		stability: current.stability,
+		stability: overrideStability ?? current.stability,
 		retrievability: current.retrievability,
 		repetitions: current.repetitions,
 		lapses: current.lapses,
 		lastReviewDate: current.lastReviewDate ?? undefined
 	};
 
-	const w = userWeights?.length === 17 ? userWeights : DEFAULT_FSRS_PARAMETERS.w;
+	const w = userWeights?.length === 19 ? userWeights : DEFAULT_FSRS_PARAMETERS.w;
 	const params = { ...DEFAULT_FSRS_PARAMETERS, requestRetention, w };
-	const rating = scoreToRating(score);
+	const baseRating = scoreToRating(score);
+	const rating = adjustRatingForResponseTime(
+		baseRating,
+		score,
+		responseTimeMs,
+		current.medianResponseMs ?? null
+	);
 	const result = reviewCard(card, rating, new Date(), params);
 
 	return {
@@ -401,12 +492,24 @@ function computeFsrsUpdate(
 	};
 }
 
+/**
+ * Incrementally update the stored median response time using the Welford-style
+ * running estimate: new_median ≈ old_median + 0.1 * (responseTimeMs - old_median).
+ * This is a smoothed running estimate, not a true median, but converges quickly
+ * and requires no stored history.
+ */
+function updateRunningMedian(current: number | null, newValue: number): number {
+	if (current === null) return newValue;
+	return Math.round(current + 0.1 * (newValue - current));
+}
+
 export async function updateSrsMetrics(
 	userId: string,
 	itemId: string,
 	score: number,
 	type: 'vocabulary' | 'grammar' = 'vocabulary',
-	overridden = false
+	overridden = false,
+	responseTimeMs: number | null = null
 ) {
 	// Fetch user's FSRS retention preference and optimized weights once
 	const userPrefs = await prisma.user.findUnique({
@@ -414,7 +517,7 @@ export async function updateSrsMetrics(
 		select: { fsrsRetention: true, fsrsWeights: true }
 	});
 	const userRetention = userPrefs?.fsrsRetention ?? DEFAULT_FSRS_PARAMETERS.requestRetention;
-	const userWeights = userPrefs?.fsrsWeights?.length === 17 ? userPrefs.fsrsWeights : undefined;
+	const userWeights = userPrefs?.fsrsWeights?.length === 19 ? userPrefs.fsrsWeights : undefined;
 
 	if (type === 'grammar') {
 		const currentProgress = await prisma.userGrammarRuleProgress.findUnique({
@@ -427,15 +530,36 @@ export async function updateSrsMetrics(
 			retrievability: currentProgress?.retrievability ?? 1.0,
 			repetitions: currentProgress?.repetitions ?? 0,
 			lapses: currentProgress?.lapses ?? 0,
-			lastReviewDate: currentProgress?.lastReviewDate ?? null
+			lastReviewDate: currentProgress?.lastReviewDate ?? null,
+			medianResponseMs: currentProgress?.medianResponseMs ?? null
 		};
 
-		const fsrs = computeFsrsUpdate(score, priorState, userRetention, userWeights);
+		const fsrs = await computeFsrsUpdate(
+			score,
+			priorState,
+			userRetention,
+			userWeights,
+			responseTimeMs
+		);
+		const newMedianMs =
+			responseTimeMs !== null
+				? updateRunningMedian(currentProgress?.medianResponseMs ?? null, responseTimeMs)
+				: undefined;
 
 		await prisma.userGrammarRuleProgress.upsert({
 			where: { userId_grammarRuleId: { userId, grammarRuleId: itemId } },
-			create: { userId, grammarRuleId: itemId, ...fsrs },
-			update: fsrs
+			create: {
+				userId,
+				grammarRuleId: itemId,
+				...fsrs,
+				reviewCount: 1,
+				...(newMedianMs !== undefined ? { medianResponseMs: newMedianMs } : {})
+			},
+			update: {
+				...fsrs,
+				reviewCount: { increment: 1 },
+				...(newMedianMs !== undefined ? { medianResponseMs: newMedianMs } : {})
+			}
 		});
 
 		logReview(
@@ -445,7 +569,8 @@ export async function updateSrsMetrics(
 			scoreToRating(score),
 			priorState.stability,
 			priorState.difficulty,
-			priorState.lastReviewDate
+			priorState.lastReviewDate,
+			responseTimeMs
 		);
 
 		return fsrs;
@@ -461,18 +586,40 @@ export async function updateSrsMetrics(
 		retrievability: currentProgress?.retrievability ?? 1.0,
 		repetitions: currentProgress?.repetitions ?? 0,
 		lapses: currentProgress?.lapses ?? 0,
-		lastReviewDate: currentProgress?.lastReviewDate ?? null
+		lastReviewDate: currentProgress?.lastReviewDate ?? null,
+		medianResponseMs: currentProgress?.medianResponseMs ?? null
 	};
 
-	const fsrs = computeFsrsUpdate(score, priorState, userRetention, userWeights);
+	const fsrs = await computeFsrsUpdate(
+		score,
+		priorState,
+		userRetention,
+		userWeights,
+		responseTimeMs
+	);
 
-	// Increment overrideCount when user overrode an incorrect grade to correct.
 	const overrideIncrement = overridden ? 1 : 0;
+	const newMedianMsVocab =
+		responseTimeMs !== null
+			? updateRunningMedian(currentProgress?.medianResponseMs ?? null, responseTimeMs)
+			: undefined;
 
 	await prisma.userVocabularyProgress.upsert({
 		where: { userId_vocabularyId: { userId, vocabularyId: itemId } },
-		create: { userId, vocabularyId: itemId, ...fsrs, overrideCount: overrideIncrement },
-		update: { ...fsrs, overrideCount: { increment: overrideIncrement } }
+		create: {
+			userId,
+			vocabularyId: itemId,
+			...fsrs,
+			overrideCount: overrideIncrement,
+			reviewCount: 1,
+			...(newMedianMsVocab !== undefined ? { medianResponseMs: newMedianMsVocab } : {})
+		},
+		update: {
+			...fsrs,
+			overrideCount: { increment: overrideIncrement },
+			reviewCount: { increment: 1 },
+			...(newMedianMsVocab !== undefined ? { medianResponseMs: newMedianMsVocab } : {})
+		}
 	});
 
 	logReview(
@@ -482,7 +629,8 @@ export async function updateSrsMetrics(
 		scoreToRating(score),
 		priorState.stability,
 		priorState.difficulty,
-		priorState.lastReviewDate
+		priorState.lastReviewDate,
+		responseTimeMs
 	);
 
 	return fsrs;
@@ -499,7 +647,8 @@ export async function updateSrsMetrics(
 export async function updateEloRatings(
 	userId: string,
 	payload: EvaluationPayload,
-	gameMode: string = 'native-to-target'
+	gameMode: string = 'native-to-target',
+	responseTimeMs: number | null = null
 ) {
 	console.log(`Updating Elos for user ${userId} with payload:`, JSON.stringify(payload, null, 2));
 
@@ -553,7 +702,7 @@ export async function updateEloRatings(
 
 	const userRetention = userPrefsForElo?.fsrsRetention ?? DEFAULT_FSRS_PARAMETERS.requestRetention;
 	const userWeightsForElo =
-		userPrefsForElo?.fsrsWeights?.length === 17 ? userPrefsForElo.fsrsWeights : undefined;
+		userPrefsForElo?.fsrsWeights?.length === 19 ? userPrefsForElo.fsrsWeights : undefined;
 
 	// Build O(1) lookup maps from the prefetched rows.
 	const vocabMap = new Map<string, PrismaVocabulary>(
@@ -595,46 +744,74 @@ export async function updateEloRatings(
 			retrievability: currentProgress?.retrievability ?? 1.0,
 			repetitions: currentProgress?.repetitions ?? 0,
 			lapses: currentProgress?.lapses ?? 0,
-			lastReviewDate: currentProgress?.lastReviewDate ?? null
+			lastReviewDate: currentProgress?.lastReviewDate ?? null,
+			medianResponseMs: currentProgress?.medianResponseMs ?? null,
+			frequencyRank: (vocab as any).frequency ?? null,
+			cefrLevel: (vocab as any).cefrLevel ?? 'A1',
+			partOfSpeech: (vocab as any).partOfSpeech ?? null
 		};
-		const fsrs = computeFsrsUpdate(
+		const fsrs = await computeFsrsUpdate(
 			vocabUpdate.score,
 			priorVocabState,
 			userRetention,
-			userWeightsForElo
+			userWeightsForElo,
+			responseTimeMs
 		);
 
-		const priorRepetitions = Math.max(0, fsrs.repetitions - 1);
-		const newElo = calculateNewElo(
+		const currentVarianceVocab = userVocabMap.get(vocab.id)?.eloVariance ?? 400;
+		const { newMu: newEloVocab, newVariance: newVarianceVocab } = calculateNewElo(
 			currentElo,
+			currentVarianceVocab,
 			vocabUpdate.score,
 			baseDifficulty,
-			gameMode,
-			priorRepetitions
+			gameMode
 		);
 		vocabUpdate.eloBefore = currentElo;
-		vocabUpdate.eloAfter = newElo;
+		vocabUpdate.eloAfter = newEloVocab;
 		const newState = deriveSrsStateFromFsrs(fsrs.repetitions, fsrs.stability, fsrs.lapses);
 
 		// Persist errorType: set on incorrect answers, clear on correct ones.
 		const errorType = vocabUpdate.score < 0.8 ? (vocabUpdate.errorType ?? null) : null;
 
+		const vocabMedianMs =
+			responseTimeMs !== null
+				? updateRunningMedian(priorVocabState.medianResponseMs, responseTimeMs)
+				: undefined;
+
 		await Promise.all([
 			prisma.userVocabularyProgress.upsert({
 				where: { userId_vocabularyId: { userId, vocabularyId: vocab.id } },
-				create: { userId, vocabularyId: vocab.id, ...fsrs, lastErrorType: errorType },
-				update: { ...fsrs, lastErrorType: errorType }
+				create: {
+					userId,
+					vocabularyId: vocab.id,
+					...fsrs,
+					lastErrorType: errorType,
+					reviewCount: 1,
+					...(vocabMedianMs !== undefined ? { medianResponseMs: vocabMedianMs } : {})
+				},
+				update: {
+					...fsrs,
+					lastErrorType: errorType,
+					reviewCount: { increment: 1 },
+					...(vocabMedianMs !== undefined ? { medianResponseMs: vocabMedianMs } : {})
+				}
 			}),
 			prisma.userVocabulary.upsert({
 				where: { userId_vocabularyId: { userId, vocabularyId: vocab.id } },
 				create: {
 					userId,
 					vocabularyId: vocab.id,
-					eloRating: newElo,
+					eloRating: newEloVocab,
+					eloVariance: newVarianceVocab,
 					srsState: newState,
 					nextReviewDate: fsrs.nextReviewDate
 				},
-				update: { eloRating: newElo, srsState: newState, nextReviewDate: fsrs.nextReviewDate }
+				update: {
+					eloRating: newEloVocab,
+					eloVariance: newVarianceVocab,
+					srsState: newState,
+					nextReviewDate: fsrs.nextReviewDate
+				}
 			})
 		]);
 
@@ -645,7 +822,8 @@ export async function updateEloRatings(
 			scoreToRating(vocabUpdate.score),
 			priorVocabState.stability,
 			priorVocabState.difficulty,
-			priorVocabState.lastReviewDate
+			priorVocabState.lastReviewDate,
+			responseTimeMs
 		);
 	}
 
@@ -667,45 +845,70 @@ export async function updateEloRatings(
 			retrievability: currentProgress?.retrievability ?? 1.0,
 			repetitions: currentProgress?.repetitions ?? 0,
 			lapses: currentProgress?.lapses ?? 0,
-			lastReviewDate: currentProgress?.lastReviewDate ?? null
+			lastReviewDate: currentProgress?.lastReviewDate ?? null,
+			medianResponseMs: currentProgress?.medianResponseMs ?? null
 		};
-		const fsrs = computeFsrsUpdate(
+		const fsrs = await computeFsrsUpdate(
 			grammarUpdate.score,
 			priorGrammarState,
 			userRetention,
-			userWeightsForElo
+			userWeightsForElo,
+			responseTimeMs
 		);
 
-		const priorRepetitions = Math.max(0, fsrs.repetitions - 1);
-		const newElo = calculateNewElo(
+		const currentVarianceGrammar = userGrammarMap.get(grammar.id)?.eloVariance ?? 400;
+		const { newMu: newEloGrammar, newVariance: newVarianceGrammar } = calculateNewElo(
 			currentElo,
+			currentVarianceGrammar,
 			grammarUpdate.score,
 			baseDifficulty,
-			gameMode,
-			priorRepetitions
+			gameMode
 		);
 		grammarUpdate.eloBefore = currentElo;
-		grammarUpdate.eloAfter = newElo;
+		grammarUpdate.eloAfter = newEloGrammar;
 		const newState = deriveSrsStateFromFsrs(fsrs.repetitions, fsrs.stability, fsrs.lapses);
 
 		const errorType = grammarUpdate.score < 0.8 ? (grammarUpdate.errorType ?? null) : null;
 
+		const grammarMedianMs =
+			responseTimeMs !== null
+				? updateRunningMedian(priorGrammarState.medianResponseMs, responseTimeMs)
+				: undefined;
+
 		await Promise.all([
 			prisma.userGrammarRuleProgress.upsert({
 				where: { userId_grammarRuleId: { userId, grammarRuleId: grammar.id } },
-				create: { userId, grammarRuleId: grammar.id, ...fsrs, lastErrorType: errorType },
-				update: { ...fsrs, lastErrorType: errorType }
+				create: {
+					userId,
+					grammarRuleId: grammar.id,
+					...fsrs,
+					lastErrorType: errorType,
+					reviewCount: 1,
+					...(grammarMedianMs !== undefined ? { medianResponseMs: grammarMedianMs } : {})
+				},
+				update: {
+					...fsrs,
+					lastErrorType: errorType,
+					reviewCount: { increment: 1 },
+					...(grammarMedianMs !== undefined ? { medianResponseMs: grammarMedianMs } : {})
+				}
 			}),
 			prisma.userGrammarRule.upsert({
 				where: { userId_grammarRuleId: { userId, grammarRuleId: grammar.id } },
 				create: {
 					userId,
 					grammarRuleId: grammar.id,
-					eloRating: newElo,
+					eloRating: newEloGrammar,
+					eloVariance: newVarianceGrammar,
 					srsState: newState,
 					nextReviewDate: fsrs.nextReviewDate
 				},
-				update: { eloRating: newElo, srsState: newState, nextReviewDate: fsrs.nextReviewDate }
+				update: {
+					eloRating: newEloGrammar,
+					eloVariance: newVarianceGrammar,
+					srsState: newState,
+					nextReviewDate: fsrs.nextReviewDate
+				}
 			})
 		]);
 
@@ -716,7 +919,8 @@ export async function updateEloRatings(
 			scoreToRating(grammarUpdate.score),
 			priorGrammarState.stability,
 			priorGrammarState.difficulty,
-			priorGrammarState.lastReviewDate
+			priorGrammarState.lastReviewDate,
+			responseTimeMs
 		);
 	}
 
@@ -737,7 +941,7 @@ export async function updateEloRatings(
 			where: { userId_vocabularyId: { userId, vocabularyId: vocab.id } }
 		});
 
-		const fsrs = computeFsrsUpdate(
+		const fsrs = await computeFsrsUpdate(
 			1.0,
 			{
 				difficulty: currentProgress?.difficulty ?? 5.0,
@@ -751,8 +955,14 @@ export async function updateEloRatings(
 			userWeightsForElo
 		);
 
-		const priorRepetitions = Math.max(0, fsrs.repetitions - 1);
-		const newElo = calculateNewElo(currentElo, 1.0, baseDifficulty, gameMode, priorRepetitions);
+		const currentVarianceExtra = userVocab?.eloVariance ?? 400;
+		const { newMu: newEloExtra, newVariance: newVarianceExtra } = calculateNewElo(
+			currentElo,
+			currentVarianceExtra,
+			1.0,
+			baseDifficulty,
+			gameMode
+		);
 		const newState = deriveSrsStateFromFsrs(fsrs.repetitions, fsrs.stability, fsrs.lapses);
 
 		await Promise.all([
@@ -766,11 +976,17 @@ export async function updateEloRatings(
 				create: {
 					userId,
 					vocabularyId: vocab.id,
-					eloRating: newElo,
+					eloRating: newEloExtra,
+					eloVariance: newVarianceExtra,
 					srsState: newState,
 					nextReviewDate: fsrs.nextReviewDate
 				},
-				update: { eloRating: newElo, srsState: newState, nextReviewDate: fsrs.nextReviewDate }
+				update: {
+					eloRating: newEloExtra,
+					eloVariance: newVarianceExtra,
+					srsState: newState,
+					nextReviewDate: fsrs.nextReviewDate
+				}
 			})
 		]);
 	}

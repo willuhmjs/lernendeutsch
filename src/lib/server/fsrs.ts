@@ -1,8 +1,17 @@
 /**
- * FSRS (Free Spaced Repetition Scheduler) Algorithm Implementation
- * A modern, research-backed alternative to SM-2 with better retention predictions.
+ * FSRS-5 Algorithm Implementation
+ * Upgrade from FSRS-4.5: adds a short-term stability update applied when the
+ * elapsed time since the last review is less than 1 day (same-day reviews).
+ * This dramatically improves scheduling accuracy for the initial learning phase
+ * where cards are reviewed multiple times within a single session.
  *
- * Based on the FSRS-4.5 algorithm: https://github.com/open-spaced-repetition/fsrs4anki
+ * Key changes from 4.5:
+ *   - 19 weights (was 17): w[17] = short-term stability factor base,
+ *                                  w[18] = short-term stability rating scale
+ *   - `nextStabilityShortTerm()` applied when elapsedDays < 1
+ *   - All other equations unchanged
+ *
+ * Based on: https://github.com/open-spaced-repetition/fsrs5
  */
 
 export interface FsrsCard {
@@ -23,18 +32,39 @@ export interface FsrsReviewResult {
 
 export interface FsrsParameters {
 	// Model parameters (optimized through research)
-	w: number[]; // 17 weights
+	w: number[]; // 19 weights (FSRS-5; w[17..18] are the short-term stability factors)
 	requestRetention: number; // Target retention rate (default: 0.9)
 	maximumInterval: number; // Max days between reviews (default: 365)
 	easyBonus: number; // Multiplier for easy answers (default: 1.3)
 	hardInterval: number; // Multiplier for hard answers (default: 1.2)
 }
 
-// Default FSRS-4.5 parameters (optimized for general learning)
+// Default FSRS-5 parameters
+// w[0..16] are the same semantics as FSRS-4.5.
+// w[17] = short-term stability factor base (S_s = S * e^(w[17] * (rating - 3 + w[18])))
+// w[18] = short-term stability rating scale
 export const DEFAULT_FSRS_PARAMETERS: FsrsParameters = {
 	w: [
-		0.4072, 1.1829, 3.1262, 15.4722, 7.2102, 0.5316, 1.0651, 0.0234, 1.616, 0.1544, 1.0824, 1.9813,
-		0.0953, 0.2975, 2.2042, 0.2407, 2.9466
+		0.4072,
+		1.1829,
+		3.1262,
+		15.4722,
+		7.2102,
+		0.5316,
+		1.0651,
+		0.0234,
+		1.616,
+		0.1544,
+		1.0824,
+		1.9813,
+		0.0953,
+		0.2975,
+		2.2042,
+		0.2407,
+		2.9466,
+		// FSRS-5 additions:
+		0.5, // w[17]: short-term stability exponent base
+		1.4 // w[18]: short-term stability rating scale
 	],
 	requestRetention: 0.9,
 	maximumInterval: 365,
@@ -153,6 +183,21 @@ function nextStability(
 }
 
 /**
+ * FSRS-5: Short-term stability update for same-day reviews (elapsedDays < 1).
+ * Applied instead of nextStability() when the card is being reviewed again
+ * within the same day. This captures the within-session forgetting curve which
+ * is much steeper than the long-term curve.
+ *
+ * Formula: S' = S * e^(w[17] * (rating - 3 + w[18]))
+ */
+function nextStabilityShortTerm(stability: number, rating: Rating, params: FsrsParameters): number {
+	const { w } = params;
+	const w17 = w[17] ?? 0.5;
+	const w18 = w[18] ?? 1.4;
+	return Math.max(0.1, stability * Math.exp(w17 * (rating - 3 + w18)));
+}
+
+/**
  * Calculate next stability for a relearning state (after forgetting)
  */
 function nextStabilityAfterLapse(
@@ -204,6 +249,9 @@ export function reviewCard(
 	// Determine state
 	let state: 'NEW' | 'LEARNING' | 'REVIEW' | 'RELEARNING' = 'REVIEW';
 
+	// FSRS-5: if reviewed within the same day, use the short-term stability update.
+	const isShortTerm = elapsedDays < 1 && card.repetitions > 0;
+
 	if (card.repetitions === 0) {
 		// First time seeing this card
 		state = 'NEW';
@@ -214,8 +262,18 @@ export function reviewCard(
 		if (rating === 1) {
 			state = 'LEARNING';
 		}
+	} else if (isShortTerm) {
+		// Same-day review: apply short-term stability update (FSRS-5 addition).
+		// Difficulty and lapse count are not updated for short-term reviews —
+		// only stability changes to reflect within-session retention.
+		newCard.stability = nextStabilityShortTerm(card.stability, rating, params);
+		newCard.repetitions += 1;
+		if (rating === 1) {
+			state = 'RELEARNING';
+			newCard.lapses += 1;
+		}
 	} else if (rating === 1) {
-		// Forgot the card
+		// Forgot the card (long-term interval)
 		state = 'RELEARNING';
 		newCard.difficulty = nextDifficulty(card.difficulty, rating, params);
 		newCard.stability = nextStabilityAfterLapse(
@@ -227,7 +285,7 @@ export function reviewCard(
 		newCard.lapses += 1;
 		newCard.repetitions += 1;
 	} else {
-		// Successfully recalled
+		// Successfully recalled (long-term interval)
 		state = newCard.lapses > 0 && newCard.repetitions < 3 ? 'RELEARNING' : 'REVIEW';
 		newCard.difficulty = nextDifficulty(card.difficulty, rating, params);
 		newCard.stability = nextStability(

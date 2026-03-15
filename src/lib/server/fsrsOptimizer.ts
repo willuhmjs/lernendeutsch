@@ -26,6 +26,9 @@ const MIN_REVIEWS = 50;
 /** Maximum reviews used per optimization run (older rows beyond this are ignored) */
 const MAX_REVIEWS = 1000;
 
+/** Number of FSRS-5 weights */
+const N_WEIGHTS = 19;
+
 /** Number of gradient descent iterations */
 const MAX_ITERATIONS = 200;
 
@@ -38,8 +41,8 @@ const BETA2 = 0.999;
 const EPSILON = 1e-8;
 
 /**
- * Valid ranges for each of the 17 FSRS-4.5 weights.
- * Derived from the open-spaced-repetition/fsrs4anki optimizer constraints.
+ * Valid ranges for each of the 19 FSRS-5 weights.
+ * Derived from the open-spaced-repetition/fsrs5 optimizer constraints.
  */
 const WEIGHT_BOUNDS: [number, number][] = [
 	[0.1, 10], // w[0]  initial stability for rating 1 (Again)
@@ -58,7 +61,9 @@ const WEIGHT_BOUNDS: [number, number][] = [
 	[0.01, 0.5], // w[13] lapse stability power
 	[0.01, 2], // w[14] lapse forgetting factor
 	[0.1, 1], // w[15] hard penalty
-	[1, 5] // w[16] easy bonus
+	[1, 5], // w[16] easy bonus
+	[0.1, 2], // w[17] short-term stability exponent base (FSRS-5)
+	[0.1, 3] // w[18] short-term stability rating scale (FSRS-5)
 ];
 
 function clip(value: number, min: number, max: number): number {
@@ -175,7 +180,7 @@ export async function optimizeFsrsWeightsForUser(userId: string): Promise<number
 	});
 
 	const startingWeights =
-		user?.fsrsWeights?.length === 17 ? user.fsrsWeights : [...DEFAULT_FSRS_PARAMETERS.w];
+		user?.fsrsWeights?.length === N_WEIGHTS ? user.fsrsWeights : [...DEFAULT_FSRS_PARAMETERS.w];
 
 	const optimized = optimize(logs, startingWeights);
 	if (!optimized) return null;

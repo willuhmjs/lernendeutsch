@@ -16,6 +16,7 @@
 	let isGrading = false;
 	let typedAnswer = '';
 	let reviewInputRef: HTMLInputElement;
+	let reviewCardStartMs: number | null = null; // timestamp when current card was shown
 
 	let gradeResult: { correct: boolean; score: number } | null = null;
 	let userOverride: boolean | null = null;
@@ -136,6 +137,8 @@
 		);
 	}
 
+	let lastResponseTimeMs: number | null = null;
+
 	async function showAnswer() {
 		if (isGrading) return;
 
@@ -146,6 +149,9 @@
 			haptics.error(); // Haptic for empty answer
 			return;
 		}
+
+		// Capture response time at the moment the user submits their answer
+		lastResponseTimeMs = reviewCardStartMs !== null ? Date.now() - reviewCardStartMs : null;
 
 		isGrading = true;
 		try {
@@ -193,7 +199,8 @@
 				body: JSON.stringify({
 					vocabularyId: currentReview.vocabulary.id,
 					score: effectiveScore,
-					overridden: userOverride !== null
+					overridden: userOverride !== null,
+					responseTimeMs: lastResponseTimeMs
 				})
 			});
 
@@ -212,6 +219,8 @@
 				userOverride = null;
 				typedAnswer = '';
 				showSrsPanel = false;
+				lastResponseTimeMs = null;
+				reviewCardStartMs = Date.now(); // start timing the next card
 			}
 		} catch (e) {
 			console.error('Failed to submit review', e);
@@ -422,7 +431,10 @@
 				</p>
 				<button
 					class="btn-duo btn-primary start-session-btn"
-					onclick={() => (sessionStarted = true)}
+					onclick={() => {
+						sessionStarted = true;
+						reviewCardStartMs = Date.now();
+					}}
 				>
 					Start Reviewing
 				</button>

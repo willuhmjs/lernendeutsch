@@ -9,7 +9,14 @@ import { prisma } from '$lib/server/prisma';
 import { submitAnswerRateLimiter } from '$lib/server/ratelimit';
 import { updateGamification } from '$lib/server/gamification';
 import { CefrService } from '$lib/server/cefrService';
-import { XP_CONFIG, computeAnswerXp, levelUpXp } from '$lib/server/srsConfig';
+import {
+	XP_CONFIG,
+	computeAnswerXp,
+	levelUpXp,
+	updateSessionSuccessEma,
+	parseBanditState,
+	updateBandit
+} from '$lib/server/srsConfig';
 import { isClearlyCorrect, isClearlyWrong } from '$lib/server/fuzzyGrade';
 import { isQuotaExceeded, recordTokenUsage } from '$lib/server/aiQuota';
 
@@ -53,9 +60,26 @@ export async function POST(event) {
 	const user = locals.user
 		? await prisma.user.findUnique({
 				where: { id: locals.user.id },
-				select: { useLocalLlm: true }
+				select: { useLocalLlm: true, sessionSuccessEma: true, interleaveBanditState: true }
 			})
 		: null;
+
+	/** Fire-and-forget EMA + bandit posterior update — must not block grading. */
+	function updateEmaAsync(userId: string, wasCorrect: boolean, arm: number | null): void {
+		const currentEma = user?.sessionSuccessEma ?? 0.75;
+		const newEma = updateSessionSuccessEma(currentEma, wasCorrect);
+
+		const banditUpdate: Record<string, unknown> = { sessionSuccessEma: newEma };
+		if (arm !== null) {
+			const banditState = parseBanditState(user?.interleaveBanditState ?? null);
+			const newBanditState = updateBandit(banditState, arm, wasCorrect);
+			banditUpdate.interleaveBanditState = JSON.stringify(newBanditState);
+		}
+
+		prisma.user
+			.update({ where: { id: userId }, data: banditUpdate })
+			.catch((err: unknown) => console.error('[EMA/bandit] update failed:', err));
+	}
 
 	if (!user?.useLocalLlm && (await submitAnswerRateLimiter.isLimited(event))) {
 		return json({ error: 'Too many requests. Limit is 15/min, 300/day.' }, { status: 429 });
@@ -78,8 +102,22 @@ export async function POST(event) {
 			targetedGrammarIds,
 			gameMode: bodyGameMode,
 			assignmentId,
-			activeLanguageName: bodyLanguageName
+			activeLanguageName: bodyLanguageName,
+			responseTimeMs: bodyResponseTimeMs,
+			interleavedArm: bodyInterleavedArm
 		} = body;
+		// Arm index used by the bandit when generating this lesson (0..MAX_INTERLEAVE).
+		// Validated to be an integer in range; defaults to null (no update) if missing.
+		const interleavedArm: number | null =
+			typeof bodyInterleavedArm === 'number' &&
+			Number.isInteger(bodyInterleavedArm) &&
+			bodyInterleavedArm >= 0
+				? bodyInterleavedArm
+				: null;
+		const responseTimeMs: number | null =
+			typeof bodyResponseTimeMs === 'number' && bodyResponseTimeMs > 0
+				? Math.min(Math.round(bodyResponseTimeMs), 300_000) // cap at 5 min to reject absurd values
+				: null;
 		const userId = locals.user.id;
 		const gameMode = bodyGameMode || 'native-to-target';
 
@@ -145,7 +183,8 @@ export async function POST(event) {
 				'Sending payload to updateEloRatings:',
 				JSON.stringify(remappedEvaluation, null, 2)
 			);
-			await updateEloRatings(userId, remappedEvaluation, gameMode);
+			await updateEloRatings(userId, remappedEvaluation, gameMode, responseTimeMs);
+			updateEmaAsync(userId, isCorrect, interleavedArm);
 
 			let assignmentProgress = null;
 			if (assignmentId) {
@@ -188,7 +227,8 @@ export async function POST(event) {
 					feedback: 'Correct!'
 				};
 
-				await updateEloRatings(userId, remappedEvaluation, gameMode);
+				await updateEloRatings(userId, remappedEvaluation, gameMode, responseTimeMs);
+				updateEmaAsync(userId, true, interleavedArm);
 
 				let assignmentProgress = null;
 				if (assignmentId) {
@@ -225,7 +265,8 @@ export async function POST(event) {
 					extraVocabLemmas: [],
 					feedback: ''
 				};
-				await updateEloRatings(userId, remappedEvaluation, gameMode);
+				await updateEloRatings(userId, remappedEvaluation, gameMode, responseTimeMs);
+				updateEmaAsync(userId, false, interleavedArm);
 				return json({ ...remappedEvaluation, assignmentProgress: null, levelUp: null });
 			}
 		}
@@ -323,11 +364,12 @@ export async function POST(event) {
 						'Sending payload to updateEloRatings:',
 						JSON.stringify(remappedEvaluation, null, 2)
 					);
-					await updateEloRatings(userId, remappedEvaluation, gameMode);
+					await updateEloRatings(userId, remappedEvaluation, gameMode, responseTimeMs);
 
 					// Track assignment score if applicable
 					let assignmentProgress = null;
 					const isCorrect = (evaluation.globalScore ?? 0) >= 0.5;
+					updateEmaAsync(userId, isCorrect, interleavedArm);
 					if (assignmentId) {
 						try {
 							assignmentProgress = await updateAssignmentScore(assignmentId, userId, isCorrect);
