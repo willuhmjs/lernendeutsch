@@ -798,34 +798,6 @@
 						</div>
 					{/if}
 
-					{#if selectedResult.metadata.conjugations}
-						<div class="dict-entry dict-entry-block">
-							<span class="dict-entry-icon">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-							</span>
-							<div class="dict-entry-body">
-								<span class="dict-label">conjugations</span>
-								{#each Object.entries(selectedResult.metadata.conjugations) as [tense, forms]}
-									<p class="conj-tense-label">{tense}</p>
-									{#if forms !== null && typeof forms === 'object' && !Array.isArray(forms)}
-										<table class="declension-table">
-											<tbody>
-												{#each Object.entries(forms as Record<string, string>) as [person, conjugation]}
-													<tr>
-														<td class="case-name">{person}</td>
-														<td>{conjugation}</td>
-													</tr>
-												{/each}
-											</tbody>
-										</table>
-									{:else}
-										<p class="conj-form">{forms}</p>
-									{/if}
-								{/each}
-							</div>
-						</div>
-					{/if}
-
 					{#if selectedResult.metadata.example}
 						<div class="dict-entry dict-entry-example">
 							<span class="dict-entry-icon">
@@ -863,6 +835,34 @@
 										{/each}
 									</div>
 								{/if}
+							</div>
+						</div>
+					{/if}
+
+					{#if selectedResult.metadata.conjugations}
+						<div class="dict-entry dict-entry-block">
+							<span class="dict-entry-icon">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+							</span>
+							<div class="dict-entry-body">
+								<span class="dict-label">conjugations</span>
+								{#each Object.entries(selectedResult.metadata.conjugations) as [tense, forms]}
+									<p class="conj-tense-label">{tense}</p>
+									{#if forms !== null && typeof forms === 'object' && !Array.isArray(forms)}
+										<table class="declension-table">
+											<tbody>
+												{#each Object.entries(forms as Record<string, string>) as [person, conjugation]}
+													<tr>
+														<td class="case-name">{person}</td>
+														<td>{conjugation}</td>
+													</tr>
+												{/each}
+											</tbody>
+										</table>
+									{:else}
+										<p class="conj-form">{forms}</p>
+									{/if}
+								{/each}
 							</div>
 						</div>
 					{/if}

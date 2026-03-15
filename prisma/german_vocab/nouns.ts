@@ -28,14 +28,16 @@ export const nouns = [
 		meaning: 'father',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: 'Väter'
+		plural: 'Väter',
+		isBeginner: true
 	},
 	{
 		lemma: 'Mutter',
 		meaning: 'mother',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: 'Mütter'
+		plural: 'Mütter',
+		isBeginner: true
 	},
 	{
 		lemma: 'Eltern',
@@ -77,7 +79,8 @@ export const nouns = [
 		meaning: 'friend (male)',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: 'Freunde'
+		plural: 'Freunde',
+		isBeginner: true
 	},
 	{
 		lemma: 'Freundin',
@@ -91,14 +94,16 @@ export const nouns = [
 		meaning: 'boy',
 		partOfSpeech: 'noun' as const,
 		gender: 'der' as const,
-		plural: 'Jungen'
+		plural: 'Jungen',
+		isBeginner: true
 	},
 	{
 		lemma: 'Mädchen',
 		meaning: 'girl',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: 'Mädchen'
+		plural: 'Mädchen',
+		isBeginner: true
 	},
 	{
 		lemma: 'Mensch',
@@ -119,7 +124,8 @@ export const nouns = [
 		meaning: 'family',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: 'Familien'
+		plural: 'Familien',
+		isBeginner: true
 	},
 	{
 		lemma: 'Wasser',
@@ -222,7 +228,8 @@ export const nouns = [
 		meaning: 'food, meal',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: 'Essen'
+		plural: 'Essen',
+		isBeginner: true
 	},
 	{
 		lemma: 'Frühstück',
@@ -264,14 +271,16 @@ export const nouns = [
 		meaning: 'time',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: 'Zeiten'
+		plural: 'Zeiten',
+		isBeginner: true
 	},
 	{
 		lemma: 'Jahr',
 		meaning: 'year',
 		partOfSpeech: 'noun' as const,
 		gender: 'das' as const,
-		plural: 'Jahre'
+		plural: 'Jahre',
+		isBeginner: true
 	},
 	{
 		lemma: 'Monat',
@@ -455,7 +464,8 @@ export const nouns = [
 		meaning: 'city',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: 'Städte'
+		plural: 'Städte',
+		isBeginner: true
 	},
 	{
 		lemma: 'Dorf',
@@ -525,7 +535,8 @@ export const nouns = [
 		meaning: 'work',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: 'Arbeiten'
+		plural: 'Arbeiten',
+		isBeginner: true
 	},
 	{
 		lemma: 'Job',
@@ -833,7 +844,8 @@ export const nouns = [
 		meaning: 'school',
 		partOfSpeech: 'noun' as const,
 		gender: 'die' as const,
-		plural: 'Schulen'
+		plural: 'Schulen',
+		isBeginner: true
 	},
 	{
 		lemma: 'Ziel',
@@ -8833,67 +8845,19 @@ export const nouns = [
 		plural: 'Niederlande'
 	},
 	{
-		lemma: 'Computer',
-		meaning: 'computer',
-		partOfSpeech: 'noun',
-		gender: 'der',
-		plural: 'Computer',
-		isBeginner: true
-	},
-	{
 		lemma: 'Hund',
 		meaning: 'dog',
-		partOfSpeech: 'noun',
-		gender: 'der',
+		partOfSpeech: 'noun' as const,
+		gender: 'der' as const,
 		plural: 'Hunde',
 		isBeginner: true
 	},
 	{
 		lemma: 'Katze',
 		meaning: 'cat',
-		partOfSpeech: 'noun',
-		gender: 'die',
+		partOfSpeech: 'noun' as const,
+		gender: 'die' as const,
 		plural: 'Katzen',
-		isBeginner: true
-	},
-	{
-		lemma: 'Kopf',
-		meaning: 'head',
-		partOfSpeech: 'noun',
-		gender: 'der',
-		plural: 'Köpfe',
-		isBeginner: true
-	},
-	{
-		lemma: 'Hand',
-		meaning: 'hand',
-		partOfSpeech: 'noun',
-		gender: 'die',
-		plural: 'Hände',
-		isBeginner: true
-	},
-	{
-		lemma: 'Auge',
-		meaning: 'eye',
-		partOfSpeech: 'noun',
-		gender: 'das',
-		plural: 'Augen',
-		isBeginner: true
-	},
-	{
-		lemma: 'Welt',
-		meaning: 'world',
-		partOfSpeech: 'noun',
-		gender: 'die',
-		plural: 'Welten',
-		isBeginner: true
-	},
-	{
-		lemma: 'Liebe',
-		meaning: 'love',
-		partOfSpeech: 'noun',
-		gender: 'die',
-		plural: 'Lieben',
 		isBeginner: true
 	}
 ];

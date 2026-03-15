@@ -1,7 +1,7 @@
 /**
  * Builds src/lib/frequency/index.ts from the hermitdave/FrequencyWords corpus.
  *
- * Source: https://github.com/hermitdave/FrequencyWords (OpenSubtitles 2016, MIT)
+ * Source: https://github.com/hermitdave/FrequencyWords (OpenSubtitles 2018, MIT)
  * Format: "<inflected_form> <raw_count>" per line, sorted by count desc.
  *
  * What this script does:
@@ -16,11 +16,8 @@
  * Run with: pnpm tsx prisma/scripts/build-frequency-db.ts
  */
 
-import { createWriteStream, mkdirSync } from 'fs';
-import { pipeline } from 'stream/promises';
-import { get } from 'https';
+import { mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { stemmer as deStemmer } from '@orama/stemmers/german';
-import { writeFileSync } from 'fs';
 
 // ---------------------------------------------------------------------------
 // Strong-verb lookup (inflected form → infinitive lemma)
@@ -76,19 +73,7 @@ const DE_INFLECTION_LOOKUP: Record<string, string> = {
 	vergisst: 'vergessen', vergaß: 'vergessen', vergaßen: 'vergessen', vergass: 'vergessen',
 };
 
-function fetchText(url: string): Promise<string> {
-	return new Promise((resolve, reject) => {
-		get(url, (res) => {
-			if (res.statusCode === 301 || res.statusCode === 302) {
-				return fetchText(res.headers.location!).then(resolve, reject);
-			}
-			const chunks: Buffer[] = [];
-			res.on('data', (c: Buffer) => chunks.push(c));
-			res.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
-			res.on('error', reject);
-		}).on('error', reject);
-	});
-}
+const DATA_DIR = 'prisma/data/frequency';
 
 function resolveGermanLemma(form: string): string {
 	const lower = form.toLowerCase();
@@ -122,13 +107,10 @@ function mapToTsObject(map: Map<string, number>): string {
 }
 
 async function main() {
-	const BASE = 'https://raw.githubusercontent.com/hermitdave/FrequencyWords/master/content/2016';
-	console.log('Fetching frequency lists...');
-	const [deRaw, esRaw, frRaw] = await Promise.all([
-		fetchText(`${BASE}/de/de_50k.txt`),
-		fetchText(`${BASE}/es/es_50k.txt`),
-		fetchText(`${BASE}/fr/fr_50k.txt`),
-	]);
+	console.log('Reading frequency lists from', DATA_DIR);
+	const deRaw = readFileSync(`${DATA_DIR}/de_50k.txt`, 'utf8');
+	const esRaw = readFileSync(`${DATA_DIR}/es_50k.txt`, 'utf8');
+	const frRaw = readFileSync(`${DATA_DIR}/fr_50k.txt`, 'utf8');
 
 	console.log('Building rank maps...');
 	const deMap = buildRankMap(deRaw, resolveGermanLemma);
@@ -141,7 +123,7 @@ async function main() {
 
 	const ts = `// Auto-generated — do not edit manually.
 // Rebuild with: pnpm tsx prisma/scripts/build-frequency-db.ts
-// Source: hermitdave/FrequencyWords (OpenSubtitles 2016, MIT licence)
+// Source: hermitdave/FrequencyWords (OpenSubtitles 2018, MIT licence)
 // German forms are aggregated to lemmas via strong-verb lookup + Snowball stemmer.
 // Format: lowercased lemma → frequency rank (1 = most frequent in corpus).
 

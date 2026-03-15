@@ -37,7 +37,8 @@ export const adjectives = [
 	{
 		lemma: 'schön',
 		meaning: 'beautiful, nice',
-		partOfSpeech: 'adjective' as const
+		partOfSpeech: 'adjective' as const,
+		isBeginner: true
 	},
 	{
 		lemma: 'hässlich',
@@ -251,8 +252,56 @@ export const adjectives = [
 		isBeginner: true
 	},
 	{
+		lemma: 'ein',
+		meaning: 'one',
+		partOfSpeech: 'adjective' as const,
+		isBeginner: true
+	},
+	{
 		lemma: 'zwei',
 		meaning: 'two',
+		partOfSpeech: 'adjective' as const,
+		isBeginner: true
+	},
+	{
+		lemma: 'vier',
+		meaning: 'four',
+		partOfSpeech: 'adjective' as const,
+		isBeginner: true
+	},
+	{
+		lemma: 'fünf',
+		meaning: 'five',
+		partOfSpeech: 'adjective' as const,
+		isBeginner: true
+	},
+	{
+		lemma: 'sechs',
+		meaning: 'six',
+		partOfSpeech: 'adjective' as const,
+		isBeginner: true
+	},
+	{
+		lemma: 'sieben',
+		meaning: 'seven',
+		partOfSpeech: 'adjective' as const,
+		isBeginner: true
+	},
+	{
+		lemma: 'acht',
+		meaning: 'eight',
+		partOfSpeech: 'adjective' as const,
+		isBeginner: true
+	},
+	{
+		lemma: 'neun',
+		meaning: 'nine',
+		partOfSpeech: 'adjective' as const,
+		isBeginner: true
+	},
+	{
+		lemma: 'zehn',
+		meaning: 'ten',
 		partOfSpeech: 'adjective' as const,
 		isBeginner: true
 	},
@@ -2039,49 +2088,11 @@ export const adjectives = [
 	{
 		lemma: 'schnell',
 		meaning: 'fast',
-		partOfSpeech: 'adjective',
-		isBeginner: true
+		partOfSpeech: 'adjective' as const
 	},
 	{
 		lemma: 'langsam',
 		meaning: 'slow',
-		partOfSpeech: 'adjective',
-		isBeginner: true
-	},
-	{
-		lemma: 'gut',
-		meaning: 'good',
-		partOfSpeech: 'adjective',
-		isBeginner: true
-	},
-	{
-		lemma: 'neu',
-		meaning: 'new',
-		partOfSpeech: 'adjective',
-		isBeginner: true
-	},
-	{
-		lemma: 'alt',
-		meaning: 'old',
-		partOfSpeech: 'adjective',
-		isBeginner: true
-	},
-	{
-		lemma: 'groß',
-		meaning: 'big, tall',
-		partOfSpeech: 'adjective',
-		isBeginner: true
-	},
-	{
-		lemma: 'klein',
-		meaning: 'small, little',
-		partOfSpeech: 'adjective',
-		isBeginner: true
-	},
-	{
-		lemma: 'schön',
-		meaning: 'beautiful, nice',
-		partOfSpeech: 'adjective',
-		isBeginner: true
+		partOfSpeech: 'adjective' as const
 	}
 ];

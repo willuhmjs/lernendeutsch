@@ -38,7 +38,8 @@ export const interjections = [
 	{
 		lemma: 'tschüss',
 		meaning: 'bye, goodbye',
-		partOfSpeech: 'interjection' as const
+		partOfSpeech: 'interjection' as const,
+		isBeginner: true
 	},
 	{
 		lemma: 'bitte',
@@ -80,7 +81,8 @@ export const interjections = [
 	{
 		lemma: 'Entschuldigung',
 		meaning: 'excuse me, sorry',
-		partOfSpeech: 'interjection' as const
+		partOfSpeech: 'interjection' as const,
+		isBeginner: true
 	},
 	{
 		lemma: 'au',
@@ -112,52 +114,4 @@ export const interjections = [
 		meaning: 'damn',
 		partOfSpeech: 'interjection' as const
 	},
-	{
-		lemma: 'Hallo',
-		meaning: 'hello',
-		partOfSpeech: 'interjection',
-		isBeginner: true
-	},
-	{
-		lemma: 'Tschüss',
-		meaning: 'bye',
-		partOfSpeech: 'interjection',
-		isBeginner: true
-	},
-	{
-		lemma: 'Danke',
-		meaning: 'thanks',
-		partOfSpeech: 'interjection',
-		isBeginner: true
-	},
-	{
-		lemma: 'Bitte',
-		meaning: "please, you're welcome",
-		partOfSpeech: 'interjection',
-		isBeginner: true
-	},
-	{
-		lemma: 'Entschuldigung',
-		meaning: 'excuse me, sorry',
-		partOfSpeech: 'interjection',
-		isBeginner: true
-	},
-	{
-		lemma: 'Ja',
-		meaning: 'yes',
-		partOfSpeech: 'interjection',
-		isBeginner: true
-	},
-	{
-		lemma: 'Nein',
-		meaning: 'no',
-		partOfSpeech: 'interjection',
-		isBeginner: true
-	},
-	{
-		lemma: 'Oh',
-		meaning: 'oh',
-		partOfSpeech: 'interjection',
-		isBeginner: true
-	}
 ];

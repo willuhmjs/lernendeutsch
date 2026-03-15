@@ -53,27 +53,45 @@ export async function POST({ locals }: RequestEvent) {
 
 		await CefrService.applyGrammarMasteryForLevel(userId, languageId, 'A1', oldLevel);
 
-		// 2. Seed starter vocabulary as LEARNING dynamically
+		// 2. Seed starter vocabulary as LEARNING
+		// Strategy: take all isBeginner words, then top up to VOCAB_TARGET with the
+		// highest-frequency words not already included (frequency ASC = most common first).
+		const VOCAB_TARGET = 60;
 		const startingElo = 1000; // A1 base Elo
 		let vocabSeeded = 0;
 
-		const beginnerVocabularies = await prisma.vocabulary.findMany({
-			where: {
-				languageId,
-				isBeginner: true
-			}
+		const beginnerVocab = await prisma.vocabulary.findMany({
+			where: { languageId, isBeginner: true },
+			orderBy: { frequency: 'asc' }
 		});
 
-		if (beginnerVocabularies.length > 0) {
-			const vocabData = beginnerVocabularies.map((v) => ({
-				userId,
-				vocabularyId: v.id,
-				srsState: 'LEARNING' as const,
-				eloRating: startingElo
-			}));
+		let starterVocab = beginnerVocab;
 
+		if (starterVocab.length < VOCAB_TARGET) {
+			const beginnerIds = new Set(beginnerVocab.map((v) => v.id));
+			const frequencyTopUp = await prisma.vocabulary.findMany({
+				where: {
+					languageId,
+					isBeginner: false,
+					frequency: { not: null }
+				},
+				orderBy: { frequency: 'asc' },
+				take: VOCAB_TARGET - starterVocab.length
+			});
+			starterVocab = [...starterVocab, ...frequencyTopUp.filter((v) => !beginnerIds.has(v.id))];
+		} else if (starterVocab.length > VOCAB_TARGET) {
+			// Too many isBeginner words — keep the most frequent ones
+			starterVocab = starterVocab.slice(0, VOCAB_TARGET);
+		}
+
+		if (starterVocab.length > 0) {
 			const result = await prisma.userVocabulary.createMany({
-				data: vocabData,
+				data: starterVocab.map((v) => ({
+					userId,
+					vocabularyId: v.id,
+					srsState: 'LEARNING' as const,
+					eloRating: startingElo
+				})),
 				skipDuplicates: true
 			});
 			vocabSeeded = result.count;

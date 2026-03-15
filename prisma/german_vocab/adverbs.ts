@@ -7,13 +7,13 @@ export const adverbs = [
 	{
 		lemma: 'heute',
 		meaning: 'today',
-		partOfSpeech: 'adverb' as const
+		partOfSpeech: 'adverb' as const,
+		isBeginner: true
 	},
 	{
 		lemma: 'nicht',
 		meaning: 'not',
-		partOfSpeech: 'adverb' as const,
-		isBeginner: true
+		partOfSpeech: 'adverb' as const
 	},
 	{
 		lemma: 'auch',
@@ -24,8 +24,7 @@ export const adverbs = [
 	{
 		lemma: 'ein',
 		meaning: 'a, an, one',
-		partOfSpeech: 'adverb' as const,
-		isBeginner: true
+		partOfSpeech: 'adverb' as const
 	},
 	{
 		lemma: 'wie',
@@ -51,7 +50,8 @@ export const adverbs = [
 	{
 		lemma: 'dann',
 		meaning: 'then',
-		partOfSpeech: 'adverb' as const
+		partOfSpeech: 'adverb' as const,
+		isBeginner: true
 	},
 	{
 		lemma: 'man',
@@ -88,7 +88,8 @@ export const adverbs = [
 	{
 		lemma: 'immer',
 		meaning: 'always',
-		partOfSpeech: 'adverb' as const
+		partOfSpeech: 'adverb' as const,
+		isBeginner: true
 	},
 	{
 		lemma: 'schon',
@@ -154,7 +155,8 @@ export const adverbs = [
 	{
 		lemma: 'jetzt',
 		meaning: 'now',
-		partOfSpeech: 'adverb' as const
+		partOfSpeech: 'adverb' as const,
+		isBeginner: true
 	},
 	{
 		lemma: 'selbst',
@@ -164,7 +166,8 @@ export const adverbs = [
 	{
 		lemma: 'dort',
 		meaning: 'there',
-		partOfSpeech: 'adverb' as const
+		partOfSpeech: 'adverb' as const,
+		isBeginner: true
 	},
 	{
 		lemma: 'dies',
@@ -220,7 +223,8 @@ export const adverbs = [
 	{
 		lemma: 'oft',
 		meaning: 'often',
-		partOfSpeech: 'adverb' as const
+		partOfSpeech: 'adverb' as const,
+		isBeginner: true
 	},
 	{
 		lemma: 'daher',
@@ -381,7 +385,8 @@ export const adverbs = [
 	{
 		lemma: 'nie',
 		meaning: 'never',
-		partOfSpeech: 'adverb' as const
+		partOfSpeech: 'adverb' as const,
+		isBeginner: true
 	},
 	{
 		lemma: 'selber',
@@ -1143,52 +1148,4 @@ export const adverbs = [
 		meaning: 'nowhere',
 		partOfSpeech: 'adverb' as const
 	},
-	{
-		lemma: 'hier',
-		meaning: 'here',
-		partOfSpeech: 'adverb',
-		isBeginner: true
-	},
-	{
-		lemma: 'dort',
-		meaning: 'there',
-		partOfSpeech: 'adverb',
-		isBeginner: true
-	},
-	{
-		lemma: 'jetzt',
-		meaning: 'now',
-		partOfSpeech: 'adverb',
-		isBeginner: true
-	},
-	{
-		lemma: 'immer',
-		meaning: 'always',
-		partOfSpeech: 'adverb',
-		isBeginner: true
-	},
-	{
-		lemma: 'oft',
-		meaning: 'often',
-		partOfSpeech: 'adverb',
-		isBeginner: true
-	},
-	{
-		lemma: 'nie',
-		meaning: 'never',
-		partOfSpeech: 'adverb',
-		isBeginner: true
-	},
-	{
-		lemma: 'sehr',
-		meaning: 'very',
-		partOfSpeech: 'adverb',
-		isBeginner: true
-	},
-	{
-		lemma: 'auch',
-		meaning: 'also, too',
-		partOfSpeech: 'adverb',
-		isBeginner: true
-	}
 ];

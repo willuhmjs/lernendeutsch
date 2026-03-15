@@ -16,9 +16,34 @@ export const particles = [
 		partOfSpeech: 'particle' as const
 	},
 	{
+		lemma: 'nein',
+		meaning: 'no',
+		partOfSpeech: 'particle' as const,
+		isBeginner: true
+	},
+	{
+		lemma: 'nicht',
+		meaning: 'not',
+		partOfSpeech: 'particle' as const,
+		isBeginner: true
+	},
+	{
+		lemma: 'noch',
+		meaning: 'still, yet',
+		partOfSpeech: 'particle' as const,
+		isBeginner: true
+	},
+	{
+		lemma: 'nur',
+		meaning: 'only',
+		partOfSpeech: 'particle' as const,
+		isBeginner: true
+	},
+	{
 		lemma: 'doch',
 		meaning: 'after all, though',
-		partOfSpeech: 'particle' as const
+		partOfSpeech: 'particle' as const,
+		isBeginner: true
 	},
 	{
 		lemma: 'eben',
@@ -28,12 +53,14 @@ export const particles = [
 	{
 		lemma: 'mal',
 		meaning: 'sometime, just',
-		partOfSpeech: 'particle' as const
+		partOfSpeech: 'particle' as const,
+		isBeginner: true
 	},
 	{
 		lemma: 'schon',
 		meaning: 'already, used as particle',
-		partOfSpeech: 'particle' as const
+		partOfSpeech: 'particle' as const,
+		isBeginner: true
 	},
 	{
 		lemma: 'denn',
@@ -60,52 +87,4 @@ export const particles = [
 		meaning: 'perhaps, used as particle',
 		partOfSpeech: 'particle' as const
 	},
-	{
-		lemma: 'ja',
-		meaning: 'yes, indeed',
-		partOfSpeech: 'particle',
-		isBeginner: true
-	},
-	{
-		lemma: 'nein',
-		meaning: 'no',
-		partOfSpeech: 'particle',
-		isBeginner: true
-	},
-	{
-		lemma: 'nicht',
-		meaning: 'not',
-		partOfSpeech: 'particle',
-		isBeginner: true
-	},
-	{
-		lemma: 'schon',
-		meaning: 'already',
-		partOfSpeech: 'particle',
-		isBeginner: true
-	},
-	{
-		lemma: 'noch',
-		meaning: 'still, yet',
-		partOfSpeech: 'particle',
-		isBeginner: true
-	},
-	{
-		lemma: 'nur',
-		meaning: 'only',
-		partOfSpeech: 'particle',
-		isBeginner: true
-	},
-	{
-		lemma: 'mal',
-		meaning: 'times, once',
-		partOfSpeech: 'particle',
-		isBeginner: true
-	},
-	{
-		lemma: 'doch',
-		meaning: 'yet, however, on the contrary',
-		partOfSpeech: 'particle',
-		isBeginner: true
-	}
 ];
