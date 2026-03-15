@@ -2,6 +2,14 @@ import { prisma } from './prisma';
 import { ELO_CONFIG, CEFR_CONFIG } from './srsConfig';
 import { reviewCard, scoreToRating, deriveSrsStateFromFsrs, DEFAULT_FSRS_PARAMETERS } from './fsrs';
 import type { FsrsCard } from './fsrs';
+import type {
+	Vocabulary as PrismaVocabulary,
+	UserVocabulary as PrismaUserVocabulary,
+	UserVocabularyProgress as PrismaUserVocabularyProgress,
+	GrammarRule as PrismaGrammarRule,
+	UserGrammarRule as PrismaUserGrammarRule,
+	UserGrammarRuleProgress as PrismaUserGrammarRuleProgress
+} from '@prisma/client';
 
 type Vocabulary = {
 	id: string;
@@ -402,6 +410,10 @@ export async function updateSrsMetrics(
 /**
  * Updates the user's database records based on the evaluation payload.
  * Adjusts Elo ratings and SRS states for targeted Vocabulary and Grammar rules.
+ *
+ * All reads are batched into 6 parallel queries upfront (one per table) to
+ * eliminate the N+1 pattern that previously fired 3-4 sequential DB round trips
+ * per item.
  */
 export async function updateEloRatings(
 	userId: string,
@@ -410,69 +422,141 @@ export async function updateEloRatings(
 ) {
 	console.log(`Updating Elos for user ${userId} with payload:`, JSON.stringify(payload, null, 2));
 
-	// Process a single vocabulary update: run FSRS, compute new ELO, write to DB.
+	const vocabIds = (payload.vocabularyUpdates || []).map(u => u.id);
+	const grammarIds = (payload.grammarUpdates || []).map(u => u.id);
+
+	// Batch-prefetch everything we need across all items in 7 parallel queries.
+	const emptyVocab: PrismaVocabulary[] = [];
+	const emptyUserVocab: PrismaUserVocabulary[] = [];
+	const emptyVocabProgress: PrismaUserVocabularyProgress[] = [];
+	const emptyGrammar: PrismaGrammarRule[] = [];
+	const emptyUserGrammar: PrismaUserGrammarRule[] = [];
+	const emptyGrammarProgress: PrismaUserGrammarRuleProgress[] = [];
+
+	const [
+		userRetention,
+		vocabRows,
+		userVocabRows,
+		vocabProgressRows,
+		grammarRows,
+		userGrammarRows,
+		grammarProgressRows
+	] = await Promise.all([
+		prisma.user.findUnique({ where: { id: userId }, select: { fsrsRetention: true } })
+			.then(u => u?.fsrsRetention ?? DEFAULT_FSRS_PARAMETERS.requestRetention),
+		vocabIds.length > 0
+			? prisma.vocabulary.findMany({ where: { id: { in: vocabIds } } })
+			: Promise.resolve(emptyVocab),
+		vocabIds.length > 0
+			? prisma.userVocabulary.findMany({ where: { userId, vocabularyId: { in: vocabIds } } })
+			: Promise.resolve(emptyUserVocab),
+		vocabIds.length > 0
+			? prisma.userVocabularyProgress.findMany({ where: { userId, vocabularyId: { in: vocabIds } } })
+			: Promise.resolve(emptyVocabProgress),
+		grammarIds.length > 0
+			? prisma.grammarRule.findMany({ where: { id: { in: grammarIds } } })
+			: Promise.resolve(emptyGrammar),
+		grammarIds.length > 0
+			? prisma.userGrammarRule.findMany({ where: { userId, grammarRuleId: { in: grammarIds } } })
+			: Promise.resolve(emptyUserGrammar),
+		grammarIds.length > 0
+			? prisma.userGrammarRuleProgress.findMany({ where: { userId, grammarRuleId: { in: grammarIds } } })
+			: Promise.resolve(emptyGrammarProgress)
+	]);
+
+	// Build O(1) lookup maps from the prefetched rows.
+	const vocabMap = new Map<string, PrismaVocabulary>(vocabRows.map((v: PrismaVocabulary) => [v.id, v]));
+	const userVocabMap = new Map<string, PrismaUserVocabulary>(userVocabRows.map((v: PrismaUserVocabulary) => [v.vocabularyId, v]));
+	const vocabProgressMap = new Map<string, PrismaUserVocabularyProgress>(vocabProgressRows.map((p: PrismaUserVocabularyProgress) => [p.vocabularyId, p]));
+	const grammarMap = new Map<string, PrismaGrammarRule>(grammarRows.map((g: PrismaGrammarRule) => [g.id, g]));
+	const userGrammarMap = new Map<string, PrismaUserGrammarRule>(userGrammarRows.map((g: PrismaUserGrammarRule) => [g.grammarRuleId, g]));
+	const grammarProgressMap = new Map<string, PrismaUserGrammarRuleProgress>(grammarProgressRows.map((p: PrismaUserGrammarRuleProgress) => [p.grammarRuleId, p]));
+
+	// Process a single vocabulary update using prefetched data (zero extra reads).
 	async function processVocabUpdate(vocabUpdate: EvaluationPayload['vocabularyUpdates'][number]) {
-		const vocab = await prisma.vocabulary.findUnique({
-			where: { id: vocabUpdate.id }
-		}) || await prisma.vocabulary.create({
-			data: { id: vocabUpdate.id, lemma: vocabUpdate.id }
-		});
+		let vocab = vocabMap.get(vocabUpdate.id);
+		if (!vocab) {
+			// Rare case: ID came from LLM and doesn't exist yet — create a stub.
+			vocab = await prisma.vocabulary.create({ data: { id: vocabUpdate.id, lemma: vocabUpdate.id } });
+		}
 
 		const baseDifficulty = mapLevelToElo((vocab as { cefrLevel?: string }).cefrLevel || 'A1');
-		const userVocab = await prisma.userVocabulary.findUnique({
-			where: { userId_vocabularyId: { userId, vocabularyId: vocab.id } }
-		});
-		const currentElo = userVocab?.eloRating ?? baseDifficulty;
+		const currentElo = userVocabMap.get(vocab.id)?.eloRating ?? baseDifficulty;
 
-		// FSRS is the single source of truth for SRS state and review scheduling.
-		const fsrs = await updateSrsMetrics(userId, vocabUpdate.id, vocabUpdate.score, 'vocabulary');
+		const currentProgress = vocabProgressMap.get(vocab.id);
+		const fsrs = computeFsrsUpdate(vocabUpdate.score, {
+			difficulty: currentProgress?.difficulty ?? 5.0,
+			stability: currentProgress?.stability ?? 0.0,
+			retrievability: currentProgress?.retrievability ?? 1.0,
+			repetitions: currentProgress?.repetitions ?? 0,
+			lapses: currentProgress?.lapses ?? 0,
+			lastReviewDate: currentProgress?.lastReviewDate ?? null
+		}, userRetention);
+
 		const priorRepetitions = Math.max(0, fsrs.repetitions - 1);
 		const newElo = calculateNewElo(currentElo, vocabUpdate.score, baseDifficulty, gameMode, priorRepetitions);
-
 		vocabUpdate.eloBefore = currentElo;
 		vocabUpdate.eloAfter = newElo;
 		const newState = deriveSrsStateFromFsrs(fsrs.repetitions, fsrs.stability, fsrs.lapses);
 
-		await prisma.userVocabulary.upsert({
-			where: { userId_vocabularyId: { userId, vocabularyId: vocab.id } },
-			create: { userId, vocabularyId: vocab.id, eloRating: newElo, srsState: newState, nextReviewDate: fsrs.nextReviewDate },
-			update: { eloRating: newElo, srsState: newState, nextReviewDate: fsrs.nextReviewDate }
-		});
+		await Promise.all([
+			prisma.userVocabularyProgress.upsert({
+				where: { userId_vocabularyId: { userId, vocabularyId: vocab.id } },
+				create: { userId, vocabularyId: vocab.id, ...fsrs },
+				update: fsrs
+			}),
+			prisma.userVocabulary.upsert({
+				where: { userId_vocabularyId: { userId, vocabularyId: vocab.id } },
+				create: { userId, vocabularyId: vocab.id, eloRating: newElo, srsState: newState, nextReviewDate: fsrs.nextReviewDate },
+				update: { eloRating: newElo, srsState: newState, nextReviewDate: fsrs.nextReviewDate }
+			})
+		]);
 	}
 
-	// Process a single grammar update: run FSRS, compute new ELO, write to DB.
+	// Process a single grammar update using prefetched data (zero extra reads).
 	async function processGrammarUpdate(grammarUpdate: EvaluationPayload['grammarUpdates'][number]) {
-		const grammarExists = await prisma.grammarRule.findUnique({ where: { id: grammarUpdate.id } });
-		if (!grammarExists) {
+		const grammar = grammarMap.get(grammarUpdate.id);
+		if (!grammar) {
 			console.warn(`Attempted to update non-existent grammar rule: ${grammarUpdate.id}`);
 			return;
 		}
 
-		const baseDifficulty = mapLevelToElo(grammarExists.level || 'A1');
-		const userGrammar = await prisma.userGrammarRule.findUnique({
-			where: { userId_grammarRuleId: { userId, grammarRuleId: grammarUpdate.id } }
-		});
-		const currentElo = userGrammar?.eloRating ?? baseDifficulty;
+		const baseDifficulty = mapLevelToElo(grammar.level || 'A1');
+		const currentElo = userGrammarMap.get(grammar.id)?.eloRating ?? baseDifficulty;
 
-		// FSRS for grammar — run first to get prior repetition count for K-factor decay.
-		const fsrs = await updateSrsMetrics(userId, grammarUpdate.id, grammarUpdate.score, 'grammar');
+		const currentProgress = grammarProgressMap.get(grammar.id);
+		const fsrs = computeFsrsUpdate(grammarUpdate.score, {
+			difficulty: currentProgress?.difficulty ?? 5.0,
+			stability: currentProgress?.stability ?? 0.0,
+			retrievability: currentProgress?.retrievability ?? 1.0,
+			repetitions: currentProgress?.repetitions ?? 0,
+			lapses: currentProgress?.lapses ?? 0,
+			lastReviewDate: currentProgress?.lastReviewDate ?? null
+		}, userRetention);
+
 		const priorRepetitions = Math.max(0, fsrs.repetitions - 1);
 		const newElo = calculateNewElo(currentElo, grammarUpdate.score, baseDifficulty, gameMode, priorRepetitions);
-
 		grammarUpdate.eloBefore = currentElo;
 		grammarUpdate.eloAfter = newElo;
 		const newState = deriveSrsStateFromFsrs(fsrs.repetitions, fsrs.stability, fsrs.lapses);
 
-		await prisma.userGrammarRule.upsert({
-			where: { userId_grammarRuleId: { userId, grammarRuleId: grammarUpdate.id } },
-			create: { userId, grammarRuleId: grammarUpdate.id, eloRating: newElo, srsState: newState, nextReviewDate: fsrs.nextReviewDate },
-			update: { eloRating: newElo, srsState: newState, nextReviewDate: fsrs.nextReviewDate }
-		});
+		await Promise.all([
+			prisma.userGrammarRuleProgress.upsert({
+				where: { userId_grammarRuleId: { userId, grammarRuleId: grammar.id } },
+				create: { userId, grammarRuleId: grammar.id, ...fsrs },
+				update: fsrs
+			}),
+			prisma.userGrammarRule.upsert({
+				where: { userId_grammarRuleId: { userId, grammarRuleId: grammar.id } },
+				create: { userId, grammarRuleId: grammar.id, eloRating: newElo, srsState: newState, nextReviewDate: fsrs.nextReviewDate },
+				update: { eloRating: newElo, srsState: newState, nextReviewDate: fsrs.nextReviewDate }
+			})
+		]);
 	}
 
 	// Process an extra vocab lemma the user used correctly by coincidence.
+	// These are looked up by lemma string so they can't be pre-batched by ID.
 	async function processExtraLemma(lemma: string) {
-		// Only process words that exist in the vocabulary with meanings (avoids meaningless review cards).
 		const vocab = await prisma.vocabulary.findFirst({
 			where: { lemma, meanings: { some: {} } }
 		});
@@ -483,17 +567,35 @@ export async function updateEloRatings(
 			where: { userId_vocabularyId: { userId, vocabularyId: vocab.id } }
 		});
 		const currentElo = userVocab?.eloRating ?? baseDifficulty;
+		const currentProgress = await prisma.userVocabularyProgress.findUnique({
+			where: { userId_vocabularyId: { userId, vocabularyId: vocab.id } }
+		});
 
-		const fsrs = await updateSrsMetrics(userId, vocab.id, 1.0, 'vocabulary');
+		const fsrs = computeFsrsUpdate(1.0, {
+			difficulty: currentProgress?.difficulty ?? 5.0,
+			stability: currentProgress?.stability ?? 0.0,
+			retrievability: currentProgress?.retrievability ?? 1.0,
+			repetitions: currentProgress?.repetitions ?? 0,
+			lapses: currentProgress?.lapses ?? 0,
+			lastReviewDate: currentProgress?.lastReviewDate ?? null
+		}, userRetention);
+
 		const priorRepetitions = Math.max(0, fsrs.repetitions - 1);
 		const newElo = calculateNewElo(currentElo, 1.0, baseDifficulty, gameMode, priorRepetitions);
 		const newState = deriveSrsStateFromFsrs(fsrs.repetitions, fsrs.stability, fsrs.lapses);
 
-		await prisma.userVocabulary.upsert({
-			where: { userId_vocabularyId: { userId, vocabularyId: vocab.id } },
-			create: { userId, vocabularyId: vocab.id, eloRating: newElo, srsState: newState, nextReviewDate: fsrs.nextReviewDate },
-			update: { eloRating: newElo, srsState: newState, nextReviewDate: fsrs.nextReviewDate }
-		});
+		await Promise.all([
+			prisma.userVocabularyProgress.upsert({
+				where: { userId_vocabularyId: { userId, vocabularyId: vocab.id } },
+				create: { userId, vocabularyId: vocab.id, ...fsrs },
+				update: fsrs
+			}),
+			prisma.userVocabulary.upsert({
+				where: { userId_vocabularyId: { userId, vocabularyId: vocab.id } },
+				create: { userId, vocabularyId: vocab.id, eloRating: newElo, srsState: newState, nextReviewDate: fsrs.nextReviewDate },
+				update: { eloRating: newElo, srsState: newState, nextReviewDate: fsrs.nextReviewDate }
+			})
+		]);
 	}
 
 	// Run all vocab, grammar, and extra-lemma updates in parallel.
