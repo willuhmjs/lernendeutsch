@@ -75,7 +75,7 @@
 
 			aiCheckResult = `AI Check complete: ${totalApproved} approved, ${totalRejected} rejected.`;
 			await invalidateAll();
-		} catch (_) {
+		} catch (error) {
 			console.error('AI check error:', error);
 			await modal.alert('An error occurred during AI check.');
 		} finally {
@@ -94,7 +94,7 @@
 					await invalidateAll();
 				}
 			}
-		} catch (_) {
+		} catch (error) {
 			console.error('Auto-review check error:', error);
 		}
 	}
@@ -133,7 +133,7 @@
 			} else {
 				availableModels = [];
 			}
-		} catch (_) {
+		} catch (error) {
 			console.error('Failed to fetch models', error);
 			availableModels = [];
 		} finally {

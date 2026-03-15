@@ -71,8 +71,8 @@
 					feedback: data.message
 				};
 			}
-		} catch (_) {
-			toastError(e.message || 'Failed to set up beginner account');
+		} catch (e) {
+			toastError((e as any).message || 'Failed to set up beginner account');
 			selectedPath = 'choose';
 		} finally {
 			isSubmittingBeginner = false;
@@ -153,11 +153,11 @@
 					completed = true;
 					completionData = { level: data.level, feedback: data.feedback };
 				}
-			} catch (_) {
+			} catch (e) {
 				console.error('Failed to parse full response', e, responseText);
 			}
-		} catch (_) {
-			toastError(e.message || 'Failed to send message');
+		} catch (e) {
+			toastError((e as any).message || 'Failed to send message');
 		} finally {
 			loading = false;
 		}
@@ -186,8 +186,8 @@
 				completed = true;
 				completionData = { level: data.level, feedback: 'You have manually selected your level.' };
 			}
-		} catch (_) {
-			toastError(e.message || 'Failed to set manual level');
+		} catch (e) {
+			toastError((e as any).message || 'Failed to set manual level');
 		} finally {
 			isSubmittingManual = false;
 		}
@@ -226,8 +226,8 @@
 				completed = true;
 				completionData = { level: data.level, feedback: data.feedback };
 			}
-		} catch (_) {
-			toastError(e.message || 'Failed to end early');
+		} catch (e) {
+			toastError((e as any).message || 'Failed to end early');
 		} finally {
 			isEndingEarly = false;
 			loading = false;

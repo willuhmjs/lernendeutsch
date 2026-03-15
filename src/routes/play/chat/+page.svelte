@@ -53,7 +53,8 @@
 	$: language = $page.data.user?.activeLanguage?.name || 'German';
 	let message = '';
 	let isLoading = false;
-	let _isTyping = false;
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	let isTyping = false;
 	let chatContainer: HTMLElement;
 	let chatInputRef: HTMLTextAreaElement;
 

@@ -1220,7 +1220,7 @@ export async function runSeed(client: PrismaClient = prisma, override: boolean =
 	// 2. Insert Vocabulary
 	console.log('Seeding vocabulary...');
 	for (const vocab of germanVocabulary) {
-		const gender: any = (vocab as any).gender;
+		let gender: any = (vocab as any).gender;
 		if (gender === 'der') gender = 'MASCULINE';
 		else if (gender === 'die') gender = 'FEMININE';
 		else if (gender === 'das') gender = 'NEUTER';
@@ -1264,7 +1264,8 @@ export async function runSeed(client: PrismaClient = prisma, override: boolean =
 
 	console.log('Seeding Spanish vocabulary...');
 	for (const vocab of spanishVocabulary) {
-		const gender: any = (vocab as any).gender;
+		// eslint-disable-next-line prefer-const
+		let gender: any = (vocab as any).gender;
 
 		const existing = await client.vocabulary.findFirst({
 			where: { lemma: vocab.lemma, languageId: spanish.id }
@@ -1306,7 +1307,8 @@ export async function runSeed(client: PrismaClient = prisma, override: boolean =
 
 	console.log('Seeding French vocabulary...');
 	for (const vocab of frenchVocabulary) {
-		const gender: any = (vocab as any).gender;
+		// eslint-disable-next-line prefer-const
+		let gender: any = (vocab as any).gender;
 		const lemma = (vocab as any).word;
 
 		const existing = await client.vocabulary.findFirst({

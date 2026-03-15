@@ -347,7 +347,7 @@ export async function POST(event) {
 					// No XP during class assignments — prevents gaming the system.
 					const earnedXp =
 						(evaluation.globalScore ?? 0) >= XP_CONFIG.SCORE_THRESHOLD && !assignmentId;
-					if (earnedXp) {
+					if (earnedXp && locals.user) {
 						const cefrLevel = locals.user.cefrLevel || 'A1';
 						const answerXp = computeAnswerXp(XP_CONFIG.CORRECT_ANSWER.OTHER_MODES, cefrLevel);
 						const bonusXp = levelUp ? levelUpXp(levelUp.newLevel) : 0;

@@ -1295,7 +1295,7 @@
 				text = text.charAt(0).toUpperCase() + text.slice(1);
 			}
 			return parseTextWithTooltips(text, true, isStreaming);
-		} catch (_) {
+		} catch (e) {
 			console.error('Error in parseTextWithTooltips for challengeText:', e);
 			return challenge.challengeText;
 		}
@@ -1305,7 +1305,7 @@
 		if (!challenge?.targetSentence) return '';
 		try {
 			return parseTextWithTooltips(challenge.targetSentence, false, isStreaming);
-		} catch (_) {
+		} catch (e) {
 			console.error('Error in parseTextWithTooltips for targetSentence:', e);
 			return challenge.targetSentence;
 		}
@@ -1705,7 +1705,7 @@
 					const allChoices = [...challenge.distractors, challenge.targetSentence];
 					shuffledChoices = allChoices.sort(() => Math.random() - 0.5);
 				}
-			} catch (_) {
+			} catch (e) {
 				console.error('Failed to parse final JSON', e);
 				throw new Error('Incomplete response from AI.');
 			}
@@ -1881,7 +1881,7 @@
 						'🎉 Level Up!'
 					);
 				}
-			} catch (_) {
+			} catch (e) {
 				console.error('Failed to parse full feedback response', e, responseText);
 			}
 		} catch (error) {

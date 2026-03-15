@@ -9,7 +9,8 @@
 	let session: any = null;
 	let interval: any;
 	let loading = true;
-	let _currentUserId = '';
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	let currentUserId = '';
 
 	const classId = $page.params.id;
 	$: className = data.className;

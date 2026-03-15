@@ -72,7 +72,8 @@
 	let vocabInput = '';
 	let vocabInputRef: HTMLInputElement;
 	let grammarSearchQuery = '';
-	let _editGameId = '';
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	let editGameId = '';
 	let isSaving = false;
 
 	function openEditModal() {

@@ -21,7 +21,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 			orderBy: [{ partOfSpeech: 'asc' }, { lemma: 'asc' }],
 			select: {
 				lemma: true,
-				meaning: true,
+				meanings: true,
 				partOfSpeech: true,
 				gender: true,
 				plural: true,
@@ -42,7 +42,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 		exportedAt: new Date().toISOString(),
 		vocabulary: vocabulary.map((v) => ({
 			lemma: v.lemma,
-			meaning: v.meaning,
+			meanings: v.meanings,
 			partOfSpeech: v.partOfSpeech,
 			gender: v.gender,
 			plural: v.plural,
