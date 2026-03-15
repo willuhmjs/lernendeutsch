@@ -16,7 +16,7 @@
 	let joinCode = $state('');
 	let isJoining = $state(false);
 
-	let activeTab: 'create' | 'join' = $state('create');
+	let activeTab: 'create' | 'join' = $state('join');
 
 	onMount(() => {
 		const codeParam = $page.url.searchParams.get('code');
@@ -152,11 +152,11 @@
 					<p class="empty-title">No classes yet</p>
 					<p class="empty-desc">Create a class to assign homework or join one with an invite code.</p>
 					<div class="empty-actions">
-						<button class="empty-cta" onclick={() => { activeTab = 'create'; document.querySelector('.forms-section')?.scrollIntoView({ behavior: 'smooth' }); }}>
-							Create a Class
-						</button>
 						<button class="empty-cta-secondary" onclick={() => { activeTab = 'join'; document.querySelector('.forms-section')?.scrollIntoView({ behavior: 'smooth' }); }}>
 							Join with Code
+						</button>
+						<button class="empty-cta" onclick={() => { activeTab = 'create'; document.querySelector('.forms-section')?.scrollIntoView({ behavior: 'smooth' }); }}>
+							Create a Class
 						</button>
 					</div>
 				</div>
@@ -168,18 +168,18 @@
 			<div class="tabs-container">
 				<div class="tabs">
 					<button
-						class="tab-btn"
-						class:active={activeTab === 'create'}
-						onclick={() => (activeTab = 'create')}
-					>
-						Create Class
-					</button>
-					<button
-						class="tab-btn"
+						class="tab-btn tab-join"
 						class:active={activeTab === 'join'}
 						onclick={() => (activeTab = 'join')}
 					>
 						Join Class
+					</button>
+					<button
+						class="tab-btn tab-create"
+						class:active={activeTab === 'create'}
+						onclick={() => (activeTab = 'create')}
+					>
+						Create Class
 					</button>
 				</div>
 			</div>
@@ -431,16 +431,20 @@
 
 	.tab-btn.active {
 		background: white;
-		color: #3b82f6;
 		box-shadow:
 			0 4px 6px -1px rgba(0, 0, 0, 0.1),
 			0 2px 4px -1px rgba(0, 0, 0, 0.06);
 	}
 
+	.tab-join.active { color: #f97316; }
+	.tab-create.active { color: #22c55e; }
+
 	:global(html[data-theme='dark']) .tab-btn.active {
 		background: #0f172a;
-		color: #60a5fa;
 	}
+
+	:global(html[data-theme='dark']) .tab-join.active { color: #fb923c; }
+	:global(html[data-theme='dark']) .tab-create.active { color: #4ade80; }
 
 	.form-card-wrapper {
 		max-width: 100%;

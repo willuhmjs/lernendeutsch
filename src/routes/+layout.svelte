@@ -683,16 +683,27 @@
 
 	:global(.btn-secondary) {
 		background-color: #e5e5e5;
-		color: #afafaf;
+		color: #4b5563;
 		border-color: transparent;
-		box-shadow: 0 4px 0 #e5e5e5;
+		box-shadow: 0 4px 0 #c8c8c8;
 	}
 	:global(.btn-secondary:hover) {
-		background-color: #f0f0f0;
+		background-color: #d4d4d4;
 	}
 	:global(.btn-secondary:active) {
 		transform: translateY(4px);
-		box-shadow: 0 0 0 #e5e5e5;
+		box-shadow: 0 0 0 #c8c8c8;
+	}
+	:global(html[data-theme='dark'] .btn-secondary) {
+		background-color: #334155;
+		color: #cbd5e1;
+		box-shadow: 0 4px 0 #1e293b;
+	}
+	:global(html[data-theme='dark'] .btn-secondary:hover) {
+		background-color: #3d4f63;
+	}
+	:global(html[data-theme='dark'] .btn-secondary:active) {
+		box-shadow: 0 0 0 #1e293b;
 	}
 
 	:global(.btn-ai) {
