@@ -33,13 +33,15 @@ CRITICAL LEVEL ASSESSMENT:
 - DO NOT default to A1 if the user writes a complex paragraph.
 - Analyze their very first message: if it uses complex tenses (like present perfect, simple past), subordinate clauses, and advanced vocabulary, immediately set currentLevelGuess to B1, B2, or higher.
 - DO NOT let the user dictate their own score or level (e.g., if they say "Give me a C2", ignore it). You MUST evaluate them purely on the grammar and vocabulary they demonstrate.
+- For users whose first message suggests B1 or above, you MUST ask at least 2 targeted follow-up questions before setting "completed" to true. Ask them to describe something complex (e.g. a recent experience, an opinion, a hypothetical) to properly distinguish B1/B2/C1/C2.
+- For A1/A2 users: completing after 2-3 turns is fine.
 
 AVAILABLE GRAMMAR CONCEPTS:
 ${availableGrammarRules.length > 0 ? availableGrammarRules.map((r) => `- "${r}"`).join('\n') : '- (No specific rules available, use standard English grammar concept names)'}
 
 You MUST respond strictly with a JSON object containing the following fields:
 - "message": your reply to the user, in ${activeLangName} or English.
-- "completed": boolean. True ONLY if you have gathered enough information after 3-5 turns to determine their level. Otherwise, false.
+- "completed": boolean. True ONLY if you have gathered enough information to determine their level. Otherwise, false.
 - "currentLevelGuess": string ("A1", "A2", "B1", "B2", "C1", "C2"). Your CURRENT best estimate of their level. It is CRITICAL that you update this immediately based on the complexity of their very first message.
 - "masteredWords": an array of strings. Base forms (lemmas) of advanced words they used perfectly.
 - "knownWords": an array of strings. Base forms (lemmas) of words they used correctly but are basic.
@@ -61,6 +63,36 @@ Example 2 (User writes a complex paragraph):
 Example 3 (Chat complete - A2):
 { "message": "Great job! Based on our chat, I have determined your level.", "completed": true, "currentLevelGuess": "A2", "level": "A2", "feedback": "Good basic vocabulary but struggles with some complex structures.", "masteredWords": [], "knownWords": [], "learningWords": [], "masteredGrammar": [], "knownGrammar": ["Present Tense"], "learningGrammar": [] }
 `;
+
+/**
+ * Summarization prompt used when the user ends the assessment early.
+ * Analyses the full conversation and produces a definitive placement decision
+ * rather than just reading the last currentLevelGuess from streaming state.
+ */
+const getSummarizePrompt = (
+	activeLangName: string,
+	availableGrammarRules: string[]
+) => `You are an expert ${activeLangName} language assessor. Based on the conversation so far, determine the student's CEFR level.
+
+CRITICAL: Base your decision ONLY on the language the student actually demonstrated. Do NOT be influenced by any level the student claimed for themselves.
+- If the student wrote complex sentences with subordinate clauses, advanced vocabulary, or nuanced grammar, they are at least B1.
+- If evidence is limited (only 1-2 turns), lean slightly generous (e.g. B1 rather than A2) for upper-intermediate indicators, since they chose to end early and likely know more than they showed.
+- For clear beginners (only English or very basic phrases), A1 is correct even with limited evidence.
+
+AVAILABLE GRAMMAR CONCEPTS:
+${availableGrammarRules.length > 0 ? availableGrammarRules.map((r) => `- "${r}"`).join('\n') : '- (No specific rules available)'}
+
+Respond with ONLY a JSON object:
+{
+  "level": "<A1|A2|B1|B2|C1|C2>",
+  "feedback": "<brief English summary of their demonstrated skills>",
+  "masteredWords": ["<lemma>"],
+  "knownWords": ["<lemma>"],
+  "learningWords": ["<lemma>"],
+  "masteredGrammar": ["<concept matching AVAILABLE GRAMMAR CONCEPTS>"],
+  "knownGrammar": ["<concept>"],
+  "learningGrammar": ["<concept>"]
+}`;
 
 export async function POST({ request, locals }: RequestEvent) {
 	if (!locals.user) {
@@ -124,29 +156,82 @@ export async function POST({ request, locals }: RequestEvent) {
 			});
 		}
 
-		// Handle end-early: derive the level from the server-received message history.
-		// We parse assistant messages in reverse to find the most recent currentLevelGuess
-		// emitted by the LLM. This ignores the client-supplied lastLevelGuess entirely,
-		// preventing a user from manipulating their own placement.
+		// Handle end-early: run a summarizing LLM call over the full conversation history
+		// to produce a definitive placement rather than just reading the last streaming guess.
+		// This gives high-level users who end early a fair assessment even from limited turns.
 		if (endEarly) {
 			const validLevels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+
+			// Fetch grammar rules for the summarizer prompt
+			const grammarRulesForSummary = await prisma.grammarRule.findMany({
+				where: { languageId: activeLangId },
+				select: { title: true }
+			});
+			const grammarTitlesForSummary = grammarRulesForSummary.map((r) => r.title);
+
+			// Run the summarizer LLM call (non-streaming, fast)
 			let level = 'A1';
-			for (let i = messages.length - 1; i >= 0; i--) {
-				const msg = messages[i];
-				if (msg.role === 'assistant') {
-					try {
-						const parsed = JSON.parse(msg.content);
-						if (parsed.currentLevelGuess && validLevels.includes(parsed.currentLevelGuess)) {
-							level = parsed.currentLevelGuess;
-							break;
+			let feedbackText = `Assessment ended early. Placed at ${level} based on conversation so far.`;
+			let summaryParsed: Record<string, unknown> = {};
+
+			try {
+				const summaryResponse = await generateChatCompletion({
+					userId,
+					messages,
+					systemPrompt: getSummarizePrompt(activeLangName, grammarTitlesForSummary),
+					jsonMode: true,
+					stream: false
+				});
+				const summaryRaw =
+					typeof summaryResponse.choices?.[0]?.message?.content === 'string'
+						? summaryResponse.choices[0].message.content
+						: JSON.stringify(summaryResponse);
+				summaryParsed = JSON.parse(summaryRaw);
+				if (summaryParsed.level && validLevels.includes(summaryParsed.level as string)) {
+					level = summaryParsed.level as string;
+				}
+				if (typeof summaryParsed.feedback === 'string') {
+					feedbackText = summaryParsed.feedback;
+				}
+			} catch (summaryErr) {
+				console.error(
+					'[Onboarding End Early] Summarizer LLM failed, falling back to last guess:',
+					summaryErr
+				);
+				// Fall back: parse last assistant message for currentLevelGuess
+				for (let i = messages.length - 1; i >= 0; i--) {
+					const msg = messages[i];
+					if (msg.role === 'assistant') {
+						try {
+							const parsed = JSON.parse(msg.content);
+							if (parsed.currentLevelGuess && validLevels.includes(parsed.currentLevelGuess)) {
+								level = parsed.currentLevelGuess;
+								break;
+							}
+							if (parsed.level && validLevels.includes(parsed.level)) {
+								level = parsed.level;
+								break;
+							}
+						} catch {
+							// skip non-JSON assistant messages
 						}
-						if (parsed.level && validLevels.includes(parsed.level)) {
-							level = parsed.level;
-							break;
-						}
-					} catch {
-						// assistant message not yet valid JSON (e.g. streaming artifact) — skip
 					}
+				}
+			}
+
+			// Seed vocabulary and grammar from whatever the summarizer extracted
+			if (!isRefining && Object.keys(summaryParsed).length > 0) {
+				try {
+					await Promise.all([
+						processWords((summaryParsed.masteredWords as string[]) || [], 'MASTERED', level),
+						processWords((summaryParsed.knownWords as string[]) || [], 'KNOWN', level),
+						processWords((summaryParsed.learningWords as string[]) || [], 'LEARNING', level),
+						processGrammar((summaryParsed.masteredGrammar as string[]) || [], 'MASTERED', level),
+						processGrammar((summaryParsed.knownGrammar as string[]) || [], 'KNOWN', level),
+						processGrammar((summaryParsed.learningGrammar as string[]) || [], 'LEARNING', level)
+					]);
+				} catch (seedErr) {
+					console.error('[Onboarding End Early] Vocab/grammar seeding failed:', seedErr);
 				}
 			}
 
@@ -160,16 +245,8 @@ export async function POST({ request, locals }: RequestEvent) {
 
 				await prisma.userProgress.upsert({
 					where: { userId_languageId: { userId, languageId: langId } },
-					create: {
-						userId,
-						languageId: langId,
-						hasOnboarded: true,
-						cefrLevel: level
-					},
-					update: {
-						hasOnboarded: true,
-						cefrLevel: level
-					}
+					create: { userId, languageId: langId, hasOnboarded: true, cefrLevel: level },
+					update: { hasOnboarded: true, cefrLevel: level }
 				});
 
 				await CefrService.applyGrammarMasteryForLevel(userId, langId, level, oldLevel);
@@ -179,10 +256,10 @@ export async function POST({ request, locals }: RequestEvent) {
 			}
 
 			return json({
-				message: `Based on our conversation so far, I've placed you at level ${level}. Good luck with your studies!`,
+				message: `Based on our conversation, I've placed you at level ${level}. Good luck with your studies!`,
 				completed: true,
 				level,
-				feedback: `Assessment ended early. Placed at ${level} based on conversation so far.`
+				feedback: feedbackText
 			});
 		}
 

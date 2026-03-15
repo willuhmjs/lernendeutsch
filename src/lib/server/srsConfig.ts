@@ -59,7 +59,18 @@ export const CEFR_CONFIG = {
 
 	// Minimum number of words a user must have encountered (non-UNSEEN) at a level
 	// before they can level up. Prevents levelling up on a tiny sample of words.
-	MIN_ENCOUNTERED_VOCAB: 10,
+	// Set to 50 as a soft floor — lenient enough that misplaced users aren't stuck,
+	// but prevents level-up after only a handful of reviews.
+	MIN_ENCOUNTERED_VOCAB: 50,
+
+	// Frequency threshold for high-value words (corpus rank ≤ this are considered "common").
+	// Mastering common words contributes a bonus to vocab mastery so the gate rewards
+	// learning high-utility words, not just any 50 words.
+	FREQ_BONUS_RANK_THRESHOLD: 1000,
+	// How much the frequency-weighted mastery ratio is blended in.
+	// Final mastery = max(rawMastery, weightedMastery * FREQ_WEIGHT_BLEND)
+	// A blend < 1.0 means frequency-weighting alone can't fully satisfy the threshold.
+	FREQ_WEIGHT_BLEND: 0.92,
 
 	// ELO decay configuration (for items not reviewed recently)
 	DECAY: {

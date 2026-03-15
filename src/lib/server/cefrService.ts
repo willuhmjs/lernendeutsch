@@ -185,14 +185,15 @@ export class CefrService {
 			return null;
 		}
 
-		// Count KNOWN + MASTERED items
-		const [masteredVocabCount, masteredGrammarCount] = await Promise.all([
-			prisma.userVocabulary.count({
+		// Count KNOWN + MASTERED items, and fetch frequency data for weighted mastery
+		const [masteredVocabRows, masteredGrammarCount] = await Promise.all([
+			prisma.userVocabulary.findMany({
 				where: {
 					userId,
 					vocabulary: { languageId, cefrLevel: currentLevel },
 					srsState: { in: [SrsState.KNOWN, SrsState.MASTERED] }
-				}
+				},
+				select: { vocabulary: { select: { frequency: true } } }
 			}),
 			prisma.userGrammarRule.count({
 				where: {
@@ -203,8 +204,32 @@ export class CefrService {
 			})
 		]);
 
-		// Vocab: 80% of encountered words must be KNOWN/MASTERED
-		const vocabMastery = masteredVocabCount / encounteredVocabCount;
+		const masteredVocabCount = masteredVocabRows.length;
+
+		// Raw mastery: simple ratio of mastered to encountered
+		const rawVocabMastery = masteredVocabCount / encounteredVocabCount;
+
+		// Frequency-weighted mastery: common words (low rank) count extra.
+		// Each mastered word contributes 1 base point + 0.5 bonus if it's a high-frequency word.
+		// This rewards mastering the most useful vocabulary at a level.
+		const freqThreshold = CEFR_CONFIG.FREQ_BONUS_RANK_THRESHOLD;
+		let weightedMasteredPoints = 0;
+		let weightedTotalPoints = encounteredVocabCount; // each encountered word = 1 base point
+		for (const row of masteredVocabRows) {
+			const freq = row.vocabulary.frequency;
+			const isCommon = freq !== null && freq <= freqThreshold;
+			weightedMasteredPoints += isCommon ? 1.5 : 1.0;
+			if (isCommon) weightedTotalPoints += 0.5; // bonus point in denominator too, keeping ratio fair
+		}
+		const weightedVocabMastery =
+			weightedTotalPoints > 0 ? weightedMasteredPoints / weightedTotalPoints : 0;
+
+		// Final mastery: take the better of raw or blended weighted score.
+		// The blend cap (< 1.0) ensures frequency-weighting alone can't fully satisfy the threshold.
+		const vocabMastery = Math.max(
+			rawVocabMastery,
+			weightedVocabMastery * CEFR_CONFIG.FREQ_WEIGHT_BLEND
+		);
 		// Grammar: 90% of interacted grammar rules must be KNOWN/MASTERED.
 		// Using interacted count so unencountered rules don't permanently block level-up.
 		const grammarMastery =
@@ -220,6 +245,7 @@ export class CefrService {
 				},
 				select: { eloRating: true }
 			}),
+
 			prisma.userGrammarRule.findMany({
 				where: {
 					userId,

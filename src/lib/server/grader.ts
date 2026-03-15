@@ -373,7 +373,8 @@ function computeFsrsUpdate(
 		lapses: number;
 		lastReviewDate: Date | null;
 	},
-	requestRetention: number = DEFAULT_FSRS_PARAMETERS.requestRetention
+	requestRetention: number = DEFAULT_FSRS_PARAMETERS.requestRetention,
+	userWeights?: number[]
 ) {
 	const card: FsrsCard = {
 		difficulty: current.difficulty,
@@ -384,7 +385,8 @@ function computeFsrsUpdate(
 		lastReviewDate: current.lastReviewDate ?? undefined
 	};
 
-	const params = { ...DEFAULT_FSRS_PARAMETERS, requestRetention };
+	const w = userWeights?.length === 17 ? userWeights : DEFAULT_FSRS_PARAMETERS.w;
+	const params = { ...DEFAULT_FSRS_PARAMETERS, requestRetention, w };
 	const rating = scoreToRating(score);
 	const result = reviewCard(card, rating, new Date(), params);
 
@@ -406,13 +408,13 @@ export async function updateSrsMetrics(
 	type: 'vocabulary' | 'grammar' = 'vocabulary',
 	overridden = false
 ) {
-	// Fetch user's FSRS retention preference once
-	const userRetention = await prisma.user
-		.findUnique({
-			where: { id: userId },
-			select: { fsrsRetention: true }
-		})
-		.then((u) => u?.fsrsRetention ?? DEFAULT_FSRS_PARAMETERS.requestRetention);
+	// Fetch user's FSRS retention preference and optimized weights once
+	const userPrefs = await prisma.user.findUnique({
+		where: { id: userId },
+		select: { fsrsRetention: true, fsrsWeights: true }
+	});
+	const userRetention = userPrefs?.fsrsRetention ?? DEFAULT_FSRS_PARAMETERS.requestRetention;
+	const userWeights = userPrefs?.fsrsWeights?.length === 17 ? userPrefs.fsrsWeights : undefined;
 
 	if (type === 'grammar') {
 		const currentProgress = await prisma.userGrammarRuleProgress.findUnique({
@@ -428,7 +430,7 @@ export async function updateSrsMetrics(
 			lastReviewDate: currentProgress?.lastReviewDate ?? null
 		};
 
-		const fsrs = computeFsrsUpdate(score, priorState, userRetention);
+		const fsrs = computeFsrsUpdate(score, priorState, userRetention, userWeights);
 
 		await prisma.userGrammarRuleProgress.upsert({
 			where: { userId_grammarRuleId: { userId, grammarRuleId: itemId } },
@@ -462,7 +464,7 @@ export async function updateSrsMetrics(
 		lastReviewDate: currentProgress?.lastReviewDate ?? null
 	};
 
-	const fsrs = computeFsrsUpdate(score, priorState, userRetention);
+	const fsrs = computeFsrsUpdate(score, priorState, userRetention, userWeights);
 
 	// Increment overrideCount when user overrode an incorrect grade to correct.
 	const overrideIncrement = overridden ? 1 : 0;
@@ -513,7 +515,7 @@ export async function updateEloRatings(
 	const emptyGrammarProgress: PrismaUserGrammarRuleProgress[] = [];
 
 	const [
-		userRetention,
+		userPrefsForElo,
 		vocabRows,
 		userVocabRows,
 		vocabProgressRows,
@@ -521,9 +523,10 @@ export async function updateEloRatings(
 		userGrammarRows,
 		grammarProgressRows
 	] = await Promise.all([
-		prisma.user
-			.findUnique({ where: { id: userId }, select: { fsrsRetention: true } })
-			.then((u) => u?.fsrsRetention ?? DEFAULT_FSRS_PARAMETERS.requestRetention),
+		prisma.user.findUnique({
+			where: { id: userId },
+			select: { fsrsRetention: true, fsrsWeights: true }
+		}),
 		vocabIds.length > 0
 			? prisma.vocabulary.findMany({ where: { id: { in: vocabIds } } })
 			: Promise.resolve(emptyVocab),
@@ -547,6 +550,10 @@ export async function updateEloRatings(
 				})
 			: Promise.resolve(emptyGrammarProgress)
 	]);
+
+	const userRetention = userPrefsForElo?.fsrsRetention ?? DEFAULT_FSRS_PARAMETERS.requestRetention;
+	const userWeightsForElo =
+		userPrefsForElo?.fsrsWeights?.length === 17 ? userPrefsForElo.fsrsWeights : undefined;
 
 	// Build O(1) lookup maps from the prefetched rows.
 	const vocabMap = new Map<string, PrismaVocabulary>(
@@ -590,7 +597,12 @@ export async function updateEloRatings(
 			lapses: currentProgress?.lapses ?? 0,
 			lastReviewDate: currentProgress?.lastReviewDate ?? null
 		};
-		const fsrs = computeFsrsUpdate(vocabUpdate.score, priorVocabState, userRetention);
+		const fsrs = computeFsrsUpdate(
+			vocabUpdate.score,
+			priorVocabState,
+			userRetention,
+			userWeightsForElo
+		);
 
 		const priorRepetitions = Math.max(0, fsrs.repetitions - 1);
 		const newElo = calculateNewElo(
@@ -657,7 +669,12 @@ export async function updateEloRatings(
 			lapses: currentProgress?.lapses ?? 0,
 			lastReviewDate: currentProgress?.lastReviewDate ?? null
 		};
-		const fsrs = computeFsrsUpdate(grammarUpdate.score, priorGrammarState, userRetention);
+		const fsrs = computeFsrsUpdate(
+			grammarUpdate.score,
+			priorGrammarState,
+			userRetention,
+			userWeightsForElo
+		);
 
 		const priorRepetitions = Math.max(0, fsrs.repetitions - 1);
 		const newElo = calculateNewElo(
@@ -730,7 +747,8 @@ export async function updateEloRatings(
 				lapses: currentProgress?.lapses ?? 0,
 				lastReviewDate: currentProgress?.lastReviewDate ?? null
 			},
-			userRetention
+			userRetention,
+			userWeightsForElo
 		);
 
 		const priorRepetitions = Math.max(0, fsrs.repetitions - 1);

@@ -79,6 +79,7 @@ model User {
   localLoadTimeSamples  Int[]  @default([])
   aiUsage               UserAiUsage[]
   fsrsRetention         Float  @default(0.9) // FSRS target retention [0.7, 0.97]
+  fsrsWeights           Float[] @default([]) // Per-user optimized FSRS weights (17 values); empty = use global defaults
 }
 
 model UserProgress {

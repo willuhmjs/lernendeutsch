@@ -13,6 +13,7 @@
 
 import { prisma } from './prisma';
 import { CefrService } from './cefrService';
+import { optimizeFsrsWeightsForUser } from './fsrsOptimizer';
 
 // ---------------------------------------------------------------------------
 // Intervals
@@ -20,6 +21,9 @@ import { CefrService } from './cefrService';
 
 /** ELO decay: once per day (ms) */
 const ELO_DECAY_INTERVAL_MS = 24 * 60 * 60 * 1000;
+
+/** FSRS weight optimization: once per day (ms) */
+const FSRS_OPTIMIZE_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
 /** ReviewLog prune: once per day (ms) — keeps the last 30 days of rows */
 const REVIEW_LOG_PRUNE_INTERVAL_MS = 24 * 60 * 60 * 1000;
@@ -39,6 +43,7 @@ const LIVE_SESSION_PRUNE_INTERVAL_MS = 24 * 60 * 60 * 1000;
 // ---------------------------------------------------------------------------
 
 let lastEloDecay = 0;
+let lastFsrsOptimize = 0;
 let lastReviewLogPrune = 0;
 let lastMessagePrune = 0;
 let lastAiUsagePrune = 0;
@@ -47,6 +52,33 @@ let lastLiveSessionPrune = 0;
 // ---------------------------------------------------------------------------
 // Individual jobs
 // ---------------------------------------------------------------------------
+
+async function runFsrsOptimization(): Promise<void> {
+	const progresses = await prisma.userProgress.findMany({
+		where: { hasOnboarded: true },
+		select: { userId: true }
+	});
+
+	// Deduplicate userIds (a user can have progress for multiple languages)
+	const userIds = [...new Set(progresses.map((p) => p.userId))];
+
+	let succeeded = 0;
+	let skipped = 0;
+	let failed = 0;
+	for (const userId of userIds) {
+		try {
+			const result = await optimizeFsrsWeightsForUser(userId);
+			if (result) succeeded++;
+			else skipped++;
+		} catch (err) {
+			console.error(`[maintenance] FSRS optimize failed user=${userId}:`, err);
+			failed++;
+		}
+	}
+	console.log(
+		`[maintenance] FSRS optimization complete: ${succeeded} optimized, ${skipped} skipped (insufficient data), ${failed} failed / ${userIds.length} total`
+	);
+}
 
 async function runEloDecay(): Promise<void> {
 	const progresses = await prisma.userProgress.findMany({
@@ -125,6 +157,14 @@ export function runMaintenanceIfDue(): void {
 		runEloDecay().catch((err) => {
 			console.error('[maintenance] ELO decay job failed:', err);
 			lastEloDecay = 0; // reset so it retries next time
+		});
+	}
+
+	if (now - lastFsrsOptimize > FSRS_OPTIMIZE_INTERVAL_MS) {
+		lastFsrsOptimize = now;
+		runFsrsOptimization().catch((err) => {
+			console.error('[maintenance] FSRS optimization job failed:', err);
+			lastFsrsOptimize = 0;
 		});
 	}
 

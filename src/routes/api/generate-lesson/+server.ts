@@ -111,8 +111,22 @@ export async function POST(event) {
 			});
 			const knownIdsArray = knownVocabIds.map((v) => v.vocabularyId);
 
+			// Determine dominant POS in current pool for thematic clustering.
+			// Grouping new words by part-of-speech (e.g. all verbs or all nouns)
+			// gives the LLM a coherent vocabulary set to build natural sentences from.
+			const poolPosCounts: Record<string, number> = {};
+			for (const uv of learningPool) {
+				const pos = (uv as any).vocabulary?.partOfSpeech;
+				if (pos) poolPosCounts[pos] = (poolPosCounts[pos] ?? 0) + 1;
+			}
+			const dominantPos =
+				Object.keys(poolPosCounts).length > 0
+					? Object.entries(poolPosCounts).sort((a, b) => b[1] - a[1])[0][0]
+					: null;
+
 			// Prioritize high-frequency words within each CEFR level.
 			// frequency ASC = most common first; nulls last (unranked words introduced after ranked ones).
+			// Fetch a 3× candidate pool so thematic filtering has enough words to choose from.
 			let unseenVocabs: any[] = [];
 			if (targetCefrLevel === 'A1') {
 				unseenVocabs = await prisma.vocabulary.findMany({
@@ -124,22 +138,32 @@ export async function POST(event) {
 						isBeginner: true
 					} as any,
 					orderBy: [{ cefrLevel: 'asc' }, { frequency: { sort: 'asc', nulls: 'last' } }],
-					take: needed
+					take: needed * 3
 				});
 			}
 
-			if (unseenVocabs.length < needed) {
+			if (unseenVocabs.length < needed * 3) {
 				const additionalUnseen = await prisma.vocabulary.findMany({
 					where: {
-						id: { notIn: [...knownIdsArray, ...unseenVocabs.map((v) => v.id)] },
+						id: { notIn: [...knownIdsArray, ...unseenVocabs.map((v: any) => v.id)] },
 						meanings: { some: {} },
 						languageId: activeLanguageId,
 						cefrLevel: { in: allowedLevels }
 					} as any,
 					orderBy: [{ cefrLevel: 'asc' }, { frequency: { sort: 'asc', nulls: 'last' } }],
-					take: needed - unseenVocabs.length
+					take: needed * 3 - unseenVocabs.length
 				});
 				unseenVocabs = [...unseenVocabs, ...additionalUnseen];
+			}
+
+			// Thematic clustering: prefer candidates matching the dominant pool POS.
+			// Falls back to pure frequency order when pool has no POS context.
+			if (dominantPos && unseenVocabs.length > needed) {
+				const matching = unseenVocabs.filter((v: any) => v.partOfSpeech === dominantPos);
+				const nonMatching = unseenVocabs.filter((v: any) => v.partOfSpeech !== dominantPos);
+				unseenVocabs = [...matching, ...nonMatching].slice(0, needed);
+			} else {
+				unseenVocabs = unseenVocabs.slice(0, needed);
 			}
 
 			const newUserVocabs = await Promise.all(
