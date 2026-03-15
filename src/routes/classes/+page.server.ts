@@ -4,7 +4,11 @@ import { prisma } from '$lib/server/prisma';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) {
-		redirect(302, '/login');
+		throw redirect(302, '/login');
+	}
+
+	if (!locals.user.hasOnboarded) {
+		throw redirect(302, '/onboarding');
 	}
 
 	const classes = await prisma.class.findMany({

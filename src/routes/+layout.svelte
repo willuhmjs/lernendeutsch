@@ -2,7 +2,7 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import { Toaster } from 'svelte-french-toast';
 	import Modal from '$lib/components/Modal.svelte';
-	import { invalidateAll } from '$app/navigation';
+	import { invalidateAll, goto } from '$app/navigation';
 	import { page } from '$app/stores';
 
 	import { onMount } from 'svelte';
@@ -42,22 +42,42 @@
 		}
 	}
 
+	// Pages that require the user to have onboarded for the active language.
+	// If the user switches to an unonboarded language while on one of these,
+	// they get redirected to /onboarding.
+	const ONBOARDING_REQUIRED_PATHS = ['/play', '/dictionary', '/classes', '/review'];
+
 	async function changeLanguage(languageId: string) {
 		isDropdownOpen = false;
 		try {
 			const res = await fetch('/api/user/active-language', {
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
+				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ languageId })
 			});
 
-			if (res.ok) {
-				await invalidateAll();
-			} else {
+			if (!res.ok) {
 				console.error('Failed to change language');
+				return;
 			}
+
+			const result = await res.json();
+
+			// Always invalidate first so the layout re-fetches locals.user with the
+			// new active language before any navigation or re-render happens.
+			await invalidateAll();
+
+			if (!result.hasOnboarded) {
+				const currentPath = $page.url.pathname;
+				const onRestrictedPage = ONBOARDING_REQUIRED_PATHS.some((p) => currentPath.startsWith(p));
+				if (onRestrictedPage) {
+					// Use replaceState so the onboarding page is treated as a fresh navigation
+					// even if we're already on /onboarding.
+					await goto('/onboarding', { replaceState: true, invalidateAll: true });
+				}
+				// If not on a restricted page (e.g. home, profile), invalidateAll above is enough.
+			}
+			// If already onboarded for the new language, invalidateAll above is all we need.
 		} catch (error) {
 			console.error('Error changing language:', error);
 		}

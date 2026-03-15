@@ -166,7 +166,10 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 			select: { id: true, name: true, username: true, totalXp: true, currentStreak: true }
 		}),
 		prisma.userProgress.findMany({
-			where: { userId: { in: studentUserIds }, languageId: classData.primaryLanguage !== 'international' ? undefined : undefined },
+			where: {
+				userId: { in: studentUserIds },
+				languageId: classData.primaryLanguage !== 'international' ? undefined : undefined
+			},
 			select: { userId: true, cefrLevel: true, languageId: true }
 		}),
 		prisma.userVocabularyProgress.findMany({
@@ -207,8 +210,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 				totalLapses += rec.lapses;
 				wordsReviewed++;
 				if (rec.stability > 0 && rec.lastReviewDate) {
-					const elapsed =
-						(now.getTime() - rec.lastReviewDate.getTime()) / (1000 * 60 * 60 * 24);
+					const elapsed = (now.getTime() - rec.lastReviewDate.getTime()) / (1000 * 60 * 60 * 24);
 					retSum += Math.max(0, Math.min(1, Math.pow(1 + elapsed / (9 * rec.stability), -1)));
 				} else {
 					retSum += 1;

@@ -74,6 +74,7 @@ model User {
   createdGames          Game[]
   grammarRuleProgress   UserGrammarRuleProgress[]
   levelUpEvents         LevelUpEvent[]
+  reviewLogs            ReviewLog[]
 
   localLoadTimeSamples  Int[]  @default([])
   aiUsage               UserAiUsage[]
@@ -178,6 +179,8 @@ model GrammarRule {
   description String?
   guide       String?
   level       String            @default("A1")
+  ruleType    String?           // snake_case category e.g. "case_marking", "verb_conjugation"
+  targetForms String[]          // surface forms the LLM should produce e.g. ["den", "einen"]
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
   users    UserGrammarRule[]
@@ -271,6 +274,28 @@ model UserGrammarRuleProgress {
 
   @@unique([userId, grammarRuleId])
   @@index([nextReviewDate])
+}
+
+// Per-review event log used by the FSRS weight optimizer.
+// Rows are hard-pruned to a 30-day rolling window by the maintenance job —
+// the optimizer only needs ~50 reviews per card to converge, so older data
+// provides no marginal benefit and keeping it would grow without bound.
+model ReviewLog {
+  id           String   @id @default(uuid())
+  userId       String
+  itemId       String   // vocabularyId or grammarRuleId
+  itemType     String   // 'vocabulary' | 'grammar'
+  rating       Int      // FSRS rating 1-4 (Again/Hard/Good/Easy)
+  elapsedDays  Float    // days since last review of this item
+  scheduledDays Float   // interval that was scheduled (0 for first review)
+  stability    Float    // stability before this review
+  difficulty   Float    // difficulty before this review
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([createdAt]) // for bulk pruning by date
 }
 
 model LevelUpEvent {

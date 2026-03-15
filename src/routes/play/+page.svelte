@@ -1744,7 +1744,14 @@
 		let effectiveInput = userInput;
 		if (mode === 'fill-blank') {
 			if (fillBlankAnswers.some((a) => !a.trim())) return;
-			effectiveInput = fillBlankAnswers.join(', ');
+			// Reconstruct the full sentence by substituting each blank answer back into
+			// challengeText in order. Sending the complete sentence to the grader means
+			// it can evaluate the whole answer in context, not just isolated blank values.
+			let reconstructed = challenge?.challengeText || '';
+			for (const answer of fillBlankAnswers) {
+				reconstructed = reconstructed.replace('___', answer);
+			}
+			effectiveInput = reconstructed;
 		} else if (mode === 'multiple-choice') {
 			if (!selectedChoice) return;
 			effectiveInput = selectedChoice;

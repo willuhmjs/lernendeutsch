@@ -1038,10 +1038,10 @@
 	}
 
 	.stat-item {
-		background: #f9fafb;
+		background: var(--card-bg, #f9fafb);
 		padding: 1rem;
 		border-radius: 0.5rem;
-		border: 1px solid #e5e7eb;
+		border: 1px solid var(--card-border, #e5e7eb);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -1051,7 +1051,7 @@
 	.stat-label {
 		font-size: 0.75rem;
 		font-weight: 600;
-		color: #6b7280;
+		color: var(--text-muted, #6b7280);
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		margin-bottom: 0.5rem;
@@ -1060,7 +1060,7 @@
 	.stat-value {
 		font-size: 1.5rem;
 		font-weight: 700;
-		color: #111827;
+		color: var(--text-color, #111827);
 	}
 
 	.seed-card {

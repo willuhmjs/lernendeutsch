@@ -7,6 +7,10 @@ export const load = async ({ locals }: ServerLoadEvent) => {
 		throw redirect(302, '/login');
 	}
 
+	if (!locals.user.hasOnboarded) {
+		throw redirect(302, '/onboarding');
+	}
+
 	const userId = locals.user.id;
 	const activeLanguageId = locals.user.activeLanguage?.id;
 

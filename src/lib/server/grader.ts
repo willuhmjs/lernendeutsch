@@ -2,6 +2,43 @@ import { prisma } from './prisma';
 import { ELO_CONFIG, CEFR_CONFIG } from './srsConfig';
 import { reviewCard, scoreToRating, deriveSrsStateFromFsrs, DEFAULT_FSRS_PARAMETERS } from './fsrs';
 import type { FsrsCard } from './fsrs';
+
+/**
+ * Fire-and-forget ReviewLog write. Never awaited — must not block grading.
+ * The maintenance job in maintenance.ts prunes rows older than 30 days.
+ */
+function logReview(
+	userId: string,
+	itemId: string,
+	itemType: 'vocabulary' | 'grammar',
+	rating: number,
+	priorStability: number,
+	priorDifficulty: number,
+	priorLastReviewDate: Date | null
+): void {
+	const elapsedDays = priorLastReviewDate
+		? (Date.now() - priorLastReviewDate.getTime()) / (1000 * 60 * 60 * 24)
+		: 0;
+	// scheduledDays: how many days were scheduled between last review and now.
+	// Same as elapsedDays for real reviews; 0 means first review.
+	const scheduledDays = priorLastReviewDate ? elapsedDays : 0;
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	(prisma as unknown as Record<string, any>).reviewLog
+		.create({
+			data: {
+				userId,
+				itemId,
+				itemType,
+				rating,
+				elapsedDays,
+				scheduledDays,
+				stability: priorStability,
+				difficulty: priorDifficulty
+			}
+		})
+		.catch((err: unknown) => console.error('[ReviewLog] write failed:', err));
+}
 import type {
 	Vocabulary as PrismaVocabulary,
 	UserVocabulary as PrismaUserVocabulary,
@@ -152,7 +189,7 @@ ${listsBlock}
 
 JSON format:${jsonFormat}`;
 
-		const userMessage = `Complete sentence: ${normalizeText(targetSentence)}\nStudent's answers: ${normalizeText(userInput)}`;
+		const userMessage = `Complete sentence: ${normalizeText(targetSentence)}\nStudent's sentence (blanks filled in): ${normalizeText(userInput)}`;
 		return { systemPrompt, userMessage, idMap };
 	}
 
@@ -382,24 +419,32 @@ export async function updateSrsMetrics(
 			where: { userId_grammarRuleId: { userId, grammarRuleId: itemId } }
 		});
 
-		const fsrs = computeFsrsUpdate(
-			score,
-			{
-				difficulty: currentProgress?.difficulty ?? 5.0,
-				stability: currentProgress?.stability ?? 0.0,
-				retrievability: currentProgress?.retrievability ?? 1.0,
-				repetitions: currentProgress?.repetitions ?? 0,
-				lapses: currentProgress?.lapses ?? 0,
-				lastReviewDate: currentProgress?.lastReviewDate ?? null
-			},
-			userRetention
-		);
+		const priorState = {
+			difficulty: currentProgress?.difficulty ?? 5.0,
+			stability: currentProgress?.stability ?? 0.0,
+			retrievability: currentProgress?.retrievability ?? 1.0,
+			repetitions: currentProgress?.repetitions ?? 0,
+			lapses: currentProgress?.lapses ?? 0,
+			lastReviewDate: currentProgress?.lastReviewDate ?? null
+		};
+
+		const fsrs = computeFsrsUpdate(score, priorState, userRetention);
 
 		await prisma.userGrammarRuleProgress.upsert({
 			where: { userId_grammarRuleId: { userId, grammarRuleId: itemId } },
 			create: { userId, grammarRuleId: itemId, ...fsrs },
 			update: fsrs
 		});
+
+		logReview(
+			userId,
+			itemId,
+			'grammar',
+			scoreToRating(score),
+			priorState.stability,
+			priorState.difficulty,
+			priorState.lastReviewDate
+		);
 
 		return fsrs;
 	}
@@ -408,18 +453,16 @@ export async function updateSrsMetrics(
 		where: { userId_vocabularyId: { userId, vocabularyId: itemId } }
 	});
 
-	const fsrs = computeFsrsUpdate(
-		score,
-		{
-			difficulty: currentProgress?.difficulty ?? 5.0,
-			stability: currentProgress?.stability ?? 0.0,
-			retrievability: currentProgress?.retrievability ?? 1.0,
-			repetitions: currentProgress?.repetitions ?? 0,
-			lapses: currentProgress?.lapses ?? 0,
-			lastReviewDate: currentProgress?.lastReviewDate ?? null
-		},
-		userRetention
-	);
+	const priorState = {
+		difficulty: currentProgress?.difficulty ?? 5.0,
+		stability: currentProgress?.stability ?? 0.0,
+		retrievability: currentProgress?.retrievability ?? 1.0,
+		repetitions: currentProgress?.repetitions ?? 0,
+		lapses: currentProgress?.lapses ?? 0,
+		lastReviewDate: currentProgress?.lastReviewDate ?? null
+	};
+
+	const fsrs = computeFsrsUpdate(score, priorState, userRetention);
 
 	// Increment overrideCount when user overrode an incorrect grade to correct.
 	const overrideIncrement = overridden ? 1 : 0;
@@ -429,6 +472,16 @@ export async function updateSrsMetrics(
 		create: { userId, vocabularyId: itemId, ...fsrs, overrideCount: overrideIncrement },
 		update: { ...fsrs, overrideCount: { increment: overrideIncrement } }
 	});
+
+	logReview(
+		userId,
+		itemId,
+		'vocabulary',
+		scoreToRating(score),
+		priorState.stability,
+		priorState.difficulty,
+		priorState.lastReviewDate
+	);
 
 	return fsrs;
 }
@@ -529,18 +582,15 @@ export async function updateEloRatings(
 		const currentElo = userVocabMap.get(vocab.id)?.eloRating ?? baseDifficulty;
 
 		const currentProgress = vocabProgressMap.get(vocab.id);
-		const fsrs = computeFsrsUpdate(
-			vocabUpdate.score,
-			{
-				difficulty: currentProgress?.difficulty ?? 5.0,
-				stability: currentProgress?.stability ?? 0.0,
-				retrievability: currentProgress?.retrievability ?? 1.0,
-				repetitions: currentProgress?.repetitions ?? 0,
-				lapses: currentProgress?.lapses ?? 0,
-				lastReviewDate: currentProgress?.lastReviewDate ?? null
-			},
-			userRetention
-		);
+		const priorVocabState = {
+			difficulty: currentProgress?.difficulty ?? 5.0,
+			stability: currentProgress?.stability ?? 0.0,
+			retrievability: currentProgress?.retrievability ?? 1.0,
+			repetitions: currentProgress?.repetitions ?? 0,
+			lapses: currentProgress?.lapses ?? 0,
+			lastReviewDate: currentProgress?.lastReviewDate ?? null
+		};
+		const fsrs = computeFsrsUpdate(vocabUpdate.score, priorVocabState, userRetention);
 
 		const priorRepetitions = Math.max(0, fsrs.repetitions - 1);
 		const newElo = calculateNewElo(
@@ -575,6 +625,16 @@ export async function updateEloRatings(
 				update: { eloRating: newElo, srsState: newState, nextReviewDate: fsrs.nextReviewDate }
 			})
 		]);
+
+		logReview(
+			userId,
+			vocab.id,
+			'vocabulary',
+			scoreToRating(vocabUpdate.score),
+			priorVocabState.stability,
+			priorVocabState.difficulty,
+			priorVocabState.lastReviewDate
+		);
 	}
 
 	// Process a single grammar update using prefetched data (zero extra reads).
@@ -589,18 +649,15 @@ export async function updateEloRatings(
 		const currentElo = userGrammarMap.get(grammar.id)?.eloRating ?? baseDifficulty;
 
 		const currentProgress = grammarProgressMap.get(grammar.id);
-		const fsrs = computeFsrsUpdate(
-			grammarUpdate.score,
-			{
-				difficulty: currentProgress?.difficulty ?? 5.0,
-				stability: currentProgress?.stability ?? 0.0,
-				retrievability: currentProgress?.retrievability ?? 1.0,
-				repetitions: currentProgress?.repetitions ?? 0,
-				lapses: currentProgress?.lapses ?? 0,
-				lastReviewDate: currentProgress?.lastReviewDate ?? null
-			},
-			userRetention
-		);
+		const priorGrammarState = {
+			difficulty: currentProgress?.difficulty ?? 5.0,
+			stability: currentProgress?.stability ?? 0.0,
+			retrievability: currentProgress?.retrievability ?? 1.0,
+			repetitions: currentProgress?.repetitions ?? 0,
+			lapses: currentProgress?.lapses ?? 0,
+			lastReviewDate: currentProgress?.lastReviewDate ?? null
+		};
+		const fsrs = computeFsrsUpdate(grammarUpdate.score, priorGrammarState, userRetention);
 
 		const priorRepetitions = Math.max(0, fsrs.repetitions - 1);
 		const newElo = calculateNewElo(
@@ -634,6 +691,16 @@ export async function updateEloRatings(
 				update: { eloRating: newElo, srsState: newState, nextReviewDate: fsrs.nextReviewDate }
 			})
 		]);
+
+		logReview(
+			userId,
+			grammar.id,
+			'grammar',
+			scoreToRating(grammarUpdate.score),
+			priorGrammarState.stability,
+			priorGrammarState.difficulty,
+			priorGrammarState.lastReviewDate
+		);
 	}
 
 	// Process an extra vocab lemma the user used correctly by coincidence.

@@ -3,6 +3,7 @@ import { generateChatCompletion } from '$lib/server/llm';
 import { generateLessonRateLimiter } from '$lib/server/ratelimit';
 import { prisma } from '$lib/server/prisma';
 import { isQuotaExceeded, recordTokenUsage } from '$lib/server/aiQuota';
+import { stemWord } from '$lib/server/vocabProcessor';
 
 const MEDIA_TYPES = [
 	'news_article',
@@ -293,7 +294,65 @@ export async function POST(event) {
 			id: `q${i}`
 		}));
 
-		return json({ mediaType, templateData: result.templateData, questions, vocabIds });
+		// Extract all text from the generated templateData so we can scan it for
+		// vocabulary the user already knows. This runs after LLM generation at zero
+		// extra API cost — it's a pure DB + stemmer operation.
+		const textVocabIds: string[] = [];
+		if (activeLanguageId && result.templateData) {
+			try {
+				// Flatten all string values out of the templateData object (any depth).
+				const allText = JSON.stringify(result.templateData).replace(/"[^"]*":/g, ' ');
+
+				// Tokenise: split on whitespace and strip punctuation.
+				const rawTokens = allText
+					.replace(/[«»„"‹›"'<>]/g, ' ')
+					.split(/[\s,;:!?.()[\]{}"'/\\]+/)
+					.map((w) => w.trim())
+					.filter((w) => w.length >= 2);
+
+				// Build candidate lemma set via the same stemmer used elsewhere.
+				const candidates = new Set<string>();
+				for (const token of rawTokens) {
+					for (const stem of stemWord(token, languageName)) {
+						candidates.add(stem);
+					}
+				}
+
+				if (candidates.size > 0) {
+					// Find which of the user's known vocab appears in the text.
+					// We limit to the user's own vocab (not the full dictionary) so we
+					// only credit words already in their learning/mastery pipeline.
+					const matchingUserVocabs = await prisma.userVocabulary.findMany({
+						where: {
+							userId: locals.user.id,
+							vocabulary: {
+								languageId: activeLanguageId,
+								lemma: { in: Array.from(candidates) }
+							}
+						},
+						select: { vocabularyId: true }
+					});
+
+					// Merge with the pre-fetched hint vocabIds, deduplicating.
+					const existingSet = new Set(vocabIds);
+					for (const { vocabularyId } of matchingUserVocabs) {
+						if (!existingSet.has(vocabularyId)) {
+							existingSet.add(vocabularyId);
+							textVocabIds.push(vocabularyId);
+						}
+					}
+				}
+			} catch (scanErr) {
+				// Non-critical — if scanning fails the original vocabIds still work.
+				console.error('Immersion text vocab scan failed:', scanErr);
+			}
+		}
+
+		// Return both the pre-fetched hint IDs and any additional IDs found in the text.
+		// The grade endpoint will call updateSrsMetrics for all of them.
+		const allVocabIds = [...vocabIds, ...textVocabIds];
+
+		return json({ mediaType, templateData: result.templateData, questions, vocabIds: allVocabIds });
 	} catch (error) {
 		console.error('Immersion generate error:', error);
 		const message = error instanceof Error ? error.message : 'Unknown error';

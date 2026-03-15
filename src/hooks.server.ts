@@ -5,6 +5,7 @@ import { prisma } from '$lib/server/prisma';
 import { initLoadTimeStat } from '$lib/server/loadTimeStat';
 import { apiRateLimiter, authRateLimiter } from '$lib/server/ratelimit';
 import { GAMIFICATION_CONFIG } from '$lib/server/srsConfig';
+import { runMaintenanceIfDue } from '$lib/server/maintenance';
 
 // Hydrate rolling load-time average from DB on startup
 initLoadTimeStat();
@@ -144,6 +145,10 @@ const authorization: Handle = async ({ event, resolve }) => {
 			})
 			.catch((err) => console.error('Failed to update lastActive', err));
 	}
+
+	// Fire maintenance jobs (ELO decay, pruning, etc.) if their interval has elapsed.
+	// Each job is non-blocking — returns immediately, runs in the background.
+	runMaintenanceIfDue();
 
 	if (event.url.pathname.startsWith('/admin') && event.locals.user.role !== 'ADMIN') {
 		return new Response(null, {

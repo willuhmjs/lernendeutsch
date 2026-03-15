@@ -3,28 +3,50 @@
 	import { invalidateAll } from '$app/navigation';
 	import { toastError } from '$lib/utils/toast';
 
-	export let data: any;
+	let { data }: { data: any } = $props();
 
-	let messages: { role: string; content: string }[] = [];
-	let userInput = '';
-	let loading = false;
-	let completed = data?.user?.hasOnboarded || false;
+	// Reactive so the corner widget and "I Know Some X" text update when data changes
+	// (e.g. after a language switch that keeps the component mounted).
+	let activeLanguageName = $derived(data?.user?.activeLanguage?.name ?? '');
 
-	let completionData: { level?: string; feedback?: string } = {
-		level: data?.user?.cefrLevel,
-		feedback: completed ? 'You have already completed your onboarding.' : undefined
-	};
+	let messages: { role: string; content: string }[] = $state([]);
+	let userInput = $state('');
+	let loading = $state(false);
+	// Always start as not-completed so arriving via "redo onboarding" or a language
+	// switch both land on the flow screens, not the "You're All Set!" completion card.
+	// completed only becomes true once the user actually finishes the flow this session.
+	let completed = $state(false);
+
+	let completionData: { level?: string; feedback?: string } = $state({
+		level: undefined,
+		feedback: undefined
+	});
 
 	const restartOnboarding = () => {
 		completed = false;
 		selectedPath = 'choose';
 		messages = [];
 	};
-	let lastLevelGuess = data?.user?.cefrLevel || 'A1';
+	let lastLevelGuess = $state('A1');
 
 	// Path selection: 'language' | 'choose' | 'beginner' | 'test'
-	let selectedPath: 'language' | 'choose' | 'beginner' | 'test' = 'language';
-	let isSubmittingBeginner = false;
+	//
+	// Start at 'language' only when the user truly has no active language yet.
+	// In all other cases (redo onboarding, switched to unonboarded language,
+	// redirected here from a restricted page) the active language is already set
+	// so we skip straight to 'choose'.
+	// If already completed (hasOnboarded), restartOnboarding() resets to 'choose'.
+	let selectedPath: 'language' | 'choose' | 'beginner' | 'test' = $state('language');
+	let isSubmittingBeginner = $state(false);
+
+	// When the active language changes (e.g. user switches language while already on
+	// this page), reset the flow back to the correct starting screen and clear state.
+	$effect(() => {
+		const lang = data?.user?.activeLanguage;
+		selectedPath = lang ? 'choose' : 'language';
+		completed = false;
+		messages = [];
+	});
 
 	const selectLanguage = async (languageId: string) => {
 		try {
@@ -163,7 +185,7 @@
 		}
 	};
 
-	let isSubmittingManual = false;
+	let isSubmittingManual = $state(false);
 
 	const handleManualPlacement = async (level: string) => {
 		if (completed || isSubmittingManual) return;
@@ -193,7 +215,7 @@
 		}
 	};
 
-	let isEndingEarly = false;
+	let isEndingEarly = $state(false);
 
 	const handleEndEarly = async () => {
 		if (completed || isEndingEarly) return;
@@ -280,7 +302,7 @@
 
 			<button class="path-card test-card" onclick={startPlacementTest}>
 				<span class="path-icon">💬</span>
-				<h2>I Know Some {data?.user?.activeLanguage?.name}</h2>
+				<h2>I Know Some {activeLanguageName}</h2>
 				<p>
 					I have some language knowledge. Chat with our AI teacher to find my level so I don't
 					repeat what I already know.

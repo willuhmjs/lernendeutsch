@@ -406,6 +406,7 @@
 				<a href="/review" class="btn-duo btn-secondary">Review Vocabulary</a>
 			{/if}
 			<a href="/play?tab=games" class="btn-duo btn-secondary">Play a Quiz</a>
+			<a href="/onboarding" class="redo-onboarding-link">redo onboarding</a>
 			{#if (data as any).activeLiveSessions?.length > 0}
 				{@const session = (data as any).activeLiveSessions[0]}
 				<a href="/classes/{session.classId}/live/student" class="btn-duo btn-live">
@@ -650,17 +651,42 @@
 				{#if urgent.length > 0}
 					<div class="insight-card urgent-card">
 						<h3>
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								width="16"
+								height="16"
+								aria-hidden="true"
+								><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line
+									x1="12"
+									y1="16"
+									x2="12.01"
+									y2="16"
+								/></svg
+							>
 							Fading Fast
 						</h3>
-						<p class="insight-desc">Words your memory of has dropped below 70% — review them soon.</p>
+						<p class="insight-desc">
+							Words your memory of has dropped below 70% — review them soon.
+						</p>
 						<ul class="urgent-list">
 							{#each urgent as item}
 								<li class="urgent-row">
 									<span class="urgent-lemma">{item.lemma}</span>
 									{#if item.meaning}<span class="urgent-meaning">{item.meaning}</span>{/if}
-									<span class="urgent-ret" style="color: {item.retrievabilityPct < 40 ? '#ef4444' : item.retrievabilityPct < 60 ? '#f97316' : '#eab308'}">{item.retrievabilityPct}%</span>
-									{#if item.lapses > 0}<span class="urgent-lapses">{item.lapses} lapse{item.lapses !== 1 ? 's' : ''}</span>{/if}
+									<span
+										class="urgent-ret"
+										style="color: {item.retrievabilityPct < 40
+											? '#ef4444'
+											: item.retrievabilityPct < 60
+												? '#f97316'
+												: '#eab308'}">{item.retrievabilityPct}%</span
+									>
+									{#if item.lapses > 0}<span class="urgent-lapses"
+											>{item.lapses} lapse{item.lapses !== 1 ? 's' : ''}</span
+										>{/if}
 								</li>
 							{/each}
 						</ul>
@@ -668,10 +694,21 @@
 				{/if}
 
 				{#if Object.keys(errors).length > 0}
-					{@const totalErrors = Object.values(errors).reduce((a, b) => (a as number) + (b as number), 0) as number}
+					{@const totalErrors = Object.values(errors).reduce(
+						(a, b) => (a as number) + (b as number),
+						0
+					) as number}
 					<div class="insight-card error-card">
 						<h3>
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								width="16"
+								height="16"
+								aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg
+							>
 							Error Breakdown
 						</h3>
 						<p class="insight-desc">Types of mistakes in your most recent answers.</p>
@@ -680,14 +717,21 @@
 								<div class="error-bar-row">
 									<span class="error-label">{errorLabels[type] ?? type}</span>
 									<div class="error-track">
-										<div class="error-fill" style="width:{Math.round(((count as number) / totalErrors) * 100)}%"></div>
+										<div
+											class="error-fill"
+											style="width:{Math.round(((count as number) / totalErrors) * 100)}%"
+										></div>
 									</div>
 									<span class="error-count">{count as number}</span>
 								</div>
 							{/each}
 						</div>
 						{#if (data as any).totalOverrides > 0}
-							<p class="override-note">{(data as any).totalOverrides} self-correction{(data as any).totalOverrides !== 1 ? 's' : ''} recorded</p>
+							<p class="override-note">
+								{(data as any).totalOverrides} self-correction{(data as any).totalOverrides !== 1
+									? 's'
+									: ''} recorded
+							</p>
 						{/if}
 					</div>
 				{/if}
@@ -695,7 +739,18 @@
 				{#if coverage}
 					<div class="insight-card coverage-card">
 						<h3>
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								width="16"
+								height="16"
+								aria-hidden="true"
+								><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path
+									d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"
+								/></svg
+							>
 							Grammar Coverage
 						</h3>
 						<p class="insight-desc">{coverage.total} total rules in this language.</p>
@@ -706,12 +761,14 @@
 								<span class="coverage-val">{coverage.mastered}</span>
 							</div>
 							<div class="coverage-row">
-								<span class="coverage-dot" style="background:#fef08a;border:1px solid #ca8a04"></span>
+								<span class="coverage-dot" style="background:#fef08a;border:1px solid #ca8a04"
+								></span>
 								<span class="coverage-label">Interacted</span>
 								<span class="coverage-val">{coverage.interacted - coverage.mastered}</span>
 							</div>
 							<div class="coverage-row">
-								<span class="coverage-dot" style="background:#e2e8f0;border:1px solid #94a3b8"></span>
+								<span class="coverage-dot" style="background:#e2e8f0;border:1px solid #94a3b8"
+								></span>
 								<span class="coverage-label">Available to Learn</span>
 								<span class="coverage-val">{coverage.available}</span>
 							</div>
@@ -722,9 +779,20 @@
 							</div>
 						</div>
 						<div class="coverage-bar-track">
-							<div class="coverage-seg mastered-seg" style="width:{Math.round((coverage.mastered / coverage.total) * 100)}%"></div>
-							<div class="coverage-seg learning-seg" style="width:{Math.round(((coverage.interacted - coverage.mastered) / coverage.total) * 100)}%"></div>
-							<div class="coverage-seg available-seg" style="width:{Math.round((coverage.available / coverage.total) * 100)}%"></div>
+							<div
+								class="coverage-seg mastered-seg"
+								style="width:{Math.round((coverage.mastered / coverage.total) * 100)}%"
+							></div>
+							<div
+								class="coverage-seg learning-seg"
+								style="width:{Math.round(
+									((coverage.interacted - coverage.mastered) / coverage.total) * 100
+								)}%"
+							></div>
+							<div
+								class="coverage-seg available-seg"
+								style="width:{Math.round((coverage.available / coverage.total) * 100)}%"
+							></div>
 						</div>
 					</div>
 				{/if}
@@ -1532,6 +1600,20 @@
 		justify-content: center;
 		gap: 1rem;
 		flex-wrap: wrap;
+		align-items: center;
+	}
+
+	.redo-onboarding-link {
+		font-size: 0.78rem;
+		color: var(--text-muted, #888);
+		text-decoration: none;
+		width: 100%;
+		text-align: center;
+		margin-top: -0.25rem;
+	}
+
+	.redo-onboarding-link:hover {
+		text-decoration: underline;
 	}
 
 	/* Live session button */
@@ -3783,7 +3865,15 @@
 		height: 100%;
 		transition: width 0.3s;
 	}
-	.mastered-seg { background: #10b981; }
-	.learning-seg { background: #fef08a; border-top: 1px solid #ca8a04; border-bottom: 1px solid #ca8a04; }
-	.available-seg { background: #cbd5e1; }
+	.mastered-seg {
+		background: #10b981;
+	}
+	.learning-seg {
+		background: #fef08a;
+		border-top: 1px solid #ca8a04;
+		border-bottom: 1px solid #ca8a04;
+	}
+	.available-seg {
+		background: #cbd5e1;
+	}
 </style>

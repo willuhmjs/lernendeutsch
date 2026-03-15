@@ -6,6 +6,10 @@ export async function load({ locals }) {
 		throw redirect(302, '/login');
 	}
 
+	if (!locals.user.hasOnboarded) {
+		throw redirect(302, '/onboarding');
+	}
+
 	const userId = locals.user.id;
 
 	const dueReviews = await prisma.userVocabularyProgress.findMany({

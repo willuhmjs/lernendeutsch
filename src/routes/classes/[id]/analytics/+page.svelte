@@ -98,7 +98,9 @@
 							<div class="cefr-bar-wrap">
 								<div
 									class="cefr-bar-col"
-									style="height:{Math.round((d.count / maxCefr) * 100)}%;background:{d.count > 0 ? '#3b82f6' : 'var(--card-border,#e2e8f0)'}"
+									style="height:{Math.round((d.count / maxCefr) * 100)}%;background:{d.count > 0
+										? '#3b82f6'
+										: 'var(--card-border,#e2e8f0)'}"
 								>
 									{#if d.count > 0}<span class="cefr-bar-count">{d.count}</span>{/if}
 								</div>
@@ -170,7 +172,14 @@
 								<td class="center mono">{s.wordsReviewed}</td>
 								<td class="center">
 									{#if s.avgRetentionPct !== null}
-										<span class="mono" style="color:{s.avgRetentionPct >= 80 ? '#22c55e' : s.avgRetentionPct >= 60 ? '#f97316' : '#ef4444'}">{s.avgRetentionPct}%</span>
+										<span
+											class="mono"
+											style="color:{s.avgRetentionPct >= 80
+												? '#22c55e'
+												: s.avgRetentionPct >= 60
+													? '#f97316'
+													: '#ef4444'}">{s.avgRetentionPct}%</span
+										>
 									{:else}
 										<span class="meaning-cell">–</span>
 									{/if}
@@ -202,15 +211,44 @@
 					onblur={() => setTimeout(() => (dropdownOpen = false), 150)}
 				>
 					{creating ? 'Creating...' : 'Create Remediation'}
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true">
+					<svg
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						width="14"
+						height="14"
+						aria-hidden="true"
+					>
 						<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
 					</svg>
 				</button>
 				{#if dropdownOpen}
 					<ul class="dropdown-menu">
-						<li><button onclick={() => { dropdownOpen = false; createRemediationAssignment(10); }}>Top 10 Words</button></li>
-						<li><button onclick={() => { dropdownOpen = false; createRemediationAssignment(20); }}>Top 20 Words</button></li>
-						<li><button onclick={() => { dropdownOpen = false; createRemediationAssignment(50); }}>Top 50 Words</button></li>
+						<li>
+							<button
+								onclick={() => {
+									dropdownOpen = false;
+									createRemediationAssignment(10);
+								}}>Top 10 Words</button
+							>
+						</li>
+						<li>
+							<button
+								onclick={() => {
+									dropdownOpen = false;
+									createRemediationAssignment(20);
+								}}>Top 20 Words</button
+							>
+						</li>
+						<li>
+							<button
+								onclick={() => {
+									dropdownOpen = false;
+									createRemediationAssignment(50);
+								}}>Top 50 Words</button
+							>
+						</li>
 					</ul>
 				{/if}
 			</div>
@@ -220,7 +258,9 @@
 			<div class="analytics-empty">
 				<div class="analytics-empty-icon" aria-hidden="true">📊</div>
 				<p class="analytics-empty-title">No data yet</p>
-				<p class="analytics-empty-desc">Students need to start learning vocabulary before struggles can be tracked.</p>
+				<p class="analytics-empty-desc">
+					Students need to start learning vocabulary before struggles can be tracked.
+				</p>
 			</div>
 		{:else}
 			<div class="table-wrap">
@@ -243,14 +283,32 @@
 								<td class="center">
 									<div class="ease-cell">
 										<span class="mono">{word.averageDifficulty.toFixed(2)}</span>
-										<span class="difficulty-dot" style="background:{word.averageDifficulty > 7 ? '#ef4444' : word.averageDifficulty > 5 ? '#f97316' : '#22c55e'}" title={word.averageDifficulty > 7 ? 'Very Difficult' : word.averageDifficulty > 5 ? 'Difficult' : 'Okay'}></span>
+										<span
+											class="difficulty-dot"
+											style="background:{word.averageDifficulty > 7
+												? '#ef4444'
+												: word.averageDifficulty > 5
+													? '#f97316'
+													: '#22c55e'}"
+											title={word.averageDifficulty > 7
+												? 'Very Difficult'
+												: word.averageDifficulty > 5
+													? 'Difficult'
+													: 'Okay'}
+										></span>
 									</div>
 								</td>
 								<td class="center">
 									<div class="struggle-cell">
 										<span class="mono">{word.strugglePercentage.toFixed(0)}%</span>
 										<div class="struggle-bar-track">
-											<div class="struggle-bar-fill" style="width:{word.strugglePercentage}%;background:{word.strugglePercentage > 50 ? '#ef4444' : '#f97316'}"></div>
+											<div
+												class="struggle-bar-fill"
+												style="width:{word.strugglePercentage}%;background:{word.strugglePercentage >
+												50
+													? '#ef4444'
+													: '#f97316'}"
+											></div>
 										</div>
 									</div>
 								</td>
@@ -268,7 +326,9 @@
 			<div class="card-header">
 				<div>
 					<h2>Struggling Grammar</h2>
-					<p class="card-desc">Grammar rules with the highest average difficulty across students.</p>
+					<p class="card-desc">
+						Grammar rules with the highest average difficulty across students.
+					</p>
 				</div>
 			</div>
 			<div class="table-wrap">
@@ -291,14 +351,27 @@
 								<td class="center">
 									<div class="ease-cell">
 										<span class="mono">{rule.averageDifficulty.toFixed(2)}</span>
-										<span class="difficulty-dot" style="background:{rule.averageDifficulty > 7 ? '#ef4444' : rule.averageDifficulty > 5 ? '#f97316' : '#22c55e'}"></span>
+										<span
+											class="difficulty-dot"
+											style="background:{rule.averageDifficulty > 7
+												? '#ef4444'
+												: rule.averageDifficulty > 5
+													? '#f97316'
+													: '#22c55e'}"
+										></span>
 									</div>
 								</td>
 								<td class="center">
 									<div class="struggle-cell">
 										<span class="mono">{rule.strugglePercentage.toFixed(0)}%</span>
 										<div class="struggle-bar-track">
-											<div class="struggle-bar-fill" style="width:{rule.strugglePercentage}%;background:{rule.strugglePercentage > 50 ? '#ef4444' : '#f97316'}"></div>
+											<div
+												class="struggle-bar-fill"
+												style="width:{rule.strugglePercentage}%;background:{rule.strugglePercentage >
+												50
+													? '#ef4444'
+													: '#f97316'}"
+											></div>
 										</div>
 									</div>
 								</td>

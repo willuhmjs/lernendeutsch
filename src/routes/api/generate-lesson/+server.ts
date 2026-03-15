@@ -31,6 +31,12 @@ export async function POST(event) {
 		const body = await request.json().catch(() => ({}));
 		const gameMode: GameMode = body.gameMode || 'native-to-target';
 		const assignmentId = body.assignmentId;
+		// IDs of vocab/grammar items the user failed in the previous question of this session.
+		// These get injected at the front of the selection so the LLM is forced to re-target them.
+		const retryVocabIds: string[] = Array.isArray(body.retryVocabIds) ? body.retryVocabIds : [];
+		const retryGrammarIds: string[] = Array.isArray(body.retryGrammarIds)
+			? body.retryGrammarIds
+			: [];
 		let activeLangName = locals.user.activeLanguage?.name || 'Target Language';
 		const userId = locals.user.id;
 		let activeLanguageId = locals.user.activeLanguage?.id;
@@ -184,7 +190,12 @@ export async function POST(event) {
 			selectedVocabIds.length > 0
 				? await prisma.userVocabularyProgress.findMany({
 						where: { userId, vocabularyId: { in: selectedVocabIds } },
-						select: { vocabularyId: true, lastErrorType: true, stability: true, lastReviewDate: true }
+						select: {
+							vocabularyId: true,
+							lastErrorType: true,
+							stability: true,
+							lastReviewDate: true
+						}
 					})
 				: [];
 		const errorTypeMap = new Map(progressRows.map((r) => [r.vocabularyId, r.lastErrorType]));
@@ -194,8 +205,7 @@ export async function POST(event) {
 		const retrievabilityMap = new Map<string, number>();
 		for (const row of progressRows) {
 			if (row.stability > 0 && row.lastReviewDate) {
-				const elapsedDays =
-					(now.getTime() - row.lastReviewDate.getTime()) / (1000 * 60 * 60 * 24);
+				const elapsedDays = (now.getTime() - row.lastReviewDate.getTime()) / (1000 * 60 * 60 * 24);
 				const r = Math.max(0, Math.min(1, Math.pow(1 + elapsedDays / (9 * row.stability), -1)));
 				retrievabilityMap.set(row.vocabularyId, r);
 			} else {
@@ -216,11 +226,21 @@ export async function POST(event) {
 			const bTime = b.nextReviewDate ? b.nextReviewDate.getTime() : 0;
 			return aTime - bTime;
 		});
-		const topCandidates = selectedLearning.slice(0, LESSON_CONFIG.LESSON_VOCAB_MAX * 2);
-		for (let i = topCandidates.length - 1; i > 0; i--) {
+		// Within-session retry: items the user just failed get pinned to the front of the
+		// candidate list before shuffling, so the LLM is forced to re-target them.
+		// We partition selectedLearning into retry items (ordered first) and the rest (shuffled).
+		const retryVocabIdSet = new Set(retryVocabIds);
+		const retryItems = selectedLearning.filter((uv) => retryVocabIdSet.has(uv.vocabularyId));
+		const nonRetryItems = selectedLearning.filter((uv) => !retryVocabIdSet.has(uv.vocabularyId));
+		// Shuffle only the non-retry portion — retry items stay at the front.
+		for (let i = nonRetryItems.length - 1; i > 0; i--) {
 			const j = Math.floor(Math.random() * (i + 1));
-			[topCandidates[i], topCandidates[j]] = [topCandidates[j], topCandidates[i]];
+			[nonRetryItems[i], nonRetryItems[j]] = [nonRetryItems[j], nonRetryItems[i]];
 		}
+		const topCandidates = [...retryItems, ...nonRetryItems].slice(
+			0,
+			LESSON_CONFIG.LESSON_VOCAB_MAX * 2
+		);
 		const learningVocabDb = topCandidates.slice(0, LESSON_CONFIG.LESSON_VOCAB_MAX);
 
 		// 4. Fetch Mastered Vocabulary and Grammar
@@ -356,6 +376,24 @@ export async function POST(event) {
 						.filter((ug) => findDeepestUnmetPrereq(ug.grammarRule.id) === null)
 						.slice(0, 1);
 
+		// Within-session retry: if the user failed a grammar rule in the previous question,
+		// override the normal selection and force that rule to be the learning target.
+		if (retryGrammarIds.length > 0) {
+			const retryGrammarIdSet = new Set(retryGrammarIds);
+			// Look in the already-fetched learning query first (most likely location)
+			const retryFromLearning = learningGrammarDbQuery.filter((ug) =>
+				retryGrammarIdSet.has(ug.grammarRule.id)
+			);
+			// Also check mastered grammar (user may have regressed on a mastered rule)
+			const retryFromMastered = masteredGrammarDb.filter((ug: any) =>
+				retryGrammarIdSet.has(ug.grammarRule.id)
+			);
+			const retryGrammar = [...retryFromLearning, ...retryFromMastered].slice(0, 1);
+			if (retryGrammar.length > 0) {
+				learningGrammarDb = retryGrammar;
+			}
+		}
+
 		// Grammar fallback logic
 		if (masteredGrammarDb.length === 0 && learningGrammarDb.length === 0) {
 			const potentialNewGrammars = await prisma.grammarRule.findMany({
@@ -364,8 +402,8 @@ export async function POST(event) {
 				orderBy: { level: 'asc' },
 				take: 20
 			});
-			const eligibleGrammars = potentialNewGrammars.filter((rule) =>
-				findDeepestUnmetPrereq(rule.id) === null
+			const eligibleGrammars = potentialNewGrammars.filter(
+				(rule) => findDeepestUnmetPrereq(rule.id) === null
 			);
 			if (eligibleGrammars.length > 0) {
 				masteredGrammarDb = eligibleGrammars
@@ -400,8 +438,8 @@ export async function POST(event) {
 				take: 20
 			});
 
-			const eligibleGrammars = potentialNewGrammars.filter((rule) =>
-				findDeepestUnmetPrereq(rule.id) === null
+			const eligibleGrammars = potentialNewGrammars.filter(
+				(rule) => findDeepestUnmetPrereq(rule.id) === null
 			);
 
 			if (eligibleGrammars.length > 0) {
@@ -489,14 +527,41 @@ export async function POST(event) {
 			idMap[`g${i}`] = g.id;
 		});
 
-		// Format for prompt
+		// Format for prompt — background lists (mastered/known): lemma + all meanings + gender + plural.
+		// Joining all meaning values (not just [0]) ensures polysemous words like "machen"
+		// show "to do / to make" rather than just "to do", giving the LLM the full sense range.
 		const formatVocab = (v: {
 			lemma: string;
 			meanings: any[];
 			gender?: string | null;
 			plural?: string | null;
-		}) =>
-			`- ${v.gender ? v.gender + ' ' : ''}${v.lemma}${v.plural ? ' (pl: ' + v.plural + ')' : ''} (${v.meanings?.[0]?.value || ''})`;
+		}) => {
+			const allMeanings =
+				(v.meanings as { value: string }[] | undefined)
+					?.map((m) => m.value)
+					.filter(Boolean)
+					.join(' / ') || '';
+			return `- ${v.gender ? v.gender + ' ' : ''}${v.lemma}${v.plural ? ' (pl: ' + v.plural + ')' : ''} (${allMeanings})`;
+		};
+
+		// Format for learning/interleaved targets — same as above but also includes
+		// partOfSpeech so the LLM knows whether to conjugate (verb), inflect (noun/adj), etc.
+		const formatLearningVocab = (v: {
+			lemma: string;
+			meanings: any[];
+			gender?: string | null;
+			plural?: string | null;
+			partOfSpeech?: string | null;
+		}) => {
+			const allMeanings =
+				(v.meanings as { value: string }[] | undefined)
+					?.map((m) => m.value)
+					.filter(Boolean)
+					.join(' / ') || '';
+			const pos = v.partOfSpeech ? ` [${v.partOfSpeech}]` : '';
+			return `- ${v.gender ? v.gender + ' ' : ''}${v.lemma}${v.plural ? ' (pl: ' + v.plural + ')' : ''}${pos} (${allMeanings})`;
+		};
+
 		// Background mastered list excludes interleaved items (they appear in the learning section)
 		const masteredVocabList = masteredVocabBackground
 			.map((v) => formatVocab(v as unknown as Parameters<typeof formatVocab>[0]))
@@ -506,19 +571,22 @@ export async function POST(event) {
 		const interleavedVocabLines = interleavedVocab
 			.map(
 				(v: any, i: number) =>
-					`${formatVocab(v as unknown as Parameters<typeof formatVocab>[0])} - ID: v${knownOffset + i} [review]`
+					`${formatLearningVocab(v as unknown as Parameters<typeof formatLearningVocab>[0])} - ID: v${knownOffset + i} [review]`
 			)
 			.join('\n');
 		const learningVocabList = [
-			...learningVocab.map(
-				(v, i) => `${formatVocab(v as unknown as Parameters<typeof formatVocab>[0])} - ID: v${i}`
-			),
+			...learningVocab.map((v, i) => {
+				const isRetry = retryVocabIdSet.has(v.id);
+				const line = `${formatLearningVocab(v as unknown as Parameters<typeof formatLearningVocab>[0])} - ID: v${i}`;
+				// [retry] tag tells the LLM this word was just answered incorrectly and MUST be used.
+				return isRetry ? `${line} [retry — MUST USE THIS WORD]` : line;
+			}),
 			...(interleavedVocabLines ? [interleavedVocabLines] : [])
 		].join('\n');
 		const knownVocabList = knownVocab
 			.map(
 				(v, i) =>
-					`${formatVocab(v as unknown as Parameters<typeof formatVocab>[0])} - ID: v${learnOffset + i}`
+					`${formatLearningVocab(v as unknown as Parameters<typeof formatLearningVocab>[0])} - ID: v${learnOffset + i}`
 			)
 			.join('\n');
 		const masteredGrammarList = masteredGrammar
@@ -527,11 +595,20 @@ export async function POST(event) {
 					`- ${g.title} (${g.description}) - ID: ${Object.keys(idMap).find((k) => idMap[k] === g.id)}`
 			)
 			.join('\n');
+		const retryGrammarIdSet = new Set(retryGrammarIds);
 		const learningGrammarList = learningGrammar
-			.map(
-				(g: { title: string; description: string; id: string }) =>
-					`- ${g.title} (${g.description}) - ID: ${Object.keys(idMap).find((k) => idMap[k] === g.id)}`
-			)
+			.map((g: { title: string; description: string; id: string; targetForms?: string[] }) => {
+				const shortId = Object.keys(idMap).find((k) => idMap[k] === g.id);
+				const isRetry = retryGrammarIdSet.has(g.id);
+				// targetForms gives the LLM the exact surface forms to produce (e.g. "den", "einen")
+				// rather than asking it to interpret a human-readable rule description.
+				const formsHint =
+					g.targetForms && g.targetForms.length > 0
+						? ` — use one of: ${g.targetForms.join(', ')}`
+						: '';
+				const line = `- ${g.title}${formsHint} (${g.description}) - ID: ${shortId}`;
+				return isRetry ? `${line} [retry — MUST APPLY THIS RULE]` : line;
+			})
 			.join('\n');
 		// Grammar rules the LLM can identify if used implicitly (excludes mastered/learning to avoid duplication).
 		// Capped at 25 — enough coverage for identification without bloating the prompt.

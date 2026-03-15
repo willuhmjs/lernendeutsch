@@ -31,7 +31,14 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			data: { activeLanguageId: languageId }
 		});
 
-		return json({ success: true });
+		// Return whether the user has already onboarded for this language so the
+		// client can decide where to navigate (onboarding vs. current page).
+		const progress = await prisma.userProgress.findUnique({
+			where: { userId_languageId: { userId: user.id, languageId } },
+			select: { hasOnboarded: true }
+		});
+
+		return json({ success: true, hasOnboarded: progress?.hasOnboarded ?? false });
 	} catch (error) {
 		console.error('Failed to update active language:', error);
 		return json({ error: 'Internal server error' }, { status: 500 });
