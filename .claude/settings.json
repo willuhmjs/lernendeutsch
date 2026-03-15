@@ -3,7 +3,8 @@
 		"allow": [
 			"Bash(pnpm eslint:*)",
 			"Bash(sed -i '' 's/^function mockProgress/function _mockProgress/; s/^function mockCounts/function _mockCounts/; s/^function mockElos/function _mockElos/' /Users/will/Development/lernendeutsch/tests/unit/cefrService.test.ts)",
-			"Bash(sed -i '' 's/\\\\t\\\\tconst expectedDecayed = /\\\\t\\\\tconst _expectedDecayed = /' /Users/will/Development/lernendeutsch/tests/unit/cefrService.test.ts)"
+			"Bash(sed -i '' 's/\\\\t\\\\tconst expectedDecayed = /\\\\t\\\\tconst _expectedDecayed = /' /Users/will/Development/lernendeutsch/tests/unit/cefrService.test.ts)",
+			"Bash(pnpm check:*)"
 		],
 		"additionalDirectories": [
 			"/Users/will/Development/lernendeutsch/src/routes/classes/[id]/analytics"
