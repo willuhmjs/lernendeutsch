@@ -98,6 +98,7 @@
 		sessionComplete = false;
 		wordPopup = null;
 		wordLookupCache.clear();
+		wordInflightSet.clear();
 
 		try {
 			const res = await fetch('/api/immersion/generate', {
@@ -133,6 +134,8 @@
 
 	const skeletonType = $derived(selectedMediaType === 'random' ? 'news_article' : selectedMediaType);
 	let wordLookupCache = new Map<string, any>();
+	// Tracks words with an LLM request currently in flight so re-clicks don't fire a second request.
+	let wordInflightSet = new Set<string>();
 
 	async function addWordToVocabulary(vocabularyId: string) {
 		if (!vocabularyId || wordAddedSet.has(vocabularyId) || wordAddingId) return;
@@ -191,8 +194,19 @@
 		const x = Math.min(rect.left, window.innerWidth - 290);
 		const y = rect.bottom + 6;
 
-		if (wordLookupCache.has(word.toLowerCase())) {
-			wordPopup = { word, x, y, loading: false, result: wordLookupCache.get(word.toLowerCase()), error: '' };
+		const wordKey = word.toLowerCase();
+
+		if (wordLookupCache.has(wordKey)) {
+			wordPopup = { word, x, y, loading: false, result: wordLookupCache.get(wordKey), error: '' };
+			return;
+		}
+
+		// If an LLM request is already in flight for this word, just (re-)show the popup
+		// in its current state without firing another request.
+		if (wordInflightSet.has(wordKey)) {
+			if (!wordPopup || wordPopup.word !== word) {
+				wordPopup = { word, x, y, loading: true, result: null, error: '' };
+			}
 			return;
 		}
 
@@ -215,7 +229,7 @@
 			wordPopup = { word, x, y, loading: false, result: dbVocab, error: '' };
 			// If not sparse, cache and done
 			if (!isSparseMeta(dbVocab)) {
-				wordLookupCache.set(word.toLowerCase(), dbVocab);
+				wordLookupCache.set(wordKey, dbVocab);
 				return;
 			}
 			// Sparse — enrich silently in background with existingId so server persists enrichment
@@ -227,6 +241,7 @@
 			wordPopup = { word, x, y, loading: true, result: null, error: '' };
 		}
 
+		wordInflightSet.add(wordKey);
 		try {
 			const res = await fetch('/api/vocabulary/llm-lookup', {
 				method: 'POST',
@@ -235,7 +250,7 @@
 			});
 			const data = await res.json();
 			if (data.success && data.data) {
-				wordLookupCache.set(word.toLowerCase(), data.data);
+				wordLookupCache.set(wordKey, data.data);
 				// Only update popup if it's still showing this word
 				if (wordPopup?.word === word) {
 					wordPopup = { word, x, y, loading: false, result: data.data, error: '' };
@@ -250,6 +265,8 @@
 			if (!enriching && wordPopup?.word === word) {
 				wordPopup = { word, x, y, loading: false, result: null, error: 'Lookup failed.' };
 			}
+		} finally {
+			wordInflightSet.delete(wordKey);
 		}
 	}
 

@@ -95,65 +95,76 @@ export async function generateLessonStream({
 					);
 				}
 
-				// Vocab enrichment: look up words from generated text in the full Vocabulary table
-				try {
-					let cleaned = fullContent;
-					const firstBrace = cleaned.indexOf('{');
-					const lastBrace = cleaned.lastIndexOf('}');
-					if (firstBrace !== -1 && lastBrace !== -1) {
-						cleaned = cleaned.slice(firstBrace, lastBrace + 1);
-					}
-
-					if (!cleaned) {
-						throw new SyntaxError('Empty JSON content after stream completion.');
-					}
-
-					const parsedResponse = JSON.parse(cleaned);
-
-					// Extract only the text that is in the target language
-					let targetLanguageText = '';
-					if (gameMode === 'native-to-target') {
-						targetLanguageText = parsedResponse.targetSentence || '';
-					} else if (gameMode === 'target-to-native') {
-						targetLanguageText = parsedResponse.challengeText || '';
-					} else if (gameMode === 'multiple-choice') {
-						if (parsedResponse.targetedGrammarIds && parsedResponse.targetedGrammarIds.length > 0) {
-							targetLanguageText = parsedResponse.targetSentence || '';
-						} else {
-							targetLanguageText = parsedResponse.challengeText || '';
+				// Vocab enrichment: look up words from generated text in the full Vocabulary table.
+				// Run as a fire-and-forget promise so a client disconnect (stream cancel) never
+				// interrupts enrichment — it must always complete because it writes to the shared
+				// DB and records good-will token usage for the user.
+				const enrichmentPromise = (async () => {
+					try {
+						let cleaned = fullContent;
+						const firstBrace = cleaned.indexOf('{');
+						const lastBrace = cleaned.lastIndexOf('}');
+						if (firstBrace !== -1 && lastBrace !== -1) {
+							cleaned = cleaned.slice(firstBrace, lastBrace + 1);
 						}
-					} else {
-						targetLanguageText = parsedResponse.targetSentence || '';
-					}
 
-					await processVocabEnrichment(
-						userId,
-						targetLanguageText,
-						activeLangName,
-						activeLanguageId,
-						masteredVocab,
-						learningVocab,
-						(data) => {
-							controller.enqueue(new TextEncoder().encode(JSON.stringify(data) + '\n'));
-						},
-						useLocalLlm,
-						!useLocalLlm // chargeQuota: record good-will tokens only for public LLM users
-					);
-				} catch (enrichErr) {
-					if (enrichErr instanceof SyntaxError) {
-						console.error('Vocab enrichment skipped: Incomplete or missing JSON from LLM.');
-					} else {
-						console.error('Vocab enrichment failed:', enrichErr);
-					}
-				}
+						if (!cleaned) {
+							throw new SyntaxError('Empty JSON content after stream completion.');
+						}
 
+						const parsedResponse = JSON.parse(cleaned);
+
+						// Extract only the text that is in the target language
+						let targetLanguageText = '';
+						if (gameMode === 'native-to-target') {
+							targetLanguageText = parsedResponse.targetSentence || '';
+						} else if (gameMode === 'target-to-native') {
+							targetLanguageText = parsedResponse.challengeText || '';
+						} else if (gameMode === 'multiple-choice') {
+							if (parsedResponse.targetedGrammarIds && parsedResponse.targetedGrammarIds.length > 0) {
+								targetLanguageText = parsedResponse.targetSentence || '';
+							} else {
+								targetLanguageText = parsedResponse.challengeText || '';
+							}
+						} else {
+							targetLanguageText = parsedResponse.targetSentence || '';
+						}
+
+						await processVocabEnrichment(
+							userId,
+							targetLanguageText,
+							activeLangName,
+							activeLanguageId,
+							masteredVocab,
+							learningVocab,
+							(data) => {
+								// Enqueue enrichment chunks — safe to ignore errors if stream already closed
+								try {
+									controller.enqueue(new TextEncoder().encode(JSON.stringify(data) + '\n'));
+								} catch {
+									// Stream already closed (client disconnected); enrichment still ran
+								}
+							},
+							useLocalLlm,
+							!useLocalLlm // chargeQuota: record good-will tokens only for public LLM users
+						);
+					} catch (enrichErr) {
+						if (enrichErr instanceof SyntaxError) {
+							console.error('Vocab enrichment skipped: Incomplete or missing JSON from LLM.');
+						} else {
+							console.error('Vocab enrichment failed:', enrichErr);
+						}
+					}
+				})();
+
+				await enrichmentPromise;
 				controller.close();
 			} catch (e) {
 				controller.error(e);
 			}
 		},
 		cancel() {
-			// Stream cancelled by client
+			// Stream cancelled by client — enrichment already running independently above
 		}
 	});
 

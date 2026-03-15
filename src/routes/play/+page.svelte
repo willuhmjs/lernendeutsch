@@ -312,10 +312,8 @@
 			generateController.abort();
 			generateController = null;
 		}
-		if (submitController) {
-			submitController.abort();
-			submitController = null;
-		}
+		// submitController is intentionally NOT aborted here — submit-answer awards
+		// credit (ELO, XP, DB writes) and must always run to completion.
 		stopLoadingIntervals();
 	}
 

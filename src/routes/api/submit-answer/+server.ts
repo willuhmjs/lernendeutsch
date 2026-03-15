@@ -257,6 +257,8 @@ export async function POST(event) {
 			activeLanguageName
 		);
 
+		// Do NOT pass request.signal — submit-answer awards ELO, XP, and DB writes after
+		// the LLM completes. A client disconnect must not abort this credit-awarding pipeline.
 		const useLocalLlm = user?.useLocalLlm ?? false;
 		const llmResponse = await generateChatCompletion({
 			userId,
@@ -264,7 +266,6 @@ export async function POST(event) {
 			systemPrompt,
 			jsonMode: true,
 			stream: false,
-			signal: request.signal,
 			onUsage: useLocalLlm ? undefined : ({ totalTokens }) => {
 				recordTokenUsage(userId, totalTokens);
 			}

@@ -196,13 +196,15 @@ Return your response as a JSON object with the following structure:
 
 	try {
 		console.log('Sending message to OpenAI...', { messages: chatMessages.length, systemPrompt });
+		// Do NOT pass event.request.signal here — the chat pipeline awards ELO, records
+		// token usage, and writes DB messages after the stream completes. Aborting on
+		// client disconnect would cut off all of that credit-awarding work.
 		const response = await generateChatCompletion({
 			userId,
 			messages: chatMessages,
 			systemPrompt,
 			jsonMode: true,
-			stream: true,
-			signal: event.request.signal
+			stream: true
 		});
 		console.log('OpenAI response started streaming');
 
