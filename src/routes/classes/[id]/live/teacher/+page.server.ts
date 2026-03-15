@@ -31,4 +31,3 @@ export async function load({ params, locals }) {
 		className: classDetails.name
 	};
 }
-

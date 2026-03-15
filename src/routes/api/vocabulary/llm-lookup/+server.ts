@@ -8,7 +8,10 @@ import { isQuotaExceeded, recordTokenUsage } from '$lib/server/aiQuota';
 // Any concurrent request for the same word joins the existing promise instead of
 // spawning a second LLM call. Resolves to the JSON-serialisable payload so the
 // Response object (single-use) doesn't need to be shared.
-const inflightLookups = new Map<string, Promise<{ success: boolean; data?: unknown; error?: string }>>();
+const inflightLookups = new Map<
+	string,
+	Promise<{ success: boolean; data?: unknown; error?: string }>
+>();
 
 export async function POST(event: RequestEvent) {
 	const { request, locals } = event;
@@ -25,11 +28,11 @@ export async function POST(event: RequestEvent) {
 	});
 
 	// Apply Rate Limiting
-	if (!user?.useLocalLlm && await llmDictionaryRateLimiter.isLimited(event)) {
+	if (!user?.useLocalLlm && (await llmDictionaryRateLimiter.isLimited(event))) {
 		return json({ error: 'Too many requests' }, { status: 429 });
 	}
 
-	if (!user?.useLocalLlm && await isQuotaExceeded(userId, false)) {
+	if (!user?.useLocalLlm && (await isQuotaExceeded(userId, false))) {
 		return json({ error: 'Daily AI quota exceeded. Please try again tomorrow.' }, { status: 429 });
 	}
 
@@ -64,7 +67,11 @@ export async function POST(event: RequestEvent) {
 
 		// Wrap the LLM + DB work in a promise and register it before awaiting,
 		// so any concurrent request that arrives while we're mid-flight joins it.
-		const workPromise = (async (): Promise<{ success: boolean; data?: unknown; error?: string }> => {
+		const workPromise = (async (): Promise<{
+			success: boolean;
+			data?: unknown;
+			error?: string;
+		}> => {
 			// Prepare LLM Call
 			const systemPrompt = `You are an expert linguist and dictionary assistant for the ${language.name} language.
 The user will provide a word or short phrase they searched for. The input may be in ${language.name} or in English.
@@ -123,7 +130,11 @@ Return the dictionary entry in the following JSON format:
 				jsonMode: true,
 				temperature: 0.1,
 				signal: controller.signal,
-				onUsage: useLocalLlm ? undefined : ({ totalTokens }) => { tokensUsed = totalTokens; }
+				onUsage: useLocalLlm
+					? undefined
+					: ({ totalTokens }) => {
+							tokensUsed = totalTokens;
+						}
 			});
 
 			clearTimeout(timeoutId);
@@ -157,29 +168,39 @@ Return the dictionary entry in the following JSON format:
 			}
 
 			// Check if it already exists in the database
-			const existingVocab = existingId ? await prisma.vocabulary.findUnique({
-				where: { id: existingId },
-				include: { meanings: true }
-			}) : await prisma.vocabulary.findFirst({
-				where: {
-					languageId: languageId,
-					lemma: {
-						equals: llmResult.lemma,
-						mode: 'insensitive'
-					}
-				},
-				include: { meanings: true }
-			});
+			const existingVocab = existingId
+				? await prisma.vocabulary.findUnique({
+						where: { id: existingId },
+						include: { meanings: true }
+					})
+				: await prisma.vocabulary.findFirst({
+						where: {
+							languageId: languageId,
+							lemma: {
+								equals: llmResult.lemma,
+								mode: 'insensitive'
+							}
+						},
+						include: { meanings: true }
+					});
 
 			// If it exists and has meanings, check if it's sparse (missing metadata enrichment).
 			// If not sparse, return as-is. If sparse, fall through to update it with LLM data.
 			if (existingVocab && existingVocab.meanings && existingVocab.meanings.length > 0) {
-				const GENDERED_LANGUAGES = ['german', 'french', 'spanish', 'italian', 'portuguese', 'russian'];
+				const GENDERED_LANGUAGES = [
+					'german',
+					'french',
+					'spanish',
+					'italian',
+					'portuguese',
+					'russian'
+				];
 				const isNoun = existingVocab.partOfSpeech === 'noun';
 				const langIsGendered = GENDERED_LANGUAGES.includes(language.name.toLowerCase());
 				const missingGender = isNoun && langIsGendered && !existingVocab.gender;
 				const meta = existingVocab.metadata as Record<string, unknown> | null;
-				const isSparse = missingGender || !meta || !(meta.example || meta.declensions || meta.conjugations);
+				const isSparse =
+					missingGender || !meta || !(meta.example || meta.declensions || meta.conjugations);
 				if (!isSparse) {
 					// Charged: LLM was called but the word already existed — no new DB benefit
 					if (!useLocalLlm) recordTokenUsage(userId, tokensUsed, false);
@@ -217,7 +238,7 @@ Return the dictionary entry in the following JSON format:
 						value: m.value,
 						partOfSpeech: m.partOfSpeech || null,
 						context: m.context || null
-				  }))
+					}))
 				: [];
 
 			// Users with a local/custom LLM must not write to the shared vocabulary database.
@@ -229,9 +250,11 @@ Return the dictionary entry in the following JSON format:
 					languageId,
 					lemma: llmResult.lemma,
 					partOfSpeech: meaningsData.length > 0 ? meaningsData[0].partOfSpeech : null,
-					gender: llmResult.gender && ['MASCULINE', 'FEMININE', 'NEUTER'].includes(llmResult.gender.toUpperCase())
-						? llmResult.gender.toUpperCase()
-						: null,
+					gender:
+						llmResult.gender &&
+						['MASCULINE', 'FEMININE', 'NEUTER'].includes(llmResult.gender.toUpperCase())
+							? llmResult.gender.toUpperCase()
+							: null,
 					plural: llmResult.plural || null,
 					isBeginner: false,
 					isAutoGenerated: true,

@@ -86,5 +86,5 @@ export const particles = [
 		lemma: 'vielleicht',
 		meaning: 'perhaps, used as particle',
 		partOfSpeech: 'particle' as const
-	},
+	}
 ];

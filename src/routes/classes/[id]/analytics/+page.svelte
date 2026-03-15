@@ -1,7 +1,5 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import { enhance } from '$app/forms';
-	import { invalidateAll } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { addToast } from '$lib/toast';
 
@@ -69,26 +67,57 @@
 		<div class="card-header">
 			<div>
 				<h2>Struggling Words</h2>
-				<p class="card-desc">Words with the highest average difficulty and highest struggle rate across all students.</p>
+				<p class="card-desc">
+					Words with the highest average difficulty and highest struggle rate across all students.
+				</p>
 			</div>
 			<div class="remediation-dropdown" class:open={dropdownOpen}>
 				<button
 					class="btn-remediation"
 					class:loading={creating}
 					disabled={creating}
-					onclick={() => dropdownOpen = !dropdownOpen}
-					onblur={() => setTimeout(() => dropdownOpen = false, 150)}
+					onclick={() => (dropdownOpen = !dropdownOpen)}
+					onblur={() => setTimeout(() => (dropdownOpen = false), 150)}
 				>
 					{creating ? 'Creating...' : 'Create Remediation'}
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true">
-						<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+					<svg
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						width="14"
+						height="14"
+						aria-hidden="true"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
 					</svg>
 				</button>
 				{#if dropdownOpen}
 					<ul class="dropdown-menu">
-						<li><button onclick={() => { dropdownOpen = false; createRemediationAssignment(10); }}>Top 10 Words</button></li>
-						<li><button onclick={() => { dropdownOpen = false; createRemediationAssignment(20); }}>Top 20 Words</button></li>
-						<li><button onclick={() => { dropdownOpen = false; createRemediationAssignment(50); }}>Top 50 Words</button></li>
+						<li>
+							<button
+								onclick={() => {
+									dropdownOpen = false;
+									createRemediationAssignment(10);
+								}}>Top 10 Words</button
+							>
+						</li>
+						<li>
+							<button
+								onclick={() => {
+									dropdownOpen = false;
+									createRemediationAssignment(20);
+								}}>Top 20 Words</button
+							>
+						</li>
+						<li>
+							<button
+								onclick={() => {
+									dropdownOpen = false;
+									createRemediationAssignment(50);
+								}}>Top 50 Words</button
+							>
+						</li>
 					</ul>
 				{/if}
 			</div>
@@ -98,7 +127,9 @@
 			<div class="analytics-empty">
 				<div class="analytics-empty-icon" aria-hidden="true">📊</div>
 				<p class="analytics-empty-title">No data yet</p>
-				<p class="analytics-empty-desc">Students need to start learning vocabulary before struggles can be tracked.</p>
+				<p class="analytics-empty-desc">
+					Students need to start learning vocabulary before struggles can be tracked.
+				</p>
 			</div>
 		{:else}
 			<div class="table-wrap">
@@ -123,8 +154,16 @@
 										<span class="mono">{word.averageDifficulty.toFixed(2)}</span>
 										<span
 											class="difficulty-dot"
-											style="background:{word.averageDifficulty > 7 ? '#ef4444' : word.averageDifficulty > 5 ? '#f97316' : '#22c55e'}"
-											title={word.averageDifficulty > 7 ? 'Very Difficult' : word.averageDifficulty > 5 ? 'Difficult' : 'Okay'}
+											style="background:{word.averageDifficulty > 7
+												? '#ef4444'
+												: word.averageDifficulty > 5
+													? '#f97316'
+													: '#22c55e'}"
+											title={word.averageDifficulty > 7
+												? 'Very Difficult'
+												: word.averageDifficulty > 5
+													? 'Difficult'
+													: 'Okay'}
 										></span>
 									</div>
 								</td>
@@ -134,7 +173,10 @@
 										<div class="struggle-bar-track">
 											<div
 												class="struggle-bar-fill"
-												style="width:{word.strugglePercentage}%;background:{word.strugglePercentage > 50 ? '#ef4444' : '#f97316'}"
+												style="width:{word.strugglePercentage}%;background:{word.strugglePercentage >
+												50
+													? '#ef4444'
+													: '#f97316'}"
 											></div>
 										</div>
 									</div>
@@ -155,7 +197,9 @@
 		padding: 2rem 1rem;
 	}
 
-	.analytics-header { margin-bottom: 2rem; }
+	.analytics-header {
+		margin-bottom: 2rem;
+	}
 
 	.breadcrumb {
 		display: flex;
@@ -172,9 +216,15 @@
 		font-weight: 600;
 	}
 
-	.breadcrumb a:hover { text-decoration: underline; }
-	.sep { color: #64748b; }
-	.current { color: #94a3b8; }
+	.breadcrumb a:hover {
+		text-decoration: underline;
+	}
+	.sep {
+		color: #64748b;
+	}
+	.current {
+		color: #94a3b8;
+	}
 
 	.analytics-header h1 {
 		font-size: 1.875rem;
@@ -183,7 +233,11 @@
 		margin: 0 0 0.25rem;
 	}
 
-	.subtitle { color: #64748b; margin: 0; font-size: 0.95rem; }
+	.subtitle {
+		color: #64748b;
+		margin: 0;
+		font-size: 0.95rem;
+	}
 
 	.analytics-card {
 		background: var(--card-bg, #ffffff);
@@ -214,9 +268,17 @@
 		margin: 0 0 0.25rem;
 	}
 
-	.card-desc { font-size: 0.85rem; color: #64748b; margin: 0; max-width: 420px; }
+	.card-desc {
+		font-size: 0.85rem;
+		color: #64748b;
+		margin: 0;
+		max-width: 420px;
+	}
 
-	.remediation-dropdown { position: relative; flex-shrink: 0; }
+	.remediation-dropdown {
+		position: relative;
+		flex-shrink: 0;
+	}
 
 	.btn-remediation {
 		display: flex;
@@ -236,8 +298,13 @@
 		transition: background 0.15s;
 	}
 
-	.btn-remediation:hover:not(:disabled) { background: #2563eb; }
-	.btn-remediation:disabled { opacity: 0.6; cursor: not-allowed; }
+	.btn-remediation:hover:not(:disabled) {
+		background: #2563eb;
+	}
+	.btn-remediation:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
 
 	.dropdown-menu {
 		position: absolute;
@@ -246,7 +313,7 @@
 		background: var(--card-bg, #ffffff);
 		border: 2px solid var(--card-border, #e2e8f0);
 		border-radius: 0.75rem;
-		box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 		list-style: none;
 		margin: 0;
 		padding: 0.35rem;
@@ -269,14 +336,19 @@
 		transition: background 0.12s;
 	}
 
-	.dropdown-menu li button:hover { background: var(--card-border, #f1f5f9); }
+	.dropdown-menu li button:hover {
+		background: var(--card-border, #f1f5f9);
+	}
 
 	.analytics-empty {
 		text-align: center;
 		padding: 4rem 2rem;
 	}
 
-	.analytics-empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+	.analytics-empty-icon {
+		font-size: 3rem;
+		margin-bottom: 1rem;
+	}
 
 	.analytics-empty-title {
 		font-size: 1.25rem;
@@ -285,16 +357,28 @@
 		margin: 0 0 0.5rem;
 	}
 
-	.analytics-empty-desc { color: #64748b; font-size: 0.9rem; margin: 0; }
+	.analytics-empty-desc {
+		color: #64748b;
+		font-size: 0.9rem;
+		margin: 0;
+	}
 
-	.table-wrap { overflow-x: auto; }
+	.table-wrap {
+		overflow-x: auto;
+	}
 
-	.analytics-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+	.analytics-table {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: 0.9rem;
+	}
 
-	.analytics-table thead tr { background: var(--card-border, #f8fafc); }
+	.analytics-table thead tr {
+		background: var(--card-border, #f8fafc);
+	}
 
 	:global(html[data-theme='dark']) .analytics-table thead tr {
-		background: rgba(255,255,255,0.04);
+		background: rgba(255, 255, 255, 0.04);
 	}
 
 	.analytics-table th {
@@ -309,7 +393,9 @@
 		white-space: nowrap;
 	}
 
-	.analytics-table th.center { text-align: center; }
+	.analytics-table th.center {
+		text-align: center;
+	}
 
 	.analytics-table td {
 		padding: 0.85rem 1.25rem;
@@ -317,26 +403,41 @@
 		border-bottom: 1px solid var(--card-border, #f1f5f9);
 	}
 
-	.analytics-table tr:last-child td { border-bottom: none; }
-
-	.analytics-table tbody tr:hover { background: var(--card-border, #f8fafc); }
-
-	:global(html[data-theme='dark']) .analytics-table tbody tr:hover {
-		background: rgba(255,255,255,0.03);
+	.analytics-table tr:last-child td {
+		border-bottom: none;
 	}
 
-	.word-cell { font-weight: 800; color: var(--text-color, #1e293b) !important; }
-	.meaning-cell { color: #64748b !important; }
-	.center { text-align: center; }
+	.analytics-table tbody tr:hover {
+		background: var(--card-border, #f8fafc);
+	}
 
-	.ease-cell, .struggle-cell {
+	:global(html[data-theme='dark']) .analytics-table tbody tr:hover {
+		background: rgba(255, 255, 255, 0.03);
+	}
+
+	.word-cell {
+		font-weight: 800;
+		color: var(--text-color, #1e293b) !important;
+	}
+	.meaning-cell {
+		color: #64748b !important;
+	}
+	.center {
+		text-align: center;
+	}
+
+	.ease-cell,
+	.struggle-cell {
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		gap: 0.5rem;
 	}
 
-	.mono { font-family: ui-monospace, monospace; font-size: 0.875rem; }
+	.mono {
+		font-family: ui-monospace, monospace;
+		font-size: 0.875rem;
+	}
 
 	.difficulty-dot {
 		width: 0.5rem;

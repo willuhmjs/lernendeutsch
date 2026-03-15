@@ -70,7 +70,7 @@ const usernameSchema = z.object({
 		.min(3, 'Username must be at least 3 characters')
 		.max(31, 'Username must be at most 31 characters')
 		.regex(
-			/^[a-zA-Z0-9_\-]+$/,
+			/^[a-zA-Z0-9_-]+$/,
 			'Username may only contain letters, numbers, underscores, and hyphens'
 		)
 });

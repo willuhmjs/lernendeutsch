@@ -1147,5 +1147,5 @@ export const adverbs = [
 		lemma: 'nirgends',
 		meaning: 'nowhere',
 		partOfSpeech: 'adverb' as const
-	},
+	}
 ];

@@ -88,7 +88,8 @@
 		if (form?.llmSuccess) toastSuccess(form.llmSuccess);
 		if (form?.passwordSuccess) toastSuccess(form.passwordSuccess);
 		if (form?.languageSuccess) toastSuccess(form.languageSuccess);
-		if ((form as any)?.usernameError && !(form as any)?.usernameSuggestion) toastError((form as any).usernameError);
+		if ((form as any)?.usernameError && !(form as any)?.usernameSuggestion)
+			toastError((form as any).usernameError);
 		if (form?.llmError) toastError(form.llmError);
 		if (form?.passwordError) toastError(form.passwordError);
 		if (form?.languageError) toastError(form.languageError);
@@ -97,7 +98,10 @@
 	let fetchModelsController: AbortController | null = null;
 
 	async function fetchModels() {
-		if (!llmBaseUrl) { availableModels = []; return; }
+		if (!llmBaseUrl) {
+			availableModels = [];
+			return;
+		}
 		fetchModelsController?.abort();
 		fetchModelsController = new AbortController();
 		isFetchingModels = true;
@@ -125,13 +129,15 @@
 		}
 	}
 
-	onMount(() => { if (llmBaseUrl) fetchModels(); });
+	onMount(() => {
+		if (llmBaseUrl) fetchModels();
+	});
 
 	// AI quota helpers
-	const quotaPct = $derived(Math.min(100, (data.aiUsage.effectiveUsage / data.aiUsage.dailyQuota) * 100));
-	const quotaColor = $derived(
-		quotaPct >= 90 ? '#ef4444' : quotaPct >= 70 ? '#f59e0b' : '#22c55e'
+	const quotaPct = $derived(
+		Math.min(100, (data.aiUsage.effectiveUsage / data.aiUsage.dailyQuota) * 100)
 	);
+	const quotaColor = $derived(quotaPct >= 90 ? '#ef4444' : quotaPct >= 70 ? '#f59e0b' : '#22c55e');
 
 	function fmtTokens(n: number): string {
 		if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
@@ -147,17 +153,12 @@
 
 	<!-- Tab bar -->
 	<nav class="tab-bar" in:fly={{ y: 20, duration: 400, delay: 60 }}>
-		{#each ([
-			{ id: 'overview', label: 'Overview' },
-			{ id: 'account', label: 'Account' },
-			{ id: 'ai', label: 'AI / LLM' },
-			{ id: 'danger', label: 'Danger' },
-		] as { id: Tab; label: string }[]) as tab}
+		{#each [{ id: 'overview', label: 'Overview' }, { id: 'account', label: 'Account' }, { id: 'ai', label: 'AI / LLM' }, { id: 'danger', label: 'Danger' }] as { id: Tab; label: string }[] as tab}
 			<button
 				class="tab-btn"
 				class:active={activeTab === tab.id}
 				class:danger-tab={tab.id === 'danger'}
-				onclick={() => activeTab = tab.id}
+				onclick={() => (activeTab = tab.id)}
 			>
 				{tab.label}
 			</button>
@@ -173,8 +174,14 @@
 					<span class="username-display">{data.user?.username}</span>
 					{#if data.user?.role === 'admin'}
 						<span class="admin-badge" title="Administrator">
-							<svg viewBox="0 0 24 24" fill="currentColor" aria-label="Admin" width="18" height="18">
-								<path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7L12 2z"/>
+							<svg
+								viewBox="0 0 24 24"
+								fill="currentColor"
+								aria-label="Admin"
+								width="18"
+								height="18"
+							>
+								<path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7L12 2z" />
 							</svg>
 						</span>
 					{/if}
@@ -218,7 +225,8 @@
 				<section class="card quota-card">
 					<h2>Daily AI Usage</h2>
 					<p class="quota-desc">
-						Tokens are consumed by AI features (lessons, chat, grammar tests). Words you look up that get saved to the shared dictionary are refunded as good-will tokens.
+						Tokens are consumed by AI features (lessons, chat, grammar tests). Words you look up
+						that get saved to the shared dictionary are refunded as good-will tokens.
 					</p>
 					<div class="quota-bar-wrap">
 						<div class="quota-bar-track">
@@ -237,7 +245,9 @@
 						{#if data.aiUsage.goodWillTokens > 0}
 							<div class="quota-stat">
 								<span class="quota-stat-label">Good-will refunded</span>
-								<span class="quota-stat-value good-will">+{fmtTokens(data.aiUsage.goodWillTokens)}</span>
+								<span class="quota-stat-value good-will"
+									>+{fmtTokens(data.aiUsage.goodWillTokens)}</span
+								>
 							</div>
 						{/if}
 						<div class="quota-stat">
@@ -246,7 +256,9 @@
 						</div>
 					</div>
 					{#if quotaPct >= 90}
-						<p class="quota-warning">You're close to your daily limit. Usage resets at midnight UTC.</p>
+						<p class="quota-warning">
+							You're close to your daily limit. Usage resets at midnight UTC.
+						</p>
 					{/if}
 				</section>
 			{:else}
@@ -259,13 +271,20 @@
 			<!-- Streak Freeze -->
 			<section class="card streak-card">
 				<h2>Streak Freeze</h2>
-				<p class="card-desc">A streak freeze protects your streak if you miss a day. It's consumed automatically when you return after exactly one missed day.</p>
+				<p class="card-desc">
+					A streak freeze protects your streak if you miss a day. It's consumed automatically when
+					you return after exactly one missed day.
+				</p>
 				<div class="freeze-row">
 					<div class="freeze-shields">
 						{#each Array(5) as _, i}
-							<span class="freeze-shield" class:active={i < freezeCount} aria-label={i < freezeCount ? 'Active freeze' : 'Empty slot'}>
+							<span
+								class="freeze-shield"
+								class:active={i < freezeCount}
+								aria-label={i < freezeCount ? 'Active freeze' : 'Empty slot'}
+							>
 								<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-									<path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7L12 2z"/>
+									<path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7L12 2z" />
 								</svg>
 							</span>
 						{/each}
@@ -287,7 +306,7 @@
 			</section>
 		</div>
 
-	<!-- ACCOUNT TAB -->
+		<!-- ACCOUNT TAB -->
 	{:else if activeTab === 'account'}
 		<div in:fly={{ y: 16, duration: 300 }}>
 			<section class="card">
@@ -323,7 +342,13 @@
 						{#if usernameSuggestion}
 							<p class="username-suggestion">
 								How about <strong>{usernameSuggestion}</strong>?
-								<button type="button" class="use-suggestion-btn" onclick={() => { newUsername = usernameSuggestion!; }}>Use this</button>
+								<button
+									type="button"
+									class="use-suggestion-btn"
+									onclick={() => {
+										newUsername = usernameSuggestion!;
+									}}>Use this</button
+								>
 							</p>
 						{/if}
 					</div>
@@ -350,12 +375,25 @@
 						{#if data.hasPassword}
 							<div class="form-group">
 								<label for="currentPassword">Current Password</label>
-								<input type="password" id="currentPassword" name="currentPassword" placeholder="••••••••••••••••" required />
+								<input
+									type="password"
+									id="currentPassword"
+									name="currentPassword"
+									placeholder="••••••••••••••••"
+									required
+								/>
 							</div>
 						{/if}
 						<div class="form-group">
 							<label for="newPassword">New Password</label>
-							<input type="password" id="newPassword" name="newPassword" placeholder="••••••••••••••••" required minlength="8" />
+							<input
+								type="password"
+								id="newPassword"
+								name="newPassword"
+								placeholder="••••••••••••••••"
+								required
+								minlength="8"
+							/>
 						</div>
 						<button type="submit" class="submit-btn" disabled={isUpdatingPassword}>
 							{isUpdatingPassword ? 'Updating...' : 'Update Password'}
@@ -365,13 +403,14 @@
 			{/if}
 		</div>
 
-	<!-- AI / LLM TAB -->
+		<!-- AI / LLM TAB -->
 	{:else if activeTab === 'ai'}
 		<div in:fly={{ y: 16, duration: 300 }}>
 			<section class="card">
 				<h2>Custom LLM Server</h2>
 				<p class="card-desc">
-					Connect your own local or remote LLM (e.g. Ollama, LM Studio). Using your own server removes the daily AI quota.
+					Connect your own local or remote LLM (e.g. Ollama, LM Studio). Using your own server
+					removes the daily AI quota.
 				</p>
 				<form
 					method="POST"
@@ -419,7 +458,13 @@
 
 					<div class="form-group">
 						<label for="llmApiKey">API Key (if required)</label>
-						<input type="password" id="llmApiKey" name="llmApiKey" bind:value={llmApiKey} placeholder="sk-..." />
+						<input
+							type="password"
+							id="llmApiKey"
+							name="llmApiKey"
+							bind:value={llmApiKey}
+							placeholder="sk-..."
+						/>
 					</div>
 
 					<div class="form-group">
@@ -440,7 +485,10 @@
 								placeholder="e.g., llama3.2, gpt-4o-mini"
 							/>
 							{#if llmBaseUrl}
-								<p class="model-hint">Enter your endpoint above and click <strong>Fetch Models →</strong> to list available models.</p>
+								<p class="model-hint">
+									Enter your endpoint above and click <strong>Fetch Models →</strong> to list available
+									models.
+								</p>
 							{/if}
 						{/if}
 					</div>
@@ -451,21 +499,28 @@
 				</form>
 			</section>
 
-		<section class="card">
+			<section class="card">
 				<h2>Review Frequency (FSRS)</h2>
 				<p class="card-desc">
-					Controls how well you must remember an item before it's scheduled further out. Higher retention means more frequent reviews and stronger recall. Lower retention means fewer reviews but you may forget more.
+					Controls how well you must remember an item before it's scheduled further out. Higher
+					retention means more frequent reviews and stronger recall. Lower retention means fewer
+					reviews but you may forget more.
 				</p>
 				<form
 					method="POST"
 					action="?/updateFsrsRetention"
 					use:enhance={() => {
 						isUpdatingFsrs = true;
-						return async ({ update }) => { await update(); isUpdatingFsrs = false; };
+						return async ({ update }) => {
+							await update();
+							isUpdatingFsrs = false;
+						};
 					}}
 				>
 					<div class="form-group">
-						<label for="fsrsRetention">Target Retention: <strong>{Math.round(fsrsRetention * 100)}%</strong></label>
+						<label for="fsrsRetention"
+							>Target Retention: <strong>{Math.round(fsrsRetention * 100)}%</strong></label
+						>
 						<input
 							type="range"
 							id="fsrsRetention"
@@ -476,7 +531,9 @@
 							bind:value={fsrsRetention}
 							style="width: 100%; margin-top: 0.5rem;"
 						/>
-						<div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #9ca3af; margin-top: 0.25rem;">
+						<div
+							style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #9ca3af; margin-top: 0.25rem;"
+						>
 							<span>70% (fewer reviews)</span>
 							<span>90% (default)</span>
 							<span>97% (more reviews)</span>
@@ -489,17 +546,19 @@
 			</section>
 		</div>
 
-	<!-- DANGER TAB -->
+		<!-- DANGER TAB -->
 	{:else if activeTab === 'danger'}
 		<div in:fly={{ y: 16, duration: 300 }}>
 			<section class="card danger-card">
 				<h2>Delete Account</h2>
 				<p class="warning-text">
-					Deleting your account is permanent and cannot be undone. All your progress, vocabulary, and settings will be lost.
+					Deleting your account is permanent and cannot be undone. All your progress, vocabulary,
+					and settings will be lost.
 				</p>
 				<button
 					class="delete-btn"
-					onclick={() => (document.getElementById('delete-modal') as HTMLDialogElement)?.showModal()}
+					onclick={() =>
+						(document.getElementById('delete-modal') as HTMLDialogElement)?.showModal()}
 				>
 					Delete My Account
 				</button>
@@ -572,7 +631,9 @@
 		scrollbar-width: none;
 	}
 
-	.tab-bar::-webkit-scrollbar { display: none; }
+	.tab-bar::-webkit-scrollbar {
+		display: none;
+	}
 
 	.tab-btn {
 		padding: 0.5rem 1rem;
@@ -585,11 +646,15 @@
 		border-bottom: 2px solid transparent;
 		margin-bottom: -2px;
 		white-space: nowrap;
-		transition: color 0.15s, border-color 0.15s;
+		transition:
+			color 0.15s,
+			border-color 0.15s;
 		border-radius: 0.25rem 0.25rem 0 0;
 	}
 
-	.tab-btn:hover { color: var(--text-color, #111827); }
+	.tab-btn:hover {
+		color: var(--text-color, #111827);
+	}
 
 	.tab-btn.active {
 		color: #22c55e;
@@ -597,16 +662,26 @@
 		font-weight: 600;
 	}
 
-	.tab-btn.danger-tab { color: #ef4444; }
-	.tab-btn.danger-tab:hover { color: #dc2626; }
+	.tab-btn.danger-tab {
+		color: #ef4444;
+	}
+	.tab-btn.danger-tab:hover {
+		color: #dc2626;
+	}
 	.tab-btn.danger-tab.active {
 		color: #dc2626;
 		border-bottom-color: #dc2626;
 	}
 
-	:global(html[data-theme='dark']) .tab-btn { color: #94a3b8; }
-	:global(html[data-theme='dark']) .tab-btn:hover { color: #e2e8f0; }
-	:global(html[data-theme='dark']) .tab-btn.active { color: #22c55e; }
+	:global(html[data-theme='dark']) .tab-btn {
+		color: #94a3b8;
+	}
+	:global(html[data-theme='dark']) .tab-btn:hover {
+		color: #e2e8f0;
+	}
+	:global(html[data-theme='dark']) .tab-btn.active {
+		color: #22c55e;
+	}
 
 	/* Cards */
 	.card {
@@ -631,7 +706,9 @@
 		line-height: 1.5;
 	}
 
-	:global(html[data-theme='dark']) .card-desc { color: #94a3b8; }
+	:global(html[data-theme='dark']) .card-desc {
+		color: #94a3b8;
+	}
 
 	/* Username row */
 	.username-row {
@@ -653,7 +730,9 @@
 	}
 
 	/* Language progress cards */
-	.lang-progress-card h2 { margin-bottom: 1rem; }
+	.lang-progress-card h2 {
+		margin-bottom: 1rem;
+	}
 
 	.lang-cards {
 		display: flex;
@@ -742,7 +821,9 @@
 	}
 
 	/* AI Quota */
-	.quota-card h2 { margin-bottom: 0.5rem; }
+	.quota-card h2 {
+		margin-bottom: 0.5rem;
+	}
 
 	.quota-bar-wrap {
 		display: flex;
@@ -762,7 +843,9 @@
 	.quota-bar-fill {
 		height: 100%;
 		border-radius: 9999px;
-		transition: width 0.4s ease, background 0.3s;
+		transition:
+			width 0.4s ease,
+			background 0.3s;
 	}
 
 	.quota-pct {
@@ -798,7 +881,9 @@
 		color: var(--text-color, #111827);
 	}
 
-	.quota-stat-value.good-will { color: #22c55e; }
+	.quota-stat-value.good-will {
+		color: #22c55e;
+	}
 
 	.quota-warning {
 		margin: 0.75rem 0 0;
@@ -808,7 +893,9 @@
 	}
 
 	/* Streak freeze */
-	.streak-card { border-radius: 0.75rem; }
+	.streak-card {
+		border-radius: 0.75rem;
+	}
 
 	.freeze-row {
 		display: flex;
@@ -828,10 +915,15 @@
 		width: 2rem;
 		height: 2rem;
 		color: #cbd5e1;
-		transition: color 0.2s, transform 0.2s;
+		transition:
+			color 0.2s,
+			transform 0.2s;
 	}
 
-	.freeze-shield svg { width: 100%; height: 100%; }
+	.freeze-shield svg {
+		width: 100%;
+		height: 100%;
+	}
 
 	.freeze-shield.active {
 		color: #3b82f6;
@@ -889,10 +981,14 @@
 		color: #94a3b8;
 	}
 
-	:global(html[data-theme='dark']) .freeze-count { color: #94a3b8; }
+	:global(html[data-theme='dark']) .freeze-count {
+		color: #94a3b8;
+	}
 
 	/* Forms */
-	.form-group { margin-bottom: 1rem; }
+	.form-group {
+		margin-bottom: 1rem;
+	}
 
 	.form-group label {
 		display: block;
@@ -902,7 +998,9 @@
 		margin-bottom: 0.375rem;
 	}
 
-	:global(html[data-theme='dark']) .form-group label { color: #cbd5e1; }
+	:global(html[data-theme='dark']) .form-group label {
+		color: #cbd5e1;
+	}
 
 	.form-group input,
 	.form-group select {
@@ -913,7 +1011,9 @@
 		font-size: 0.875rem;
 		color: var(--input-text, #111827);
 		background: var(--input-bg, #ffffff);
-		transition: border-color 0.2s, box-shadow 0.2s;
+		transition:
+			border-color 0.2s,
+			box-shadow 0.2s;
 		box-sizing: border-box;
 	}
 
@@ -975,10 +1075,16 @@
 		line-height: 1.4;
 	}
 
-	.model-hint strong { color: #2563eb; }
+	.model-hint strong {
+		color: #2563eb;
+	}
 
-	:global(html[data-theme='dark']) .model-hint { color: #94a3b8; }
-	:global(html[data-theme='dark']) .model-hint strong { color: #93c5fd; }
+	:global(html[data-theme='dark']) .model-hint {
+		color: #94a3b8;
+	}
+	:global(html[data-theme='dark']) .model-hint strong {
+		color: #93c5fd;
+	}
 
 	.checkbox-wrapper {
 		display: flex;
@@ -992,7 +1098,9 @@
 		transition: background-color 0.15s;
 	}
 
-	.checkbox-wrapper:hover { background: var(--link-hover-bg, #f3f4f6); }
+	.checkbox-wrapper:hover {
+		background: var(--link-hover-bg, #f3f4f6);
+	}
 
 	.llm-checkbox {
 		width: 1.125rem;
@@ -1036,7 +1144,9 @@
 		color: #6b7280;
 	}
 
-	:global(html[data-theme='dark']) .username-suggestion { color: #94a3b8; }
+	:global(html[data-theme='dark']) .username-suggestion {
+		color: #94a3b8;
+	}
 
 	.use-suggestion-btn {
 		background: none;
@@ -1050,7 +1160,9 @@
 		text-decoration: underline;
 	}
 
-	.use-suggestion-btn:hover { color: #16a34a; }
+	.use-suggestion-btn:hover {
+		color: #16a34a;
+	}
 
 	.submit-btn {
 		background-color: #22c55e;
@@ -1065,8 +1177,13 @@
 		margin-top: 0.5rem;
 	}
 
-	.submit-btn:hover { background-color: #16a34a; }
-	.submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+	.submit-btn:hover {
+		background-color: #16a34a;
+	}
+	.submit-btn:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
 
 	/* Danger */
 	.danger-card {
@@ -1095,7 +1212,9 @@
 		transition: background-color 0.2s;
 	}
 
-	.delete-btn:hover { background-color: #dc2626; }
+	.delete-btn:hover {
+		background-color: #dc2626;
+	}
 
 	/* Modal */
 	.modal {
@@ -1105,7 +1224,9 @@
 		background: transparent;
 	}
 
-	.modal::backdrop { background: rgba(0, 0, 0, 0.5); }
+	.modal::backdrop {
+		background: rgba(0, 0, 0, 0.5);
+	}
 
 	.modal-box {
 		background: var(--card-bg, #ffffff);
@@ -1164,7 +1285,9 @@
 		color: var(--text-color, #374151);
 	}
 
-	.btn-cancel:hover { background: #f3f4f6; }
+	.btn-cancel:hover {
+		background: #f3f4f6;
+	}
 
 	.btn-confirm-delete {
 		padding: 0.5rem 1rem;
@@ -1177,13 +1300,28 @@
 		color: white;
 	}
 
-	.btn-confirm-delete:hover:not(:disabled) { background: #dc2626; }
-	.btn-confirm-delete:disabled { opacity: 0.5; cursor: not-allowed; }
+	.btn-confirm-delete:hover:not(:disabled) {
+		background: #dc2626;
+	}
+	.btn-confirm-delete:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
 
 	@media (max-width: 640px) {
-		.profile-container { padding: 0 0.5rem; }
-		.profile-header h1 { font-size: 1.75rem; }
-		.submit-btn, .delete-btn { width: 100%; box-sizing: border-box; }
-.quota-stats { gap: 1rem; }
+		.profile-container {
+			padding: 0 0.5rem;
+		}
+		.profile-header h1 {
+			font-size: 1.75rem;
+		}
+		.submit-btn,
+		.delete-btn {
+			width: 100%;
+			box-sizing: border-box;
+		}
+		.quota-stats {
+			gap: 1rem;
+		}
 	}
 </style>

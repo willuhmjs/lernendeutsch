@@ -38,17 +38,29 @@ export type GameMode = 'native-to-target' | 'target-to-native' | 'fill-blank' | 
 // Structured error categories reported per item by the LLM grader.
 // Used to power targeted remediation in the lesson generator.
 export type ErrorType =
-	| 'wrong_case'       // wrong grammatical case (Akkusativ, Dativ, etc.)
-	| 'wrong_tense'      // wrong verb tense or aspect
-	| 'wrong_gender'     // wrong article gender (der/die/das)
-	| 'spelling'         // misspelling not covered by ASCII equivalence
-	| 'word_order'       // incorrect sentence word order
-	| 'vocabulary_gap';  // wrong or missing word — meaning not conveyed
+	| 'wrong_case' // wrong grammatical case (Akkusativ, Dativ, etc.)
+	| 'wrong_tense' // wrong verb tense or aspect
+	| 'wrong_gender' // wrong article gender (der/die/das)
+	| 'spelling' // misspelling not covered by ASCII equivalence
+	| 'word_order' // incorrect sentence word order
+	| 'vocabulary_gap'; // wrong or missing word — meaning not conveyed
 
 export interface EvaluationPayload {
 	globalScore: number;
-	vocabularyUpdates: { id: string; score: number; errorType?: ErrorType | null; eloBefore?: number; eloAfter?: number }[];
-	grammarUpdates: { id: string; score: number; errorType?: ErrorType | null; eloBefore?: number; eloAfter?: number }[];
+	vocabularyUpdates: {
+		id: string;
+		score: number;
+		errorType?: ErrorType | null;
+		eloBefore?: number;
+		eloAfter?: number;
+	}[];
+	grammarUpdates: {
+		id: string;
+		score: number;
+		errorType?: ErrorType | null;
+		eloBefore?: number;
+		eloAfter?: number;
+	}[];
 	extraVocabLemmas?: string[];
 	feedback: string;
 }
@@ -87,13 +99,15 @@ export function buildEvaluationPrompt(
 		idMap[`g${i}`] = g.id;
 	});
 
-	const vocabList = targetedVocabulary.map((v, i) => {
-		const meanings = (v.meanings as { value: string }[] | undefined)
-			?.map((m) => m.value)
-			.filter(Boolean)
-			.join(' / ');
-		return `- ${v.lemma} (ID: v${i})${meanings ? ` — accepted meanings: ${meanings}` : ''}`;
-	}).join('\n');
+	const vocabList = targetedVocabulary
+		.map((v, i) => {
+			const meanings = (v.meanings as { value: string }[] | undefined)
+				?.map((m) => m.value)
+				.filter(Boolean)
+				.join(' / ');
+			return `- ${v.lemma} (ID: v${i})${meanings ? ` — accepted meanings: ${meanings}` : ''}`;
+		})
+		.join('\n');
 	const grammarList = targetedGrammar.map((g, i) => `- ${g.title} (ID: g${i})`).join('\n');
 
 	const isAbsoluteBeginner = userLevel === 'A1';
@@ -191,7 +205,7 @@ export function parseEvaluationResponse(content: string): EvaluationPayload {
 		.replace(/^```json\s*/i, '')
 		.replace(/```\s*$/i, '')
 		.trim();
-		
+
 	let payload;
 	try {
 		payload = JSON.parse(cleanedContent);
@@ -199,26 +213,40 @@ export function parseEvaluationResponse(content: string): EvaluationPayload {
 		// Attempt to recover truncated JSON from streaming
 		try {
 			payload = JSON.parse(cleanedContent + '}');
-		} catch (e2) {
+		} catch (_) {
 			try {
 				payload = JSON.parse(cleanedContent + '"}');
-			} catch (e3) {
+			} catch (_) {
 				try {
 					payload = JSON.parse(cleanedContent + '"]]}');
-				} catch (e4) {
+				} catch (_) {
 					throw e; // throw original error if recovery fails
 				}
 			}
 		}
 	}
 
-	const VALID_ERROR_TYPES = new Set(['wrong_case', 'wrong_tense', 'wrong_gender', 'spelling', 'word_order', 'vocabulary_gap']);
+	const VALID_ERROR_TYPES = new Set([
+		'wrong_case',
+		'wrong_tense',
+		'wrong_gender',
+		'spelling',
+		'word_order',
+		'vocabulary_gap'
+	]);
 
 	// Ensure backwards compatibility if LLM returns "success" (boolean) instead of "score"
-	const mapItem = (item: { id: string; score?: number; success?: boolean; errorType?: string | null }) => ({
+	const mapItem = (item: {
+		id: string;
+		score?: number;
+		success?: boolean;
+		errorType?: string | null;
+	}) => ({
 		id: item.id,
 		score: typeof item.score === 'number' ? item.score : item.success ? 1.0 : 0.0,
-		errorType: (item.errorType && VALID_ERROR_TYPES.has(item.errorType) ? item.errorType : null) as ErrorType | null
+		errorType: (item.errorType && VALID_ERROR_TYPES.has(item.errorType)
+			? item.errorType
+			: null) as ErrorType | null
 	});
 
 	const result: EvaluationPayload = {
@@ -262,7 +290,10 @@ export function parseEvaluationResponse(content: string): EvaluationPayload {
 }
 
 export function mapLevelToElo(level: string): number {
-	return CEFR_CONFIG.BASE_ELO[level.toUpperCase() as keyof typeof CEFR_CONFIG.BASE_ELO] || CEFR_CONFIG.BASE_ELO.A1;
+	return (
+		CEFR_CONFIG.BASE_ELO[level.toUpperCase() as keyof typeof CEFR_CONFIG.BASE_ELO] ||
+		CEFR_CONFIG.BASE_ELO.A1
+	);
 }
 
 function calculateNewElo(
@@ -283,7 +314,10 @@ function calculateNewElo(
 
 	// Decay K-factor as the user accumulates repetitions on this item, keeping
 	// new learners highly responsive while stabilising experienced users.
-	const decayedK = Math.max(ELO_CONFIG.K_MIN, ELO_CONFIG.K_FACTOR - repetitions * ELO_CONFIG.K_DECAY_PER_REP);
+	const decayedK = Math.max(
+		ELO_CONFIG.K_MIN,
+		ELO_CONFIG.K_FACTOR - repetitions * ELO_CONFIG.K_DECAY_PER_REP
+	);
 	const effectiveK = decayedK * kMultiplier;
 	return currentElo + effectiveK * (score - expectedScore);
 }
@@ -292,14 +326,18 @@ function calculateNewElo(
  * Runs FSRS review on a card loaded from the DB progress record.
  * Returns updated FSRS fields and the next review date.
  */
-function computeFsrsUpdate(score: number, current: {
-	difficulty: number;
-	stability: number;
-	retrievability: number;
-	repetitions: number;
-	lapses: number;
-	lastReviewDate: Date | null;
-}, requestRetention: number = DEFAULT_FSRS_PARAMETERS.requestRetention) {
+function computeFsrsUpdate(
+	score: number,
+	current: {
+		difficulty: number;
+		stability: number;
+		retrievability: number;
+		repetitions: number;
+		lapses: number;
+		lastReviewDate: Date | null;
+	},
+	requestRetention: number = DEFAULT_FSRS_PARAMETERS.requestRetention
+) {
 	const card: FsrsCard = {
 		difficulty: current.difficulty,
 		stability: current.stability,
@@ -332,24 +370,30 @@ export async function updateSrsMetrics(
 	overridden = false
 ) {
 	// Fetch user's FSRS retention preference once
-	const userRetention = await prisma.user.findUnique({
-		where: { id: userId },
-		select: { fsrsRetention: true }
-	}).then(u => u?.fsrsRetention ?? DEFAULT_FSRS_PARAMETERS.requestRetention);
+	const userRetention = await prisma.user
+		.findUnique({
+			where: { id: userId },
+			select: { fsrsRetention: true }
+		})
+		.then((u) => u?.fsrsRetention ?? DEFAULT_FSRS_PARAMETERS.requestRetention);
 
 	if (type === 'grammar') {
 		const currentProgress = await prisma.userGrammarRuleProgress.findUnique({
 			where: { userId_grammarRuleId: { userId, grammarRuleId: itemId } }
 		});
 
-		const fsrs = computeFsrsUpdate(score, {
-			difficulty: currentProgress?.difficulty ?? 5.0,
-			stability: currentProgress?.stability ?? 0.0,
-			retrievability: currentProgress?.retrievability ?? 1.0,
-			repetitions: currentProgress?.repetitions ?? 0,
-			lapses: currentProgress?.lapses ?? 0,
-			lastReviewDate: currentProgress?.lastReviewDate ?? null
-		}, userRetention);
+		const fsrs = computeFsrsUpdate(
+			score,
+			{
+				difficulty: currentProgress?.difficulty ?? 5.0,
+				stability: currentProgress?.stability ?? 0.0,
+				retrievability: currentProgress?.retrievability ?? 1.0,
+				repetitions: currentProgress?.repetitions ?? 0,
+				lapses: currentProgress?.lapses ?? 0,
+				lastReviewDate: currentProgress?.lastReviewDate ?? null
+			},
+			userRetention
+		);
 
 		await prisma.userGrammarRuleProgress.upsert({
 			where: { userId_grammarRuleId: { userId, grammarRuleId: itemId } },
@@ -364,14 +408,18 @@ export async function updateSrsMetrics(
 		where: { userId_vocabularyId: { userId, vocabularyId: itemId } }
 	});
 
-	const fsrs = computeFsrsUpdate(score, {
-		difficulty: currentProgress?.difficulty ?? 5.0,
-		stability: currentProgress?.stability ?? 0.0,
-		retrievability: currentProgress?.retrievability ?? 1.0,
-		repetitions: currentProgress?.repetitions ?? 0,
-		lapses: currentProgress?.lapses ?? 0,
-		lastReviewDate: currentProgress?.lastReviewDate ?? null
-	}, userRetention);
+	const fsrs = computeFsrsUpdate(
+		score,
+		{
+			difficulty: currentProgress?.difficulty ?? 5.0,
+			stability: currentProgress?.stability ?? 0.0,
+			retrievability: currentProgress?.retrievability ?? 1.0,
+			repetitions: currentProgress?.repetitions ?? 0,
+			lapses: currentProgress?.lapses ?? 0,
+			lastReviewDate: currentProgress?.lastReviewDate ?? null
+		},
+		userRetention
+	);
 
 	// Increment overrideCount when user overrode an incorrect grade to correct.
 	const overrideIncrement = overridden ? 1 : 0;
@@ -400,8 +448,8 @@ export async function updateEloRatings(
 ) {
 	console.log(`Updating Elos for user ${userId} with payload:`, JSON.stringify(payload, null, 2));
 
-	const vocabIds = (payload.vocabularyUpdates || []).map(u => u.id);
-	const grammarIds = (payload.grammarUpdates || []).map(u => u.id);
+	const vocabIds = (payload.vocabularyUpdates || []).map((u) => u.id);
+	const grammarIds = (payload.grammarUpdates || []).map((u) => u.id);
 
 	// Batch-prefetch everything we need across all items in 7 parallel queries.
 	const emptyVocab: PrismaVocabulary[] = [];
@@ -420,8 +468,9 @@ export async function updateEloRatings(
 		userGrammarRows,
 		grammarProgressRows
 	] = await Promise.all([
-		prisma.user.findUnique({ where: { id: userId }, select: { fsrsRetention: true } })
-			.then(u => u?.fsrsRetention ?? DEFAULT_FSRS_PARAMETERS.requestRetention),
+		prisma.user
+			.findUnique({ where: { id: userId }, select: { fsrsRetention: true } })
+			.then((u) => u?.fsrsRetention ?? DEFAULT_FSRS_PARAMETERS.requestRetention),
 		vocabIds.length > 0
 			? prisma.vocabulary.findMany({ where: { id: { in: vocabIds } } })
 			: Promise.resolve(emptyVocab),
@@ -429,7 +478,9 @@ export async function updateEloRatings(
 			? prisma.userVocabulary.findMany({ where: { userId, vocabularyId: { in: vocabIds } } })
 			: Promise.resolve(emptyUserVocab),
 		vocabIds.length > 0
-			? prisma.userVocabularyProgress.findMany({ where: { userId, vocabularyId: { in: vocabIds } } })
+			? prisma.userVocabularyProgress.findMany({
+					where: { userId, vocabularyId: { in: vocabIds } }
+				})
 			: Promise.resolve(emptyVocabProgress),
 		grammarIds.length > 0
 			? prisma.grammarRule.findMany({ where: { id: { in: grammarIds } } })
@@ -438,41 +489,67 @@ export async function updateEloRatings(
 			? prisma.userGrammarRule.findMany({ where: { userId, grammarRuleId: { in: grammarIds } } })
 			: Promise.resolve(emptyUserGrammar),
 		grammarIds.length > 0
-			? prisma.userGrammarRuleProgress.findMany({ where: { userId, grammarRuleId: { in: grammarIds } } })
+			? prisma.userGrammarRuleProgress.findMany({
+					where: { userId, grammarRuleId: { in: grammarIds } }
+				})
 			: Promise.resolve(emptyGrammarProgress)
 	]);
 
 	// Build O(1) lookup maps from the prefetched rows.
-	const vocabMap = new Map<string, PrismaVocabulary>(vocabRows.map((v: PrismaVocabulary) => [v.id, v]));
-	const userVocabMap = new Map<string, PrismaUserVocabulary>(userVocabRows.map((v: PrismaUserVocabulary) => [v.vocabularyId, v]));
-	const vocabProgressMap = new Map<string, PrismaUserVocabularyProgress>(vocabProgressRows.map((p: PrismaUserVocabularyProgress) => [p.vocabularyId, p]));
-	const grammarMap = new Map<string, PrismaGrammarRule>(grammarRows.map((g: PrismaGrammarRule) => [g.id, g]));
-	const userGrammarMap = new Map<string, PrismaUserGrammarRule>(userGrammarRows.map((g: PrismaUserGrammarRule) => [g.grammarRuleId, g]));
-	const grammarProgressMap = new Map<string, PrismaUserGrammarRuleProgress>(grammarProgressRows.map((p: PrismaUserGrammarRuleProgress) => [p.grammarRuleId, p]));
+	const vocabMap = new Map<string, PrismaVocabulary>(
+		vocabRows.map((v: PrismaVocabulary) => [v.id, v])
+	);
+	const userVocabMap = new Map<string, PrismaUserVocabulary>(
+		userVocabRows.map((v: PrismaUserVocabulary) => [v.vocabularyId, v])
+	);
+	const vocabProgressMap = new Map<string, PrismaUserVocabularyProgress>(
+		vocabProgressRows.map((p: PrismaUserVocabularyProgress) => [p.vocabularyId, p])
+	);
+	const grammarMap = new Map<string, PrismaGrammarRule>(
+		grammarRows.map((g: PrismaGrammarRule) => [g.id, g])
+	);
+	const userGrammarMap = new Map<string, PrismaUserGrammarRule>(
+		userGrammarRows.map((g: PrismaUserGrammarRule) => [g.grammarRuleId, g])
+	);
+	const grammarProgressMap = new Map<string, PrismaUserGrammarRuleProgress>(
+		grammarProgressRows.map((p: PrismaUserGrammarRuleProgress) => [p.grammarRuleId, p])
+	);
 
 	// Process a single vocabulary update using prefetched data (zero extra reads).
 	async function processVocabUpdate(vocabUpdate: EvaluationPayload['vocabularyUpdates'][number]) {
 		let vocab = vocabMap.get(vocabUpdate.id);
 		if (!vocab) {
 			// Rare case: ID came from LLM and doesn't exist yet — create a stub.
-			vocab = await prisma.vocabulary.create({ data: { id: vocabUpdate.id, lemma: vocabUpdate.id } });
+			vocab = await prisma.vocabulary.create({
+				data: { id: vocabUpdate.id, lemma: vocabUpdate.id }
+			});
 		}
 
 		const baseDifficulty = mapLevelToElo((vocab as { cefrLevel?: string }).cefrLevel || 'A1');
 		const currentElo = userVocabMap.get(vocab.id)?.eloRating ?? baseDifficulty;
 
 		const currentProgress = vocabProgressMap.get(vocab.id);
-		const fsrs = computeFsrsUpdate(vocabUpdate.score, {
-			difficulty: currentProgress?.difficulty ?? 5.0,
-			stability: currentProgress?.stability ?? 0.0,
-			retrievability: currentProgress?.retrievability ?? 1.0,
-			repetitions: currentProgress?.repetitions ?? 0,
-			lapses: currentProgress?.lapses ?? 0,
-			lastReviewDate: currentProgress?.lastReviewDate ?? null
-		}, userRetention);
+		const fsrs = computeFsrsUpdate(
+			vocabUpdate.score,
+			{
+				difficulty: currentProgress?.difficulty ?? 5.0,
+				stability: currentProgress?.stability ?? 0.0,
+				retrievability: currentProgress?.retrievability ?? 1.0,
+				repetitions: currentProgress?.repetitions ?? 0,
+				lapses: currentProgress?.lapses ?? 0,
+				lastReviewDate: currentProgress?.lastReviewDate ?? null
+			},
+			userRetention
+		);
 
 		const priorRepetitions = Math.max(0, fsrs.repetitions - 1);
-		const newElo = calculateNewElo(currentElo, vocabUpdate.score, baseDifficulty, gameMode, priorRepetitions);
+		const newElo = calculateNewElo(
+			currentElo,
+			vocabUpdate.score,
+			baseDifficulty,
+			gameMode,
+			priorRepetitions
+		);
 		vocabUpdate.eloBefore = currentElo;
 		vocabUpdate.eloAfter = newElo;
 		const newState = deriveSrsStateFromFsrs(fsrs.repetitions, fsrs.stability, fsrs.lapses);
@@ -488,7 +565,13 @@ export async function updateEloRatings(
 			}),
 			prisma.userVocabulary.upsert({
 				where: { userId_vocabularyId: { userId, vocabularyId: vocab.id } },
-				create: { userId, vocabularyId: vocab.id, eloRating: newElo, srsState: newState, nextReviewDate: fsrs.nextReviewDate },
+				create: {
+					userId,
+					vocabularyId: vocab.id,
+					eloRating: newElo,
+					srsState: newState,
+					nextReviewDate: fsrs.nextReviewDate
+				},
 				update: { eloRating: newElo, srsState: newState, nextReviewDate: fsrs.nextReviewDate }
 			})
 		]);
@@ -506,17 +589,27 @@ export async function updateEloRatings(
 		const currentElo = userGrammarMap.get(grammar.id)?.eloRating ?? baseDifficulty;
 
 		const currentProgress = grammarProgressMap.get(grammar.id);
-		const fsrs = computeFsrsUpdate(grammarUpdate.score, {
-			difficulty: currentProgress?.difficulty ?? 5.0,
-			stability: currentProgress?.stability ?? 0.0,
-			retrievability: currentProgress?.retrievability ?? 1.0,
-			repetitions: currentProgress?.repetitions ?? 0,
-			lapses: currentProgress?.lapses ?? 0,
-			lastReviewDate: currentProgress?.lastReviewDate ?? null
-		}, userRetention);
+		const fsrs = computeFsrsUpdate(
+			grammarUpdate.score,
+			{
+				difficulty: currentProgress?.difficulty ?? 5.0,
+				stability: currentProgress?.stability ?? 0.0,
+				retrievability: currentProgress?.retrievability ?? 1.0,
+				repetitions: currentProgress?.repetitions ?? 0,
+				lapses: currentProgress?.lapses ?? 0,
+				lastReviewDate: currentProgress?.lastReviewDate ?? null
+			},
+			userRetention
+		);
 
 		const priorRepetitions = Math.max(0, fsrs.repetitions - 1);
-		const newElo = calculateNewElo(currentElo, grammarUpdate.score, baseDifficulty, gameMode, priorRepetitions);
+		const newElo = calculateNewElo(
+			currentElo,
+			grammarUpdate.score,
+			baseDifficulty,
+			gameMode,
+			priorRepetitions
+		);
 		grammarUpdate.eloBefore = currentElo;
 		grammarUpdate.eloAfter = newElo;
 		const newState = deriveSrsStateFromFsrs(fsrs.repetitions, fsrs.stability, fsrs.lapses);
@@ -531,7 +624,13 @@ export async function updateEloRatings(
 			}),
 			prisma.userGrammarRule.upsert({
 				where: { userId_grammarRuleId: { userId, grammarRuleId: grammar.id } },
-				create: { userId, grammarRuleId: grammar.id, eloRating: newElo, srsState: newState, nextReviewDate: fsrs.nextReviewDate },
+				create: {
+					userId,
+					grammarRuleId: grammar.id,
+					eloRating: newElo,
+					srsState: newState,
+					nextReviewDate: fsrs.nextReviewDate
+				},
 				update: { eloRating: newElo, srsState: newState, nextReviewDate: fsrs.nextReviewDate }
 			})
 		]);
@@ -554,14 +653,18 @@ export async function updateEloRatings(
 			where: { userId_vocabularyId: { userId, vocabularyId: vocab.id } }
 		});
 
-		const fsrs = computeFsrsUpdate(1.0, {
-			difficulty: currentProgress?.difficulty ?? 5.0,
-			stability: currentProgress?.stability ?? 0.0,
-			retrievability: currentProgress?.retrievability ?? 1.0,
-			repetitions: currentProgress?.repetitions ?? 0,
-			lapses: currentProgress?.lapses ?? 0,
-			lastReviewDate: currentProgress?.lastReviewDate ?? null
-		}, userRetention);
+		const fsrs = computeFsrsUpdate(
+			1.0,
+			{
+				difficulty: currentProgress?.difficulty ?? 5.0,
+				stability: currentProgress?.stability ?? 0.0,
+				retrievability: currentProgress?.retrievability ?? 1.0,
+				repetitions: currentProgress?.repetitions ?? 0,
+				lapses: currentProgress?.lapses ?? 0,
+				lastReviewDate: currentProgress?.lastReviewDate ?? null
+			},
+			userRetention
+		);
 
 		const priorRepetitions = Math.max(0, fsrs.repetitions - 1);
 		const newElo = calculateNewElo(currentElo, 1.0, baseDifficulty, gameMode, priorRepetitions);
@@ -575,7 +678,13 @@ export async function updateEloRatings(
 			}),
 			prisma.userVocabulary.upsert({
 				where: { userId_vocabularyId: { userId, vocabularyId: vocab.id } },
-				create: { userId, vocabularyId: vocab.id, eloRating: newElo, srsState: newState, nextReviewDate: fsrs.nextReviewDate },
+				create: {
+					userId,
+					vocabularyId: vocab.id,
+					eloRating: newElo,
+					srsState: newState,
+					nextReviewDate: fsrs.nextReviewDate
+				},
 				update: { eloRating: newElo, srsState: newState, nextReviewDate: fsrs.nextReviewDate }
 			})
 		]);
@@ -583,14 +692,22 @@ export async function updateEloRatings(
 
 	// Run all vocab, grammar, and extra-lemma updates in parallel.
 	await Promise.all([
-		...(payload.vocabularyUpdates || []).map(u =>
-			processVocabUpdate(u).catch(err => console.error(`Failed to update user vocabulary ${u.id}:`, err))
+		...(payload.vocabularyUpdates || []).map((u) =>
+			processVocabUpdate(u).catch((err) =>
+				console.error(`Failed to update user vocabulary ${u.id}:`, err)
+			)
 		),
-		...(payload.grammarUpdates || []).map(u =>
-			processGrammarUpdate(u).catch(err => console.error(`Failed to update user grammar rule ${u.id}:`, err))
+		...(payload.grammarUpdates || []).map((u) =>
+			processGrammarUpdate(u).catch((err) =>
+				console.error(`Failed to update user grammar rule ${u.id}:`, err)
+			)
 		),
-		...(payload.extraVocabLemmas || []).filter(Boolean).map(lemma =>
-			processExtraLemma(lemma).catch(err => console.error(`Failed to process extra vocab lemma ${lemma}:`, err))
-		)
+		...(payload.extraVocabLemmas || [])
+			.filter(Boolean)
+			.map((lemma) =>
+				processExtraLemma(lemma).catch((err) =>
+					console.error(`Failed to process extra vocab lemma ${lemma}:`, err)
+				)
+			)
 	]);
 }

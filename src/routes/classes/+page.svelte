@@ -51,7 +51,7 @@
 				createLanguage = 'international';
 				await invalidateAll();
 			}
-		} catch (e) {
+		} catch (_) {
 			toastError('An error occurred');
 		} finally {
 			isCreating = false;
@@ -76,7 +76,7 @@
 				joinCode = '';
 				await invalidateAll();
 			}
-		} catch (e) {
+		} catch (_) {
 			toastError('An error occurred');
 		} finally {
 			isJoining = false;
@@ -150,12 +150,26 @@
 						</svg>
 					</div>
 					<p class="empty-title">No classes yet</p>
-					<p class="empty-desc">Create a class to assign homework or join one with an invite code.</p>
+					<p class="empty-desc">
+						Create a class to assign homework or join one with an invite code.
+					</p>
 					<div class="empty-actions">
-						<button class="empty-cta-secondary" onclick={() => { activeTab = 'join'; document.querySelector('.forms-section')?.scrollIntoView({ behavior: 'smooth' }); }}>
+						<button
+							class="empty-cta-secondary"
+							onclick={() => {
+								activeTab = 'join';
+								document.querySelector('.forms-section')?.scrollIntoView({ behavior: 'smooth' });
+							}}
+						>
 							Join with Code
 						</button>
-						<button class="empty-cta" onclick={() => { activeTab = 'create'; document.querySelector('.forms-section')?.scrollIntoView({ behavior: 'smooth' }); }}>
+						<button
+							class="empty-cta"
+							onclick={() => {
+								activeTab = 'create';
+								document.querySelector('.forms-section')?.scrollIntoView({ behavior: 'smooth' });
+							}}
+						>
 							Create a Class
 						</button>
 					</div>
@@ -223,7 +237,8 @@
 								</div>
 							</div>
 							<div class="field">
-								<label for="description">Description <span class="optional">(Optional)</span></label>
+								<label for="description">Description <span class="optional">(Optional)</span></label
+								>
 								<div class="input-wrapper">
 									<textarea
 										id="description"
@@ -436,15 +451,23 @@
 			0 2px 4px -1px rgba(0, 0, 0, 0.06);
 	}
 
-	.tab-join.active { color: #f97316; }
-	.tab-create.active { color: #22c55e; }
+	.tab-join.active {
+		color: #f97316;
+	}
+	.tab-create.active {
+		color: #22c55e;
+	}
 
 	:global(html[data-theme='dark']) .tab-btn.active {
 		background: #0f172a;
 	}
 
-	:global(html[data-theme='dark']) .tab-join.active { color: #fb923c; }
-	:global(html[data-theme='dark']) .tab-create.active { color: #4ade80; }
+	:global(html[data-theme='dark']) .tab-join.active {
+		color: #fb923c;
+	}
+	:global(html[data-theme='dark']) .tab-create.active {
+		color: #4ade80;
+	}
 
 	.form-card-wrapper {
 		max-width: 100%;
@@ -780,7 +803,9 @@
 		transition: background 0.15s;
 	}
 
-	.empty-cta:hover { background: #2563eb; }
+	.empty-cta:hover {
+		background: #2563eb;
+	}
 
 	.empty-cta-secondary {
 		background: #f97316;
@@ -796,7 +821,9 @@
 		transition: background 0.15s;
 	}
 
-	.empty-cta-secondary:hover { background: #ea6c00; }
+	.empty-cta-secondary:hover {
+		background: #ea6c00;
+	}
 
 	.empty-desc {
 		color: #94a3b8;

@@ -22,19 +22,21 @@ export const load = async ({ locals }: ServerLoadEvent) => {
 					dependencies: { select: { id: true, title: true, level: true } }
 				}
 			}),
-			prisma.userVocabulary.findMany({
-				where: { userId, srsState: 'LEARNING', vocabulary: { languageId: activeLanguageId } },
-				include: {
-					vocabulary: { include: { meanings: true } }
-				},
-				orderBy: { updatedAt: 'desc' },
-				take: 50
-			}).then((rows) =>
-				rows.map((r) => ({
-					...r.vocabulary,
-					userSrsState: r.srsState
-				}))
-			)
+			prisma.userVocabulary
+				.findMany({
+					where: { userId, srsState: 'LEARNING', vocabulary: { languageId: activeLanguageId } },
+					include: {
+						vocabulary: { include: { meanings: true } }
+					},
+					orderBy: { updatedAt: 'desc' },
+					take: 50
+				})
+				.then((rows) =>
+					rows.map((r) => ({
+						...r.vocabulary,
+						userSrsState: r.srsState
+					}))
+				)
 		]);
 	} else {
 		grammarRules = await prisma.grammarRule.findMany({

@@ -13,7 +13,7 @@ adapter.createUser = async (user) => {
 	const username = `${baseUsername}-${Math.floor(Math.random() * 10000)}`;
 
 	// Run create + first-user check in one transaction to eliminate TOCTOU race.
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 	const createdUser = await prisma.$transaction(async (tx) => {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const newUser = await originalCreateUser({ ...user, username, role: 'USER' } as any);

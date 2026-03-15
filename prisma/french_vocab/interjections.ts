@@ -18,7 +18,7 @@ export const interjections = [
 	{ word: 'tiens', translation: 'well/look here/hey', isBeginner: false },
 	{ word: 'voyons', translation: "let's see/come on", isBeginner: false },
 	{ word: 'allons', translation: "let's go/come on", isBeginner: false },
-	{ word: 'bof', translation: "meh/so-so (expression of indifference)", isBeginner: false },
+	{ word: 'bof', translation: 'meh/so-so (expression of indifference)', isBeginner: false },
 	{ word: 'chut', translation: 'shh/hush', isBeginner: false },
 	{ word: 'hop', translation: 'hop/up you go (expression of action)', isBeginner: false },
 	{ word: 'hein', translation: 'huh/right/eh', isBeginner: false },
@@ -27,5 +27,5 @@ export const interjections = [
 	{ word: 'super', translation: 'super/great', isBeginner: false },
 	{ word: 'génial', translation: 'brilliant/awesome', isBeginner: false },
 	{ word: 'félicitations', translation: 'congratulations', isBeginner: false },
-	{ word: 'attention', translation: 'watch out/careful', isBeginner: false },
+	{ word: 'attention', translation: 'watch out/careful', isBeginner: false }
 ];

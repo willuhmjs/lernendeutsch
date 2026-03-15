@@ -272,5 +272,5 @@ export const verbs = [
 	{ word: 'convaincre', translation: 'to convince' },
 	{ word: 'vaincre', translation: 'to defeat/overcome' },
 	{ word: 'joindre', translation: 'to join/attach' },
-	{ word: 'éteindre', translation: 'to extinguish/turn off' },
+	{ word: 'éteindre', translation: 'to extinguish/turn off' }
 ];

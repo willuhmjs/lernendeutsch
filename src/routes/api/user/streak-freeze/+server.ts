@@ -16,11 +16,17 @@ export async function POST({ locals }) {
 	if (!user) return json({ error: 'User not found' }, { status: 404 });
 
 	if (user.totalXp < FREEZE_XP_COST) {
-		return json({ error: `You need at least ${FREEZE_XP_COST} XP to buy a streak freeze.` }, { status: 400 });
+		return json(
+			{ error: `You need at least ${FREEZE_XP_COST} XP to buy a streak freeze.` },
+			{ status: 400 }
+		);
 	}
 
 	if (user.streakFreezes >= 5) {
-		return json({ error: 'You already have the maximum number of streak freezes (5).' }, { status: 400 });
+		return json(
+			{ error: 'You already have the maximum number of streak freezes (5).' },
+			{ status: 400 }
+		);
 	}
 
 	const updated = await prisma.user.update({

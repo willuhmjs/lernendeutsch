@@ -18,22 +18,27 @@ const { CefrService } = await import('../../src/lib/server/cefrService');
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-function mockProgress(level: string) {
+function _mockProgress(level: string) {
 	mockPrisma.userProgress.findUnique.mockResolvedValue({ id: 'prog-1', cefrLevel: level });
 }
 
-function mockCounts(encounteredVocab: number, interactedGrammar: number, masteredVocab: number, masteredGrammar: number) {
+function _mockCounts(
+	encounteredVocab: number,
+	interactedGrammar: number,
+	masteredVocab: number,
+	masteredGrammar: number
+) {
 	mockPrisma.userVocabulary.count
-		.mockResolvedValueOnce(encounteredVocab)  // encountered
-		.mockResolvedValueOnce(masteredVocab);    // mastered
+		.mockResolvedValueOnce(encounteredVocab) // encountered
+		.mockResolvedValueOnce(masteredVocab); // mastered
 	mockPrisma.userGrammarRule.count
 		.mockResolvedValueOnce(interactedGrammar) // interacted
-		.mockResolvedValueOnce(masteredGrammar);  // mastered
+		.mockResolvedValueOnce(masteredGrammar); // mastered
 }
 
-function mockElos(vocabElos: number[], grammarElos: number[]) {
-	mockPrisma.userVocabulary.findMany.mockResolvedValue(vocabElos.map(e => ({ eloRating: e })));
-	mockPrisma.userGrammarRule.findMany.mockResolvedValue(grammarElos.map(e => ({ eloRating: e })));
+function _mockElos(vocabElos: number[], grammarElos: number[]) {
+	mockPrisma.userVocabulary.findMany.mockResolvedValue(vocabElos.map((e) => ({ eloRating: e })));
+	mockPrisma.userGrammarRule.findMany.mockResolvedValue(grammarElos.map((e) => ({ eloRating: e })));
 }
 
 beforeEach(() => vi.clearAllMocks());
@@ -69,12 +74,12 @@ describe('CefrService.getCefrProgress', () => {
 
 		// encountered=10, interactedGrammar=5, masteredVocab=8, masteredGrammar=5
 		mockPrisma.userVocabulary.count
-			.mockResolvedValueOnce(10)  // encounteredVocab
-			.mockResolvedValueOnce(8);  // masteredVocab
+			.mockResolvedValueOnce(10) // encounteredVocab
+			.mockResolvedValueOnce(8); // masteredVocab
 		mockPrisma.userGrammarRule.count
-			.mockResolvedValueOnce(5)   // totalGrammar (via grammarRule.count below)
-			.mockResolvedValueOnce(8)   // masteredGrammar
-			.mockResolvedValueOnce(5);  // interactedGrammar
+			.mockResolvedValueOnce(5) // totalGrammar (via grammarRule.count below)
+			.mockResolvedValueOnce(8) // masteredGrammar
+			.mockResolvedValueOnce(5); // interactedGrammar
 
 		mockPrisma.userVocabulary.findMany.mockResolvedValue([{ eloRating: 1200 }]);
 		mockPrisma.userGrammarRule.findMany.mockResolvedValue([{ eloRating: 1100 }]);
@@ -117,7 +122,7 @@ describe('CefrService.applyEloDecay', () => {
 	it('decays vocab ELO toward its CEFR baseline', async () => {
 		const baseline = CEFR_CONFIG.BASE_ELO.A1; // 1000
 		const currentElo = 1200;
-		const expectedDecayed = currentElo - (currentElo - baseline) * CEFR_CONFIG.DECAY.RATE;
+		const _expectedDecayed = currentElo - (currentElo - baseline) * CEFR_CONFIG.DECAY.RATE;
 
 		mockPrisma.userVocabulary.findMany.mockResolvedValue([
 			{ id: 'uv-1', eloRating: currentElo, vocabulary: { cefrLevel: 'A1' } }

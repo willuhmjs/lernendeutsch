@@ -33,10 +33,8 @@ export interface FsrsParameters {
 // Default FSRS-4.5 parameters (optimized for general learning)
 export const DEFAULT_FSRS_PARAMETERS: FsrsParameters = {
 	w: [
-		0.4072, 1.1829, 3.1262, 15.4722, 7.2102,
-		0.5316, 1.0651, 0.0234, 1.616, 0.1544,
-		1.0824, 1.9813, 0.0953, 0.2975, 2.2042,
-		0.2407, 2.9466
+		0.4072, 1.1829, 3.1262, 15.4722, 7.2102, 0.5316, 1.0651, 0.0234, 1.616, 0.1544, 1.0824, 1.9813,
+		0.0953, 0.2975, 2.2042, 0.2407, 2.9466
 	],
 	requestRetention: 0.9,
 	maximumInterval: 365,
@@ -67,10 +65,10 @@ export type Rating = 1 | 2 | 3 | 4;
  * complete failures — the LLM awards these for genuine partial knowledge.
  */
 export function scoreToRating(score: number): Rating {
-	if (score === 0) return 1;  // Again  — total failure
-	if (score < 0.5) return 2;  // Hard   — significant errors
+	if (score === 0) return 1; // Again  — total failure
+	if (score < 0.5) return 2; // Hard   — significant errors
 	if (score < 0.85) return 3; // Good   — partial/minor errors
-	return 4;                   // Easy   — correct
+	return 4; // Easy   — correct
 }
 
 /**
@@ -142,13 +140,14 @@ function nextStability(
 	const hardPenalty = rating === 2 ? w[15] : 1;
 	const easyBonus = rating === 4 ? w[16] : 1;
 
-	const successFactor = 1 +
+	const successFactor =
+		1 +
 		Math.exp(w[8]) *
-		(11 - difficulty) *
-		Math.pow(stability, -w[9]) *
-		(Math.exp((1 - retrievability) * w[10]) - 1) *
-		hardPenalty *
-		easyBonus;
+			(11 - difficulty) *
+			Math.pow(stability, -w[9]) *
+			(Math.exp((1 - retrievability) * w[10]) - 1) *
+			hardPenalty *
+			easyBonus;
 
 	return stability * successFactor;
 }
@@ -163,7 +162,8 @@ function nextStabilityAfterLapse(
 	params: FsrsParameters
 ): number {
 	const { w } = params;
-	const lapseFactor = Math.exp(w[11]) *
+	const lapseFactor =
+		Math.exp(w[11]) *
 		Math.pow(difficulty, -w[12]) *
 		(Math.pow(stability, w[13]) - 1) *
 		Math.exp((1 - retrievability) * w[14]);
@@ -198,9 +198,8 @@ export function reviewCard(
 		: 0;
 
 	// Calculate current retrievability
-	const retrievability = card.stability > 0
-		? calculateRetrievability(elapsedDays, card.stability)
-		: 1;
+	const retrievability =
+		card.stability > 0 ? calculateRetrievability(elapsedDays, card.stability) : 1;
 
 	// Determine state
 	let state: 'NEW' | 'LEARNING' | 'REVIEW' | 'RELEARNING' = 'REVIEW';

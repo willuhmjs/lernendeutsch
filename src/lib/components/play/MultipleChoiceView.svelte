@@ -28,10 +28,14 @@
 		if (tag === 'input' || tag === 'textarea') return;
 
 		const keyMap: Record<string, number> = {
-			'1': 0, 'a': 0,
-			'2': 1, 'b': 1,
-			'3': 2, 'c': 2,
-			'4': 3, 'd': 3
+			'1': 0,
+			a: 0,
+			'2': 1,
+			b: 1,
+			'3': 2,
+			c: 2,
+			'4': 3,
+			d: 3
 		};
 		const idx = keyMap[e.key.toLowerCase()];
 		if (idx !== undefined && idx < shuffledChoices.length) {
@@ -50,8 +54,7 @@
 			type="button"
 			class="mc-choice-btn"
 			class:selected={selectedChoice === choice}
-			class:correct={(feedback || hasSubmittedMc) &&
-				choice === challenge.targetSentence}
+			class:correct={(feedback || hasSubmittedMc) && choice === challenge.targetSentence}
 			class:incorrect={(feedback || hasSubmittedMc) &&
 				selectedChoice === choice &&
 				choice !== challenge.targetSentence}
@@ -95,20 +98,40 @@
 		animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards;
 	}
 
-	.mc-choice-btn:nth-child(1) { animation-delay: 0.05s; }
-	.mc-choice-btn:nth-child(2) { animation-delay: 0.1s; }
-	.mc-choice-btn:nth-child(3) { animation-delay: 0.15s; }
-	.mc-choice-btn:nth-child(4) { animation-delay: 0.2s; }
+	.mc-choice-btn:nth-child(1) {
+		animation-delay: 0.05s;
+	}
+	.mc-choice-btn:nth-child(2) {
+		animation-delay: 0.1s;
+	}
+	.mc-choice-btn:nth-child(3) {
+		animation-delay: 0.15s;
+	}
+	.mc-choice-btn:nth-child(4) {
+		animation-delay: 0.2s;
+	}
 
 	@keyframes popIn {
-		0% { opacity: 0; transform: translateY(10px) scale(0.95); }
-		100% { opacity: 1; transform: translateY(0) scale(1); }
+		0% {
+			opacity: 0;
+			transform: translateY(10px) scale(0.95);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(0) scale(1);
+		}
 	}
 
 	@keyframes pulseCorrect {
-		0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4); }
-		70% { box-shadow: 0 0 0 10px rgba(22, 163, 74, 0); }
-		100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+		0% {
+			box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4);
+		}
+		70% {
+			box-shadow: 0 0 0 10px rgba(22, 163, 74, 0);
+		}
+		100% {
+			box-shadow: 0 0 0 0 rgba(22, 163, 74, 0);
+		}
 	}
 
 	.mc-key-hint {

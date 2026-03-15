@@ -161,12 +161,7 @@ CRITICAL STYLE & TONE CONSTRAINT:
 				targetedVocabularyIds: { type: 'array', items: { type: 'string' } },
 				targetedGrammarIds: { type: 'array', items: { type: 'string' } }
 			},
-			required: [
-				'challengeText',
-				'targetSentence',
-				'targetedVocabularyIds',
-				'targetedGrammarIds'
-			],
+			required: ['challengeText', 'targetSentence', 'targetedVocabularyIds', 'targetedGrammarIds'],
 			additionalProperties: false
 		};
 	} else {
@@ -192,12 +187,7 @@ CRITICAL STYLE & TONE CONSTRAINT:
 				targetedVocabularyIds: { type: 'array', items: { type: 'string' } },
 				targetedGrammarIds: { type: 'array', items: { type: 'string' } }
 			},
-			required: [
-				'challengeText',
-				'targetSentence',
-				'targetedVocabularyIds',
-				'targetedGrammarIds'
-			],
+			required: ['challengeText', 'targetSentence', 'targetedVocabularyIds', 'targetedGrammarIds'],
 			additionalProperties: false
 		};
 	}

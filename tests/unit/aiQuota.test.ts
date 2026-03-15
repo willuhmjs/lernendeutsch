@@ -14,9 +14,8 @@ vi.mock('../../src/lib/server/prisma', () => ({
 }));
 
 // Import after mocking
-const { getDailyUsage, isQuotaExceeded, recordTokenUsage, DAILY_TOKEN_QUOTA } = await import(
-	'../../src/lib/server/aiQuota'
-);
+const { getDailyUsage, isQuotaExceeded, recordTokenUsage, DAILY_TOKEN_QUOTA } =
+	await import('../../src/lib/server/aiQuota');
 
 describe('DAILY_TOKEN_QUOTA', () => {
 	it('is a positive number', () => {

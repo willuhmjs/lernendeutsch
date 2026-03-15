@@ -12,7 +12,10 @@ const signupSchema = z.object({
 		.string()
 		.min(3, 'Username must be at least 3 characters')
 		.max(31, 'Username must be at most 31 characters')
-		.regex(/^[a-zA-Z0-9_\-]+$/, 'Username may only contain letters, numbers, underscores, and hyphens'),
+		.regex(
+			/^[a-zA-Z0-9_-]+$/,
+			'Username may only contain letters, numbers, underscores, and hyphens'
+		),
 	email: z.email().max(128),
 	password: z.string().max(128)
 });
@@ -54,9 +57,8 @@ export const actions = {
 
 		// Create user — rely on DB unique constraints for race-condition safety.
 		// Role assignment runs in the same transaction to eliminate TOCTOU.
-		let createdUser;
 		try {
-			createdUser = await prisma.$transaction(async (tx) => {
+			await prisma.$transaction(async (tx) => {
 				const user = await tx.user.create({
 					data: {
 						username,

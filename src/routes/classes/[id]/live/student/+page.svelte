@@ -19,21 +19,21 @@
 
 	$: if (currentQuestionData && currentQuestionData.id !== lastQuestionId) {
 		lastQuestionId = currentQuestionData.id;
-		const rawOptions = Array.isArray(currentQuestionData.options) 
-			? currentQuestionData.options 
-			: (typeof currentQuestionData.options === 'string' 
-				? JSON.parse(currentQuestionData.options) 
-				: []);
-		const opts = [...rawOptions].filter(o => o !== currentQuestionData.answer);
+		const rawOptions = Array.isArray(currentQuestionData.options)
+			? currentQuestionData.options
+			: typeof currentQuestionData.options === 'string'
+				? JSON.parse(currentQuestionData.options)
+				: [];
+		const opts = [...rawOptions].filter((o) => o !== currentQuestionData.answer);
 		opts.push(currentQuestionData.answer);
-		
+
 		// Fisher-Yates shuffle
 		for (let i = opts.length - 1; i > 0; i--) {
 			const j = Math.floor(Math.random() * (i + 1));
 			[opts[i], opts[j]] = [opts[j], opts[i]];
 		}
-		
-		shuffledOptions = opts.map(text => ({ text }));
+
+		shuffledOptions = opts.map((text) => ({ text }));
 	}
 
 	const classId = $page.params.id;
@@ -48,12 +48,11 @@
 			if (data.session) {
 				session = data.session;
 				loading = false;
-				
+
 				// check if joined
 				if (session.participants?.some((p: any) => p.userId === currentUserId)) {
 					joined = true;
 				}
-
 			} else {
 				session = null;
 				joined = false;
@@ -110,7 +109,16 @@
 		if (hasAnswered || session?.status !== 'active' || !currentQuestionData) return;
 		const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
 		if (tag === 'input' || tag === 'textarea') return;
-		const keyMap: Record<string, number> = { '1': 0, 'a': 0, '2': 1, 'b': 1, '3': 2, 'c': 2, '4': 3, 'd': 3 };
+		const keyMap: Record<string, number> = {
+			'1': 0,
+			a: 0,
+			'2': 1,
+			b: 1,
+			'3': 2,
+			c: 2,
+			'4': 3,
+			d: 3
+		};
 		const idx = keyMap[e.key.toLowerCase()];
 		if (idx !== undefined && idx < shuffledOptions.length) {
 			e.preventDefault();
@@ -152,9 +160,15 @@
 
 				{#if session.game?.questions?.length > 1}
 					<div class="live-progress-bar">
-						<div class="live-progress-fill" style="width: {(((session.currentQuestionIndex || 0)) / session.game.questions.length) * 100}%"></div>
+						<div
+							class="live-progress-fill"
+							style="width: {((session.currentQuestionIndex || 0) / session.game.questions.length) *
+								100}%"
+						></div>
 					</div>
-					<p class="live-progress-label">Question {(session.currentQuestionIndex || 0) + 1} of {session.game.questions.length}</p>
+					<p class="live-progress-label">
+						Question {(session.currentQuestionIndex || 0) + 1} of {session.game.questions.length}
+					</p>
 				{/if}
 
 				<h2 class="question-title">

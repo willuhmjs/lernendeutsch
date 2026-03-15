@@ -126,5 +126,5 @@ export const adverbs = [
 	{ word: 'pourquoi', translation: 'why', isBeginner: true },
 	{ word: 'quand', translation: 'when', isBeginner: true },
 	{ word: 'où', translation: 'where', isBeginner: true },
-	{ word: 'combien', translation: 'how much / how many', isBeginner: true },
+	{ word: 'combien', translation: 'how much / how many', isBeginner: true }
 ];

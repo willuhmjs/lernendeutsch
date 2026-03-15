@@ -55,14 +55,14 @@ The app will be available at `http://localhost:3000`.
 
 ## Environment variables
 
-| Variable | Required | Description |
-|---|---|---|
-| `DATABASE_URL` | Yes | PostgreSQL connection string |
-| `AUTH_SECRET` | Yes | Auth.js secret, minimum 32 characters |
-| `LLM_BASE_URL` | Yes | Base URL of an OpenAI-compatible API (e.g. `https://api.openai.com/v1`) |
-| `LLM_API_KEY` | Yes | API key for the LLM provider |
-| `AUTH_GOOGLE_ID` | No | Google OAuth client ID — enables Sign in with Google |
-| `AUTH_GOOGLE_SECRET` | No | Google OAuth client secret |
+| Variable             | Required | Description                                                             |
+| -------------------- | -------- | ----------------------------------------------------------------------- |
+| `DATABASE_URL`       | Yes      | PostgreSQL connection string                                            |
+| `AUTH_SECRET`        | Yes      | Auth.js secret, minimum 32 characters                                   |
+| `LLM_BASE_URL`       | Yes      | Base URL of an OpenAI-compatible API (e.g. `https://api.openai.com/v1`) |
+| `LLM_API_KEY`        | Yes      | API key for the LLM provider                                            |
+| `AUTH_GOOGLE_ID`     | No       | Google OAuth client ID — enables Sign in with Google                    |
+| `AUTH_GOOGLE_SECRET` | No       | Google OAuth client secret                                              |
 
 `LLM_BASE_URL` can point to OpenAI, Ollama, LM Studio, or any other OpenAI-compatible endpoint.
 

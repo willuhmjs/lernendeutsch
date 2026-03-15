@@ -39,7 +39,9 @@ test.describe('API authentication guards', () => {
 		expect([401, 403]).toContain(res.status());
 	});
 
-	test('POST /api/admin/vocabulary/auto-review returns 401 when unauthenticated', async ({ request }) => {
+	test('POST /api/admin/vocabulary/auto-review returns 401 when unauthenticated', async ({
+		request
+	}) => {
 		const res = await request.post('/api/admin/vocabulary/auto-review', {
 			headers: { 'Content-Type': 'application/json' },
 			data: {}
@@ -62,7 +64,9 @@ test.describe('API Content-Type enforcement', () => {
 		expect([415, 403, 401]).toContain(res.status());
 	});
 
-	test('POST without Content-Type header is allowed (treated as no-content-type)', async ({ request }) => {
+	test('POST without Content-Type header is allowed (treated as no-content-type)', async ({
+		request
+	}) => {
 		// Requests with no Content-Type header (e.g. empty body) should not be blocked by the CSRF check
 		// because the check only fires when content-type is explicitly set to a non-JSON value.
 		const res = await request.post('/api/user/vocabulary', {

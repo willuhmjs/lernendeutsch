@@ -36,13 +36,13 @@
 	let isCreatingAssignment = false;
 
 	const MODE_DEFAULTS: Record<string, { targetScore: number; passThreshold: number }> = {
-		'multiple-choice':  { targetScore: 10, passThreshold: 80 },
+		'multiple-choice': { targetScore: 10, passThreshold: 80 },
 		'native-to-target': { targetScore: 10, passThreshold: 80 },
 		'target-to-native': { targetScore: 10, passThreshold: 80 },
-		'fill-blank':       { targetScore: 10, passThreshold: 80 },
-		'chat':             { targetScore: 20, passThreshold: 50 },
-		'immerse':          { targetScore: 10, passThreshold: 50 },
-		'quiz':             { targetScore: 10, passThreshold: 50 },
+		'fill-blank': { targetScore: 10, passThreshold: 80 },
+		chat: { targetScore: 20, passThreshold: 50 },
+		immerse: { targetScore: 10, passThreshold: 50 },
+		quiz: { targetScore: 10, passThreshold: 50 }
 	};
 
 	function applyModeDefaults(mode: string) {
@@ -140,7 +140,7 @@
 					title: createAssignmentTitle,
 					description: createAssignmentDescription || undefined,
 					gamemode: createAssignmentMode,
-					gameId: createAssignmentMode === 'quiz' ? (createAssignmentGameId || undefined) : undefined,
+					gameId: createAssignmentMode === 'quiz' ? createAssignmentGameId || undefined : undefined,
 					targetScore: createAssignmentTargetScore,
 					passThreshold: createAssignmentPassThreshold,
 					language: createAssignmentLanguage,
@@ -158,7 +158,7 @@
 				closeCreateAssignmentModal();
 				await invalidateAll();
 			}
-		} catch (e) {
+		} catch (_) {
 			toastError('An error occurred');
 		} finally {
 			isCreatingAssignment = false;
@@ -175,7 +175,7 @@
 			} else {
 				toast.error('Failed to promote member.');
 			}
-		} catch (e) {
+		} catch (_) {
 			toast.error('An error occurred.');
 		}
 	}
@@ -192,7 +192,7 @@
 				const result = await res.json();
 				toast.error(result.error || 'Failed to remove member.');
 			}
-		} catch (e) {
+		} catch (_) {
 			toast.error('An error occurred.');
 		}
 	}
@@ -230,7 +230,8 @@
 	}
 
 	async function handleLeaveClass() {
-		if (!(await modal.confirm('Leave this class? You will need the invite code to rejoin.'))) return;
+		if (!(await modal.confirm('Leave this class? You will need the invite code to rejoin.')))
+			return;
 		try {
 			const res = await fetch(`/api/classes/${classDetails.id}/leave`, { method: 'POST' });
 			if (res.ok) {
@@ -239,7 +240,7 @@
 				const result = await res.json();
 				toast.error(result.error || 'Failed to leave class.');
 			}
-		} catch (e) {
+		} catch (_) {
 			toast.error('An error occurred.');
 		}
 	}
@@ -260,7 +261,7 @@
 				const result = await res.json();
 				toast.error(result.error || 'Failed to delete class.');
 			}
-		} catch (e) {
+		} catch (_) {
 			toast.error('An error occurred.');
 		}
 	}
@@ -275,7 +276,7 @@
 				const result = await res.json();
 				toast.error(result.error || 'Failed to reset invite code.');
 			}
-		} catch (e) {
+		} catch (_) {
 			toast.error('An error occurred.');
 		}
 	}
@@ -327,7 +328,9 @@
 					>
 					<div class="action-row">
 						<button onclick={handleLeaveClass} class="btn-duo btn-leave">Leave Class</button>
-						<button onclick={handleDeleteClass} class="btn-duo btn-delete-class">Delete Class</button>
+						<button onclick={handleDeleteClass} class="btn-duo btn-delete-class"
+							>Delete Class</button
+						>
 					</div>
 				</div>
 			{:else}
@@ -387,18 +390,52 @@
 									{/if}
 									<div class="assignment-meta">
 										<span class="meta-tag score-tag">
-											<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="meta-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+											<svg
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="2"
+												class="meta-icon"
+												><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle
+													cx="12"
+													cy="12"
+													r="2"
+												/></svg
+											>
 											{assignment.targetScore} to pass
 										</span>
 										{#if currentUserRole === 'TEACHER'}
 											<span class="meta-tag progress-tag">
-												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="meta-icon"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-												{passedCount}/{classDetails.members.filter((m) => m.role === 'STUDENT').length} passed
+												<svg
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="2"
+													class="meta-icon"
+													><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle
+														cx="9"
+														cy="7"
+														r="4"
+													/><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path
+														d="M16 3.13a4 4 0 0 1 0 7.75"
+													/></svg
+												>
+												{passedCount}/{classDetails.members.filter((m) => m.role === 'STUDENT')
+													.length} passed
 											</span>
 										{/if}
 										{#if assignment.dueDate}
 											<span class="meta-tag due-tag">
-												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="meta-icon"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+												<svg
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="2"
+													class="meta-icon"
+													><circle cx="12" cy="12" r="10" /><polyline
+														points="12 6 12 12 16 14"
+													/></svg
+												>
 												Due {formatDate(assignment.dueDate)}
 											</span>
 										{/if}
@@ -429,7 +466,11 @@
 											type="button"
 											class="btn-duo btn-copy assignment-play-btn text-center"
 											aria-label="Copy assignment link"
-											onclick={() => copyAssignmentLink(assignment.id, assignment.gamemode === 'quiz' ? assignment.gameId : null)}
+											onclick={() =>
+												copyAssignmentLink(
+													assignment.id,
+													assignment.gamemode === 'quiz' ? assignment.gameId : null
+												)}
 										>
 											{copiedAssignmentId === assignment.id ? '✓ Copied' : '🔗 Copy Link'}
 										</button>
@@ -591,21 +632,18 @@
 				<button class="btn-close" onclick={closeCreateAssignmentModal}>&times;</button>
 			</div>
 
-			<form onsubmit={(e) => { e.preventDefault(); handleCreateAssignment(); }} class="create-form">
-
+			<form
+				onsubmit={(e) => {
+					e.preventDefault();
+					handleCreateAssignment();
+				}}
+				class="create-form"
+			>
 				<!-- Step 1: Mode selection — always shown first -->
 				<div class="form-section">
 					<p class="section-label">Mode</p>
 					<div class="mode-grid">
-						{#each [
-							{ value: 'multiple-choice', label: 'Multiple Choice', icon: '🔘' },
-							{ value: 'native-to-target', label: 'Into Target', icon: `${nativeFlag}→${targetFlag}` },
-							{ value: 'target-to-native', label: 'Into Native', icon: `${targetFlag}→${nativeFlag}` },
-							{ value: 'fill-blank', label: 'Fill in Blank', icon: '✏️' },
-							{ value: 'chat', label: 'Chat', icon: '💬' },
-							{ value: 'immerse', label: 'Immerse', icon: '📖' },
-							{ value: 'quiz', label: 'Quiz', icon: '🎯' },
-						] as m}
+						{#each [{ value: 'multiple-choice', label: 'Multiple Choice', icon: '🔘' }, { value: 'native-to-target', label: 'Into Target', icon: `${nativeFlag}→${targetFlag}` }, { value: 'target-to-native', label: 'Into Native', icon: `${targetFlag}→${nativeFlag}` }, { value: 'fill-blank', label: 'Fill in Blank', icon: '✏️' }, { value: 'chat', label: 'Chat', icon: '💬' }, { value: 'immerse', label: 'Immerse', icon: '📖' }, { value: 'quiz', label: 'Quiz', icon: '🎯' }] as m}
 							<button
 								type="button"
 								class="mode-btn"
@@ -621,27 +659,40 @@
 
 				<!-- Quiz picker (quiz mode only) -->
 				{#if createAssignmentMode === 'quiz'}
-				<div class="form-section">
-					<p class="section-label">Quiz <span class="required">*</span></p>
-					{#if (data.teacherGames || []).length === 0}
-						<p class="empty-hint">You have no quizzes yet. <a href="/play/games/create" target="_blank">Create one</a> first.</p>
-					{:else}
-						<div class="quiz-list">
-							{#each data.teacherGames || [] as quiz}
-								<label class="quiz-option" class:quiz-selected={createAssignmentGameId === quiz.id}>
-									<input type="radio" name="quizPicker" value={quiz.id} checked={createAssignmentGameId === quiz.id} onchange={() => handleQuizSelect(quiz.id)} />
-									<div class="quiz-option-info">
-										<span class="quiz-option-title">{quiz.title}</span>
-										<span class="quiz-option-meta">{quiz._count.questions} questions{quiz.isPublished ? '' : ' · draft'}</span>
-									</div>
-									{#if createAssignmentGameId === quiz.id}
-										<span class="quiz-check">✓</span>
-									{/if}
-								</label>
-							{/each}
-						</div>
-					{/if}
-				</div>
+					<div class="form-section">
+						<p class="section-label">Quiz <span class="required">*</span></p>
+						{#if (data.teacherGames || []).length === 0}
+							<p class="empty-hint">
+								You have no quizzes yet. <a href="/play/games/create" target="_blank">Create one</a> first.
+							</p>
+						{:else}
+							<div class="quiz-list">
+								{#each data.teacherGames || [] as quiz}
+									<label
+										class="quiz-option"
+										class:quiz-selected={createAssignmentGameId === quiz.id}
+									>
+										<input
+											type="radio"
+											name="quizPicker"
+											value={quiz.id}
+											checked={createAssignmentGameId === quiz.id}
+											onchange={() => handleQuizSelect(quiz.id)}
+										/>
+										<div class="quiz-option-info">
+											<span class="quiz-option-title">{quiz.title}</span>
+											<span class="quiz-option-meta"
+												>{quiz._count.questions} questions{quiz.isPublished ? '' : ' · draft'}</span
+											>
+										</div>
+										{#if createAssignmentGameId === quiz.id}
+											<span class="quiz-check">✓</span>
+										{/if}
+									</label>
+								{/each}
+							</div>
+						{/if}
+					</div>
 				{/if}
 
 				<!-- Basic info -->
@@ -671,74 +722,83 @@
 				</div>
 
 				<!-- AI targeting — only for learn modes -->
-				{#if ['multiple-choice','native-to-target','target-to-native','fill-blank'].includes(createAssignmentMode)}
-				<div class="form-section">
-					<p class="section-label">AI Focus <span class="optional-label">(optional)</span></p>
-					<div class="create-form-row">
-						<div class="field">
-							<label for="topic">Topic</label>
-							<input
-								type="text"
-								id="topic"
-								bind:value={createAssignmentTopic}
-								placeholder="e.g. Ordering food, Traveling"
-							/>
-						</div>
-						<div class="field">
-							<label for="vocab">Target Vocabulary</label>
-							<div class="vocab-input-container">
-								<div class="vocab-tags">
-									{#each targetVocabList as word}
-										<span class="vocab-tag">
-											{word}
-											<button type="button" class="remove-vocab" onclick={() => removeVocab(word)}>&times;</button>
-										</span>
-									{/each}
-									<input
-										type="text"
-										id="vocab"
-										bind:value={vocabInput}
-										onkeydown={handleVocabKeydown}
-										placeholder={targetVocabList.length === 0 ? "Type a word and press Enter" : ""}
-										class="vocab-inline-input"
-									/>
+				{#if ['multiple-choice', 'native-to-target', 'target-to-native', 'fill-blank'].includes(createAssignmentMode)}
+					<div class="form-section">
+						<p class="section-label">AI Focus <span class="optional-label">(optional)</span></p>
+						<div class="create-form-row">
+							<div class="field">
+								<label for="topic">Topic</label>
+								<input
+									type="text"
+									id="topic"
+									bind:value={createAssignmentTopic}
+									placeholder="e.g. Ordering food, Traveling"
+								/>
+							</div>
+							<div class="field">
+								<label for="vocab">Target Vocabulary</label>
+								<div class="vocab-input-container">
+									<div class="vocab-tags">
+										{#each targetVocabList as word}
+											<span class="vocab-tag">
+												{word}
+												<button type="button" class="remove-vocab" onclick={() => removeVocab(word)}
+													>&times;</button
+												>
+											</span>
+										{/each}
+										<input
+											type="text"
+											id="vocab"
+											bind:value={vocabInput}
+											onkeydown={handleVocabKeydown}
+											placeholder={targetVocabList.length === 0
+												? 'Type a word and press Enter'
+												: ''}
+											class="vocab-inline-input"
+										/>
+									</div>
 								</div>
 							</div>
 						</div>
-					</div>
-					<div class="field grammar-rules-field">
-						<span class="field-label">Target Grammar Rules</span>
-						<div class="grammar-rules-container">
-							{#if availableRules.length > 0}
-								<div class="grammar-search">
-									<input
-										type="text"
-										bind:value={grammarSearchQuery}
-										placeholder="Search grammar rules..."
-										class="grammar-search-input"
-									/>
-								</div>
-								<div class="grammar-rules-list">
-									{#each availableRules.filter((r: any) => r.title.toLowerCase().includes(grammarSearchQuery.toLowerCase())) as rule}
-										<label class="grammar-rule-item" class:selected={selectedGrammarRules.includes(rule.id)}>
-											<input
-												type="checkbox"
-												checked={selectedGrammarRules.includes(rule.id)}
-												onchange={() => toggleGrammarRule(rule.id)}
-											/>
-											<div class="grammar-rule-info">
-												<span class="grammar-rule-title">{rule.title}</span>
-												<span class="badge grammar-rule-badge">{rule.level}</span>
-											</div>
-										</label>
-									{/each}
-								</div>
-							{:else}
-								<p class="no-grammar-rules">No grammar rules available for this language.</p>
-							{/if}
+						<div class="field grammar-rules-field">
+							<span class="field-label">Target Grammar Rules</span>
+							<div class="grammar-rules-container">
+								{#if availableRules.length > 0}
+									<div class="grammar-search">
+										<input
+											type="text"
+											bind:value={grammarSearchQuery}
+											placeholder="Search grammar rules..."
+											class="grammar-search-input"
+										/>
+									</div>
+									<div class="grammar-rules-list">
+										{#each availableRules.filter((r: any) => r.title
+												.toLowerCase()
+												.includes(grammarSearchQuery.toLowerCase())) as rule}
+											<label
+												class="grammar-rule-item"
+												class:selected={selectedGrammarRules.includes(rule.id)}
+											>
+												<input
+													type="checkbox"
+													checked={selectedGrammarRules.includes(rule.id)}
+													onchange={() => toggleGrammarRule(rule.id)}
+												/>
+												<div class="grammar-rule-info">
+													<span class="grammar-rule-title">{rule.title}</span>
+													<span class="badge grammar-rule-badge">{rule.level}</span>
+												</div>
+											</label>
+										{/each}
+									</div>
+								{:else}
+									<p class="no-grammar-rules">No grammar rules available for this language.</p>
+								{/if}
+							</div>
 						</div>
 					</div>
-				</div>
 				{/if}
 
 				<!-- Scoring & settings -->
@@ -746,29 +806,29 @@
 					<p class="section-label">Settings</p>
 					<div class="settings-row">
 						{#if createAssignmentMode !== 'quiz'}
-						<div class="field">
-							<label for="language">Language</label>
-							<select id="language" bind:value={createAssignmentLanguage}>
-								<option value="international">International</option>
-								<option value="de">German</option>
-								<option value="es">Spanish</option>
-								<option value="fr">French</option>
-							</select>
-						</div>
+							<div class="field">
+								<label for="language">Language</label>
+								<select id="language" bind:value={createAssignmentLanguage}>
+									<option value="international">International</option>
+									<option value="de">German</option>
+									<option value="es">Spanish</option>
+									<option value="fr">French</option>
+								</select>
+							</div>
 						{/if}
 						{#if createAssignmentMode !== 'quiz'}
-						<div class="field">
-							<label for="targetCefrLevel">CEFR Level</label>
-							<select id="targetCefrLevel" bind:value={createAssignmentTargetCefrLevel}>
-								<option value="">Student's level</option>
-								<option value="A1">A1</option>
-								<option value="A2">A2</option>
-								<option value="B1">B1</option>
-								<option value="B2">B2</option>
-								<option value="C1">C1</option>
-								<option value="C2">C2</option>
-							</select>
-						</div>
+							<div class="field">
+								<label for="targetCefrLevel">CEFR Level</label>
+								<select id="targetCefrLevel" bind:value={createAssignmentTargetCefrLevel}>
+									<option value="">Student's level</option>
+									<option value="A1">A1</option>
+									<option value="A2">A2</option>
+									<option value="B1">B1</option>
+									<option value="B2">B2</option>
+									<option value="C1">C1</option>
+									<option value="C2">C2</option>
+								</select>
+							</div>
 						{/if}
 						<div class="field">
 							<label for="targetScore">
@@ -786,19 +846,19 @@
 							/>
 						</div>
 						{#if createAssignmentMode !== 'chat' && createAssignmentMode !== 'quiz'}
-						<div class="field">
-							<label for="passThreshold">Pass Threshold</label>
-							<div class="threshold-input">
-								<input
-									type="number"
-									id="passThreshold"
-									bind:value={createAssignmentPassThreshold}
-									min="1"
-									max="100"
-								/>
-								<span class="threshold-pct">%</span>
+							<div class="field">
+								<label for="passThreshold">Pass Threshold</label>
+								<div class="threshold-input">
+									<input
+										type="number"
+										id="passThreshold"
+										bind:value={createAssignmentPassThreshold}
+										min="1"
+										max="100"
+									/>
+									<span class="threshold-pct">%</span>
+								</div>
 							</div>
-						</div>
 						{/if}
 					</div>
 				</div>

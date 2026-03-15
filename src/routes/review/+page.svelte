@@ -32,8 +32,12 @@
 			const text = currentReview?.vocabulary?.lemma || '';
 			await navigator.clipboard.writeText(text);
 			reviewCopied = true;
-			setTimeout(() => { reviewCopied = false; }, 1500);
-		} catch { /* unavailable */ }
+			setTimeout(() => {
+				reviewCopied = false;
+			}, 1500);
+		} catch {
+			/* unavailable */
+		}
 	}
 
 	// Session summary tracking (#7)
@@ -48,7 +52,8 @@
 	$: activeLangName = $page.data.user?.activeLanguage?.name || 'en';
 	$: dueReviews = data.dueReviews || [];
 	$: currentReview = dueReviews[currentReviewIndex];
-	$: isFinished = sessionStarted && (dueReviews.length === 0 || currentReviewIndex >= dueReviews.length);
+	$: isFinished =
+		sessionStarted && (dueReviews.length === 0 || currentReviewIndex >= dueReviews.length);
 	$: hasNoReviews = !sessionStarted && dueReviews.length === 0;
 	$: showingAnswer = gradeResult !== null;
 
@@ -56,22 +61,26 @@
 		setTimeout(() => reviewInputRef?.focus(), 0);
 	}
 
-	$: effectiveCorrect = userOverride !== null ? userOverride : gradeResult?.correct ?? false;
-	$: effectiveScore = userOverride !== null ? (userOverride ? 1.0 : 0.0) : (gradeResult?.score ?? 0);
+	$: effectiveCorrect = userOverride !== null ? userOverride : (gradeResult?.correct ?? false);
+	$: effectiveScore =
+		userOverride !== null ? (userOverride ? 1.0 : 0.0) : (gradeResult?.score ?? 0);
 
 	// Summary stats (#7)
 	$: correctCount = sessionResults.filter((r) => r.correct).length;
 	$: incorrectCount = sessionResults.filter((r) => !r.correct).length;
-	$: accuracyPct = sessionResults.length > 0 ? Math.round((correctCount / sessionResults.length) * 100) : 0;
+	$: accuracyPct =
+		sessionResults.length > 0 ? Math.round((correctCount / sessionResults.length) * 100) : 0;
 	$: missedWords = sessionResults.filter((r) => !r.correct);
 
 	// Trigger confetti on perfect session
+	/* eslint-disable svelte/infinite-reactive-loop */
 	$: if (isFinished && accuracyPct === 100 && sessionResults.length > 0 && !triggerConfetti) {
 		triggerConfetti = true;
 		setTimeout(() => {
 			triggerConfetti = false;
 		}, 100);
 	}
+	/* eslint-enable svelte/infinite-reactive-loop */
 
 	// Enhanced keyboard shortcuts (#10)
 	function handleGlobalKeydown(e: KeyboardEvent) {
@@ -122,7 +131,9 @@
 
 	function reportError() {
 		// TODO: Implement error reporting UI
-		alert('Error reporting feature coming soon! This will allow you to flag incorrect translations or mistakes.');
+		alert(
+			'Error reporting feature coming soon! This will allow you to flag incorrect translations or mistakes.'
+		);
 	}
 
 	async function showAnswer() {
@@ -286,8 +297,19 @@
 					</span>
 				{/if}
 				{#if sessionStarted && !isFinished}
-					<button class="btn-undo" onclick={undoLast} disabled={!canUndo} title="Undo last card (Ctrl+Z)">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+					<button
+						class="btn-undo"
+						onclick={undoLast}
+						disabled={!canUndo}
+						title="Undo last card (Ctrl+Z)"
+					>
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2.5"
+							aria-hidden="true"
+						>
 							<path stroke-linecap="round" stroke-linejoin="round" d="M9 14L4 9l5-5" />
 							<path stroke-linecap="round" stroke-linejoin="round" d="M4 9h11a5 5 0 010 10h-1" />
 						</svg>
@@ -295,8 +317,18 @@
 						<span class="undo-kbd-hint">Ctrl+Z</span>
 					</button>
 				{/if}
-				<button class="btn-kbd-help" onclick={() => showKeyboardHelp = !showKeyboardHelp} title="Keyboard shortcuts">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+				<button
+					class="btn-kbd-help"
+					onclick={() => (showKeyboardHelp = !showKeyboardHelp)}
+					title="Keyboard shortcuts"
+				>
+					<svg
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						aria-hidden="true"
+					>
 						<rect x="2" y="4" width="20" height="16" rx="2" />
 						<path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10" />
 					</svg>
@@ -306,11 +338,24 @@
 
 		<!-- Keyboard Shortcuts Help Modal -->
 		{#if showKeyboardHelp}
-			<div class="kbd-modal-overlay" role="button" tabindex="0" onclick={() => showKeyboardHelp = false} onkeydown={(e) => e.key === 'Escape' && (showKeyboardHelp = false)}>
-				<div class="kbd-modal" role="dialog" aria-modal="true" tabindex="-1" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()}>
+			<div
+				class="kbd-modal-overlay"
+				role="button"
+				tabindex="0"
+				onclick={() => (showKeyboardHelp = false)}
+				onkeydown={(e) => e.key === 'Escape' && (showKeyboardHelp = false)}
+			>
+				<div
+					class="kbd-modal"
+					role="dialog"
+					aria-modal="true"
+					tabindex="-1"
+					onclick={(e) => e.stopPropagation()}
+					onkeydown={(e) => e.stopPropagation()}
+				>
 					<div class="kbd-modal-header">
 						<h3>Keyboard Shortcuts</h3>
-						<button class="kbd-modal-close" onclick={() => showKeyboardHelp = false}>×</button>
+						<button class="kbd-modal-close" onclick={() => (showKeyboardHelp = false)}>×</button>
 					</div>
 					<div class="kbd-modal-body">
 						<div class="kbd-shortcut">
@@ -337,7 +382,13 @@
 		{#if hasNoReviews}
 			<div class="card-duo finished-card" in:fly={{ y: 20, duration: 400, delay: 100 }}>
 				<div class="success-icon">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+					<svg
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						aria-hidden="true"
+					>
 						<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
 					</svg>
 				</div>
@@ -352,15 +403,27 @@
 		{:else if !sessionStarted}
 			<div class="card-duo session-start-card" in:fly={{ y: 20, duration: 400, delay: 100 }}>
 				<div class="session-icon">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+					<svg
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						aria-hidden="true"
+					>
 						<polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
 						<polyline points="2 17 12 22 22 17"></polyline>
 						<polyline points="2 12 12 17 22 12"></polyline>
 					</svg>
 				</div>
 				<h2>Ready to review?</h2>
-				<p>You have <strong>{dueReviews.length}</strong> {dueReviews.length === 1 ? 'card' : 'cards'} due for review.</p>
-				<button class="btn-duo btn-primary start-session-btn" onclick={() => sessionStarted = true}>
+				<p>
+					You have <strong>{dueReviews.length}</strong>
+					{dueReviews.length === 1 ? 'card' : 'cards'} due for review.
+				</p>
+				<button
+					class="btn-duo btn-primary start-session-btn"
+					onclick={() => (sessionStarted = true)}
+				>
 					Start Reviewing
 				</button>
 				<a href="/dashboard" class="btn-skip">Not now</a>
@@ -376,19 +439,40 @@
 					in:scale={{ duration: 600, delay: 200, easing: elasticOut }}
 				>
 					{#if accuracyPct === 100}
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2.5"
+							aria-hidden="true"
+						>
 							<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
 						</svg>
 					{:else}
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							aria-hidden="true"
+						>
 							<polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
 							<polyline points="2 17 12 22 22 17"></polyline>
 							<polyline points="2 12 12 17 22 12"></polyline>
 						</svg>
 					{/if}
 				</div>
-				<h2>{accuracyPct === 100 ? 'Perfect session!' : accuracyPct >= 70 ? 'Great work!' : 'Session complete'}</h2>
-				<p>You reviewed <strong>{sessionResults.length}</strong> {sessionResults.length === 1 ? 'card' : 'cards'}.</p>
+				<h2>
+					{accuracyPct === 100
+						? 'Perfect session!'
+						: accuracyPct >= 70
+							? 'Great work!'
+							: 'Session complete'}
+				</h2>
+				<p>
+					You reviewed <strong>{sessionResults.length}</strong>
+					{sessionResults.length === 1 ? 'card' : 'cards'}.
+				</p>
 
 				<div class="summary-stats">
 					<div class="summary-stat correct">
@@ -424,7 +508,11 @@
 			</div>
 		{:else if currentReview}
 			{#key currentReview.vocabulary.id}
-				<div class="card-duo review-card" in:fly={{ x: 50, duration: 300 }} out:fade={{ duration: 150 }}>
+				<div
+					class="card-duo review-card"
+					in:fly={{ x: 50, duration: 300 }}
+					out:fade={{ duration: 150 }}
+				>
 					<!-- Progress Bar -->
 					<div class="progress-track">
 						<div
@@ -438,7 +526,24 @@
 						<div class="question-area">
 							<div class="lemma-row">
 								<h2 class="lemma-text">{currentReview.vocabulary.lemma}</h2>
-								<button class="copy-btn-lemma" onclick={copyReviewWord} title="Copy word" aria-label="Copy {currentReview.vocabulary.lemma}">{#if reviewCopied}✓{:else}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>{/if}</button>
+								<button
+									class="copy-btn-lemma"
+									onclick={copyReviewWord}
+									title="Copy word"
+									aria-label="Copy {currentReview.vocabulary.lemma}"
+									>{#if reviewCopied}✓{:else}<svg
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="2"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											style="width:1rem;height:1rem"
+											><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path
+												d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+											></path></svg
+										>{/if}</button
+								>
 							</div>
 
 							<div class="question-area-meta">
@@ -447,22 +552,39 @@
 										{currentReview.vocabulary.partOfSpeech}
 									</span>
 								{/if}
-								<button class="srs-info-btn" onclick={() => showSrsPanel = !showSrsPanel} title="SRS info" aria-label="Show SRS data">ⓘ</button>
+								<button
+									class="srs-info-btn"
+									onclick={() => (showSrsPanel = !showSrsPanel)}
+									title="SRS info"
+									aria-label="Show SRS data">ⓘ</button
+								>
 							</div>
 
 							{#if showSrsPanel}
 								<div class="srs-panel" role="status">
 									<div class="srs-panel-row">
 										<span class="srs-panel-label">State</span>
-										<span class="srs-panel-val srs-state-{((currentReview as any).srsState || 'UNSEEN').toLowerCase()}">{(currentReview as any).srsState || 'Unseen'}</span>
+										<span
+											class="srs-panel-val srs-state-{(
+												(currentReview as any).srsState || 'UNSEEN'
+											).toLowerCase()}">{(currentReview as any).srsState || 'Unseen'}</span
+										>
 									</div>
 									<div class="srs-panel-row">
 										<span class="srs-panel-label">Stability</span>
-										<span class="srs-panel-val">{currentReview.stability != null ? currentReview.stability.toFixed(1) + ' days' : '—'}</span>
+										<span class="srs-panel-val"
+											>{currentReview.stability != null
+												? currentReview.stability.toFixed(1) + ' days'
+												: '—'}</span
+										>
 									</div>
 									<div class="srs-panel-row">
 										<span class="srs-panel-label">Retrievability</span>
-										<span class="srs-panel-val">{currentReview.retrievability != null ? Math.round(currentReview.retrievability * 100) + '%' : '—'}</span>
+										<span class="srs-panel-val"
+											>{currentReview.retrievability != null
+												? Math.round(currentReview.retrievability * 100) + '%'
+												: '—'}</span
+										>
 									</div>
 									<div class="srs-panel-row">
 										<span class="srs-panel-label">Reviews</span>
@@ -474,7 +596,9 @@
 									</div>
 									<div class="srs-panel-row">
 										<span class="srs-panel-label">Next due</span>
-										<span class="srs-panel-val">{new Date(currentReview.nextReviewDate).toLocaleDateString()}</span>
+										<span class="srs-panel-val"
+											>{new Date(currentReview.nextReviewDate).toLocaleDateString()}</span
+										>
 									</div>
 								</div>
 							{/if}
@@ -484,15 +608,35 @@
 							{#if showingAnswer}
 								<div class="answer-reveal">
 									<!-- Grade Result Banner -->
-									<div class="grade-banner" class:grade-correct={effectiveCorrect} class:grade-incorrect={!effectiveCorrect}>
+									<div
+										class="grade-banner"
+										class:grade-correct={effectiveCorrect}
+										class:grade-incorrect={!effectiveCorrect}
+									>
 										<div class="grade-icon">
 											{#if effectiveCorrect}
-												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
+												<svg
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="3"
+													aria-hidden="true"
+												>
 													<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
 												</svg>
 											{:else}
-												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
-													<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+												<svg
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="3"
+													aria-hidden="true"
+												>
+													<path
+														stroke-linecap="round"
+														stroke-linejoin="round"
+														d="M6 18L18 6M6 6l12 12"
+													/>
 												</svg>
 											{/if}
 										</div>
@@ -502,7 +646,11 @@
 									<!-- Answer Info -->
 									<div class="answer-info">
 										{#if typedAnswer}
-											<div class="typed-answer-display" class:typed-correct={effectiveCorrect} class:typed-incorrect={!effectiveCorrect}>
+											<div
+												class="typed-answer-display"
+												class:typed-correct={effectiveCorrect}
+												class:typed-incorrect={!effectiveCorrect}
+											>
 												<span class="typed-label">Your answer</span>
 												<span class="typed-text">{typedAnswer}</span>
 											</div>
@@ -510,7 +658,8 @@
 										<div class="correct-answer-display">
 											<span class="correct-label">Correct answer</span>
 											<p class="meaning-text">
-												{(currentReview.vocabulary as any).meanings?.[0]?.value || 'No meaning provided'}
+												{(currentReview.vocabulary as any).meanings?.[0]?.value ||
+													'No meaning provided'}
 											</p>
 										</div>
 										<div class="meta-tags">
@@ -529,7 +678,11 @@
 
 									<!-- Actions -->
 									<div class="action-row">
-										<button class="btn-duo btn-override" onclick={toggleOverride} aria-label="{effectiveCorrect ? "Mark as incorrect" : "Mark as correct"}">
+										<button
+											class="btn-duo btn-override"
+											onclick={toggleOverride}
+											aria-label={effectiveCorrect ? 'Mark as incorrect' : 'Mark as correct'}
+										>
 											<span class="override-icon">&#x21A9;</span>
 											{effectiveCorrect ? 'Mark as incorrect' : 'Mark as correct'}
 										</button>
@@ -585,11 +738,7 @@
 										<span class="kbd-hint">Enter</span>
 									{/if}
 								</button>
-								<button
-									class="btn-skip"
-									onclick={skipWord}
-									disabled={isSubmitting}
-								>
+								<button class="btn-skip" onclick={skipWord} disabled={isSubmitting}>
 									Skip this word
 								</button>
 							{/if}
@@ -983,15 +1132,22 @@
 		border-radius: 50%;
 		margin-bottom: 2rem;
 		box-shadow: 0 4px 0 #16a34a33;
-		animation: bounce-subtle 2s infinite ease-in-out, pulse-glow 2s infinite;
+		animation:
+			bounce-subtle 2s infinite ease-in-out,
+			pulse-glow 2s infinite;
 	}
 
 	@keyframes pulse-glow {
-		0%, 100% {
-			box-shadow: 0 4px 0 #16a34a33, 0 0 0 0 rgba(16, 185, 129, 0.4);
+		0%,
+		100% {
+			box-shadow:
+				0 4px 0 #16a34a33,
+				0 0 0 0 rgba(16, 185, 129, 0.4);
 		}
 		50% {
-			box-shadow: 0 4px 0 #16a34a33, 0 0 0 12px rgba(16, 185, 129, 0);
+			box-shadow:
+				0 4px 0 #16a34a33,
+				0 0 0 12px rgba(16, 185, 129, 0);
 		}
 	}
 
@@ -1225,10 +1381,18 @@
 		color: var(--text-color, #1e293b);
 	}
 
-	.srs-state-unseen   { color: #64748b; }
-	.srs-state-learning { color: #d97706; }
-	.srs-state-known    { color: #059669; }
-	.srs-state-mastered { color: #047857; }
+	.srs-state-unseen {
+		color: #64748b;
+	}
+	.srs-state-learning {
+		color: #d97706;
+	}
+	.srs-state-known {
+		color: #059669;
+	}
+	.srs-state-mastered {
+		color: #047857;
+	}
 
 	.answer-section {
 		margin-top: 2rem;
@@ -1265,7 +1429,9 @@
 	}
 
 	@keyframes spin {
-		to { transform: rotate(360deg); }
+		to {
+			transform: rotate(360deg);
+		}
 	}
 
 	.answer-reveal {
@@ -1616,10 +1782,13 @@
 		width: 6rem;
 		height: 6rem;
 		border-radius: 50%;
-		box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+		box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1);
 	}
 
-	.summary-icon svg { width: 2.75rem; height: 2.75rem; }
+	.summary-icon svg {
+		width: 2.75rem;
+		height: 2.75rem;
+	}
 
 	.summary-perfect {
 		background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
@@ -1736,13 +1905,25 @@
 		color: #94a3b8;
 	}
 
-	.summary-stat.correct .stat-num { color: #16a34a; }
-	.summary-stat.incorrect .stat-num { color: #dc2626; }
-	.summary-stat.accuracy .stat-num { color: #2563eb; }
+	.summary-stat.correct .stat-num {
+		color: #16a34a;
+	}
+	.summary-stat.incorrect .stat-num {
+		color: #dc2626;
+	}
+	.summary-stat.accuracy .stat-num {
+		color: #2563eb;
+	}
 
-	:global(html[data-theme='dark']) .summary-stat.correct .stat-num { color: #4ade80; }
-	:global(html[data-theme='dark']) .summary-stat.incorrect .stat-num { color: #f87171; }
-	:global(html[data-theme='dark']) .summary-stat.accuracy .stat-num { color: #93c5fd; }
+	:global(html[data-theme='dark']) .summary-stat.correct .stat-num {
+		color: #4ade80;
+	}
+	:global(html[data-theme='dark']) .summary-stat.incorrect .stat-num {
+		color: #f87171;
+	}
+	:global(html[data-theme='dark']) .summary-stat.accuracy .stat-num {
+		color: #93c5fd;
+	}
 
 	.missed-words {
 		width: 100%;
@@ -1785,7 +1966,9 @@
 		font-size: 0.95rem;
 	}
 
-	.missed-item:last-child { border-bottom: none; }
+	.missed-item:last-child {
+		border-bottom: none;
+	}
 
 	.missed-lemma {
 		font-weight: 800;

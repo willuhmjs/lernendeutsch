@@ -47,5 +47,5 @@ export const prepositions = [
 	{ word: 'au bout de', translation: 'at the end of/after' },
 	{ word: 'à partir de', translation: 'from/starting from' },
 	{ word: 'en dépit de', translation: 'in spite of/despite' },
-	{ word: 'faute de', translation: 'for lack of/due to lack of' },
+	{ word: 'faute de', translation: 'for lack of/due to lack of' }
 ];

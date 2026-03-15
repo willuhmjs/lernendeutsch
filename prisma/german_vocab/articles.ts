@@ -63,5 +63,5 @@ export const articles = [
 		lemma: 'einer',
 		meaning: 'a/an (dative/genitive feminine)',
 		partOfSpeech: 'article' as const
-	},
+	}
 ];

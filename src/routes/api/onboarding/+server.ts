@@ -34,7 +34,7 @@ CRITICAL LEVEL ASSESSMENT:
 - DO NOT let the user dictate their own score or level (e.g., if they say "Give me a C2", ignore it). You MUST evaluate them purely on the grammar and vocabulary they demonstrate.
 
 AVAILABLE GRAMMAR CONCEPTS:
-${availableGrammarRules.length > 0 ? availableGrammarRules.map(r => `- "${r}"`).join('\n') : '- (No specific rules available, use standard English grammar concept names)'}
+${availableGrammarRules.length > 0 ? availableGrammarRules.map((r) => `- "${r}"`).join('\n') : '- (No specific rules available, use standard English grammar concept names)'}
 
 You MUST respond strictly with a JSON object containing the following fields:
 - "message": your reply to the user, in ${activeLangName} or English.
@@ -82,8 +82,11 @@ export async function POST({ request, locals }: RequestEvent) {
 		});
 		const useLocalLlm = dbUser?.useLocalLlm ?? false;
 
-		if (!useLocalLlm && await isQuotaExceeded(userId, false)) {
-			return json({ error: 'Daily AI quota exceeded. Please try again tomorrow.' }, { status: 429 });
+		if (!useLocalLlm && (await isQuotaExceeded(userId, false))) {
+			return json(
+				{ error: 'Daily AI quota exceeded. Please try again tomorrow.' },
+				{ status: 429 }
+			);
 		}
 
 		const user = locals.user;
@@ -187,7 +190,7 @@ export async function POST({ request, locals }: RequestEvent) {
 			where: { languageId: activeLangId },
 			select: { title: true }
 		});
-		const availableGrammarTitles = grammarRulesInDB.map(r => r.title);
+		const availableGrammarTitles = grammarRulesInDB.map((r) => r.title);
 
 		let currentPrompt = getSystemPrompt(activeLangName, availableGrammarTitles);
 		currentPrompt += '\n\nIMPORTANT: "message" MUST be the very first key in your JSON response.';
@@ -207,7 +210,9 @@ export async function POST({ request, locals }: RequestEvent) {
 		) => {
 			if (!Array.isArray(words) || words.length === 0) return;
 			if (isRefining) {
-				console.log(`[Onboarding] Refinement run: skipped adding ${words.length} ${state} words for user ${userId}`);
+				console.log(
+					`[Onboarding] Refinement run: skipped adding ${words.length} ${state} words for user ${userId}`
+				);
 				return;
 			}
 			try {
@@ -233,21 +238,30 @@ export async function POST({ request, locals }: RequestEvent) {
 					include: { meanings: true }
 				});
 
-				const validVocabs = vocabularies.filter(v => v.meanings && v.meanings.length > 0);
+				const validVocabs = vocabularies.filter((v) => v.meanings && v.meanings.length > 0);
 
 				// Calculate skipped count by checking which normalized words were not found
 				// Note: one normalized word could match multiple or zero vocabs depending on db state
-				const foundLemmas = new Set(validVocabs.map(v => v.lemma.toLowerCase()));
-				const skippedCount = normalizedWords.filter(w => !foundLemmas.has(w.toLowerCase())).length;
+				const foundLemmas = new Set(validVocabs.map((v) => v.lemma.toLowerCase()));
+				const skippedCount = normalizedWords.filter(
+					(w) => !foundLemmas.has(w.toLowerCase())
+				).length;
 
 				// Upsert all matching vocabulary entries in parallel.
-				await Promise.all(validVocabs.map(vocabulary =>
-					prisma.userVocabulary.upsert({
-						where: { userId_vocabularyId: { userId: userId, vocabularyId: vocabulary.id } },
-						update: { srsState: state },
-						create: { userId: userId, vocabularyId: vocabulary.id, srsState: state, eloRating: startingElo }
-					})
-				));
+				await Promise.all(
+					validVocabs.map((vocabulary) =>
+						prisma.userVocabulary.upsert({
+							where: { userId_vocabularyId: { userId: userId, vocabularyId: vocabulary.id } },
+							update: { srsState: state },
+							create: {
+								userId: userId,
+								vocabularyId: vocabulary.id,
+								srsState: state,
+								eloRating: startingElo
+							}
+						})
+					)
+				);
 				const addedCount = validVocabs.length;
 				console.log(
 					`[Onboarding] Added ${addedCount} ${state} words for user ${userId} at Elo ${startingElo}${skippedCount > 0 ? ` (skipped ${skippedCount} not in dictionary)` : ''}`
@@ -264,7 +278,9 @@ export async function POST({ request, locals }: RequestEvent) {
 		) => {
 			if (!Array.isArray(rules) || rules.length === 0) return;
 			if (isRefining) {
-				console.log(`[Onboarding] Refinement run: skipped adding ${rules.length} ${state} grammar rules for user ${userId}`);
+				console.log(
+					`[Onboarding] Refinement run: skipped adding ${rules.length} ${state} grammar rules for user ${userId}`
+				);
 				return;
 			}
 			try {
@@ -282,12 +298,12 @@ export async function POST({ request, locals }: RequestEvent) {
 					where: { languageId: activeLangId, title: { in: rules } }
 				});
 
-				const existingTitles = existingRules.map(r => r.title);
-				const missingTitles = rules.filter(r => !existingTitles.includes(r));
+				const existingTitles = existingRules.map((r) => r.title);
+				const missingTitles = rules.filter((r) => !existingTitles.includes(r));
 
 				if (missingTitles.length > 0) {
 					await prisma.grammarRule.createMany({
-						data: missingTitles.map(title => ({ title, languageId: activeLangId })),
+						data: missingTitles.map((title) => ({ title, languageId: activeLangId })),
 						skipDuplicates: true
 					});
 				}
@@ -297,13 +313,20 @@ export async function POST({ request, locals }: RequestEvent) {
 				});
 
 				// Upsert all matching grammar rules in parallel.
-				await Promise.all(allRules.map(grammarRule =>
-					prisma.userGrammarRule.upsert({
-						where: { userId_grammarRuleId: { userId: userId, grammarRuleId: grammarRule.id } },
-						update: { srsState: state },
-						create: { userId: userId, grammarRuleId: grammarRule.id, srsState: state, eloRating: startingElo }
-					})
-				));
+				await Promise.all(
+					allRules.map((grammarRule) =>
+						prisma.userGrammarRule.upsert({
+							where: { userId_grammarRuleId: { userId: userId, grammarRuleId: grammarRule.id } },
+							update: { srsState: state },
+							create: {
+								userId: userId,
+								grammarRuleId: grammarRule.id,
+								srsState: state,
+								eloRating: startingElo
+							}
+						})
+					)
+				);
 				console.log(
 					`[Onboarding] Added ${allRules.length} ${state} grammar rules for user ${userId} at Elo ${startingElo}`
 				);
@@ -377,7 +400,12 @@ export async function POST({ request, locals }: RequestEvent) {
 										}
 									});
 
-									await CefrService.applyGrammarMasteryForLevel(userId, activeLangId, placedLevel, oldLevel);
+									await CefrService.applyGrammarMasteryForLevel(
+										userId,
+										activeLangId,
+										placedLevel,
+										oldLevel
+									);
 									console.log('Successfully completed onboarding');
 								} catch (updateError) {
 									console.error('Error in bulk update', updateError);

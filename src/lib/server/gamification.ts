@@ -11,9 +11,9 @@ function getDateInTimezone(date: Date, timezone: string | null): Date {
 		day: '2-digit'
 	}).formatToParts(date);
 
-	const year = parseInt(parts.find(p => p.type === 'year')!.value);
-	const month = parseInt(parts.find(p => p.type === 'month')!.value) - 1;
-	const day = parseInt(parts.find(p => p.type === 'day')!.value);
+	const year = parseInt(parts.find((p) => p.type === 'year')!.value);
+	const month = parseInt(parts.find((p) => p.type === 'month')!.value) - 1;
+	const day = parseInt(parts.find((p) => p.type === 'day')!.value);
 
 	return new Date(year, month, day);
 }

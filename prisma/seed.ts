@@ -226,7 +226,10 @@ const basicGrammarRules = [
 		guide:
 			'# Untrennbare Verben\n\nEinige Präfixe werden **nie** abgetrennt: be-, emp-, ent-, er-, ge-, miss-, ver-, zer-.\n\n### Beispiele\n- verstehen, bekommen, beginnen, verkaufen, erklären\n\nIm Perfekt haben diese Verben kein zusätzliches ge-: **verstehen → verstanden**, **bekommen → bekommen**.',
 		level: 'A1',
-		dependencies: ['Present Tense (Präsens) - Regular Verbs', 'Word Order - Main Clause (Hauptsatz)']
+		dependencies: [
+			'Present Tense (Präsens) - Regular Verbs',
+			'Word Order - Main Clause (Hauptsatz)'
+		]
 	},
 	{
 		title: 'Accusative Prepositions',
@@ -389,10 +392,7 @@ const basicGrammarRules = [
 		guide:
 			'# Perfekt\n\nDas **Perfekt** ist die wichtigste Vergangenheitszeit in der gesprochenen Sprache. Es besteht aus einem Hilfsverb (**haben/sein**) + Partizip II.\n\n### Beispiele\n- Ich **habe** das Buch **gelesen**.\n- Er **ist** nach Berlin **gefahren**.\n\n> **Merke:** Bewegungsverben und Zustandswechsel nehmen meist **sein**, die meisten anderen Verben **haben**.',
 		level: 'A2',
-		dependencies: [
-			'Sein, Haben, Werden - Conjugation',
-			'Separable Verbs (Trennbare Verben)'
-		]
+		dependencies: ['Sein, Haben, Werden - Conjugation', 'Separable Verbs (Trennbare Verben)']
 	},
 	{
 		title: 'Simple Past (Präteritum)',
@@ -1095,10 +1095,7 @@ const spanishGrammarRules = [
 		guide:
 			'# Impersonal and Passive "se"\n\nSpanish often uses **se** to make general or passive-like statements without mentioning who does the action.\n\n### Impersonal se\nUsed for people in general (like English "one/you/they").\n*   **Se come** tarde en España. (People eat late in Spain.)\n\n### Passive se\nUsed with a direct object that becomes the grammatical subject. The verb agrees with the object.\n*   **Se venden** casas. (Houses are sold.)\n*   **Se habla** español aquí. (Spanish is spoken here.)',
 		level: 'B1',
-		dependencies: [
-			'Present Tense Regular Verbs (-ar, -er, -ir)',
-			'Reflexive Verbs'
-		]
+		dependencies: ['Present Tense Regular Verbs (-ar, -er, -ir)', 'Reflexive Verbs']
 	},
 	{
 		title: 'Periphrastic Constructions (Tener que, Acabar de, Volver a, Seguir + Gerund)',
@@ -1167,7 +1164,7 @@ const spanishGrammarRules = [
 		title: 'Past Subjunctive Perfect (Pluscuamperfecto de Subjuntivo)',
 		description: 'Expressing hypothetical past situations using hubiera/hubiese + past participle.',
 		guide:
-			'# Past Subjunctive Perfect (Pluscuamperfecto de Subjuntivo)\n\nThe past subjunctive perfect expresses actions that **did not happen** in the past, often used in hypothetical or contrary-to-fact situations.\n\n### Formation\n**Imperfect subjunctive of haber** + **past participle**\n\n| Person | hubiera form | hubiese form |\n|---|---|---|\n| yo | hubiera | hubiese |\n| t\u00fa | hubieras | hubieses |\n| \u00e9l/ella/usted | hubiera | hubiese |\n| nosotros | hubi\u00e9ramos | hubi\u00e9semos |\n| vosotros | hubierais | hubieseis |\n| ellos/ustedes | hubieran | hubiesen |\n\nBoth forms (hubiera/hubiese) are interchangeable.\n\n### Uses\n\n#### 1. Si-clauses for Impossible Past Conditions\n*   *Si **hubiera sabido**, te habr\u00eda llamado.* (If I had known, I would have called you.)\n\n#### 2. After Past-tense Triggers Requiring Subjunctive\n*   *Dudaba que **hubieran llegado** a tiempo.* (I doubted they had arrived on time.)\n*   *No cre\u00eda que **hubieras dicho** eso.* (I didn\'t believe you had said that.)\n\n#### 3. Expressing Wishes About the Past\n*   *Ojal\u00e1 **hubi\u00e9ramos viajado** juntos.* (I wish we had traveled together.)',
+			"# Past Subjunctive Perfect (Pluscuamperfecto de Subjuntivo)\n\nThe past subjunctive perfect expresses actions that **did not happen** in the past, often used in hypothetical or contrary-to-fact situations.\n\n### Formation\n**Imperfect subjunctive of haber** + **past participle**\n\n| Person | hubiera form | hubiese form |\n|---|---|---|\n| yo | hubiera | hubiese |\n| t\u00fa | hubieras | hubieses |\n| \u00e9l/ella/usted | hubiera | hubiese |\n| nosotros | hubi\u00e9ramos | hubi\u00e9semos |\n| vosotros | hubierais | hubieseis |\n| ellos/ustedes | hubieran | hubiesen |\n\nBoth forms (hubiera/hubiese) are interchangeable.\n\n### Uses\n\n#### 1. Si-clauses for Impossible Past Conditions\n*   *Si **hubiera sabido**, te habr\u00eda llamado.* (If I had known, I would have called you.)\n\n#### 2. After Past-tense Triggers Requiring Subjunctive\n*   *Dudaba que **hubieran llegado** a tiempo.* (I doubted they had arrived on time.)\n*   *No cre\u00eda que **hubieras dicho** eso.* (I didn't believe you had said that.)\n\n#### 3. Expressing Wishes About the Past\n*   *Ojal\u00e1 **hubi\u00e9ramos viajado** juntos.* (I wish we had traveled together.)",
 		level: 'C1',
 		dependencies: ['Imperfect Subjunctive', 'Past Perfect (Pluscuamperfecto)']
 	},
@@ -1181,7 +1178,8 @@ const spanishGrammarRules = [
 	},
 	{
 		title: 'Nominalization (Lo + Adjective)',
-		description: 'Using the neuter article "lo" with adjectives and clauses to create abstract noun phrases.',
+		description:
+			'Using the neuter article "lo" with adjectives and clauses to create abstract noun phrases.',
 		guide:
 			'# Nominalization with Lo\n\nThe neuter article **lo** does not refer to a specific noun \u2014 it creates **abstract noun phrases** from adjectives, clauses, and other elements.\n\n### 1. Lo + Adjective (Abstract Concepts)\nTurns an adjective into an abstract noun meaning "the ... thing/part".\n*   *Lo **importante** es estudiar.* (The important thing is to study.)\n*   *Lo **bueno** de vivir aqu\u00ed es el clima.* (The good thing about living here is the weather.)\n*   *Lo **malo** fue el precio.* (The bad part was the price.)\n\n### 2. Lo que + Clause (What / That which)\nIntroduces noun clauses meaning "what" or "that which".\n*   *Lo que **quiero** es descansar.* (What I want is to rest.)\n*   *No entiendo lo que **dices**.* (I don\'t understand what you\'re saying.)\n\n### 3. Lo de + Noun/Pronoun (The matter of)\nRefers to a situation or topic.\n*   *Lo de **ayer** fue incre\u00edble.* (What happened yesterday was incredible.)\n*   *\u00bfQu\u00e9 pas\u00f3 con lo de **tu trabajo**?* (What happened with the matter of your job?)\n\n### 4. Lo + Adjective + que (Emphasis)\nExpresses emphasis, similar to "how ... something is".\n*   *No sabes lo **dif\u00edcil** que es.* (You don\'t know how difficult it is.)\n*   *Me sorprende lo **r\u00e1pido** que aprendes.* (It surprises me how fast you learn.)\n\n### Note\n**Lo** is neuter and never changes form \u2014 it does not agree in gender or number with anything. Do not confuse it with **el** (masculine definite article).',
 		level: 'C1',
@@ -1222,7 +1220,7 @@ export async function runSeed(client: PrismaClient = prisma, override: boolean =
 	// 2. Insert Vocabulary
 	console.log('Seeding vocabulary...');
 	for (const vocab of germanVocabulary) {
-		let gender: any = (vocab as any).gender;
+		const gender: any = (vocab as any).gender;
 		if (gender === 'der') gender = 'MASCULINE';
 		else if (gender === 'die') gender = 'FEMININE';
 		else if (gender === 'das') gender = 'NEUTER';
@@ -1266,14 +1264,15 @@ export async function runSeed(client: PrismaClient = prisma, override: boolean =
 
 	console.log('Seeding Spanish vocabulary...');
 	for (const vocab of spanishVocabulary) {
-		let gender: any = (vocab as any).gender;
+		const gender: any = (vocab as any).gender;
 
 		const existing = await client.vocabulary.findFirst({
 			where: { lemma: vocab.lemma, languageId: spanish.id }
 		});
 
 		const { meaning, partOfSpeech, ...vocabData } = vocab as any;
-		const frequency = getFrequencyRank(vocab.lemma, 'Spanish') ?? estimateFrequencyRank(vocab.lemma);
+		const frequency =
+			getFrequencyRank(vocab.lemma, 'Spanish') ?? estimateFrequencyRank(vocab.lemma);
 
 		if (existing) {
 			await client.vocabulary.update({
@@ -1307,7 +1306,7 @@ export async function runSeed(client: PrismaClient = prisma, override: boolean =
 
 	console.log('Seeding French vocabulary...');
 	for (const vocab of frenchVocabulary) {
-		let gender: any = (vocab as any).gender;
+		const gender: any = (vocab as any).gender;
 		const lemma = (vocab as any).word;
 
 		const existing = await client.vocabulary.findFirst({
@@ -1500,13 +1499,20 @@ export async function runSeed(client: PrismaClient = prisma, override: boolean =
 
 	// Apply frequency ranks to all vocabulary
 	console.log('Applying frequency ranks...');
-	const LANG_NAME_MAP: Record<string, string> = { German: 'German', Spanish: 'Spanish', French: 'French' };
+	const LANG_NAME_MAP: Record<string, string> = {
+		German: 'German',
+		Spanish: 'Spanish',
+		French: 'French'
+	};
 	const languages = await client.language.findMany({ select: { id: true, name: true } });
 	for (const lang of languages) {
 		const freqLang = LANG_NAME_MAP[lang.name];
 		if (!freqLang) continue;
 		console.log(`  Processing ${lang.name}...`);
-		const vocab = await client.vocabulary.findMany({ where: { languageId: lang.id }, select: { id: true, lemma: true } });
+		const vocab = await client.vocabulary.findMany({
+			where: { languageId: lang.id },
+			select: { id: true, lemma: true }
+		});
 		const BATCH = 500;
 		let updated = 0;
 		for (let i = 0; i < vocab.length; i += BATCH) {
@@ -1515,7 +1521,9 @@ export async function runSeed(client: PrismaClient = prisma, override: boolean =
 				batch.map((v) =>
 					client.vocabulary.update({
 						where: { id: v.id },
-						data: { frequency: getFrequencyRank(v.lemma, freqLang) ?? estimateFrequencyRank(v.lemma) }
+						data: {
+							frequency: getFrequencyRank(v.lemma, freqLang) ?? estimateFrequencyRank(v.lemma)
+						}
 					})
 				)
 			);

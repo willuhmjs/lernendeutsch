@@ -2168,5 +2168,5 @@ export const verbs = [
 		lemma: 'weinen',
 		meaning: 'to cry',
 		partOfSpeech: 'verb' as const
-	},
+	}
 ];

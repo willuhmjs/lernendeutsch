@@ -1,5 +1,9 @@
 import { json } from '@sveltejs/kit';
-import { updateEloRatings, buildEvaluationPrompt, parseEvaluationResponse } from '$lib/server/grader';
+import {
+	updateEloRatings,
+	buildEvaluationPrompt,
+	parseEvaluationResponse
+} from '$lib/server/grader';
 import { generateChatCompletion } from '$lib/server/llm';
 import { prisma } from '$lib/server/prisma';
 import { submitAnswerRateLimiter } from '$lib/server/ratelimit';
@@ -46,12 +50,14 @@ async function updateAssignmentScore(assignmentId: string, userId: string, isCor
 export async function POST(event) {
 	const { request, locals } = event;
 
-	const user = locals.user ? await prisma.user.findUnique({
-		where: { id: locals.user.id },
-		select: { useLocalLlm: true }
-	}) : null;
+	const user = locals.user
+		? await prisma.user.findUnique({
+				where: { id: locals.user.id },
+				select: { useLocalLlm: true }
+			})
+		: null;
 
-	if (!user?.useLocalLlm && await submitAnswerRateLimiter.isLimited(event)) {
+	if (!user?.useLocalLlm && (await submitAnswerRateLimiter.isLimited(event))) {
 		return json({ error: 'Too many requests. Limit is 15/min, 300/day.' }, { status: 429 });
 	}
 
@@ -59,7 +65,7 @@ export async function POST(event) {
 		return json({ error: 'Unauthorized' }, { status: 401 });
 	}
 
-	if (!user?.useLocalLlm && await isQuotaExceeded(locals.user.id, false)) {
+	if (!user?.useLocalLlm && (await isQuotaExceeded(locals.user.id, false))) {
 		return json({ error: 'Daily AI quota exceeded. Please try again tomorrow.' }, { status: 429 });
 	}
 
@@ -77,7 +83,7 @@ export async function POST(event) {
 		const userId = locals.user.id;
 		const gameMode = bodyGameMode || 'native-to-target';
 
-		console.log("SUBMIT ANSWER REQUEST:", {
+		console.log('SUBMIT ANSWER REQUEST:', {
 			targetedVocabularyIds,
 			targetedGrammarIds,
 			gameMode,
@@ -89,10 +95,16 @@ export async function POST(event) {
 		}
 
 		if (typeof userInput !== 'string' || userInput.length > 2000) {
-			return json({ error: 'userInput must be a string of at most 2000 characters' }, { status: 400 });
+			return json(
+				{ error: 'userInput must be a string of at most 2000 characters' },
+				{ status: 400 }
+			);
 		}
 		if (typeof targetSentence !== 'string' || targetSentence.length > 2000) {
-			return json({ error: 'targetSentence must be a string of at most 2000 characters' }, { status: 400 });
+			return json(
+				{ error: 'targetSentence must be a string of at most 2000 characters' },
+				{ status: 400 }
+			);
 		}
 
 		// Fetch the full objects for the targeted IDs, preserving client's order
@@ -111,7 +123,7 @@ export async function POST(event) {
 			.map((id: string) => targetedGrammarRaw.find((g) => g.id === id))
 			.filter(Boolean);
 
-			// Fast-path for multiple choice: no LLM needed
+		// Fast-path for multiple choice: no LLM needed
 		if (gameMode === 'multiple-choice') {
 			const isCorrect = userInput.trim() === targetSentence.trim();
 			const score = isCorrect ? 1.0 : 0.0;
@@ -129,7 +141,10 @@ export async function POST(event) {
 				grammarUpdates: targetedGrammar.map((g: any) => ({ id: g.id, score }))
 			};
 
-			console.log('Sending payload to updateEloRatings:', JSON.stringify(remappedEvaluation, null, 2));
+			console.log(
+				'Sending payload to updateEloRatings:',
+				JSON.stringify(remappedEvaluation, null, 2)
+			);
 			await updateEloRatings(userId, remappedEvaluation, gameMode);
 
 			let assignmentProgress = null;
@@ -257,9 +272,11 @@ export async function POST(event) {
 			systemPrompt,
 			jsonMode: true,
 			stream: false,
-			onUsage: useLocalLlm ? undefined : ({ totalTokens }) => {
-				recordTokenUsage(userId, totalTokens);
-			}
+			onUsage: useLocalLlm
+				? undefined
+				: ({ totalTokens }) => {
+						recordTokenUsage(userId, totalTokens);
+					}
 		});
 
 		const data = llmResponse;
@@ -271,7 +288,7 @@ export async function POST(event) {
 		if (firstBrace !== -1 && lastBrace !== -1) {
 			fullContent = fullContent.slice(firstBrace, lastBrace + 1);
 		} else {
-			console.error("No JSON braces found in LLM response:", fullContent);
+			console.error('No JSON braces found in LLM response:', fullContent);
 		}
 
 		const stream = new ReadableStream({
@@ -302,7 +319,10 @@ export async function POST(event) {
 						}))
 					};
 
-					console.log('Sending payload to updateEloRatings:', JSON.stringify(remappedEvaluation, null, 2));
+					console.log(
+						'Sending payload to updateEloRatings:',
+						JSON.stringify(remappedEvaluation, null, 2)
+					);
 					await updateEloRatings(userId, remappedEvaluation, gameMode);
 
 					// Track assignment score if applicable
@@ -325,7 +345,8 @@ export async function POST(event) {
 
 					// Award XP for high-scoring answers.
 					// No XP during class assignments — prevents gaming the system.
-					const earnedXp = (evaluation.globalScore ?? 0) >= XP_CONFIG.SCORE_THRESHOLD && !assignmentId;
+					const earnedXp =
+						(evaluation.globalScore ?? 0) >= XP_CONFIG.SCORE_THRESHOLD && !assignmentId;
 					if (earnedXp) {
 						const cefrLevel = locals.user.cefrLevel || 'A1';
 						const answerXp = computeAnswerXp(XP_CONFIG.CORRECT_ANSWER.OTHER_MODES, cefrLevel);

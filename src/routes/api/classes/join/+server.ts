@@ -52,7 +52,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			);
 		}
 
-		const classMember = await prisma.classMember.create({
+		await prisma.classMember.create({
 			data: {
 				classId: targetClass.id,
 				userId: locals.user.id,

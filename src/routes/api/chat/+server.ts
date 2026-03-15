@@ -8,17 +8,19 @@ import { isQuotaExceeded, recordTokenUsage } from '$lib/server/aiQuota';
 
 export async function POST(event) {
 	const { locals } = event;
-	const user = locals.user ? await prisma.user.findUnique({
-		where: { id: locals.user.id },
-		select: { useLocalLlm: true }
-	}) : null;
+	const user = locals.user
+		? await prisma.user.findUnique({
+				where: { id: locals.user.id },
+				select: { useLocalLlm: true }
+			})
+		: null;
 
 	// Apply rate limiting
-	if (!user?.useLocalLlm && await chatPracticeRateLimiter.isLimited(event)) {
+	if (!user?.useLocalLlm && (await chatPracticeRateLimiter.isLimited(event))) {
 		return json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
 	}
 
-	if (!user?.useLocalLlm && await isQuotaExceeded(locals.user?.id ?? '', false)) {
+	if (!user?.useLocalLlm && (await isQuotaExceeded(locals.user?.id ?? '', false))) {
 		return json({ error: 'Daily AI quota exceeded. Please try again tomorrow.' }, { status: 429 });
 	}
 
@@ -97,7 +99,7 @@ export async function POST(event) {
 	let userVocabList = '';
 	const vocabIdMap: Record<string, string> = {};
 	const vocabLemmaMap: Record<string, string> = {};
-	
+
 	let userGrammarList = '';
 	const grammarIdMap: Record<string, string> = {};
 
@@ -154,8 +156,8 @@ export async function POST(event) {
 		content: m.content
 	}));
 
-	const userMessageCount = history.filter(m => m.role === 'user').length;
-	
+	const userMessageCount = history.filter((m) => m.role === 'user').length;
+
 	let assignmentPrompt = '';
 	if ('assignmentId' in currentSession && currentSession.assignmentId && assignmentTopic) {
 		const safeAssignmentTopic = sanitizeForPrompt(assignmentTopic, 300);
@@ -192,7 +194,7 @@ Return your response as a JSON object with the following structure:
   "globalScore": <number (0.0 to 1.0) — holistic quality score for the user's MOST RECENT message. 0.0 = no attempt or help request, 0.5 = significant errors, 0.85+ = correct with minor issues>,
   "vocabularyUpdates": [ { "id": "<vocabulary ID from the list>", "score": <number (0.0 to 1.0)> } ],
   "grammarUpdates": [ { "id": "<grammar ID from the list>", "score": <number (0.0 to 1.0)> } ],
-  "extraVocabLemmas": ["<lemma1>", "<lemma2>"]${('assignmentId' in currentSession && currentSession.assignmentId) ? ',\n  "assignmentCompleted": <boolean>' : ''}
+  "extraVocabLemmas": ["<lemma1>", "<lemma2>"]${'assignmentId' in currentSession && currentSession.assignmentId ? ',\n  "assignmentCompleted": <boolean>' : ''}
 }`;
 
 	try {
@@ -248,7 +250,12 @@ Return your response as a JSON object with the following structure:
 						parsedResponse = JSON.parse(fullContent);
 					} catch (error) {
 						console.error('Failed to parse LLM response as JSON:', fullContent, error);
-						parsedResponse = { message: fullContent, feedback: null, vocabularyUpdates: [], extraVocabLemmas: [] };
+						parsedResponse = {
+							message: fullContent,
+							feedback: null,
+							vocabularyUpdates: [],
+							extraVocabLemmas: []
+						};
 					}
 
 					// Update DB based on parsed response
@@ -263,17 +270,21 @@ Return your response as a JSON object with the following structure:
 					});
 
 					// Map vocabulary IDs back
-					const mappedVocabUpdates = (parsedResponse.vocabularyUpdates || []).map((u: { id: string, score: number }) => ({
-						id: vocabIdMap[u.id] || u.id,
-						score: u.score,
-						lemma: vocabLemmaMap[u.id] || u.id
-					}));
+					const mappedVocabUpdates = (parsedResponse.vocabularyUpdates || []).map(
+						(u: { id: string; score: number }) => ({
+							id: vocabIdMap[u.id] || u.id,
+							score: u.score,
+							lemma: vocabLemmaMap[u.id] || u.id
+						})
+					);
 
 					// Map grammar IDs back
-					const mappedGrammarUpdates = (parsedResponse.grammarUpdates || []).map((u: { id: string, score: number }) => ({
-						id: grammarIdMap[u.id] || u.id,
-						score: u.score
-					}));
+					const mappedGrammarUpdates = (parsedResponse.grammarUpdates || []).map(
+						(u: { id: string; score: number }) => ({
+							id: grammarIdMap[u.id] || u.id,
+							score: u.score
+						})
+					);
 
 					// Update parsedResponse for the frontend
 					parsedResponse.vocabularyUpdates = mappedVocabUpdates;
@@ -286,26 +297,42 @@ Return your response as a JSON object with the following structure:
 						...mappedVocabUpdates.map((u: { score: number }) => u.score),
 						...mappedGrammarUpdates.map((u: { score: number }) => u.score)
 					];
-					const fallbackScore = allItemScores.length > 0
-						? allItemScores.reduce((a: number, b: number) => a + b, 0) / allItemScores.length
-						: 1.0;
-					const globalScore = typeof parsedResponse.globalScore === 'number'
-						? Math.max(0, Math.min(1, parsedResponse.globalScore))
-						: fallbackScore;
+					const fallbackScore =
+						allItemScores.length > 0
+							? allItemScores.reduce((a: number, b: number) => a + b, 0) / allItemScores.length
+							: 1.0;
+					const globalScore =
+						typeof parsedResponse.globalScore === 'number'
+							? Math.max(0, Math.min(1, parsedResponse.globalScore))
+							: fallbackScore;
 
 					const evaluationPayload = {
 						globalScore,
-						vocabularyUpdates: mappedVocabUpdates.map((u: { id: string; score: number }) => ({ id: u.id, score: u.score })),
-						grammarUpdates: mappedGrammarUpdates.map((u: { id: string; score: number }) => ({ id: u.id, score: u.score })),
+						vocabularyUpdates: mappedVocabUpdates.map((u: { id: string; score: number }) => ({
+							id: u.id,
+							score: u.score
+						})),
+						grammarUpdates: mappedGrammarUpdates.map((u: { id: string; score: number }) => ({
+							id: u.id,
+							score: u.score
+						})),
 						extraVocabLemmas: parsedResponse.extraVocabLemmas || [],
 						feedback: parsedResponse.feedback || ''
 					};
 
-					if (mappedVocabUpdates.length > 0 || mappedGrammarUpdates.length > 0 || evaluationPayload.extraVocabLemmas.length > 0) {
+					if (
+						mappedVocabUpdates.length > 0 ||
+						mappedGrammarUpdates.length > 0 ||
+						evaluationPayload.extraVocabLemmas.length > 0
+					) {
 						await updateEloRatings(userId, evaluationPayload, 'native-to-target');
 					}
 
-					if ('assignmentId' in currentSession && currentSession.assignmentId && parsedResponse.assignmentCompleted) {
+					if (
+						'assignmentId' in currentSession &&
+						currentSession.assignmentId &&
+						parsedResponse.assignmentCompleted
+					) {
 						await prisma.assignmentScore.upsert({
 							where: {
 								assignmentId_userId: {
@@ -327,7 +354,9 @@ Return your response as a JSON object with the following structure:
 					}
 
 					controller.enqueue(
-						new TextEncoder().encode(JSON.stringify({ type: 'done', message: aiMessage, grading: parsedResponse }) + '\n')
+						new TextEncoder().encode(
+							JSON.stringify({ type: 'done', message: aiMessage, grading: parsedResponse }) + '\n'
+						)
 					);
 
 					controller.close();

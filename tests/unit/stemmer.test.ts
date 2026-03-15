@@ -77,14 +77,14 @@ describe('stemWord — German', () => {
 	it('"Bücher" and "Buch" share at least one stemmed candidate', () => {
 		const plural = stemWord('Bücher', 'German');
 		const singular = stemWord('Buch', 'German');
-		const overlap = [...plural].some(c => singular.has(c));
+		const overlap = [...plural].some((c) => singular.has(c));
 		expect(overlap).toBe(true);
 	});
 
 	it('"Häuser" and "Haus" share at least one stemmed candidate', () => {
 		const plural = stemWord('Häuser', 'German');
 		const singular = stemWord('Haus', 'German');
-		const overlap = [...plural].some(c => singular.has(c));
+		const overlap = [...plural].some((c) => singular.has(c));
 		expect(overlap).toBe(true);
 	});
 
@@ -128,7 +128,7 @@ describe('stemWord — German', () => {
 	it('"Übungen" and "Übung" share a stemmed candidate', () => {
 		const plural = stemWord('Übungen', 'German');
 		const singular = stemWord('Übung', 'German');
-		const overlap = [...plural].some(c => singular.has(c));
+		const overlap = [...plural].some((c) => singular.has(c));
 		expect(overlap).toBe(true);
 	});
 });
@@ -253,10 +253,12 @@ describe('isClearlyCorrect — stemmer integration', () => {
 
 	it('word order variation on longer sentence may pass relaxed threshold', () => {
 		// 7+ tokens → 0.80 threshold; same words different order → Jaccard = 1.0
-		expect(isClearlyCorrect(
-			'nach Hause gehe ich jeden Tag von der Arbeit',
-			'Ich gehe jeden Tag von der Arbeit nach Hause'
-		)).toBe(true);
+		expect(
+			isClearlyCorrect(
+				'nach Hause gehe ich jeden Tag von der Arbeit',
+				'Ich gehe jeden Tag von der Arbeit nach Hause'
+			)
+		).toBe(true);
 	});
 });
 

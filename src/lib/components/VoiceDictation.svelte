@@ -132,7 +132,11 @@
 		class:requesting={isRequesting}
 		disabled={(disabled && !isListening) || isRequesting}
 		onclick={handleClick}
-		title={isListening ? 'Stop listening' : isRequesting ? 'Requesting permission…' : 'Dictate your answer'}
+		title={isListening
+			? 'Stop listening'
+			: isRequesting
+				? 'Requesting permission…'
+				: 'Dictate your answer'}
 		aria-label={isListening ? 'Stop voice input' : 'Start voice input'}
 		aria-pressed={isListening}
 	>
@@ -233,8 +237,15 @@
 	}
 
 	@keyframes mic-pulse {
-		0%, 100% { transform: scale(1); opacity: 1; }
-		50% { transform: scale(1.2); opacity: 0.7; }
+		0%,
+		100% {
+			transform: scale(1);
+			opacity: 1;
+		}
+		50% {
+			transform: scale(1.2);
+			opacity: 0.7;
+		}
 	}
 
 	.voice-icon.spinning {
@@ -248,14 +259,24 @@
 	}
 
 	@keyframes pulse-ring {
-		0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-		70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
-		100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+		0% {
+			box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+		}
+		70% {
+			box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+		}
+		100% {
+			box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+		}
 	}
 
 	@keyframes spin {
-		from { transform: rotate(0deg); }
-		to { transform: rotate(360deg); }
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
 	}
 
 	:global(html[data-theme='dark']) .voice-btn {

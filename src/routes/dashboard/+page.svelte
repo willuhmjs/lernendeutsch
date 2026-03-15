@@ -45,18 +45,19 @@
 		for (const rule of rules) {
 			visit(rule);
 		}
-		
+
 		if (grammarSortOrder === 'hardest') {
 			return sorted.reverse();
 		}
-		
+
 		return sorted;
 	})();
 
 	// Merge user progress with all possible rules for the grammar web
 	$: grammarWebNodes = sortedRules.map((rule: any) => {
 		const userProgress = data.grammarRules.find((ur: any) => ur.grammarRuleId === rule.id);
-		const prereqsMet = (rule.dependencies || []).length === 0 ||
+		const prereqsMet =
+			(rule.dependencies || []).length === 0 ||
 			(rule.dependencies || []).every((dep: any) => {
 				const depProgress = data.grammarRules.find((ur: any) => ur.grammarRuleId === dep.id);
 				return depProgress?.srsState === 'MASTERED';
@@ -72,21 +73,38 @@
 
 	// Summary Statistics Calculations
 	const totalVocab = data.vocabularies.length;
-	const avgVocabElo = totalVocab > 0 ? Math.ceil(data.vocabularies.reduce((acc, v) => acc + v.eloRating, 0) / totalVocab) : 0;
-	const vocabSrsBreakdown = data.vocabularies.reduce((acc, v) => {
-		acc[v.srsState] = (acc[v.srsState] || 0) + 1;
-		return acc;
-	}, {} as Record<string, number>);
+	const avgVocabElo =
+		totalVocab > 0
+			? Math.ceil(data.vocabularies.reduce((acc, v) => acc + v.eloRating, 0) / totalVocab)
+			: 0;
+	const vocabSrsBreakdown = data.vocabularies.reduce(
+		(acc, v) => {
+			acc[v.srsState] = (acc[v.srsState] || 0) + 1;
+			return acc;
+		},
+		{} as Record<string, number>
+	);
 
 	const totalGrammar = data.grammarRules.length;
-	const avgGrammarElo = totalGrammar > 0 ? Math.ceil(data.grammarRules.reduce((acc, r) => acc + r.eloRating, 0) / totalGrammar) : 0;
-	const grammarSrsBreakdown = data.grammarRules.reduce((acc, r) => {
-		acc[r.srsState] = (acc[r.srsState] || 0) + 1;
-		return acc;
-	}, {} as Record<string, number>);
+	const avgGrammarElo =
+		totalGrammar > 0
+			? Math.ceil(data.grammarRules.reduce((acc, r) => acc + r.eloRating, 0) / totalGrammar)
+			: 0;
+	const grammarSrsBreakdown = data.grammarRules.reduce(
+		(acc, r) => {
+			acc[r.srsState] = (acc[r.srsState] || 0) + 1;
+			return acc;
+		},
+		{} as Record<string, number>
+	);
 
 	// Modal navigation stack - supports drilling into prerequisite modals
-	let modalStack: Array<{ type: 'vocab' | 'grammar', data: any, color: string, eloPercent: number }> = [];
+	let modalStack: Array<{
+		type: 'vocab' | 'grammar';
+		data: any;
+		color: string;
+		eloPercent: number;
+	}> = [];
 	$: selectedModalItem = modalStack.length > 0 ? modalStack[modalStack.length - 1] : null;
 
 	// Test-out state
@@ -133,11 +151,21 @@
 		const node = grammarWebNodes.find((n: any) => n.grammarRule.id === ruleId);
 		if (!node) return;
 		const srsColor = (srsColors as any)[node.srsState] || srsColors.LOCKED;
-		const eloPercent = node.isLocked ? 0 : Math.max(0, Math.min(100,
-			node.srsState === 'LEARNING' ? ((node.eloRating - 1000) / 50) * 100
-			: node.srsState === 'KNOWN' ? ((node.eloRating - 1050) / 100) * 100
-			: node.srsState === 'MASTERED' ? 100 : 0
-		));
+		const eloPercent = node.isLocked
+			? 0
+			: Math.max(
+					0,
+					Math.min(
+						100,
+						node.srsState === 'LEARNING'
+							? ((node.eloRating - 1000) / 50) * 100
+							: node.srsState === 'KNOWN'
+								? ((node.eloRating - 1050) / 100) * 100
+								: node.srsState === 'MASTERED'
+									? 100
+									: 0
+					)
+				);
 		modalStack = [...modalStack, { type: 'grammar', data: node, color: srsColor, eloPercent }];
 		grammarModalPhase = 'detail';
 		resetTestOut();
@@ -246,8 +274,16 @@
 				}
 				// Update the modal stack entry so the detail view reflects mastery
 				modalStack = modalStack.map((item, i) => {
-					if (i === modalStack.length - 1 && item.type === 'grammar' && item.data.grammarRule?.id === ruleId) {
-						return { ...item, data: { ...item.data, srsState: 'MASTERED', isLocked: false }, color: srsColors.MASTERED };
+					if (
+						i === modalStack.length - 1 &&
+						item.type === 'grammar' &&
+						item.data.grammarRule?.id === ruleId
+					) {
+						return {
+							...item,
+							data: { ...item.data, srsState: 'MASTERED', isLocked: false },
+							color: srsColors.MASTERED
+						};
 					}
 					return item;
 				});
@@ -273,10 +309,14 @@
 			const srsState = node?.srsState || 'LOCKED';
 			const isComplete = srsState === 'KNOWN' || srsState === 'MASTERED';
 			const elo = node?.eloRating || 1000;
-			const percent = srsState === 'MASTERED' ? 100
-				: srsState === 'KNOWN' ? Math.max(0, Math.min(100, ((elo - 1050) / 100) * 100))
-				: srsState === 'LEARNING' ? Math.max(0, Math.min(100, ((elo - 1000) / 50) * 100))
-				: 0;
+			const percent =
+				srsState === 'MASTERED'
+					? 100
+					: srsState === 'KNOWN'
+						? Math.max(0, Math.min(100, ((elo - 1050) / 100) * 100))
+						: srsState === 'LEARNING'
+							? Math.max(0, Math.min(100, ((elo - 1000) / 50) * 100))
+							: 0;
 			return {
 				id: dep.id,
 				title: dep.title,
@@ -313,28 +353,45 @@
 						<div class="detail-bar-row">
 							<span class="detail-bar-label">Vocab Mastery</span>
 							<div class="detail-bar-track">
-								<div class="detail-bar-fill vocab" style="width: {Math.min(100, Math.round(cp.vocabMastery * 100 / 0.8))}%"></div>
+								<div
+									class="detail-bar-fill vocab"
+									style="width: {Math.min(100, Math.round((cp.vocabMastery * 100) / 0.8))}%"
+								></div>
 							</div>
 							<span class="detail-bar-value">{Math.round(cp.vocabMastery * 100)}%</span>
 						</div>
 						<div class="detail-bar-row">
 							<span class="detail-bar-label">Grammar Mastery</span>
 							<div class="detail-bar-track">
-								<div class="detail-bar-fill grammar" style="width: {Math.min(100, Math.round(cp.grammarMastery * 100 / 0.8))}%"></div>
+								<div
+									class="detail-bar-fill grammar"
+									style="width: {Math.min(100, Math.round((cp.grammarMastery * 100) / 0.8))}%"
+								></div>
 							</div>
 							<span class="detail-bar-value">{Math.round(cp.grammarMastery * 100)}%</span>
 						</div>
 						<div class="detail-bar-row">
 							<span class="detail-bar-label">Content Explored</span>
 							<div class="detail-bar-track">
-								<div class="detail-bar-fill exposure" style="width: {Math.min(100, Math.round(Math.min(cp.vocabExposure, cp.grammarExposure) * 100 / 0.6))}%"></div>
+								<div
+									class="detail-bar-fill exposure"
+									style="width: {Math.min(
+										100,
+										Math.round((Math.min(cp.vocabExposure, cp.grammarExposure) * 100) / 0.6)
+									)}%"
+								></div>
 							</div>
-							<span class="detail-bar-value">{Math.round(Math.min(cp.vocabExposure, cp.grammarExposure) * 100)}%</span>
+							<span class="detail-bar-value"
+								>{Math.round(Math.min(cp.vocabExposure, cp.grammarExposure) * 100)}%</span
+							>
 						</div>
 						<div class="detail-bar-row">
 							<span class="detail-bar-label">Avg ELO</span>
 							<div class="detail-bar-track">
-								<div class="detail-bar-fill elo" style="width: {Math.min(100, Math.round(cp.averageElo / cp.targetElo * 100))}%"></div>
+								<div
+									class="detail-bar-fill elo"
+									style="width: {Math.min(100, Math.round((cp.averageElo / cp.targetElo) * 100))}%"
+								></div>
 							</div>
 							<span class="detail-bar-value">{cp.averageElo} / {cp.targetElo}</span>
 						</div>
@@ -353,16 +410,42 @@
 				{@const session = (data as any).activeLiveSessions[0]}
 				<a href="/classes/{session.classId}/live/student" class="btn-duo btn-live">
 					<span class="live-pulse" aria-hidden="true"></span>
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+					<svg
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2.5"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3" /></svg
+					>
 					Join Live Session
 					<span class="live-class-name">{session.class.name}</span>
 				</a>
 			{/if}
 			{#if (data as any).dueSoonAssignments?.length > 0}
 				{@const assignment = (data as any).dueSoonAssignments[0]}
-				{@const hoursLeft = Math.round((new Date(assignment.dueDate).getTime() - Date.now()) / 3600000)}
+				{@const hoursLeft = Math.round(
+					(new Date(assignment.dueDate).getTime() - Date.now()) / 3600000
+				)}
 				<a href="/play?assignmentId={assignment.id}" class="btn-duo btn-assignment">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+					<svg
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2.5"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						aria-hidden="true"
+						><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline
+							points="14 2 14 8 20 8"
+						/><line x1="16" y1="13" x2="8" y2="13" /><line
+							x1="16"
+							y1="17"
+							x2="8"
+							y2="17"
+						/><polyline points="10 9 9 9 8 9" /></svg
+					>
 					Assignment Due
 					<span class="assignment-meta">{assignment.title} · {hoursLeft}h left</span>
 				</a>
@@ -373,15 +456,17 @@
 			<div class="due-soon-banner">
 				<div class="due-soon-icon" aria-hidden="true">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-						<circle cx="12" cy="12" r="10"/>
-						<polyline points="12 6 12 12 16 14"/>
+						<circle cx="12" cy="12" r="10" />
+						<polyline points="12 6 12 12 16 14" />
 					</svg>
 				</div>
 				<div class="due-soon-content">
 					<p class="due-soon-label">Assignments due soon</p>
 					<ul class="due-soon-list">
 						{#each (data as any).dueSoonAssignments as a}
-							{@const hoursLeft = Math.round((new Date(a.dueDate).getTime() - Date.now()) / 3600000)}
+							{@const hoursLeft = Math.round(
+								(new Date(a.dueDate).getTime() - Date.now()) / 3600000
+							)}
 							<li>
 								<a href="/play?assignmentId={a.id}" class="due-soon-link">
 									<span class="due-soon-title">{a.title}</span>
@@ -477,13 +562,13 @@
 					<h3>Retention Distribution</h3>
 					<div class="bar-chart" aria-label="Retention distribution">
 						{#each rs.retentionBuckets as bucket}
-							{@const maxCount = Math.max(...rs.retentionBuckets.map(b => b.count), 1)}
+							{@const maxCount = Math.max(...rs.retentionBuckets.map((b) => b.count), 1)}
 							<div class="bar-row">
 								<span class="bar-label">{bucket.label}</span>
 								<div class="bar-track">
 									<div
 										class="bar-fill retention-fill"
-										style="width: {Math.round(bucket.count / maxCount * 100)}%"
+										style="width: {Math.round((bucket.count / maxCount) * 100)}%"
 									></div>
 								</div>
 								<span class="bar-count">{bucket.count}</span>
@@ -496,13 +581,13 @@
 					<h3>Stability Distribution</h3>
 					<div class="bar-chart" aria-label="Stability distribution">
 						{#each rs.stabilityBuckets as bucket}
-							{@const maxCount = Math.max(...rs.stabilityBuckets.map(b => b.count), 1)}
+							{@const maxCount = Math.max(...rs.stabilityBuckets.map((b) => b.count), 1)}
 							<div class="bar-row">
 								<span class="bar-label">{bucket.label}</span>
 								<div class="bar-track">
 									<div
 										class="bar-fill stability-fill"
-										style="width: {Math.round(bucket.count / maxCount * 100)}%"
+										style="width: {Math.round((bucket.count / maxCount) * 100)}%"
 									></div>
 								</div>
 								<span class="bar-count">{bucket.count}</span>
@@ -518,10 +603,7 @@
 							<div class="bar-row">
 								<span class="bar-label">{point.days}d</span>
 								<div class="bar-track">
-									<div
-										class="bar-fill forgetting-fill"
-										style="width: {point.retentionPct}%"
-									></div>
+									<div class="bar-fill forgetting-fill" style="width: {point.retentionPct}%"></div>
 								</div>
 								<span class="bar-count">{point.retentionPct}%</span>
 							</div>
@@ -567,11 +649,13 @@
 					<span class="color-box" style="background-color: {srsColors.MASTERED}"></span> Mastered
 				</div>
 			</div>
-			
+
 			{#if data.vocabularies.length === 0}
 				<div class="empty-state-vocab">
 					<p class="empty-state-vocab-title">No vocabulary added yet</p>
-					<p class="empty-state-vocab-desc">Start a lesson to build your word bank and track your progress here.</p>
+					<p class="empty-state-vocab-desc">
+						Start a lesson to build your word bank and track your progress here.
+					</p>
 					<a href="/play" class="empty-state-vocab-btn">Start Learning</a>
 				</div>
 			{:else}
@@ -580,11 +664,23 @@
 						{@const isUnseen = vocab.srsState === 'UNSEEN'}
 						{@const elo = vocab.eloRating !== undefined ? Math.round(vocab.eloRating) : 1000}
 						{@const level = vocab.srsState}
-						{@const levelText = isUnseen ? 'Unseen' : level.charAt(0) + level.slice(1).toLowerCase()}
+						{@const levelText = isUnseen
+							? 'Unseen'
+							: level.charAt(0) + level.slice(1).toLowerCase()}
 						{@const cellColor = srsColors[level]}
-						{@const progressPct = Math.max(0, Math.min(100, level === 'LEARNING' ? ((elo - 1000) / 50) * 100 : level === 'KNOWN' ? ((elo - 1050) / 100) * 100 : 100))}
-						<button 
-							class="heatmap-cell tooltip-trigger" 
+						{@const progressPct = Math.max(
+							0,
+							Math.min(
+								100,
+								level === 'LEARNING'
+									? ((elo - 1000) / 50) * 100
+									: level === 'KNOWN'
+										? ((elo - 1050) / 100) * 100
+										: 100
+							)
+						)}
+						<button
+							class="heatmap-cell tooltip-trigger"
 							style="background-color: {cellColor}"
 							onclick={() => openVocabModal(vocab, cellColor, progressPct)}
 							onkeydown={(e) => e.key === 'Enter' && openVocabModal(vocab, cellColor, progressPct)}
@@ -594,7 +690,8 @@
 							<div class="tooltip-content">
 								<div class="tooltip-header">
 									{#if vocab.vocabulary.partOfSpeech?.toLowerCase() === 'noun'}
-										{vocab.vocabulary.lemma.charAt(0).toUpperCase() + vocab.vocabulary.lemma.slice(1)}
+										{vocab.vocabulary.lemma.charAt(0).toUpperCase() +
+											vocab.vocabulary.lemma.slice(1)}
 									{:else}
 										{vocab.vocabulary.lemma}
 									{/if}
@@ -602,8 +699,15 @@
 								<div class="tooltip-body">
 									{#if vocab.eloRating !== undefined && !isUnseen}
 										<div class="word-tooltip-elo">
-											<div class="elo-header"><span>Mastery: {levelText}</span><span class="elo-score">ELO {elo}</span></div>
-											<div class="elo-progress-track"><div class="elo-progress-fill {levelText.toLowerCase()}" style="width: {progressPct}%"></div></div>
+											<div class="elo-header">
+												<span>Mastery: {levelText}</span><span class="elo-score">ELO {elo}</span>
+											</div>
+											<div class="elo-progress-track">
+												<div
+													class="elo-progress-fill {levelText.toLowerCase()}"
+													style="width: {progressPct}%"
+												></div>
+											</div>
 										</div>
 									{:else if isUnseen}
 										<div class="word-tooltip-elo">
@@ -646,25 +750,55 @@
 						<button
 							class="view-toggle-btn"
 							class:active={grammarView === 'web'}
-							onclick={() => grammarView = 'web'}
+							onclick={() => (grammarView = 'web')}
 							aria-pressed={grammarView === 'web'}
 							title="Web view"
 						>
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" width="16" height="16">
-								<circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/>
-								<line x1="12" y1="7" x2="5" y2="17"/><line x1="12" y1="7" x2="19" y2="17"/>
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								aria-hidden="true"
+								width="16"
+								height="16"
+							>
+								<circle cx="12" cy="5" r="2" /><circle cx="5" cy="19" r="2" /><circle
+									cx="19"
+									cy="19"
+									r="2"
+								/>
+								<line x1="12" y1="7" x2="5" y2="17" /><line x1="12" y1="7" x2="19" y2="17" />
 							</svg>
 						</button>
 						<button
 							class="view-toggle-btn"
 							class:active={grammarView === 'list'}
-							onclick={() => grammarView = 'list'}
+							onclick={() => (grammarView = 'list')}
 							aria-pressed={grammarView === 'list'}
 							title="List view"
 						>
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" width="16" height="16">
-								<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
-								<line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								aria-hidden="true"
+								width="16"
+								height="16"
+							>
+								<line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line
+									x1="8"
+									y1="18"
+									x2="21"
+									y2="18"
+								/>
+								<line x1="3" y1="6" x2="3.01" y2="6" /><line
+									x1="3"
+									y1="12"
+									x2="3.01"
+									y2="12"
+								/><line x1="3" y1="18" x2="3.01" y2="18" />
 							</svg>
 						</button>
 					</div>
@@ -677,7 +811,19 @@
 				<div class="grammar-list">
 					{#each grammarWebNodes as rule}
 						{@const srsColor = (srsColors as any)[rule.srsState] || srsColors.LOCKED}
-						{@const eloPercent = rule.isLocked ? 0 : Math.max(0, Math.min(100, rule.srsState === 'LEARNING' ? ((rule.eloRating - 1000) / 50) * 100 : rule.srsState === 'KNOWN' ? ((rule.eloRating - 1050) / 100) * 100 : 100))}
+						{@const eloPercent = rule.isLocked
+							? 0
+							: Math.max(
+									0,
+									Math.min(
+										100,
+										rule.srsState === 'LEARNING'
+											? ((rule.eloRating - 1000) / 50) * 100
+											: rule.srsState === 'KNOWN'
+												? ((rule.eloRating - 1050) / 100) * 100
+												: 100
+									)
+								)}
 						<button
 							class="grammar-list-row"
 							class:locked={rule.isLocked}
@@ -692,8 +838,17 @@
 								{/if}
 							</div>
 							<span class="grammar-list-state" style="color: {srsColor}">{rule.srsState}</span>
-							<svg class="grammar-list-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true" width="14" height="14">
-								<path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6"/>
+							<svg
+								class="grammar-list-chevron"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2.5"
+								aria-hidden="true"
+								width="14"
+								height="14"
+							>
+								<path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6" />
 							</svg>
 						</button>
 					{/each}
@@ -703,13 +858,14 @@
 					<div class="grammar-web-scroll-content">
 						<!-- Visual web lines drawing actual connections -->
 						<svg class="web-svg-lines" width="100%" height="100%">
-							{#each grammarWebNodes as rule, i}
+							{#each grammarWebNodes as _rule, i}
 								{#if i < grammarWebNodes.length - 1}
 									<line
 										x1="50%"
-										y1="{100 / grammarWebNodes.length * i + (100 / grammarWebNodes.length / 2)}%"
+										y1="{(100 / grammarWebNodes.length) * i + 100 / grammarWebNodes.length / 2}%"
 										x2="50%"
-										y2="{100 / grammarWebNodes.length * (i + 1) + (100 / grammarWebNodes.length / 2)}%"
+										y2="{(100 / grammarWebNodes.length) * (i + 1) +
+											100 / grammarWebNodes.length / 2}%"
 										class="web-connection-line"
 									/>
 								{/if}
@@ -717,49 +873,67 @@
 						</svg>
 
 						<div class="web-tree-layout">
-						{#each grammarWebNodes as rule}
-							{@const srsColor = (srsColors as any)[rule.srsState] || srsColors.LOCKED}
-							{@const eloPercent = rule.isLocked ? 0 : Math.max(0, Math.min(100, rule.srsState === 'LEARNING' ? ((rule.eloRating - 1000) / 50) * 100 : rule.srsState === 'KNOWN' ? ((rule.eloRating - 1050) / 100) * 100 : 100))}
+							{#each grammarWebNodes as rule}
+								{@const srsColor = (srsColors as any)[rule.srsState] || srsColors.LOCKED}
+								{@const eloPercent = rule.isLocked
+									? 0
+									: Math.max(
+											0,
+											Math.min(
+												100,
+												rule.srsState === 'LEARNING'
+													? ((rule.eloRating - 1000) / 50) * 100
+													: rule.srsState === 'KNOWN'
+														? ((rule.eloRating - 1050) / 100) * 100
+														: 100
+											)
+										)}
 
-							<button
-								class="web-node-pill"
-								class:locked={rule.isLocked}
-								style="--node-color: {srsColor}"
-								onclick={() => openGrammarModal(rule, srsColor, eloPercent)}
-								onkeydown={(e) => e.key === 'Enter' && openGrammarModal(rule, srsColor, eloPercent)}
-								aria-label="View grammar rule: {rule.grammarRule.title}"
-							>
-								<div class="node-pill-content tooltip-trigger">
-									<div class="node-icon" style="background-color: {srsColor}">
-										<span class="sr-only">{rule.srsState}</span>
-									</div>
-									<span class="node-title">{rule.grammarRule.title}</span>
-
-									<div class="tooltip-content">
-										<div class="tooltip-header">
-											{rule.grammarRule.title}
+								<button
+									class="web-node-pill"
+									class:locked={rule.isLocked}
+									style="--node-color: {srsColor}"
+									onclick={() => openGrammarModal(rule, srsColor, eloPercent)}
+									onkeydown={(e) =>
+										e.key === 'Enter' && openGrammarModal(rule, srsColor, eloPercent)}
+									aria-label="View grammar rule: {rule.grammarRule.title}"
+								>
+									<div class="node-pill-content tooltip-trigger">
+										<div class="node-icon" style="background-color: {srsColor}">
+											<span class="sr-only">{rule.srsState}</span>
 										</div>
-										<div class="tooltip-body">
-											<div class="word-tooltip-elo">
-												<div class="elo-header">
-													<span>Status: {rule.srsState}</span>
+										<span class="node-title">{rule.grammarRule.title}</span>
+
+										<div class="tooltip-content">
+											<div class="tooltip-header">
+												{rule.grammarRule.title}
+											</div>
+											<div class="tooltip-body">
+												<div class="word-tooltip-elo">
+													<div class="elo-header">
+														<span>Status: {rule.srsState}</span>
+														{#if !rule.isLocked}
+															<span class="elo-score">ELO {Math.ceil(rule.eloRating)}</span>
+														{/if}
+													</div>
 													{#if !rule.isLocked}
-														<span class="elo-score">ELO {Math.ceil(rule.eloRating)}</span>
+														<div class="elo-progress-track">
+															<div
+																class="elo-progress-fill {rule.srsState.toLowerCase()}"
+																style="width: {eloPercent}%; background-color: {srsColor}"
+															></div>
+														</div>
 													{/if}
 												</div>
-												{#if !rule.isLocked}
-													<div class="elo-progress-track">
-														<div class="elo-progress-fill {rule.srsState.toLowerCase()}" style="width: {eloPercent}%; background-color: {srsColor}"></div>
-													</div>
-												{/if}
+												<p class="node-desc">
+													{rule.grammarRule.description || 'No description available.'}
+												</p>
 											</div>
-											<p class="node-desc">{rule.grammarRule.description || 'No description available.'}</p>
 										</div>
 									</div>
-								</div>
-							</button>
-						{/each}
-					</div>
+								</button>
+							{/each}
+						</div>
 					</div>
 				</div>
 			{/if}
@@ -770,7 +944,11 @@
 {#if selectedModalItem}
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div class="modal-backdrop" onclick={closeModal} onkeydown={(e) => e.key === 'Escape' && closeModal()}>
+	<div
+		class="modal-backdrop"
+		onclick={closeModal}
+		onkeydown={(e) => e.key === 'Escape' && closeModal()}
+	>
 		<!-- svelte-ignore a11y_click_events_have_key_events -->
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div class="modal-content" onclick={(e) => e.stopPropagation()}>
@@ -780,7 +958,9 @@
 				{@const vocab = selectedModalItem.data}
 				{@const isUnseen = vocab.srsState === 'UNSEEN'}
 				{@const elo = vocab.eloRating !== undefined ? Math.round(vocab.eloRating) : 1000}
-				{@const levelText = isUnseen ? 'Unseen' : vocab.srsState.charAt(0) + vocab.srsState.slice(1).toLowerCase()}
+				{@const levelText = isUnseen
+					? 'Unseen'
+					: vocab.srsState.charAt(0) + vocab.srsState.slice(1).toLowerCase()}
 
 				<h3 class="modal-title">
 					{#if vocab.vocabulary.partOfSpeech?.toLowerCase() === 'noun'}
@@ -795,10 +975,15 @@
 						<div class="modal-elo-section">
 							<div class="modal-elo-header">
 								<span class="">Mastery: {levelText}</span>
-								<span class="modal-elo-score" style="color: {selectedModalItem.color}">ELO {elo}</span>
+								<span class="modal-elo-score" style="color: {selectedModalItem.color}"
+									>ELO {elo}</span
+								>
 							</div>
 							<div class="elo-progress-track">
-								<div class="elo-progress-fill" style="width: {selectedModalItem.eloPercent}%; background-color: {selectedModalItem.color}"></div>
+								<div
+									class="elo-progress-fill"
+									style="width: {selectedModalItem.eloPercent}%; background-color: {selectedModalItem.color}"
+								></div>
 							</div>
 						</div>
 					{:else}
@@ -834,11 +1019,11 @@
 						{/if}
 					</div>
 				</div>
-
 			{:else if selectedModalItem.type === 'grammar'}
 				{@const rule = selectedModalItem.data}
 				{@const prereqs = getPrerequisiteProgress(rule)}
-				{@const allPrereqsMastered = prereqs.length === 0 || prereqs.every((p: any) => p.srsState === 'MASTERED')}
+				{@const allPrereqsMastered =
+					prereqs.length === 0 || prereqs.every((p: any) => p.srsState === 'MASTERED')}
 				{@const canTestOut = !rule.isLocked && rule.srsState !== 'MASTERED' && allPrereqsMastered}
 
 				<!-- Back navigation -->
@@ -861,19 +1046,26 @@
 							<div class="modal-elo-header">
 								<span class="">Status: {rule.srsState}</span>
 								{#if !rule.isLocked}
-									<span class="modal-elo-score" style="color: {selectedModalItem.color}">ELO {Math.ceil(rule.eloRating)}</span>
+									<span class="modal-elo-score" style="color: {selectedModalItem.color}"
+										>ELO {Math.ceil(rule.eloRating)}</span
+									>
 								{/if}
 							</div>
 							{#if !rule.isLocked}
 								<div class="elo-progress-track">
-									<div class="elo-progress-fill" style="width: {selectedModalItem.eloPercent}%; background-color: {selectedModalItem.color}"></div>
+									<div
+										class="elo-progress-fill"
+										style="width: {selectedModalItem.eloPercent}%; background-color: {selectedModalItem.color}"
+									></div>
 								</div>
 							{/if}
 						</div>
 
 						{#if prereqs.length > 0}
 							<div class="prereq-section">
-								<h4 class="prereq-heading">{rule.isLocked ? 'Prerequisites to Unlock' : 'Prerequisites'}</h4>
+								<h4 class="prereq-heading">
+									{rule.isLocked ? 'Prerequisites to Unlock' : 'Prerequisites'}
+								</h4>
 								<div class="prereq-list">
 									{#each prereqs as prereq}
 										<button
@@ -884,11 +1076,16 @@
 											<div class="prereq-item-header">
 												<span class="prereq-dot" style="background-color: {prereq.color}"></span>
 												<span class="prereq-title">{prereq.title}</span>
-												<span class="prereq-status" style="color: {prereq.color}">{prereq.srsState}</span>
+												<span class="prereq-status" style="color: {prereq.color}"
+													>{prereq.srsState}</span
+												>
 												<span class="prereq-arrow">›</span>
 											</div>
 											<div class="prereq-bar-track">
-												<div class="prereq-bar-fill" style="width: {prereq.percent}%; background-color: {prereq.color}"></div>
+												<div
+													class="prereq-bar-fill"
+													style="width: {prereq.percent}%; background-color: {prereq.color}"
+												></div>
 											</div>
 										</button>
 									{/each}
@@ -900,7 +1097,8 @@
 							<div class="test-out-section">
 								<div class="test-out-divider"></div>
 								<p class="test-out-hint">
-									All prerequisites mastered! You can test out of this rule by answering 9 out of 10 questions correctly.
+									All prerequisites mastered! You can test out of this rule by answering 9 out of 10
+									questions correctly.
 								</p>
 								<button class="test-out-btn" onclick={() => startTestOut(rule.grammarRule.id)}>
 									Test Out of {rule.grammarRule.title}
@@ -913,7 +1111,9 @@
 						{/if}
 
 						<div class="modal-details">
-							<p class="modal-desc">{rule.grammarRule.description || 'No description available.'}</p>
+							<p class="modal-desc">
+								{rule.grammarRule.description || 'No description available.'}
+							</p>
 							{#if rule.grammarRule.guide}
 								<div class="grammar-guide markdown-body">
 									{@html marked(rule.grammarRule.guide)}
@@ -921,7 +1121,6 @@
 							{/if}
 						</div>
 					</div>
-
 				{:else if grammarModalPhase === 'testing'}
 					<h3 class="modal-title">Test Out: {rule.grammarRule.title}</h3>
 
@@ -934,18 +1133,25 @@
 						{:else if testOutError && !testOutQuestions}
 							<div class="test-error-state">
 								<p>{testOutError}</p>
-								<button class="test-retry-btn" onclick={() => startTestOut(rule.grammarRule.id)}>Try Again</button>
+								<button class="test-retry-btn" onclick={() => startTestOut(rule.grammarRule.id)}
+									>Try Again</button
+								>
 							</div>
 						{:else if testOutQuestions}
 							{@const q = testOutQuestions[testOutCurrentIndex]}
 							{@const lastScore = testOutScores[testOutScores.length - 1]}
 
 							<div class="test-progress-header">
-								<span class="test-q-count">Question {testOutCurrentIndex + 1} / {testOutTotalQuestions}</span>
+								<span class="test-q-count"
+									>Question {testOutCurrentIndex + 1} / {testOutTotalQuestions}</span
+								>
 								<span class="test-score-preview">{testOutPassedCount} correct so far</span>
 							</div>
 							<div class="test-progress-bar-track">
-								<div class="test-progress-bar-fill" style="width: {((testOutCurrentIndex) / testOutTotalQuestions) * 100}%"></div>
+								<div
+									class="test-progress-bar-fill"
+									style="width: {(testOutCurrentIndex / testOutTotalQuestions) * 100}%"
+								></div>
 							</div>
 
 							<div class="test-question-card">
@@ -958,8 +1164,12 @@
 									<button
 										class="test-option"
 										class:option-correct={testOutAnsweredCurrent && i === q.correctIndex}
-										class:option-incorrect={testOutAnsweredCurrent && i === testOutSelectedAnswer && i !== q.correctIndex}
-										class:option-disabled={testOutAnsweredCurrent && i !== q.correctIndex && i !== testOutSelectedAnswer}
+										class:option-incorrect={testOutAnsweredCurrent &&
+											i === testOutSelectedAnswer &&
+											i !== q.correctIndex}
+										class:option-disabled={testOutAnsweredCurrent &&
+											i !== q.correctIndex &&
+											i !== testOutSelectedAnswer}
 										onclick={() => handleTestAnswer(i)}
 										disabled={testOutAnsweredCurrent}
 									>
@@ -970,27 +1180,42 @@
 							</div>
 
 							{#if testOutAnsweredCurrent}
-								<div class="test-feedback" class:feedback-correct={lastScore} class:feedback-incorrect={!lastScore}>
+								<div
+									class="test-feedback"
+									class:feedback-correct={lastScore}
+									class:feedback-incorrect={!lastScore}
+								>
 									<span class="feedback-icon">{lastScore ? '✓' : '✗'}</span>
 									<div class="feedback-content">
-										<span class="feedback-label">{lastScore ? 'Correct!' : `Incorrect — correct answer: ${q.options[q.correctIndex]}`}</span>
+										<span class="feedback-label"
+											>{lastScore
+												? 'Correct!'
+												: `Incorrect — correct answer: ${q.options[q.correctIndex]}`}</span
+										>
 										<p class="feedback-explanation">{q.explanation}</p>
 									</div>
 								</div>
 								{@const wrongSoFar = testOutScores.filter((s) => !s).length}
 								<button class="test-next-btn" onclick={nextTestQuestion}>
-									{testOutCurrentIndex >= testOutTotalQuestions - 1 || wrongSoFar >= 2 ? 'See Results →' : 'Next Question →'}
+									{testOutCurrentIndex >= testOutTotalQuestions - 1 || wrongSoFar >= 2
+										? 'See Results →'
+										: 'Next Question →'}
 								</button>
 							{/if}
 						{/if}
 					</div>
-
 				{:else if grammarModalPhase === 'results'}
-					{@const endedEarly = testOutScores.filter((s) => !s).length >= 2 && testOutScores.length < testOutTotalQuestions}
+					{@const endedEarly =
+						testOutScores.filter((s) => !s).length >= 2 &&
+						testOutScores.length < testOutTotalQuestions}
 					<h3 class="modal-title">Results: {rule.grammarRule.title}</h3>
 
 					<div class="modal-body">
-						<div class="results-score-display" class:results-pass={testOutPassed} class:results-fail={!testOutPassed}>
+						<div
+							class="results-score-display"
+							class:results-pass={testOutPassed}
+							class:results-fail={!testOutPassed}
+						>
 							<span class="results-number">{testOutPassedCount}/{testOutScores.length}</span>
 							<span class="results-label">correct</span>
 						</div>
@@ -1023,7 +1248,8 @@
 						{:else}
 							<p class="results-message results-fail-msg">
 								{#if endedEarly}
-									Test ended early — 2 wrong answers means passing is no longer possible. Keep practicing and try again!
+									Test ended early — 2 wrong answers means passing is no longer possible. Keep
+									practicing and try again!
 								{:else}
 									You need at least 9/10 correct to test out. Keep practicing and try again!
 								{/if}
@@ -1032,9 +1258,7 @@
 								<button class="results-retry-btn" onclick={() => startTestOut(rule.grammarRule.id)}>
 									Try Again
 								</button>
-								<button class="results-back-btn" onclick={goBack}>
-									Back to Details
-								</button>
+								<button class="results-back-btn" onclick={goBack}> Back to Details </button>
 							</div>
 						{/if}
 
@@ -1053,7 +1277,10 @@
 		max-width: 1200px;
 		margin: 0 auto;
 		padding: 2rem;
-		font-family: system-ui, -apple-system, sans-serif;
+		font-family:
+			system-ui,
+			-apple-system,
+			sans-serif;
 		color: #334155;
 	}
 
@@ -1064,7 +1291,9 @@
 		background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
 		border-radius: 1rem;
 		color: white;
-		box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+		box-shadow:
+			0 10px 25px -5px rgba(0, 0, 0, 0.2),
+			0 8px 10px -6px rgba(0, 0, 0, 0.1);
 	}
 
 	.dashboard-header h1 {
@@ -1108,7 +1337,7 @@
 		overflow: hidden;
 		border: 1px solid rgba(255, 255, 255, 0.2);
 		position: relative;
-		box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+		box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 	}
 
 	.cefr-bar-fill {
@@ -1127,7 +1356,7 @@
 		font-size: 0.7rem;
 		font-weight: 900;
 		color: white;
-		text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+		text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 	}
 
 	.cefr-subtext {
@@ -1177,10 +1406,18 @@
 		transition: width 1s ease;
 	}
 
-	.detail-bar-fill.vocab { background: #3b82f6; }
-	.detail-bar-fill.grammar { background: #8b5cf6; }
-	.detail-bar-fill.exposure { background: #f59e0b; }
-	.detail-bar-fill.elo { background: #10b981; }
+	.detail-bar-fill.vocab {
+		background: #3b82f6;
+	}
+	.detail-bar-fill.grammar {
+		background: #8b5cf6;
+	}
+	.detail-bar-fill.exposure {
+		background: #f59e0b;
+	}
+	.detail-bar-fill.elo {
+		background: #10b981;
+	}
 
 	.detail-bar-value {
 		font-size: 0.65rem;
@@ -1227,7 +1464,7 @@
 		opacity: 0.85;
 		text-transform: none;
 		letter-spacing: 0;
-		background: rgba(0,0,0,0.15);
+		background: rgba(0, 0, 0, 0.15);
 		border-radius: 0.4rem;
 		padding: 0.1rem 0.4rem;
 	}
@@ -1241,8 +1478,15 @@
 		animation: live-pulse 1.4s ease-in-out infinite;
 	}
 	@keyframes live-pulse {
-		0%, 100% { opacity: 1; transform: scale(1); }
-		50% { opacity: 0.4; transform: scale(0.7); }
+		0%,
+		100% {
+			opacity: 1;
+			transform: scale(1);
+		}
+		50% {
+			opacity: 0.4;
+			transform: scale(0.7);
+		}
 	}
 
 	/* Assignment due button */
@@ -1274,7 +1518,7 @@
 		opacity: 0.85;
 		text-transform: none;
 		letter-spacing: 0;
-		background: rgba(0,0,0,0.15);
+		background: rgba(0, 0, 0, 0.15);
 		border-radius: 0.4rem;
 		padding: 0.1rem 0.4rem;
 		white-space: nowrap;
@@ -1307,9 +1551,15 @@
 		margin-top: 0.1rem;
 	}
 
-	.due-soon-icon svg { width: 100%; height: 100%; }
+	.due-soon-icon svg {
+		width: 100%;
+		height: 100%;
+	}
 
-	.due-soon-content { flex: 1; min-width: 0; }
+	.due-soon-content {
+		flex: 1;
+		min-width: 0;
+	}
 
 	.due-soon-label {
 		font-size: 0.7rem;
@@ -1413,11 +1663,15 @@
 		background: var(--card-bg, #ffffff);
 		border-radius: 1rem;
 		padding: 2rem;
-		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-		transition: transform 0.3s ease, box-shadow 0.3s ease;
+		box-shadow:
+			0 10px 15px -3px rgba(0, 0, 0, 0.05),
+			0 4px 6px -4px rgba(0, 0, 0, 0.05);
+		transition:
+			transform 0.3s ease,
+			box-shadow 0.3s ease;
 		position: relative;
 		overflow: hidden;
-		border: 1px solid rgba(0,0,0,0.05);
+		border: 1px solid rgba(0, 0, 0, 0.05);
 	}
 
 	.summary-card::before {
@@ -1432,7 +1686,9 @@
 
 	.summary-card:hover {
 		transform: translateY(-4px);
-		box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+		box-shadow:
+			0 20px 25px -5px rgba(0, 0, 0, 0.1),
+			0 8px 10px -6px rgba(0, 0, 0, 0.05);
 	}
 
 	.summary-card h3 {
@@ -1453,7 +1709,7 @@
 		margin-bottom: 1rem;
 		font-size: 1.1rem;
 		padding-bottom: 0.5rem;
-		border-bottom: 1px solid rgba(0,0,0,0.05);
+		border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 	}
 
 	.stat-row:last-of-type {
@@ -1587,7 +1843,7 @@
 		height: 1.25rem;
 		border-radius: 4px;
 		display: inline-block;
-		box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+		box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 	}
 
 	.heatmap-grid {
@@ -1597,8 +1853,10 @@
 		background: var(--card-bg, #ffffff);
 		padding: 2rem;
 		border-radius: 1rem;
-		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-		border: 1px solid rgba(0,0,0,0.05);
+		box-shadow:
+			0 10px 15px -3px rgba(0, 0, 0, 0.05),
+			0 4px 6px -4px rgba(0, 0, 0, 0.05);
+		border: 1px solid rgba(0, 0, 0, 0.05);
 	}
 
 	.heatmap-cell {
@@ -1607,12 +1865,12 @@
 		border-radius: 6px;
 		cursor: pointer;
 		transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-		box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+		box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 	}
 
 	.heatmap-cell:hover {
 		transform: scale(1.1) translateY(-2px);
-		box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
 		z-index: 10;
 	}
 
@@ -1640,12 +1898,12 @@
 		transition: all 0.2s ease;
 		z-index: 100;
 		pointer-events: none;
-		border: 1px solid rgba(255,255,255,0.1);
+		border: 1px solid rgba(255, 255, 255, 0.1);
 		line-height: 1.3;
 	}
 
 	.tooltip-content::after {
-		content: "";
+		content: '';
 		position: absolute;
 		top: 100%;
 		left: 50%;
@@ -1654,7 +1912,7 @@
 		border-style: solid;
 		border-color: #0f172a transparent transparent transparent;
 	}
-	
+
 	/* Ensure tooltip stays within viewport on mobile */
 	@media (max-width: 768px) {
 		.tooltip-content {
@@ -1662,7 +1920,7 @@
 			right: -40px;
 			transform: translateX(0) translateY(5px);
 		}
-		
+
 		.tooltip-content::after {
 			left: auto;
 			right: 46px;
@@ -1674,7 +1932,7 @@
 		opacity: 1;
 		transform: translateX(-50%) translateY(0);
 	}
-	
+
 	@media (max-width: 768px) {
 		.tooltip-trigger:hover .tooltip-content {
 			transform: translateX(0) translateY(0);
@@ -1685,7 +1943,7 @@
 		font-weight: 700;
 		font-size: 0.95rem;
 		margin-bottom: 0.25rem;
-		border-bottom: 1px solid rgba(255,255,255,0.1);
+		border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 		padding-bottom: 0.25rem;
 		color: #ffffff;
 	}
@@ -1704,7 +1962,7 @@
 		gap: 0.25rem;
 		margin-bottom: 0.25rem;
 		padding-bottom: 0.25rem;
-		border-bottom: 1px solid rgba(255,255,255,0.1);
+		border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 	}
 
 	.elo-header {
@@ -1741,7 +1999,7 @@
 		background: #1e293b;
 		border-radius: 9999px;
 		overflow: hidden;
-		box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+		box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
 	}
 
 	.elo-progress-fill {
@@ -1750,10 +2008,16 @@
 		border-radius: 9999px;
 		transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 	}
-	
-	.elo-progress-fill.learning { background: linear-gradient(90deg, #facc15, #fef08a); }
-	.elo-progress-fill.known { background: linear-gradient(90deg, #34d399, #6ee7b7); }
-	.elo-progress-fill.mastered { background: linear-gradient(90deg, #10b981, #059669); }
+
+	.elo-progress-fill.learning {
+		background: linear-gradient(90deg, #facc15, #fef08a);
+	}
+	.elo-progress-fill.known {
+		background: linear-gradient(90deg, #34d399, #6ee7b7);
+	}
+	.elo-progress-fill.mastered {
+		background: linear-gradient(90deg, #10b981, #059669);
+	}
 
 	/* Grammar Web Redesign */
 	.grammar-header-row {
@@ -1792,7 +2056,9 @@
 		color: #64748b;
 		display: flex;
 		align-items: center;
-		transition: background 0.15s, color 0.15s;
+		transition:
+			background 0.15s,
+			color 0.15s;
 		line-height: 0;
 	}
 
@@ -1833,11 +2099,18 @@
 		font-family: inherit;
 	}
 
-	.grammar-list-row:last-child { border-bottom: none; }
+	.grammar-list-row:last-child {
+		border-bottom: none;
+	}
 
-	.grammar-list-row:hover { background: rgba(255,255,255,0.04); }
+	.grammar-list-row:hover {
+		background: rgba(255, 255, 255, 0.04);
+	}
 
-	.grammar-list-row.locked { opacity: 0.5; cursor: not-allowed; }
+	.grammar-list-row.locked {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
 
 	.grammar-list-dot {
 		width: 0.75rem;
@@ -1913,8 +2186,10 @@
 		background: var(--card-bg, #ffffff);
 		border-radius: 1rem;
 		height: 500px;
-		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-		border: 1px solid rgba(0,0,0,0.05);
+		box-shadow:
+			0 10px 15px -3px rgba(0, 0, 0, 0.05),
+			0 4px 6px -4px rgba(0, 0, 0, 0.05);
+		border: 1px solid rgba(0, 0, 0, 0.05);
 		overflow-y: auto;
 		overflow-x: hidden;
 		display: block;
@@ -1969,7 +2244,9 @@
 		border: 2px solid var(--node-color);
 		border-radius: 9999px;
 		padding: 0.5rem 1.25rem 0.5rem 0.5rem;
-		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 0 10px var(--node-color)40;
+		box-shadow:
+			0 4px 6px -1px rgba(0, 0, 0, 0.1),
+			0 0 10px var(--node-color) 40;
 		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 		cursor: pointer;
 	}
@@ -1980,7 +2257,9 @@
 
 	.web-node-pill:hover {
 		transform: translateY(-2px) scale(1.05);
-		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 0 15px var(--node-color)60;
+		box-shadow:
+			0 10px 15px -3px rgba(0, 0, 0, 0.1),
+			0 0 15px var(--node-color) 60;
 		z-index: 10;
 	}
 
@@ -2004,7 +2283,7 @@
 		width: 1.5rem;
 		height: 1.5rem;
 		border-radius: 50%;
-		box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+		box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 	}
 
 	.node-title {
@@ -2119,7 +2398,7 @@
 			width: 18px;
 			height: 18px;
 		}
-		
+
 		.web-node-wrapper {
 			flex: 1 1 100%;
 		}
@@ -2150,7 +2429,9 @@
 		max-height: 90vh;
 		display: flex;
 		flex-direction: column;
-		box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+		box-shadow:
+			0 20px 25px -5px rgba(0, 0, 0, 0.1),
+			0 10px 10px -5px rgba(0, 0, 0, 0.04);
 	}
 
 	:global(html[data-theme='dark']) .modal-content {
@@ -2176,11 +2457,11 @@
 	}
 
 	.modal-close:hover {
-		background: rgba(0,0,0,0.05);
+		background: rgba(0, 0, 0, 0.05);
 	}
 
 	:global(html[data-theme='dark']) .modal-close:hover {
-		background: rgba(255,255,255,0.1);
+		background: rgba(255, 255, 255, 0.1);
 	}
 
 	.modal-title {
@@ -2205,11 +2486,11 @@
 	.modal-elo-section {
 		margin-bottom: 1.5rem;
 		padding-bottom: 1.5rem;
-		border-bottom: 1px solid rgba(0,0,0,0.05);
+		border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 	}
 
 	:global(html[data-theme='dark']) .modal-elo-section {
-		border-bottom-color: rgba(255,255,255,0.1);
+		border-bottom-color: rgba(255, 255, 255, 0.1);
 	}
 
 	.modal-elo-header {
@@ -2229,11 +2510,11 @@
 	.prereq-section {
 		margin-bottom: 1.5rem;
 		padding-bottom: 1.5rem;
-		border-bottom: 1px solid rgba(0,0,0,0.05);
+		border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 	}
 
 	:global(html[data-theme='dark']) .prereq-section {
-		border-bottom-color: rgba(255,255,255,0.1);
+		border-bottom-color: rgba(255, 255, 255, 0.1);
 	}
 
 	.prereq-heading {
@@ -2335,7 +2616,7 @@
 		max-height: 400px;
 		overflow-y: auto;
 		color: #334155;
-		box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+		box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
 	}
 
 	:global(html[data-theme='dark']) .grammar-guide {
@@ -2368,12 +2649,24 @@
 		margin-top: 0;
 	}
 
-	.grammar-guide :global(h1) { font-size: 1.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem; }
-	.grammar-guide :global(h2) { font-size: 1.25rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.3rem; }
-	.grammar-guide :global(h3) { font-size: 1.1rem; }
+	.grammar-guide :global(h1) {
+		font-size: 1.5rem;
+		border-bottom: 1px solid #e2e8f0;
+		padding-bottom: 0.5rem;
+	}
+	.grammar-guide :global(h2) {
+		font-size: 1.25rem;
+		border-bottom: 1px solid #e2e8f0;
+		padding-bottom: 0.3rem;
+	}
+	.grammar-guide :global(h3) {
+		font-size: 1.1rem;
+	}
 
 	:global(html[data-theme='dark']) .grammar-guide :global(h1),
-	:global(html[data-theme='dark']) .grammar-guide :global(h2) { border-color: #1e293b; }
+	:global(html[data-theme='dark']) .grammar-guide :global(h2) {
+		border-color: #1e293b;
+	}
 
 	.grammar-guide :global(p) {
 		margin-top: 0;
@@ -2521,7 +2814,9 @@
 		padding: 0.6rem 0.75rem;
 		cursor: pointer;
 		text-align: left;
-		transition: background 0.15s, border-color 0.15s;
+		transition:
+			background 0.15s,
+			border-color 0.15s;
 	}
 
 	.prereq-item-clickable:hover {
@@ -2559,7 +2854,9 @@
 		font-size: 0.95rem;
 		font-weight: 700;
 		cursor: pointer;
-		transition: opacity 0.2s, transform 0.15s;
+		transition:
+			opacity 0.2s,
+			transform 0.15s;
 		letter-spacing: 0.01em;
 	}
 
@@ -2594,7 +2891,9 @@
 	}
 
 	@keyframes spin {
-		to { transform: rotate(360deg); }
+		to {
+			transform: rotate(360deg);
+		}
 	}
 
 	.test-error-state {
@@ -2691,7 +2990,9 @@
 		font-size: 0.95rem;
 		cursor: pointer;
 		text-align: left;
-		transition: border-color 0.15s, background 0.15s;
+		transition:
+			border-color 0.15s,
+			background 0.15s;
 		color: #334155;
 	}
 
@@ -2945,7 +3246,9 @@
 		font-size: 0.95rem;
 		font-weight: 700;
 		cursor: pointer;
-		transition: opacity 0.2s, transform 0.15s;
+		transition:
+			opacity 0.2s,
+			transform 0.15s;
 	}
 
 	.master-confirm-btn:hover:not(:disabled) {
@@ -3046,7 +3349,9 @@
 	}
 
 	@media (min-width: 640px) {
-		.retention-kpi-row { grid-template-columns: repeat(4, 1fr); }
+		.retention-kpi-row {
+			grid-template-columns: repeat(4, 1fr);
+		}
 	}
 
 	.retention-kpi {
@@ -3054,8 +3359,8 @@
 		border-radius: 0.75rem;
 		padding: 1.25rem 1rem;
 		text-align: center;
-		border: 1px solid rgba(0,0,0,0.05);
-		box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+		border: 1px solid rgba(0, 0, 0, 0.05);
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 	}
 
 	.retention-kpi-value {
@@ -3082,15 +3387,17 @@
 	}
 
 	@media (min-width: 768px) {
-		.retention-charts-row { grid-template-columns: repeat(3, 1fr); }
+		.retention-charts-row {
+			grid-template-columns: repeat(3, 1fr);
+		}
 	}
 
 	.retention-chart-card {
 		background: var(--card-bg, #fff);
 		border-radius: 0.75rem;
 		padding: 1.25rem;
-		border: 1px solid rgba(0,0,0,0.05);
-		box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+		border: 1px solid rgba(0, 0, 0, 0.05);
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 	}
 
 	.retention-chart-card h3 {
@@ -3140,9 +3447,15 @@
 		min-width: 2px;
 	}
 
-	.retention-fill  { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
-	.stability-fill  { background: linear-gradient(90deg, #10b981, #34d399); }
-	.forgetting-fill { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+	.retention-fill {
+		background: linear-gradient(90deg, #6366f1, #8b5cf6);
+	}
+	.stability-fill {
+		background: linear-gradient(90deg, #10b981, #34d399);
+	}
+	.forgetting-fill {
+		background: linear-gradient(90deg, #f59e0b, #fbbf24);
+	}
 
 	.bar-count {
 		font-size: 0.75rem;
@@ -3154,8 +3467,8 @@
 		background: var(--card-bg, #fff);
 		border-radius: 0.75rem;
 		padding: 1.25rem;
-		border: 1px solid rgba(0,0,0,0.05);
-		box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+		border: 1px solid rgba(0, 0, 0, 0.05);
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 	}
 
 	.upcoming-reviews h3 {

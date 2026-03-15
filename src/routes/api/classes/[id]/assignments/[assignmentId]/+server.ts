@@ -64,9 +64,10 @@ export const PATCH: RequestHandler = async ({ params, request, locals }) => {
 				title: data.title.trim(),
 				description: data.description?.trim() || null,
 				gamemode: data.gamemode || undefined,
-				gameId: data.gamemode === 'quiz' ? (data.gameId || null) : null,
+				gameId: data.gamemode === 'quiz' ? data.gameId || null : null,
 				targetScore: data.targetScore ? parseInt(data.targetScore, 10) : undefined,
-				passThreshold: data.passThreshold !== undefined ? parseInt(data.passThreshold, 10) : undefined,
+				passThreshold:
+					data.passThreshold !== undefined ? parseInt(data.passThreshold, 10) : undefined,
 				language: data.language || undefined,
 				targetCefrLevel: data.targetCefrLevel || null,
 				topic: data.topic?.trim() || null,

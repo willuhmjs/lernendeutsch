@@ -6,10 +6,10 @@
 	async function handleSubmit(event: Event) {
 		event.preventDefault();
 		isSubmitting = true;
-		
+
 		const form = event.target as HTMLFormElement;
 		const formData = new FormData(form);
-		
+
 		try {
 			const res = await fetch('/api/games', {
 				method: 'POST',
@@ -22,7 +22,7 @@
 					language: formData.get('language')
 				})
 			});
-			
+
 			if (res.ok) {
 				const data = await res.json();
 				window.location.href = `/play/games/${data.game.id}/edit`;
@@ -40,7 +40,14 @@
 <div class="create-container">
 	<div class="header-section">
 		<a href="/play?tab=games" class="back-link">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+				><path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					stroke-width="2"
+					d="M10 19l-7-7m0 0l7-7m-7 7h18"
+				/></svg
+			>
 			Back to Quizzes
 		</a>
 		<h1>Create New Quiz</h1>
@@ -74,12 +81,7 @@
 
 			<div class="field">
 				<label for="language">Language <span class="required">*</span></label>
-				<select
-					id="language"
-					name="language"
-					required
-					class="form-input"
-				>
+				<select id="language" name="language" required class="form-input">
 					<option value="" disabled selected>Select a language...</option>
 					{#each languages as lang}
 						<option value={lang.name}>{lang.name}</option>
@@ -95,8 +97,19 @@
 				>
 					{#if isSubmitting}
 						<svg class="spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-							<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-							<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+							<circle
+								class="opacity-25"
+								cx="12"
+								cy="12"
+								r="10"
+								stroke="currentColor"
+								stroke-width="4"
+							></circle>
+							<path
+								class="opacity-75"
+								fill="currentColor"
+								d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+							></path>
 						</svg>
 						Creating Quiz...
 					{:else}
@@ -230,11 +243,19 @@
 		animation: spin 1s linear infinite;
 	}
 
-	.opacity-25 { opacity: 0.25; }
-	.opacity-75 { opacity: 0.75; }
+	.opacity-25 {
+		opacity: 0.25;
+	}
+	.opacity-75 {
+		opacity: 0.75;
+	}
 
 	@keyframes spin {
-		from { transform: rotate(0deg); }
-		to { transform: rotate(360deg); }
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
 	}
 </style>

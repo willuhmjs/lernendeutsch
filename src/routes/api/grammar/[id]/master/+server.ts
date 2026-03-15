@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { prisma } from '$lib/server/prisma';
-import { reviewCard, deriveSrsStateFromFsrs, DEFAULT_FSRS_PARAMETERS, initializeFsrsCard } from '$lib/server/fsrs';
+import { reviewCard, DEFAULT_FSRS_PARAMETERS, initializeFsrsCard } from '$lib/server/fsrs';
 
 export async function POST(event) {
 	const { params, locals } = event;

@@ -45,7 +45,7 @@
 				const result = await res.json();
 				toast.error(result.error || 'Failed to delete assignment.');
 			}
-		} catch (e) {
+		} catch (_) {
 			toast.error('An error occurred.');
 		}
 	}
@@ -72,7 +72,7 @@
 	let vocabInput = '';
 	let vocabInputRef: HTMLInputElement;
 	let grammarSearchQuery = '';
-	let editGameId = '';
+	let _editGameId = '';
 	let isSaving = false;
 
 	function openEditModal() {
@@ -149,6 +149,7 @@
 
 			if (res.ok) {
 				const updatedAssignment = await res.json();
+				// eslint-disable-next-line svelte/no-reactive-reassign
 				assignment = { ...assignment, ...updatedAssignment };
 				toast.success('Assignment updated');
 				closeEditModal();
@@ -157,7 +158,7 @@
 				const result = await res.json();
 				toastError(result.error || 'Failed to update assignment');
 			}
-		} catch (e) {
+		} catch (_) {
 			toastError('An error occurred');
 		} finally {
 			isSaving = false;
@@ -212,9 +213,16 @@
 				<div class="section-stats">
 					<span class="section-stat passed">{passedStudents} passed</span>
 					<span class="section-stat-sep">&bull;</span>
-					<span class="section-stat in-progress">{studentMembers.filter((m: any) => { const s = getScoreForUser(m.userId); return s && !s.passed; }).length} in progress</span>
+					<span class="section-stat in-progress"
+						>{studentMembers.filter((m: any) => {
+							const s = getScoreForUser(m.userId);
+							return s && !s.passed;
+						}).length} in progress</span
+					>
 					<span class="section-stat-sep">&bull;</span>
-					<span class="section-stat not-started">{studentMembers.filter((m: any) => !getScoreForUser(m.userId)).length} not started</span>
+					<span class="section-stat not-started"
+						>{studentMembers.filter((m: any) => !getScoreForUser(m.userId)).length} not started</span
+					>
 				</div>
 			{/if}
 		</div>
@@ -232,10 +240,16 @@
 						{@const scoreInfo = getScoreForUser(member.userId)}
 						{@const hasStarted = !!scoreInfo}
 						{@const isPassed = scoreInfo?.passed}
-						{@const pct = scoreInfo ? Math.min(100, Math.round((scoreInfo.score / assignment.targetScore) * 100)) : 0}
+						{@const pct = scoreInfo
+							? Math.min(100, Math.round((scoreInfo.score / assignment.targetScore) * 100))
+							: 0}
 						<li class="member-row">
 							<div class="member-info">
-								<div class="member-avatar" class:avatar-passed={isPassed} class:avatar-progress={hasStarted && !isPassed}>
+								<div
+									class="member-avatar"
+									class:avatar-passed={isPassed}
+									class:avatar-progress={hasStarted && !isPassed}
+								>
 									{(member.user.name || member.user.username).charAt(0).toUpperCase()}
 								</div>
 								<div class="member-details">
@@ -252,10 +266,18 @@
 											{#if isPassed}
 												<span class="score-check">&#10003;</span>
 											{/if}
-											<span class="score-value" class:score-passed-text={isPassed} class:score-amber={!isPassed}>
+											<span
+												class="score-value"
+												class:score-passed-text={isPassed}
+												class:score-amber={!isPassed}
+											>
 												{scoreInfo.score}<span class="score-denom">/{assignment.targetScore}</span>
 											</span>
-											<span class="badge" class:badge-green={isPassed} class:badge-amber={!isPassed}>
+											<span
+												class="badge"
+												class:badge-green={isPassed}
+												class:badge-amber={!isPassed}
+											>
 												{isPassed ? 'Passed' : 'In Progress'}
 											</span>
 										</div>
@@ -292,7 +314,13 @@
 				<button class="btn-close" onclick={closeEditModal}>&times;</button>
 			</div>
 
-			<form onsubmit={(e) => { e.preventDefault(); handleSaveEdit(); }} class="create-form">
+			<form
+				onsubmit={(e) => {
+					e.preventDefault();
+					handleSaveEdit();
+				}}
+				class="create-form"
+			>
 				<div class="create-form-row">
 					<div class="field">
 						<label for="title">Title <span class="required">*</span></label>
@@ -337,7 +365,9 @@
 								{#each targetVocabList as word}
 									<span class="vocab-tag">
 										{word}
-										<button type="button" class="remove-vocab" onclick={() => removeVocab(word)}>&times;</button>
+										<button type="button" class="remove-vocab" onclick={() => removeVocab(word)}
+											>&times;</button
+										>
 									</span>
 								{/each}
 								<input
@@ -346,7 +376,7 @@
 									bind:this={vocabInputRef}
 									bind:value={vocabInput}
 									onkeydown={handleVocabKeydown}
-									placeholder={targetVocabList.length === 0 ? "Type a word and press Enter" : ""}
+									placeholder={targetVocabList.length === 0 ? 'Type a word and press Enter' : ''}
 									class="vocab-inline-input"
 								/>
 							</div>
@@ -359,18 +389,23 @@
 					<div class="grammar-rules-container">
 						{#if availableRules.length > 0}
 							<div class="grammar-search">
-								<input 
-									type="text" 
-									bind:value={grammarSearchQuery} 
-									placeholder="Search grammar rules..." 
+								<input
+									type="text"
+									bind:value={grammarSearchQuery}
+									placeholder="Search grammar rules..."
 									class="grammar-search-input"
 								/>
 							</div>
 							<div class="grammar-rules-list">
-								{#each availableRules.filter((r: any) => r.title.toLowerCase().includes(grammarSearchQuery.toLowerCase())) as rule}
-									<label class="grammar-rule-item" class:selected={selectedGrammarRules.includes(rule.id)}>
-										<input 
-											type="checkbox" 
+								{#each availableRules.filter((r: any) => r.title
+										.toLowerCase()
+										.includes(grammarSearchQuery.toLowerCase())) as rule}
+									<label
+										class="grammar-rule-item"
+										class:selected={selectedGrammarRules.includes(rule.id)}
+									>
+										<input
+											type="checkbox"
 											checked={selectedGrammarRules.includes(rule.id)}
 											onchange={() => toggleGrammarRule(rule.id)}
 										/>
@@ -430,17 +465,15 @@
 								Pass Score
 							{/if}
 						</label>
-						<input
-							type="number"
-							id="targetScore"
-							bind:value={editTargetScore}
-							min="1"
-							max="100"
-						/>
+						<input type="number" id="targetScore" bind:value={editTargetScore} min="1" max="100" />
 						{#if editMode === 'chat'}
-							<span style="font-size: 0.7rem; color: #64748b; margin-top: 0.25rem; display: block;">Number of turns for chat</span>
+							<span style="font-size: 0.7rem; color: #64748b; margin-top: 0.25rem; display: block;"
+								>Number of turns for chat</span
+							>
 						{:else if editMode === 'immerse'}
-							<span style="font-size: 0.7rem; color: #64748b; margin-top: 0.25rem; display: block;">Number of correct answers to pass</span>
+							<span style="font-size: 0.7rem; color: #64748b; margin-top: 0.25rem; display: block;"
+								>Number of correct answers to pass</span
+							>
 						{/if}
 					</div>
 					<div class="field field-small">
@@ -668,11 +701,21 @@
 		font-weight: 700;
 	}
 
-	.section-stat { font-weight: 700; }
-	.section-stat.passed { color: #16a34a; }
-	.section-stat.in-progress { color: #d97706; }
-	.section-stat.not-started { color: #94a3b8; }
-	.section-stat-sep { color: #cbd5e1; }
+	.section-stat {
+		font-weight: 700;
+	}
+	.section-stat.passed {
+		color: #16a34a;
+	}
+	.section-stat.in-progress {
+		color: #d97706;
+	}
+	.section-stat.not-started {
+		color: #94a3b8;
+	}
+	.section-stat-sep {
+		color: #cbd5e1;
+	}
 
 	/* Members Card */
 	.members-card {
@@ -729,7 +772,9 @@
 		font-size: 1.1rem;
 		flex-shrink: 0;
 		border: 2px solid #bfdbfe;
-		transition: background-color 0.2s, border-color 0.2s;
+		transition:
+			background-color 0.2s,
+			border-color 0.2s;
 	}
 
 	.member-avatar.avatar-passed {
@@ -788,7 +833,9 @@
 		gap: 0.5rem;
 	}
 
-	.score-passed-text { color: #16a34a; }
+	.score-passed-text {
+		color: #16a34a;
+	}
 
 	.score-bar-track {
 		width: 100%;
@@ -804,8 +851,12 @@
 		transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 	}
 
-	.fill-passed { background: #16a34a; }
-	.fill-progress { background: #f59e0b; }
+	.fill-passed {
+		background: #16a34a;
+	}
+	.fill-progress {
+		background: #f59e0b;
+	}
 
 	.score-check {
 		color: #16a34a;
@@ -1090,7 +1141,6 @@
 			flex: 1;
 		}
 	}
-
 
 	.field-small {
 		max-width: 140px;

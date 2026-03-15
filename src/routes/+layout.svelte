@@ -78,7 +78,12 @@
 	/>
 </svelte:head>
 
-<div class="app-container" class:no-sidebar={$page.url.pathname === '/' || $page.url.pathname === '/login' || $page.url.pathname === '/signup'}>
+<div
+	class="app-container"
+	class:no-sidebar={$page.url.pathname === '/' ||
+		$page.url.pathname === '/login' ||
+		$page.url.pathname === '/signup'}
+>
 	{#if $page.url.pathname !== '/' && $page.url.pathname !== '/login' && $page.url.pathname !== '/signup'}
 		<nav class="sidebar">
 			<div class="sidebar-header">
@@ -129,7 +134,10 @@
 							>
 							<span class="nav-text">Dashboard</span>
 						</a>
-						<a href="/play" class="nav-item {$page.url.pathname.startsWith('/play') ? 'active' : ''}">
+						<a
+							href="/play"
+							class="nav-item {$page.url.pathname.startsWith('/play') ? 'active' : ''}"
+						>
 							<svg
 								viewBox="0 0 24 24"
 								fill="none"
@@ -187,29 +195,31 @@
 								stroke-width="2"
 								stroke-linecap="round"
 								stroke-linejoin="round"
-								><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg
+								><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline
+									points="2 17 12 22 22 17"
+								></polyline><polyline points="2 12 12 17 22 12"></polyline></svg
 							>
 							<span class="nav-text">Review</span>
 						</a>
 					{/if}
 					{#if !user.hasOnboarded}
-					<a
-						href="/onboarding"
-						class="nav-item {$page.url.pathname.startsWith('/onboarding') ? 'active' : ''}"
-					>
-						<svg
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							><path d="M12 20h9" /><path
-								d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
-							/></svg
+						<a
+							href="/onboarding"
+							class="nav-item {$page.url.pathname.startsWith('/onboarding') ? 'active' : ''}"
 						>
-						<span class="nav-text">Onboarding</span>
-					</a>
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								><path d="M12 20h9" /><path
+									d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
+								/></svg
+							>
+							<span class="nav-text">Onboarding</span>
+						</a>
 					{/if}
 					{#if user.role === 'ADMIN'}
 						<a
@@ -418,7 +428,8 @@
 							>
 							<span class="mobile-lang-label">
 								{#if user?.activeLanguage}
-									{user.activeLanguage.flag ? user.activeLanguage.flag : ''}{user.activeLanguage.name}
+									{user.activeLanguage.flag ? user.activeLanguage.flag : ''}{user.activeLanguage
+										.name}
 								{:else}
 									Language
 								{/if}
@@ -507,8 +518,7 @@
 							stroke-width="2"
 							stroke-linecap="round"
 							stroke-linejoin="round"
-							aria-hidden="true"
-							><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg
+							aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg
 						>
 					{/if}
 				</button>
@@ -658,8 +668,7 @@
 		letter-spacing: 0.025em;
 		border-radius: 1rem;
 		border: 2px solid transparent;
-		transition:
-			all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+		transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 		cursor: pointer;
 		text-decoration: none;
 		outline: none;
@@ -742,8 +751,7 @@
 		border-radius: 1.5rem;
 		padding: 1.5rem;
 		box-shadow: 0 4px 0 var(--card-border, #e5e7eb);
-		transition:
-			all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+		transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 		box-sizing: border-box;
 	}
 

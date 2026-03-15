@@ -172,7 +172,7 @@ export const interjections = [
 	},
 	{
 		lemma: 'venga',
-		meaning: 'come on / let\'s go',
+		meaning: "come on / let's go",
 		partOfSpeech: 'interjection',
 		isBeginner: true
 	}

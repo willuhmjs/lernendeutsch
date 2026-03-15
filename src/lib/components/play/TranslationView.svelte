@@ -68,11 +68,7 @@
 	</div>
 
 	{#if showSpecialKeyboard}
-		<SpecialCharKeyboard
-			bind:value={userInput}
-			inputElement={inputEl}
-			language={langKey}
-		/>
+		<SpecialCharKeyboard bind:value={userInput} inputElement={inputEl} language={langKey} />
 	{/if}
 
 	<textarea
@@ -86,7 +82,6 @@
 			: challenge?.gameMode === 'target-to-native'
 				? 'Type your English translation here... (Enter to submit)'
 				: `Type your ${lessonLanguage?.name || 'Target'} translation here... (Enter to submit)`}
-
 		onkeydown={handleKeydown}
 	></textarea>
 </div>

@@ -9,7 +9,7 @@
 <div class="legal-page">
 	<div class="legal-card">
 		<h1 class="">Privacy Policy</h1>
-		<p class="effective-date ">Effective Date: March 5, 2026</p>
+		<p class="effective-date">Effective Date: March 5, 2026</p>
 
 		<p class="">
 			LingoLearn ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy

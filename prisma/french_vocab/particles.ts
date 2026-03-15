@@ -15,5 +15,5 @@ export const particles = [
 	{ word: 'point', translation: 'not at all (literary negation)', isBeginner: false },
 	{ word: 'guère', translation: 'hardly/scarcely', isBeginner: false },
 	{ word: 'ci', translation: 'here (in compounds: ci-joint, ci-dessus)', isBeginner: false },
-	{ word: 'là', translation: 'there (emphatic/in compounds)', isBeginner: false },
+	{ word: 'là', translation: 'there (emphatic/in compounds)', isBeginner: false }
 ];

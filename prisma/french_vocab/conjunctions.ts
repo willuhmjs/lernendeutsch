@@ -49,5 +49,5 @@ export const conjunctions = [
 	{ word: 'toutefois', translation: 'however / nevertheless' },
 	{ word: 'en revanche', translation: 'on the other hand' },
 	{ word: 'par contre', translation: 'on the other hand' },
-	{ word: "d'ailleurs", translation: 'moreover / besides' },
+	{ word: "d'ailleurs", translation: 'moreover / besides' }
 ];

@@ -12,7 +12,11 @@ export const articles = [
 	{ word: 'au', translation: 'to the/at the (masculine singular contraction)', isBeginner: true },
 	{ word: 'aux', translation: 'to the/at the (plural contraction)', isBeginner: true },
 	{ word: 'ce', translation: 'this/that (masculine singular demonstrative)', isBeginner: false },
-	{ word: 'cet', translation: 'this/that (masculine before vowel demonstrative)', isBeginner: false },
+	{
+		word: 'cet',
+		translation: 'this/that (masculine before vowel demonstrative)',
+		isBeginner: false
+	},
 	{ word: 'cette', translation: 'this/that (feminine singular demonstrative)', isBeginner: false },
-	{ word: 'ces', translation: 'these/those (plural demonstrative)', isBeginner: false },
+	{ word: 'ces', translation: 'these/those (plural demonstrative)', isBeginner: false }
 ];

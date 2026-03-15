@@ -30,19 +30,23 @@ export async function PUT({ params, request, locals }: RequestEvent) {
 		if (role !== undefined) updateData.role = role;
 
 		// Snapshot existing CEFR levels before the transaction so we can compute mastery changes
-		const progressUpdates = progress && Array.isArray(progress)
-			? progress.filter((p: { languageId?: string; cefrLevel?: string }) => p.languageId && p.cefrLevel)
-			: [];
+		const progressUpdates =
+			progress && Array.isArray(progress)
+				? progress.filter(
+						(p: { languageId?: string; cefrLevel?: string }) => p.languageId && p.cefrLevel
+					)
+				: [];
 
-		const existingProgressRecords = progressUpdates.length > 0
-			? await prisma.userProgress.findMany({
-					where: {
-						userId: id!,
-						languageId: { in: progressUpdates.map((p: { languageId: string }) => p.languageId) }
-					},
-					select: { languageId: true, cefrLevel: true }
-				})
-			: [];
+		const existingProgressRecords =
+			progressUpdates.length > 0
+				? await prisma.userProgress.findMany({
+						where: {
+							userId: id!,
+							languageId: { in: progressUpdates.map((p: { languageId: string }) => p.languageId) }
+						},
+						select: { languageId: true, cefrLevel: true }
+					})
+				: [];
 
 		const oldLevelMap = new Map(existingProgressRecords.map((r) => [r.languageId, r.cefrLevel]));
 

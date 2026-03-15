@@ -16,10 +16,7 @@ const MEDIA_TYPES = [
 
 export type MediaType = (typeof MEDIA_TYPES)[number];
 
-const MEDIA_TYPE_SCHEMAS: Record<
-	MediaType,
-	{ description: string; templateDataSchema: string }
-> = {
+const MEDIA_TYPE_SCHEMAS: Record<MediaType, { description: string; templateDataSchema: string }> = {
 	news_article: {
 		description: 'A newspaper or online news article with headline, byline, and body text.',
 		templateDataSchema: `{
@@ -32,8 +29,7 @@ const MEDIA_TYPE_SCHEMAS: Record<
 }`
 	},
 	advertisement: {
-		description:
-			'A print or digital advertisement for a product or service.',
+		description: 'A print or digital advertisement for a product or service.',
 		templateDataSchema: `{
   "brand": "<brand or company name>",
   "product": "<product or service name>",
@@ -172,9 +168,9 @@ Generate a JSON response with this EXACT structure:
       "sampleAnswer": "<1-2 sentence ideal answer in English>",
       "points": 10
     }${
-		isLowerLevel
-			? ''
-			: `,
+			isLowerLevel
+				? ''
+				: `,
     {
       "type": "multiple_choice",
       "question": "<inference or context question in English>",
@@ -189,7 +185,7 @@ Generate a JSON response with this EXACT structure:
       "sampleAnswer": "<ideal answer demonstrating understanding>",
       "points": 10
     }`
-	}
+		}
   ]
 }
 
@@ -212,7 +208,7 @@ export async function POST(event) {
 		return json({ error: 'Too many requests. Please wait a moment.' }, { status: 429 });
 	}
 
-	if (!user?.useLocalLlm && await isQuotaExceeded(locals.user.id, false)) {
+	if (!user?.useLocalLlm && (await isQuotaExceeded(locals.user.id, false))) {
 		return json({ error: 'Daily AI quota exceeded. Please try again tomorrow.' }, { status: 429 });
 	}
 
@@ -260,7 +256,13 @@ export async function POST(event) {
 			grammarHints = userGrammars.map((ug) => ug.grammarRule.title);
 		}
 
-		const systemPrompt = buildImmersionPrompt(mediaType, cefrLevel, languageName, vocabHints, grammarHints);
+		const systemPrompt = buildImmersionPrompt(
+			mediaType,
+			cefrLevel,
+			languageName,
+			vocabHints,
+			grammarHints
+		);
 
 		const userId = locals.user.id;
 		const useLocalLlm = user?.useLocalLlm ?? false;
@@ -275,18 +277,21 @@ export async function POST(event) {
 			systemPrompt,
 			jsonMode: true,
 			temperature: 0.85,
-			onUsage: useLocalLlm ? undefined : ({ totalTokens }) => {
-				recordTokenUsage(userId, totalTokens);
-			}
+			onUsage: useLocalLlm
+				? undefined
+				: ({ totalTokens }) => {
+						recordTokenUsage(userId, totalTokens);
+					}
 		});
 
 		const raw = response.choices[0].message.content;
 		const result = JSON.parse(raw);
 
 		// Attach unique IDs to questions for client-side tracking
-		const questions = (result.questions || []).map(
-			(q: Record<string, unknown>, i: number) => ({ ...q, id: `q${i}` })
-		);
+		const questions = (result.questions || []).map((q: Record<string, unknown>, i: number) => ({
+			...q,
+			id: `q${i}`
+		}));
 
 		return json({ mediaType, templateData: result.templateData, questions, vocabIds });
 	} catch (error) {

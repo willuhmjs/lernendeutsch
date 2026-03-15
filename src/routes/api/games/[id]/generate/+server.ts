@@ -18,7 +18,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 	});
 	const useLocalLlm = dbUser?.useLocalLlm ?? false;
 
-	if (!useLocalLlm && await isQuotaExceeded(userId, false)) {
+	if (!useLocalLlm && (await isQuotaExceeded(userId, false))) {
 		return json({ error: 'Daily AI quota exceeded. Please try again tomorrow.' }, { status: 429 });
 	}
 
@@ -65,9 +65,11 @@ Example:
 		const response = await generateChatCompletion({
 			userId,
 			messages: [{ role: 'user', content: prompt }],
-			onUsage: useLocalLlm ? undefined : ({ totalTokens }) => {
-				recordTokenUsage(userId, totalTokens);
-			}
+			onUsage: useLocalLlm
+				? undefined
+				: ({ totalTokens }) => {
+						recordTokenUsage(userId, totalTokens);
+					}
 		});
 
 		if (!response || !response.choices || !response.choices[0]) {
@@ -101,8 +103,10 @@ Example:
 			const q = questionsData[i];
 			if (q.question && q.answer && Array.isArray(q.options)) {
 				// Filter out the correct answer from options if it somehow got included
-				const filteredOptions = q.options.filter((opt: string) => opt.toLowerCase() !== q.answer.toLowerCase());
-				
+				const filteredOptions = q.options.filter(
+					(opt: string) => opt.toLowerCase() !== q.answer.toLowerCase()
+				);
+
 				const created = await prisma.gameQuestion.create({
 					data: {
 						gameId: params.id,

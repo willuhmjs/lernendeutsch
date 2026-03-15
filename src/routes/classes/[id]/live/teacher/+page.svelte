@@ -9,7 +9,7 @@
 	let session: any = null;
 	let interval: any;
 	let loading = true;
-	let currentUserId = '';
+	let _currentUserId = '';
 
 	const classId = $page.params.id;
 	$: className = data.className;
@@ -23,7 +23,7 @@
 		try {
 			const res = await fetch(`/api/classes/${classId}/live-session`);
 			const data = await res.json();
-			
+
 			if (data.userId) currentUserId = data.userId;
 
 			if (data.session) {
@@ -104,14 +104,18 @@
 	{:else if !session || session.status === 'finished'}
 		<div class="battle-card">
 			<h2 class="card-title">No active session for {className}.</h2>
-			<a href={`/classes/${classId}`} class="btn-primary" style="display:inline-block; margin-top:1rem; padding:0.5rem 1rem;">Back to Class</a>
+			<a
+				href={`/classes/${classId}`}
+				class="btn-primary"
+				style="display:inline-block; margin-top:1rem; padding:0.5rem 1rem;">Back to Class</a
+			>
 		</div>
 	{:else}
 		<div class="battle-card">
 			{#if session.status === 'waiting'}
 				<h2 class="card-title">Waiting for students from {className} to join...</h2>
 				<p class="card-desc">Students joined: {students.length}</p>
-				
+
 				<div class="participants-list">
 					{#each students as student}
 						<div class="participant-badge">
@@ -120,7 +124,11 @@
 					{/each}
 				</div>
 
-				<button class="btn-primary w-full btn-large mt-large" onclick={startGame} disabled={students.length === 0}>
+				<button
+					class="btn-primary w-full btn-large mt-large"
+					onclick={startGame}
+					disabled={students.length === 0}
+				>
 					Start Quiz
 				</button>
 			{:else if session.status === 'active' || session.status === 'showing_answer'}

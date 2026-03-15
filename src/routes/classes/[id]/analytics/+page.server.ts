@@ -47,7 +47,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 			}
 		},
 		include: {
-			// @ts-ignore
+			// @ts-expect-error -- Prisma vocabulary include type not matching schema
 			vocabulary: { include: { meanings: true } }
 		}
 	});

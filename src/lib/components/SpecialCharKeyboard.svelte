@@ -89,11 +89,7 @@
 				</button>
 				<div class="char-keys">
 					{#each displayChars as char}
-						<button
-							type="button"
-							class="char-key"
-							onclick={() => insertChar(char)}
-						>
+						<button type="button" class="char-key" onclick={() => insertChar(char)}>
 							{char}
 						</button>
 					{/each}
@@ -240,7 +236,7 @@
 			height: 3rem;
 			font-size: 1.1rem;
 			border-radius: 0.5rem;
-			box-shadow: 0 2px 0 rgba(0,0,0,0.12);
+			box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
 		}
 
 		.shift-button {
@@ -278,7 +274,7 @@
 		background-color: #3a4150;
 		color: #e2e8f0;
 		border-color: #4a5260;
-		box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 	}
 
 	:global(html[data-theme='dark']) .char-key:hover {

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { onMount, tick } from 'svelte';
+	import { tick } from 'svelte';
 	import toast from 'svelte-french-toast';
 	import { fly } from 'svelte/transition';
 	import { goto } from '$app/navigation';
@@ -34,14 +34,14 @@
 	let showTopicChange = false;
 	let newPersona = '';
 	let sessionId = '';
-	
+
 	// Assignment state
 	$: assignment = data.assignment;
 	$: assignmentScore = data.assignmentScore;
 	$: isAssignment = !!assignment;
-	$: isPassed = assignmentScore?.passed || false;
+	let isPassed = assignmentScore?.passed || false;
 	$: targetScore = assignment?.targetScore || 10;
-	$: messagesSent = assignmentScore?.score || 0;
+	let messagesSent = assignmentScore?.score || 0;
 
 	let persona = 'A friendly waiter at a café';
 	$: {
@@ -53,7 +53,7 @@
 	$: language = $page.data.user?.activeLanguage?.name || 'German';
 	let message = '';
 	let isLoading = false;
-	let isTyping = false;
+	let _isTyping = false;
 	let chatContainer: HTMLElement;
 	let chatInputRef: HTMLTextAreaElement;
 
@@ -278,7 +278,7 @@
 
 			const decoder = new TextDecoder();
 			let buffer = '';
-			let fullContent = '';
+			let _fullContent = '';
 
 			while (true) {
 				const { done, value } = await reader.read();
@@ -292,29 +292,33 @@
 					if (!line.trim()) continue;
 					try {
 						const event = JSON.parse(line);
-						console.log("Parsed event:", event);
+						console.log('Parsed event:', event);
 						if (event.type === 'metadata') {
 							if (!sessionId) {
 								sessionId = event.sessionId;
 							}
 						} else if (event.type === 'chunk') {
-							fullContent += event.content;
+							_fullContent += event.content;
 						} else if (event.type === 'done') {
 							isTyping = false;
 							const grading = event.grading || {};
-							const hasEloUpdates = (grading.vocabularyUpdates && grading.vocabularyUpdates.length > 0) || 
-												(grading.extraVocabLemmas && grading.extraVocabLemmas.length > 0);
-							messages = [...messages, {
-								id: Date.now().toString() + '-ai',
-								role: 'assistant',
-								content: event.message.message || event.message.content || '',
-								correction: isFirstMessage ? null : parseCorrection(event.message.correction),
-								correctionType: grading.correctionType || 'correction',
-								feedbackText: event.message.correction || '',
-								eloUpdates: hasEloUpdates,
-								vocabularyUpdates: grading.vocabularyUpdates,
-								extraVocabLemmas: grading.extraVocabLemmas
-							}];
+							const hasEloUpdates =
+								(grading.vocabularyUpdates && grading.vocabularyUpdates.length > 0) ||
+								(grading.extraVocabLemmas && grading.extraVocabLemmas.length > 0);
+							messages = [
+								...messages,
+								{
+									id: Date.now().toString() + '-ai',
+									role: 'assistant',
+									content: event.message.message || event.message.content || '',
+									correction: isFirstMessage ? null : parseCorrection(event.message.correction),
+									correctionType: grading.correctionType || 'correction',
+									feedbackText: event.message.correction || '',
+									eloUpdates: hasEloUpdates,
+									vocabularyUpdates: grading.vocabularyUpdates,
+									extraVocabLemmas: grading.extraVocabLemmas
+								}
+							];
 							if (grading.assignmentCompleted) {
 								isPassed = true;
 							}
@@ -323,13 +327,11 @@
 							}
 							scrollToBottom();
 						}
-					} catch (err) {
+					} catch (_) {
 						// ignore parse errors for partial lines
 					}
 				}
 			}
-
-
 		} catch (error: any) {
 			console.error(error);
 			toast.error(error.message || 'An error occurred.');
@@ -368,7 +370,7 @@
 
 			const decoder = new TextDecoder();
 			let buffer = '';
-			let fullContent = '';
+			let _fullContent = '';
 
 			while (true) {
 				const { done, value } = await reader.read();
@@ -382,44 +384,52 @@
 					if (!line.trim()) continue;
 					try {
 						const event = JSON.parse(line);
-						console.log("Parsed event:", event);
+						console.log('Parsed event:', event);
 						if (event.type === 'metadata') {
 							if (!sessionId) {
 								sessionId = event.sessionId;
 							}
 						} else if (event.type === 'chunk') {
-							fullContent += event.content;
+							_fullContent += event.content;
 						} else if (event.type === 'done') {
 							isTyping = false;
-							messages = [...messages, {
-								id: Date.now().toString() + '-ai',
-								role: 'assistant',
-								content: event.message.content || '',
-								correction: null
-							}];
+							messages = [
+								...messages,
+								{
+									id: Date.now().toString() + '-ai',
+									role: 'assistant',
+									content: event.message.content || '',
+									correction: null
+								}
+							];
 							scrollToBottom();
 						}
-					} catch (err) {
+					} catch (_) {
 						// ignore parse errors for partial lines
 					}
 				}
 			}
 
 			if (buffer.trim()) {
-				console.log("Flushing buffer (AI):", buffer);
+				console.log('Flushing buffer (AI):', buffer);
 				try {
 					const event = JSON.parse(buffer.trim());
 					if (event.type === 'done') {
 						isTyping = false;
-						messages = [...messages, {
-							id: Date.now().toString() + '-ai',
-							role: 'assistant',
-							content: event.message.content || '',
-							correction: null
-						}];
+						messages = [
+							...messages,
+							{
+								id: Date.now().toString() + '-ai',
+								role: 'assistant',
+								content: event.message.content || '',
+								correction: null
+							}
+						];
 						scrollToBottom();
 					}
-				} catch (err) {}
+				} catch (_) {
+					/* ignore partial JSON parse errors */
+				}
 			}
 		} catch (error: any) {
 			console.error(error);
@@ -452,32 +462,75 @@
 				<div class="banner-progress">
 					{#if isPassed}
 						<div class="success-badge">
-							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								class="icon"
+								><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline
+									points="22 4 12 14.01 9 11.01"
+								></polyline></svg
+							>
 							Passed
 						</div>
-						<button class="back-btn" onclick={() => assignment && goto(`/classes/${assignment.classId}`)}>Back to Class</button>
+						<button
+							class="back-btn"
+							onclick={() => assignment && goto(`/classes/${assignment.classId}`)}
+							>Back to Class</button
+						>
 					{:else}
 						<div class="progress-text">Messages: {messagesSent} / {targetScore}</div>
 						<div class="progress-bar-bg">
-							<div class="progress-bar-fill" style="width: {Math.min(100, Math.round((messagesSent / targetScore) * 100))}%"></div>
+							<div
+								class="progress-bar-fill"
+								style="width: {Math.min(100, Math.round((messagesSent / targetScore) * 100))}%"
+							></div>
 						</div>
 					{/if}
 				</div>
 			</div>
 		</div>
 	{/if}
-	
+
 	<div class="chat-header-main" in:fly={{ y: 20, duration: 400 }}>
-		<a href="/play" class="back-link " style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
-			<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+		<a
+			href="/play"
+			class="back-link"
+			style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;"
+		>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width="20"
+				height="20"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-linecap="round"
+				stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg
+			>
 			Back to Play
 		</a>
 		<h1>
-			<svg class="ai-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+			<svg
+				class="ai-title-icon"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				><path
+					d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"
+				/></svg
+			>
 			AI Chat Practice
 		</h1>
 	</div>
-
 
 	{#if !sessionStarted}
 		<div class="card-duo setup-card" in:fly={{ y: 20, duration: 400, delay: 100 }}>
@@ -508,8 +561,24 @@
 						placeholder="e.g. A friendly waiter at a café"
 					/>
 				</div>
-				<button type="button" onclick={startSession} class="btn-duo btn-ai start-btn" aria-label="Start conversation">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.5rem;height:1.5rem;flex-shrink:0;margin-right:0.5rem;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+				<button
+					type="button"
+					onclick={startSession}
+					class="btn-duo btn-ai start-btn"
+					aria-label="Start conversation"
+				>
+					<svg
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						style="width:1.5rem;height:1.5rem;flex-shrink:0;margin-right:0.5rem;"
+						><path
+							d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"
+						/></svg
+					>
 					Start Conversation
 				</button>
 			</div>
@@ -522,7 +591,18 @@
 					<div class="persona-name-row">
 						<span class="persona-name">{persona}</span>
 						<span class="ai-badge">
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:0.7rem;height:0.7rem;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								style="width:0.7rem;height:0.7rem;"
+								><path
+									d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"
+								/></svg
+							>
 							AI
 						</span>
 						{#if !isAssignment && userMessageCount > 0}
@@ -532,21 +612,21 @@
 					<span class="persona-lang">{language}</span>
 				</div>
 				{#if !isAssignment}
-				<div class="session-actions">
-					<button onclick={openTopicChange} class="change-topic-btn" disabled={showTopicChange}>
-						Change Topic
-					</button>
-					<button
-						onclick={() => {
-							sessionStarted = false;
-							sessionId = '';
-							showTopicChange = false;
-						}}
-						class="end-session-btn"
-					>
-						End Session
-					</button>
-				</div>
+					<div class="session-actions">
+						<button onclick={openTopicChange} class="change-topic-btn" disabled={showTopicChange}>
+							Change Topic
+						</button>
+						<button
+							onclick={() => {
+								sessionStarted = false;
+								sessionId = '';
+								showTopicChange = false;
+							}}
+							class="end-session-btn"
+						>
+							End Session
+						</button>
+					</div>
 				{/if}
 			</div>
 
@@ -560,14 +640,27 @@
 						onkeydown={(e) => e.key === 'Enter' && confirmTopicChange()}
 					/>
 					<button onclick={randomizeNewPersona} class="randomize-inline-btn" title="Randomize">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem;"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							style="width:1rem;height:1rem;"
+							><polyline points="16 3 21 3 21 8" /><line x1="4" y1="20" x2="21" y2="3" /><polyline
+								points="21 16 21 21 16 21"
+							/><line x1="15" y1="15" x2="21" y2="21" /></svg
+						>
 					</button>
-					<button onclick={confirmTopicChange} class="confirm-topic-btn" disabled={!newPersona.trim() || isLoading}>
+					<button
+						onclick={confirmTopicChange}
+						class="confirm-topic-btn"
+						disabled={!newPersona.trim() || isLoading}
+					>
 						Start
 					</button>
-					<button onclick={cancelTopicChange} class="cancel-topic-btn">
-						Cancel
-					</button>
+					<button onclick={cancelTopicChange} class="cancel-topic-btn"> Cancel </button>
 				</div>
 			{/if}
 
@@ -579,7 +672,18 @@
 							<div class="wave">👋</div>
 							<p>Start the conversation! Introduce yourself or say hello.</p>
 							<button onclick={startAIConversation} class="ai-start-btn" disabled={isLoading}>
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem;flex-shrink:0;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+								<svg
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									style="width:1rem;height:1rem;flex-shrink:0;"
+									><path
+										d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"
+									/></svg
+								>
 								Make the AI ask the first question
 							</button>
 						</div>
@@ -599,25 +703,28 @@
 								</div>
 
 								{#if msg.feedbackText}
-								<div class="feedback-box">
-									<p>{msg.feedbackText}</p>
-								</div>
-							{/if}
-							{#if msg.eloUpdates}
-								<div class="elo-badge">
-									+ ELO Updated
-									{#if (msg.vocabularyUpdates && msg.vocabularyUpdates.length > 0) || (msg.extraVocabLemmas && msg.extraVocabLemmas.length > 0)}
-										<span class="elo-details">
-											({[
-												...(msg.vocabularyUpdates || []).map(u => u.lemma || 'Vocab'),
-												...(msg.extraVocabLemmas || [])
-											].join(', ')})
-										</span>
-									{/if}
-								</div>
-							{/if}
-							{#if msg.correction}
-									<div class="correction-box" class:correction-is-feedback={msg.correctionType === 'feedback'}>
+									<div class="feedback-box">
+										<p>{msg.feedbackText}</p>
+									</div>
+								{/if}
+								{#if msg.eloUpdates}
+									<div class="elo-badge">
+										+ ELO Updated
+										{#if (msg.vocabularyUpdates && msg.vocabularyUpdates.length > 0) || (msg.extraVocabLemmas && msg.extraVocabLemmas.length > 0)}
+											<span class="elo-details">
+												({[
+													...(msg.vocabularyUpdates || []).map((u) => u.lemma || 'Vocab'),
+													...(msg.extraVocabLemmas || [])
+												].join(', ')})
+											</span>
+										{/if}
+									</div>
+								{/if}
+								{#if msg.correction}
+									<div
+										class="correction-box"
+										class:correction-is-feedback={msg.correctionType === 'feedback'}
+									>
 										<div class="correction-header">
 											<svg
 												class="icon"
@@ -655,11 +762,7 @@
 
 			<!-- Input Area -->
 			<div class="input-area">
-					<SpecialCharKeyboard
-						bind:value={message}
-						inputElement={chatInputRef}
-						language={language}
-					/>
+				<SpecialCharKeyboard bind:value={message} inputElement={chatInputRef} {language} />
 				<div class="input-wrapper">
 					<div class="textarea-container">
 						<textarea
@@ -671,7 +774,13 @@
 							disabled={isLoading || isPassed}
 						></textarea>
 					</div>
-					<button type="button" onclick={sendMessage} disabled={isLoading || !message.trim() || isPassed} class="send-btn" aria-label="Send message">
+					<button
+						type="button"
+						onclick={sendMessage}
+						disabled={isLoading || !message.trim() || isPassed}
+						class="send-btn"
+						aria-label="Send message"
+					>
 						<svg
 							class="icon"
 							fill="none"
@@ -1182,12 +1291,24 @@
 		animation: typing-bounce 1.2s ease-in-out infinite;
 	}
 
-	.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
-	.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+	.typing-dots span:nth-child(2) {
+		animation-delay: 0.2s;
+	}
+	.typing-dots span:nth-child(3) {
+		animation-delay: 0.4s;
+	}
 
 	@keyframes typing-bounce {
-		0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-		30% { transform: translateY(-0.35rem); opacity: 1; }
+		0%,
+		60%,
+		100% {
+			transform: translateY(0);
+			opacity: 0.4;
+		}
+		30% {
+			transform: translateY(-0.35rem);
+			opacity: 1;
+		}
 	}
 
 	.correction-box {
@@ -1503,5 +1624,4 @@
 		background: rgba(5, 150, 105, 0.2);
 		color: #34d399;
 	}
-
 </style>

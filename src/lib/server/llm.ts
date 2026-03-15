@@ -26,10 +26,10 @@ function assertSafeUrl(rawUrl: string): void {
 		/^10\./,
 		/^172\.(1[6-9]|2\d|3[01])\./,
 		/^192\.168\./,
-		/^169\.254\./,       // AWS/GCP/Azure metadata
-		/^fd[0-9a-f]{2}:/i,  // IPv6 ULA
-		/^fe80:/i,           // IPv6 link-local
-		/^0\./,
+		/^169\.254\./, // AWS/GCP/Azure metadata
+		/^fd[0-9a-f]{2}:/i, // IPv6 ULA
+		/^fe80:/i, // IPv6 link-local
+		/^0\./
 	];
 
 	if (blocked.some((re) => re.test(hostname))) {
@@ -61,7 +61,11 @@ export interface GenerateChatCompletionOptions {
 	 *  Only relevant for lesson generation — not grading or enrichment. Defaults to false. */
 	addLanguageConstraint?: boolean;
 	/** Called once with total token counts after the completion finishes. Not called for streaming responses — use the stream's final usage chunk instead. */
-	onUsage?: (usage: { promptTokens: number; completionTokens: number; totalTokens: number }) => void;
+	onUsage?: (usage: {
+		promptTokens: number;
+		completionTokens: number;
+		totalTokens: number;
+	}) => void;
 }
 
 /**
@@ -80,13 +84,19 @@ export async function generateChatCompletion({
 	signal,
 	addLanguageConstraint = false,
 	onUsage
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 }: GenerateChatCompletionOptions): Promise<any> {
 	// 1. Fetch user credentials from database and site settings
 	const [user, settings, classStudentCount] = await Promise.all([
 		prisma.user.findUnique({
 			where: { id: userId },
-			select: { useLocalLlm: true, llmBaseUrl: true, llmApiKey: true, llmModel: true, activeLanguage: true }
+			select: {
+				useLocalLlm: true,
+				llmBaseUrl: true,
+				llmApiKey: true,
+				llmModel: true,
+				activeLanguage: true
+			}
 		}),
 		getSiteSettings(),
 		prisma.classMember.count({
@@ -101,10 +111,7 @@ export async function generateChatCompletion({
 	// 2. Resolve Base URL and API Key (User custom OR Site Settings OR fallback to environment variables)
 	const usingCustomEndpoint = !!(allowCustomLlm && user?.llmBaseUrl);
 	const rawBaseUrl = (
-		usingCustomEndpoint ? user!.llmBaseUrl! :
-		settings.llmEndpoint ||
-		env.DEFAULT_LLM_BASE_URL ||
-		''
+		usingCustomEndpoint ? user!.llmBaseUrl! : settings.llmEndpoint || env.DEFAULT_LLM_BASE_URL || ''
 	).replace(/^["']|["']$/g, '');
 
 	// SSRF guard: reject private/loopback addresses for user-supplied endpoints
@@ -113,14 +120,10 @@ export async function generateChatCompletion({
 	}
 
 	const apiKey = (
-		(allowCustomLlm && user?.llmApiKey) ? user.llmApiKey :
-		settings.llmApiKey ||
-		env.DEFAULT_LLM_API_KEY ||
-		''
-	).replace(
-		/^["']|["']$/g,
-		''
-	);
+		allowCustomLlm && user?.llmApiKey
+			? user.llmApiKey
+			: settings.llmApiKey || env.DEFAULT_LLM_API_KEY || ''
+	).replace(/^["']|["']$/g, '');
 	const resolvedModel = (
 		model ||
 		(allowCustomLlm && user?.llmModel) ||
@@ -148,7 +151,7 @@ export async function generateChatCompletion({
 
 	const openai = new OpenAI({
 		baseURL: baseUrl,
-		apiKey: apiKey,
+		apiKey: apiKey
 	});
 
 	// 3. Prepare messages payload
@@ -170,7 +173,10 @@ export async function generateChatCompletion({
 	}
 
 	if (systemPrompt) {
-		payloadMessages.unshift({ role: 'system', content: constraintPrompt ? `${systemPrompt}\n\n${constraintPrompt}` : systemPrompt });
+		payloadMessages.unshift({
+			role: 'system',
+			content: constraintPrompt ? `${systemPrompt}\n\n${constraintPrompt}` : systemPrompt
+		});
 	} else if (constraintPrompt) {
 		payloadMessages.unshift({ role: 'system', content: constraintPrompt });
 	}
@@ -178,29 +184,35 @@ export async function generateChatCompletion({
 	if (jsonSchema || jsonMode) {
 		// OpenAI requires the word "JSON" to be in the prompt when using json_object
 		// Even without response_format, we still want to clearly ask for JSON
-		const hasJsonPrompt = payloadMessages.some(m => 
-			typeof m.content === 'string' && m.content.toLowerCase().includes('json')
+		const hasJsonPrompt = payloadMessages.some(
+			(m) => typeof m.content === 'string' && m.content.toLowerCase().includes('json')
 		);
-		
+
 		if (!hasJsonPrompt) {
 			if (payloadMessages.length > 0 && payloadMessages[0].role === 'system') {
-				payloadMessages[0].content += '\n\nPlease return your response ONLY as valid JSON. Do not include any other text.';
+				payloadMessages[0].content +=
+					'\n\nPlease return your response ONLY as valid JSON. Do not include any other text.';
 			} else {
-				payloadMessages.unshift({ role: 'system', content: 'Please return your response ONLY as valid JSON. Do not include any other text.' });
+				payloadMessages.unshift({
+					role: 'system',
+					content: 'Please return your response ONLY as valid JSON. Do not include any other text.'
+				});
 			}
 		}
 	}
 
 	try {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const response = await openai.chat.completions.create({
-			model: resolvedModel,
-			messages: payloadMessages as OpenAI.Chat.Completions.ChatCompletionMessageParam[],
-			temperature,
-			stream: stream as boolean,
-			// Request usage data on the final streaming chunk so callers can track tokens
-			...(stream ? { stream_options: { include_usage: true } } : {})
-		} as OpenAI.Chat.Completions.ChatCompletionCreateParams, { signal });
+		const response = await openai.chat.completions.create(
+			{
+				model: resolvedModel,
+				messages: payloadMessages as OpenAI.Chat.Completions.ChatCompletionMessageParam[],
+				temperature,
+				stream: stream as boolean,
+				// Request usage data on the final streaming chunk so callers can track tokens
+				...(stream ? { stream_options: { include_usage: true } } : {})
+			} as OpenAI.Chat.Completions.ChatCompletionCreateParams,
+			{ signal }
+		);
 
 		if (stream) {
 			return response;
@@ -227,10 +239,18 @@ export async function generateChatCompletion({
 			let startIndex = -1;
 			let endIndex = -1;
 
-			if (firstBrace !== -1 && lastBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) {
+			if (
+				firstBrace !== -1 &&
+				lastBrace !== -1 &&
+				(firstBracket === -1 || firstBrace < firstBracket)
+			) {
 				startIndex = firstBrace;
 				endIndex = lastBrace;
-			} else if (firstBracket !== -1 && lastBracket !== -1 && (firstBrace === -1 || firstBracket < firstBrace)) {
+			} else if (
+				firstBracket !== -1 &&
+				lastBracket !== -1 &&
+				(firstBrace === -1 || firstBracket < firstBrace)
+			) {
 				startIndex = firstBracket;
 				endIndex = lastBracket;
 			}
@@ -262,10 +282,7 @@ export async function checkUsernameAppropriate(
 		/^["']|["']$/g,
 		''
 	);
-	const apiKey = (settings.llmApiKey || env.DEFAULT_LLM_API_KEY || '').replace(
-		/^["']|["']$/g,
-		''
-	);
+	const apiKey = (settings.llmApiKey || env.DEFAULT_LLM_API_KEY || '').replace(/^["']|["']$/g, '');
 	const resolvedModel = (settings.llmModel || env.DEFAULT_LLM_MODEL || 'gpt-3.5-turbo').replace(
 		/^["']|["']$/g,
 		''

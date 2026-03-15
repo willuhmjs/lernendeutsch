@@ -31,7 +31,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 		const nextOrder = order !== undefined ? order : game.questions.length;
 
 		// Filter out the correct answer from options if it somehow got included
-		const filteredOptions = Array.isArray(options) 
+		const filteredOptions = Array.isArray(options)
 			? options.filter((opt: string) => opt.toLowerCase() !== answer.toLowerCase())
 			: [];
 

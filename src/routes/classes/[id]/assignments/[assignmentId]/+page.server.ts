@@ -74,10 +74,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		}),
 		prisma.game.findMany({
 			where: {
-				OR: [
-					{ creatorId: locals.user!.id },
-					{ isPublished: true }
-				]
+				OR: [{ creatorId: locals.user!.id }, { isPublished: true }]
 			},
 			select: {
 				id: true,

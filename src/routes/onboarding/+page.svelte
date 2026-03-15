@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { fly } from 'svelte/transition';
 	import { invalidateAll } from '$app/navigation';
 	import { toastError } from '$lib/utils/toast';
@@ -38,7 +37,7 @@
 				await invalidateAll();
 				selectedPath = 'choose';
 			}
-		} catch (e) {
+		} catch (_) {
 			toastError('Failed to select language');
 		}
 	};
@@ -72,7 +71,7 @@
 					feedback: data.message
 				};
 			}
-		} catch (e: any) {
+		} catch (_) {
 			toastError(e.message || 'Failed to set up beginner account');
 			selectedPath = 'choose';
 		} finally {
@@ -105,7 +104,7 @@
 				let errorData;
 				try {
 					errorData = await res.json();
-				} catch (e) {
+				} catch (_) {
 					throw new Error('Failed to send message');
 				}
 				throw new Error(errorData.error || 'Failed to send message');
@@ -134,7 +133,7 @@
 					try {
 						// parse securely if it represents a closed string
 						messages[assistantIndex].content = JSON.parse(`"${match[1]}"`);
-					} catch (e) {
+					} catch (_) {
 						// fallback for incomplete string
 						messages[assistantIndex].content = match[1].replace(/\\n/g, '\n').replace(/\\"/g, '"');
 					}
@@ -154,10 +153,10 @@
 					completed = true;
 					completionData = { level: data.level, feedback: data.feedback };
 				}
-			} catch (e) {
+			} catch (_) {
 				console.error('Failed to parse full response', e, responseText);
 			}
-		} catch (e: any) {
+		} catch (_) {
 			toastError(e.message || 'Failed to send message');
 		} finally {
 			loading = false;
@@ -187,7 +186,7 @@
 				completed = true;
 				completionData = { level: data.level, feedback: 'You have manually selected your level.' };
 			}
-		} catch (e: any) {
+		} catch (_) {
 			toastError(e.message || 'Failed to set manual level');
 		} finally {
 			isSubmittingManual = false;
@@ -213,7 +212,7 @@
 				let errorData;
 				try {
 					errorData = await res.json();
-				} catch (e) {
+				} catch (_) {
 					throw new Error('Failed to end early');
 				}
 				throw new Error(errorData.error || 'Failed to end early');
@@ -227,7 +226,7 @@
 				completed = true;
 				completionData = { level: data.level, feedback: data.feedback };
 			}
-		} catch (e: any) {
+		} catch (_) {
 			toastError(e.message || 'Failed to end early');
 		} finally {
 			isEndingEarly = false;
@@ -245,25 +244,23 @@
 	class:chat-active={messages.length > 0 || (selectedPath === 'test' && !completed)}
 >
 	{#if selectedPath === 'language' && !completed}
-		   <header class="page-header" in:fly={{ y: 20, duration: 400 }}>
-			   <h1 class="">Choose Your New Language</h1>
-			   <p class="">Which language would you like to start learning?</p>
-		   </header>
-		   <div class="path-selection horizontal" in:fly={{ y: 20, duration: 400, delay: 100 }}>
-			   {#each data.languages || [] as lang}
-				   <button class="path-card" onclick={() => selectLanguage(lang.id)}>
-					   <span class="path-icon">{lang.flag || '🌐'}</span>
-					   <h2 class="">{lang.name}</h2>
-				   </button>
-			   {/each}
-		   </div>
+		<header class="page-header" in:fly={{ y: 20, duration: 400 }}>
+			<h1>Choose Your New Language</h1>
+			<p>Which language would you like to start learning?</p>
+		</header>
+		<div class="path-selection horizontal" in:fly={{ y: 20, duration: 400, delay: 100 }}>
+			{#each data.languages || [] as lang}
+				<button class="path-card" onclick={() => selectLanguage(lang.id)}>
+					<span class="path-icon">{lang.flag || '🌐'}</span>
+					<h2>{lang.name}</h2>
+				</button>
+			{/each}
+		</div>
 	{:else if selectedPath === 'choose' && !completed}
 		<!-- Path Selection Screen -->
 		<header class="page-header" in:fly={{ y: 20, duration: 400 }}>
-			<h1 class="">Welcome to LingoLearn!</h1>
-			<p class="">
-				Let's set up your learning experience. Choose the option that best describes you:
-			</p>
+			<h1>Welcome to LingoLearn!</h1>
+			<p>Let's set up your learning experience. Choose the option that best describes you:</p>
 		</header>
 
 		<div class="path-selection" in:fly={{ y: 20, duration: 400, delay: 100 }}>
@@ -273,21 +270,18 @@
 				disabled={isSubmittingBeginner}
 			>
 				<span class="path-icon">🌱</span>
-				<h2 class="">I'm a Complete Beginner</h2>
-				<p class="">
+				<h2>I'm a Complete Beginner</h2>
+				<p>
 					I have zero or almost zero language knowledge. Start me from the very basics — greetings,
 					pronouns, simple words.
 				</p>
 				<span class="path-badge beginner-badge">Recommended for new learners</span>
 			</button>
 
-			<button
-				class="path-card test-card"
-				onclick={startPlacementTest}
-			>
+			<button class="path-card test-card" onclick={startPlacementTest}>
 				<span class="path-icon">💬</span>
-				<h2 class="">I Know Some {data?.user?.activeLanguage?.name}</h2>
-				<p class="">
+				<h2>I Know Some {data?.user?.activeLanguage?.name}</h2>
+				<p>
 					I have some language knowledge. Chat with our AI teacher to find my level so I don't
 					repeat what I already know.
 				</p>
@@ -295,9 +289,7 @@
 			</button>
 
 			<div class="manual-section">
-				<p class="">
-					Or, if you already know your CEFR level, pick it directly:
-				</p>
+				<p>Or, if you already know your CEFR level, pick it directly:</p>
 				<div class="level-buttons">
 					{#each ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as lvl}
 						<button
@@ -311,33 +303,26 @@
 				</div>
 			</div>
 		</div>
-
 	{:else}
 		<!-- Placement Test / Completion -->
 		<header class="page-header" in:fly={{ y: 20, duration: 400 }}>
 			{#if completed}
-				<h1 class="">You're All Set!</h1>
-				<p class="">We've prepared a personalized curriculum for you.</p>
+				<h1>You're All Set!</h1>
+				<p>We've prepared a personalized curriculum for you.</p>
 			{:else}
-				<h1 class="">Placement Test</h1>
-				<p class="">
-					Chat with our AI teacher to determine your starting level.
-				</p>
+				<h1>Placement Test</h1>
+				<p>Chat with our AI teacher to determine your starting level.</p>
 			{/if}
 		</header>
 
 		<div class="content-layout" in:fly={{ y: 20, duration: 400, delay: 100 }}>
-			<div class="chat-">
+			<div class="chat-panel">
 				{#if messages.length > 0 || loading}
 					<div class="chat-messages">
 						{#each messages as msg}
 							<div class="message-wrapper {msg.role === 'user' ? 'user' : 'assistant'}">
-								<span class="message-sender"
-									>{msg.role === 'user' ? 'You' : 'Teacher'}</span
-								>
-								<div
-									class="message-bubble {msg.role === 'user' ? 'user' : 'assistant '}"
-								>
+								<span class="message-sender">{msg.role === 'user' ? 'You' : 'Teacher'}</span>
+								<div class="message-bubble {msg.role === 'user' ? 'user' : 'assistant'}">
 									{msg.content}
 								</div>
 							</div>
@@ -346,28 +331,18 @@
 						{#if loading}
 							<div class="message-wrapper assistant">
 								<span class="message-sender">Teacher</span>
-								<div
-									class="message-bubble assistant"
-								>
-									Thinking...
-								</div>
+								<div class="message-bubble assistant">Thinking...</div>
 							</div>
 						{/if}
-
 					</div>
 				{/if}
 
 				{#if completed}
-					<div
-						class="completion-card"
-						class:no-messages={messages.length === 0}
-					>
-						<h2 class="">Onboarding Complete!</h2>
+					<div class="completion-card" class:no-messages={messages.length === 0}>
+						<h2>Onboarding Complete!</h2>
 						<div class="level-result">
-							<span class="">Your assessed level:</span>
-							<strong class="level-badge"
-								>{completionData.level}</strong
-							>
+							<span>Your assessed level:</span>
+							<strong class="level-badge">{completionData.level}</strong>
 						</div>
 						{#if completionData.feedback}
 							<p class="feedback-text">
@@ -388,10 +363,16 @@
 								</p>
 							{/if}
 							<div class="completion-buttons">
-								<button class="btn btn-primary btn-large" onclick={() => (window.location.href = '/play')}>
+								<button
+									class="btn btn-primary btn-large"
+									onclick={() => (window.location.href = '/play')}
+								>
 									Start Learning
 								</button>
-								<button class="btn btn-outlined" onclick={() => (window.location.href = '/')}>
+								<button
+									class="btn btn-outlined"
+									onclick={() => (window.location.href = '/dashboard')}
+								>
 									Go to Dashboard
 								</button>
 								<button class="btn-text-link" onclick={restartOnboarding}>
@@ -403,7 +384,10 @@
 				{:else}
 					<form
 						class="chat-input-form"
-						onsubmit={(e) => { e.preventDefault(); sendMessage(); }}
+						onsubmit={(e) => {
+							e.preventDefault();
+							sendMessage();
+						}}
 					>
 						<input
 							type="text"
@@ -418,7 +402,18 @@
 							class="send-btn"
 							aria-label="Send message"
 						>
-							<svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+							<svg
+								class="icon"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+								stroke-width="2.5"
+								><path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+								/></svg
+							>
 						</button>
 						{#if messages.filter((m) => m.role === 'user').length >= 1}
 							<button
@@ -433,7 +428,6 @@
 					</form>
 				{/if}
 			</div>
-
 		</div>
 	{/if}
 </main>
@@ -501,7 +495,6 @@
 		.content-layout {
 			flex-direction: column;
 		}
-
 	}
 
 	.btn-level {
@@ -562,7 +555,6 @@
 		font-size: 1rem;
 		line-height: 1.5;
 		word-break: break-word;
-		white-space: pre-wrap;
 		white-space: pre-wrap;
 	}
 
@@ -625,7 +617,10 @@
 		background-color: #22c55e;
 		color: white;
 		box-shadow: 0 4px 0 #16a34a;
-		transition: transform 0.1s, box-shadow 0.1s, background-color 0.2s;
+		transition:
+			transform 0.1s,
+			box-shadow 0.1s,
+			background-color 0.2s;
 		border: none;
 		cursor: pointer;
 	}
@@ -841,20 +836,20 @@
 	}
 
 	/* Path Selection Styles */
-	   .path-selection {
-		   display: flex;
-		   flex-direction: column;
-		   gap: 1.25rem;
-		   max-width: 700px;
-		   margin: 0 auto;
-	   }
+	.path-selection {
+		display: flex;
+		flex-direction: column;
+		gap: 1.25rem;
+		max-width: 700px;
+		margin: 0 auto;
+	}
 
-	   .path-selection.horizontal {
-		   flex-direction: row;
-		   justify-content: center;
-		   gap: 1.25rem;
-		   flex-wrap: wrap;
-	   }
+	.path-selection.horizontal {
+		flex-direction: row;
+		justify-content: center;
+		gap: 1.25rem;
+		flex-wrap: wrap;
+	}
 
 	.path-card {
 		display: flex;

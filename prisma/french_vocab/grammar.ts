@@ -117,7 +117,11 @@ export const frenchGrammarRules = [
 			'The passe compose is formed with the present tense of avoir plus the past participle. Most verbs use avoir as the auxiliary. Past participles of regular verbs end in -e (er), -i (ir), or -u (re).',
 		difficulty: 2,
 		isEnabled: true,
-		dependencies: ['Present Tense (-er verbs)', 'Present Tense (-ir verbs)', 'Present Tense (-re verbs)']
+		dependencies: [
+			'Present Tense (-er verbs)',
+			'Present Tense (-ir verbs)',
+			'Present Tense (-re verbs)'
+		]
 	},
 	{
 		id: 'french_passe_compose_etre',
@@ -135,7 +139,11 @@ export const frenchGrammarRules = [
 			'The imparfait (imperfect tense) describes ongoing or habitual past actions. It is formed from the nous form of the present tense, replacing -ons with -ais, -ais, -ait, -ions, -iez, -aient. Only etre has an irregular stem (et-).',
 		difficulty: 2,
 		isEnabled: true,
-		dependencies: ['Present Tense (-er verbs)', 'Present Tense (-ir verbs)', 'Present Tense (-re verbs)']
+		dependencies: [
+			'Present Tense (-er verbs)',
+			'Present Tense (-ir verbs)',
+			'Present Tense (-re verbs)'
+		]
 	},
 	{
 		id: 'french_reflexive_verbs',
@@ -200,7 +208,11 @@ export const frenchGrammarRules = [
 			'The futur simple is formed by adding -ai, -as, -a, -ons, -ez, -ont to the infinitive (or an irregular stem). It expresses actions that will happen in the future and is also used after "quand" in future contexts.',
 		difficulty: 3,
 		isEnabled: true,
-		dependencies: ['Present Tense (-er verbs)', 'Present Tense (-ir verbs)', 'Present Tense (-re verbs)']
+		dependencies: [
+			'Present Tense (-er verbs)',
+			'Present Tense (-ir verbs)',
+			'Present Tense (-re verbs)'
+		]
 	},
 	{
 		id: 'french_conditional',
@@ -218,7 +230,11 @@ export const frenchGrammarRules = [
 			'The present subjunctive is used after expressions of emotion, doubt, necessity, and desire, typically introduced by "que." It is formed from the ils/elles present stem with endings -e, -es, -e, -ions, -iez, -ent. Common triggers include "il faut que" and "je veux que."',
 		difficulty: 3,
 		isEnabled: true,
-		dependencies: ['Present Tense (-er verbs)', 'Present Tense (-ir verbs)', 'Present Tense (-re verbs)']
+		dependencies: [
+			'Present Tense (-er verbs)',
+			'Present Tense (-ir verbs)',
+			'Present Tense (-re verbs)'
+		]
 	},
 	{
 		id: 'french_relative_pronouns',
@@ -254,7 +270,12 @@ export const frenchGrammarRules = [
 			'The imperative is used for commands and requests, existing only in tu, nous, and vous forms. For -er verbs, the tu form drops the final -s. Object pronouns follow the verb in affirmative commands but precede it in negative commands.',
 		difficulty: 3,
 		isEnabled: true,
-		dependencies: ['Present Tense (-er verbs)', 'Present Tense (-ir verbs)', 'Present Tense (-re verbs)', 'Negation (ne...pas)']
+		dependencies: [
+			'Present Tense (-er verbs)',
+			'Present Tense (-ir verbs)',
+			'Present Tense (-re verbs)',
+			'Negation (ne...pas)'
+		]
 	},
 
 	// B2 (difficulty: 4) - 5 rules
@@ -301,7 +322,11 @@ export const frenchGrammarRules = [
 			'The future perfect (futur anterieur) is formed with the future tense of avoir or etre plus the past participle. It describes actions that will have been completed before a future point in time, often used after "quand" and "lorsque."',
 		difficulty: 4,
 		isEnabled: true,
-		dependencies: ['Future Tense (Futur Simple)', 'Passe Compose with avoir', 'Passe Compose with etre']
+		dependencies: [
+			'Future Tense (Futur Simple)',
+			'Passe Compose with avoir',
+			'Passe Compose with etre'
+		]
 	},
 
 	// C1 (difficulty: 5) - 3 rules
@@ -312,7 +337,11 @@ export const frenchGrammarRules = [
 			'The passe simple is a literary past tense used in formal writing, novels, and historical texts. It replaces the passe compose in written narratives. Each verb group has distinct endings, and many irregular verbs have unique stems.',
 		difficulty: 5,
 		isEnabled: true,
-		dependencies: ['Passe Compose with avoir', 'Passe Compose with etre', 'Passe Compose vs Imparfait']
+		dependencies: [
+			'Passe Compose with avoir',
+			'Passe Compose with etre',
+			'Passe Compose vs Imparfait'
+		]
 	},
 	{
 		id: 'french_subjunctive_imperfect',
@@ -330,6 +359,11 @@ export const frenchGrammarRules = [
 			'When multiple object pronouns appear together, they follow a strict order: me/te/se/nous/vous, then le/la/les, then lui/leur, then y, then en. In affirmative imperatives, the order changes and pronouns follow the verb connected by hyphens.',
 		difficulty: 5,
 		isEnabled: true,
-		dependencies: ['Direct Object Pronouns', 'Indirect Object Pronouns', 'Reflexive Verbs', 'Imperative Mood']
+		dependencies: [
+			'Direct Object Pronouns',
+			'Indirect Object Pronouns',
+			'Reflexive Verbs',
+			'Imperative Mood'
+		]
 	}
 ];

@@ -72,5 +72,5 @@ export const pronouns = [
 	{ word: 'rien', translation: 'nothing' },
 	{ word: 'chacun', translation: 'each one/everyone' },
 	{ word: 'tout', translation: 'everything/all', isBeginner: true },
-	{ word: 'autre', translation: 'other/another' },
+	{ word: 'autre', translation: 'other/another' }
 ];

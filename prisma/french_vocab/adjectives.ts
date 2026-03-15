@@ -221,5 +221,5 @@ export const adjectives = [
 	{ word: 'scientifique', translation: 'scientific' },
 	{ word: 'technique', translation: 'technical' },
 	{ word: 'professionnel', translation: 'professional' },
-	{ word: 'personnel', translation: 'personal' },
+	{ word: 'personnel', translation: 'personal' }
 ];

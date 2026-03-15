@@ -17,10 +17,15 @@
 	// Assignment context
 	let assignment = $derived(data.assignment ?? null);
 	let assignmentScore = $derived(data.assignmentScore);
-	let assignmentProgress: { score: number; targetScore: number; passed: boolean } | null = $state(null);
+	let assignmentProgress: { score: number; targetScore: number; passed: boolean } | null =
+		$state(null);
 	$effect(() => {
 		assignmentProgress = assignmentScore
-			? { score: assignmentScore.score, targetScore: assignment?.targetScore ?? 0, passed: assignmentScore.passed }
+			? {
+					score: assignmentScore.score,
+					targetScore: assignment?.targetScore ?? 0,
+					passed: assignmentScore.passed
+				}
 			: assignment
 				? { score: 0, targetScore: assignment.targetScore, passed: false }
 				: null;
@@ -32,9 +37,9 @@
 		if (currentQuestion) {
 			const rawOptions = Array.isArray(currentQuestion.options)
 				? currentQuestion.options
-				: (typeof currentQuestion.options === 'string'
+				: typeof currentQuestion.options === 'string'
 					? JSON.parse(currentQuestion.options)
-					: []);
+					: [];
 
 			const opts = [...rawOptions].filter((opt: string) => opt !== currentQuestion.answer);
 			opts.push(currentQuestion.answer);
@@ -72,7 +77,7 @@
 					const result = await res.json();
 					assignmentProgress = result.assignmentProgress;
 				}
-			} catch (e) {
+			} catch (_) {
 				// non-critical
 			}
 		}
@@ -93,7 +98,16 @@
 		if (showResult || isQuizOver) return;
 		const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
 		if (tag === 'input' || tag === 'textarea') return;
-		const keyMap: Record<string, number> = { '1': 0, 'a': 0, '2': 1, 'b': 1, '3': 2, 'c': 2, '4': 3, 'd': 3 };
+		const keyMap: Record<string, number> = {
+			'1': 0,
+			a: 0,
+			'2': 1,
+			b: 1,
+			'3': 2,
+			c: 2,
+			'4': 3,
+			d: 3
+		};
 		const idx = keyMap[e.key.toLowerCase()];
 		if (idx !== undefined && idx < options.length) {
 			e.preventDefault();
@@ -119,7 +133,9 @@
 			</div>
 			<div class="assignment-progress">
 				<span class="progress-value {assignmentProgress.passed ? 'passed' : ''}">
-					{assignmentProgress.score}<span class="progress-target">/{assignmentProgress.targetScore}</span>
+					{assignmentProgress.score}<span class="progress-target"
+						>/{assignmentProgress.targetScore}</span
+					>
 				</span>
 				{#if assignmentProgress.passed}
 					<span class="passed-badge">✓ Passed</span>
@@ -138,7 +154,9 @@
 				<p class="passed-text">🏆 Assignment passed!</p>
 			{/if}
 			{#if assignment}
-				<a href="/classes/{assignment.classId}" class="btn-primary link-btn-primary">Back to Class</a>
+				<a href="/classes/{assignment.classId}" class="btn-primary link-btn-primary"
+					>Back to Class</a
+				>
 			{:else}
 				<a href="/play?tab=games" class="btn-primary link-btn-primary">Return to Quizzes</a>
 			{/if}
@@ -149,7 +167,10 @@
 			<div class="progress-badge">Question {currentQuestionIndex + 1} of {questions.length}</div>
 		</div>
 		<div class="quiz-progress-bar">
-			<div class="quiz-progress-fill" style="width: {((currentQuestionIndex) / questions.length) * 100}%"></div>
+			<div
+				class="quiz-progress-fill"
+				style="width: {(currentQuestionIndex / questions.length) * 100}%"
+			></div>
 		</div>
 
 		<div class="card-duo question-card">
@@ -158,7 +179,11 @@
 			<div class="options-grid">
 				{#each options as option, i}
 					<button
-						class="option-btn {showResult && option === currentQuestion.answer ? 'correct-btn' : showResult && option === selectedOption && option !== currentQuestion.answer ? 'incorrect-btn' : ''}"
+						class="option-btn {showResult && option === currentQuestion.answer
+							? 'correct-btn'
+							: showResult && option === selectedOption && option !== currentQuestion.answer
+								? 'incorrect-btn'
+								: ''}"
 						onclick={() => selectOption(option)}
 						disabled={showResult}
 					>

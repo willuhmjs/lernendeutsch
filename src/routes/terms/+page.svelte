@@ -9,7 +9,7 @@
 <div class="legal-page">
 	<div class="legal-card">
 		<h1 class="">Terms of Service</h1>
-		<p class="effective-date ">Effective Date: March 5, 2026</p>
+		<p class="effective-date">Effective Date: March 5, 2026</p>
 
 		<p class="">
 			Welcome to LingoLearn. By accessing or using our platform, you agree to be bound by these

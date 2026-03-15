@@ -39,7 +39,11 @@ export async function generateLessonStream({
 	masteredVocab: any[];
 	learningVocab: any[];
 	useLocalLlm?: boolean;
-	onUsage?: (usage: { promptTokens: number; completionTokens: number; totalTokens: number }) => void;
+	onUsage?: (usage: {
+		promptTokens: number;
+		completionTokens: number;
+		totalTokens: number;
+	}) => void;
 }) {
 	const llmResponse = await generateChatCompletion({
 		userId,
@@ -131,7 +135,10 @@ export async function generateLessonStream({
 						} else if (gameMode === 'target-to-native') {
 							targetLanguageText = parsedResponse.challengeText || '';
 						} else if (gameMode === 'multiple-choice') {
-							if (parsedResponse.targetedGrammarIds && parsedResponse.targetedGrammarIds.length > 0) {
+							if (
+								parsedResponse.targetedGrammarIds &&
+								parsedResponse.targetedGrammarIds.length > 0
+							) {
 								targetLanguageText = parsedResponse.targetSentence || '';
 							} else {
 								targetLanguageText = parsedResponse.challengeText || '';
@@ -173,11 +180,19 @@ export async function generateLessonStream({
 				await enrichmentPromise;
 
 				if (!streamCancelled) {
-					try { controller.close(); } catch { /* already closed or cancelled */ }
+					try {
+						controller.close();
+					} catch {
+						/* already closed or cancelled */
+					}
 				}
 			} catch (e) {
 				if (!streamCancelled) {
-					try { controller.error(e); } catch { /* already errored or cancelled */ }
+					try {
+						controller.error(e);
+					} catch {
+						/* already errored or cancelled */
+					}
 				}
 			}
 		},

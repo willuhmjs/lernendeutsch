@@ -33,7 +33,12 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 				include: {
 					scores: true,
 					game: {
-						select: { id: true, title: true, isPublished: true, _count: { select: { questions: true } } }
+						select: {
+							id: true,
+							title: true,
+							isPublished: true,
+							_count: { select: { questions: true } }
+						}
 					}
 				},
 				orderBy: {
@@ -55,7 +60,13 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	}
 
 	let languages: any[] = [];
-	let teacherGames: Array<{ id: string; title: string; language: string; isPublished: boolean; _count: { questions: number } }> = [];
+	let teacherGames: Array<{
+		id: string;
+		title: string;
+		language: string;
+		isPublished: boolean;
+		_count: { questions: number };
+	}> = [];
 	if (currentUserMember.role === 'TEACHER') {
 		[languages, teacherGames] = await Promise.all([
 			prisma.language.findMany({
@@ -67,10 +78,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 			}),
 			prisma.game.findMany({
 				where: {
-					OR: [
-						{ creatorId: locals.user!.id },
-						{ isPublished: true }
-					]
+					OR: [{ creatorId: locals.user!.id }, { isPublished: true }]
 				},
 				select: {
 					id: true,

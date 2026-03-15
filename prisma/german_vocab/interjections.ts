@@ -113,5 +113,5 @@ export const interjections = [
 		lemma: 'verdammt',
 		meaning: 'damn',
 		partOfSpeech: 'interjection' as const
-	},
+	}
 ];

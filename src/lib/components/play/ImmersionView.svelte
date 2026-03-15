@@ -4,7 +4,7 @@
 
 	let {
 		language = null,
-		cefrLevel = 'A1',
+		cefrLevel: _cefrLevel = 'A1',
 		assignmentId = null,
 		assignmentProgress = $bindable(null),
 		disableHoverTranslation = false
@@ -86,7 +86,7 @@
 
 	let totalXpEarned = $state(0);
 	let sessionComplete = $state(false);
-	let mcqXpAwarded = $state(false); // tracks if MCQ XP was awarded via API
+	let _mcqXpAwarded = $state(false); // tracks if MCQ XP was awarded via API
 
 	async function generate() {
 		if (loading) return;
@@ -132,7 +132,9 @@
 	let wordAddedSet = $state(new Set<string>());
 	let wordAddingId = $state<string | null>(null);
 
-	const skeletonType = $derived(selectedMediaType === 'random' ? 'news_article' : selectedMediaType);
+	const skeletonType = $derived(
+		selectedMediaType === 'random' ? 'news_article' : selectedMediaType
+	);
 	let wordLookupCache = new Map<string, any>();
 	// Tracks words with an LLM request currently in flight so re-clicks don't fire a second request.
 	let wordInflightSet = new Set<string>();
@@ -149,7 +151,9 @@
 			if (res.ok) {
 				wordAddedSet = new Set([...wordAddedSet, vocabularyId]);
 			}
-		} catch { /* non-critical */ } finally {
+		} catch {
+			/* non-critical */
+		} finally {
 			wordAddingId = null;
 		}
 	}
@@ -166,7 +170,7 @@
 
 	// Strip punctuation to get the lookup word
 	function cleanWord(raw: string): string {
-		return raw.replace(/^[«»„""\[\]()\.,!?;:'"–—]+|[«»„""\[\]()\.,!?;:'"–—]+$/g, '').trim();
+		return raw.replace(/^[«»„""[\]().,!?;:'"–—]+|[«»„""[\]().,!?;:'"–—]+$/g, '').trim();
 	}
 
 	const GENDERED_LANGUAGES = ['german', 'french', 'spanish', 'italian', 'portuguese', 'russian'];
@@ -218,11 +222,12 @@
 			if (dbRes.ok) {
 				const dbData = await dbRes.json();
 				// Find exact lemma match (case-insensitive)
-				dbVocab = dbData.results?.find(
-					(r: any) => r.lemma.toLowerCase() === word.toLowerCase()
-				) ?? null;
+				dbVocab =
+					dbData.results?.find((r: any) => r.lemma.toLowerCase() === word.toLowerCase()) ?? null;
 			}
-		} catch { /* non-critical, fall through to LLM */ }
+		} catch {
+			/* non-critical, fall through to LLM */
+		}
 
 		// 2. If we have a DB hit, show it immediately
 		if (dbVocab) {
@@ -246,7 +251,11 @@
 			const res = await fetch('/api/vocabulary/llm-lookup', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ word, languageId: language.id, ...(dbVocab?.id ? { existingId: dbVocab.id } : {}) })
+				body: JSON.stringify({
+					word,
+					languageId: language.id,
+					...(dbVocab?.id ? { existingId: dbVocab.id } : {})
+				})
 			});
 			const data = await res.json();
 			if (data.success && data.data) {
@@ -257,7 +266,14 @@
 				}
 			} else if (!enriching) {
 				if (wordPopup?.word === word) {
-					wordPopup = { word, x, y, loading: false, result: null, error: data.error || 'Word not found.' };
+					wordPopup = {
+						word,
+						x,
+						y,
+						loading: false,
+						result: null,
+						error: data.error || 'Word not found.'
+					};
 				}
 			}
 			// If enriching and LLM fails, the popup already shows the sparse DB data — leave it
@@ -341,7 +357,7 @@
 				frSubmitted: true
 			};
 			answers = answers;
-		} catch (e) {
+		} catch (_) {
 			answers[question.id] = { ...answers[question.id], frSubmitting: false };
 			answers = answers;
 			toast.error('Could not grade your answer. Please try again.');
@@ -363,11 +379,9 @@
 			sessionComplete = true;
 			// Tally MCQ XP (awarded client-side since it doesn't need LLM)
 			let mcqXp = 0;
-			let mcqCorrectCount = 0;
 			session.questions.forEach((q) => {
 				if (q.type === 'multiple_choice' && answers[q.id]?.mcqCorrect) {
 					mcqXp += q.points;
-					mcqCorrectCount++;
 				}
 			});
 			if (mcqXp > 0 && !assignmentId) {
@@ -401,10 +415,9 @@
 		}) ?? false
 	);
 
-	const pendingFreeResponses = $derived(
-		session?.questions.filter(
-			(q) => q.type === 'free_response' && !answers[q.id]?.frSubmitted
-		) ?? []
+	const _pendingFreeResponses = $derived(
+		session?.questions.filter((q) => q.type === 'free_response' && !answers[q.id]?.frSubmitted) ??
+			[]
 	);
 
 	// Bookmarks (#16) — persisted to localStorage
@@ -427,7 +440,9 @@
 	onMount(() => {
 		try {
 			bookmarks = JSON.parse(localStorage.getItem(BOOKMARK_KEY) || '[]');
-		} catch { bookmarks = []; }
+		} catch {
+			bookmarks = [];
+		}
 
 		function handleOutsideClick(e: MouseEvent) {
 			if (!wordPopup) return;
@@ -443,11 +458,15 @@
 		return () => document.removeEventListener('click', handleOutsideClick);
 	});
 
-	const isBookmarked = $derived(session ? bookmarks.some((b) => b.id === sessionId(session!)) : false);
+	const isBookmarked = $derived(
+		session ? bookmarks.some((b) => b.id === sessionId(session!)) : false
+	);
 
 	function sessionId(s: ImmersionSession): string {
 		// Use first question text as a stable identifier
-		return btoa(encodeURIComponent(s.questions[0]?.question || JSON.stringify(s).slice(0, 80))).slice(0, 24);
+		return btoa(
+			encodeURIComponent(s.questions[0]?.question || JSON.stringify(s).slice(0, 80))
+		).slice(0, 24);
 	}
 
 	function getHeadline(s: ImmersionSession): string {
@@ -510,7 +529,15 @@
 			</div>
 		{:else if wordPopup.result}
 			{@const r = wordPopup.result}
-			<div class="word-popup-lemma">{r.lemma}{r.gender === 'MASCULINE' ? ' (der)' : r.gender === 'FEMININE' ? ' (die)' : r.gender === 'NEUTER' ? ' (das)' : ''}</div>
+			<div class="word-popup-lemma">
+				{r.lemma}{r.gender === 'MASCULINE'
+					? ' (der)'
+					: r.gender === 'FEMININE'
+						? ' (die)'
+						: r.gender === 'NEUTER'
+							? ' (das)'
+							: ''}
+			</div>
 			{#each (r.meanings || []).slice(0, 3) as m}
 				<div class="word-popup-meaning">
 					{#if m.partOfSpeech}<span class="word-popup-pos">{m.partOfSpeech}</span>{/if}
@@ -522,7 +549,12 @@
 					{#if wordAddedSet.has(r.id)}
 						<span class="word-popup-added">✓ Added</span>
 					{:else}
-						<button class="word-popup-add-btn" onclick={() => addWordToVocabulary(r.id)} disabled={wordAddingId === r.id}>{wordAddingId === r.id ? 'Adding...' : '+ Add to vocabulary'}</button>
+						<button
+							class="word-popup-add-btn"
+							onclick={() => addWordToVocabulary(r.id)}
+							disabled={wordAddingId === r.id}
+							>{wordAddingId === r.id ? 'Adding...' : '+ Add to vocabulary'}</button
+						>
 					{/if}
 				</div>
 			{/if}
@@ -571,10 +603,32 @@
 					<span class="spinner"></span>
 					Generating...
 				{:else if session}
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.1rem;height:1.1rem;flex-shrink:0;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+					<svg
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						style="width:1.1rem;height:1.1rem;flex-shrink:0;"
+						><path
+							d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"
+						/></svg
+					>
 					Generate New
 				{:else}
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.1rem;height:1.1rem;flex-shrink:0;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+					<svg
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						style="width:1.1rem;height:1.1rem;flex-shrink:0;"
+						><path
+							d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"
+						/></svg
+					>
 					Generate Content
 				{/if}
 			</button>
@@ -590,20 +644,36 @@
 						aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark this content'}
 						disabled={loading}
 					>
-						<svg viewBox="0 0 24 24" fill={isBookmarked ? 'currentColor' : 'none'} stroke="currentColor" stroke-width="2" aria-hidden="true" width="18" height="18">
-							<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+						<svg
+							viewBox="0 0 24 24"
+							fill={isBookmarked ? 'currentColor' : 'none'}
+							stroke="currentColor"
+							stroke-width="2"
+							aria-hidden="true"
+							width="18"
+							height="18"
+						>
+							<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
 						</svg>
 					</button>
 				{/if}
 				{#if bookmarks.length > 0}
 					<button
 						class="bookmark-list-btn"
-						onclick={() => showBookmarks = !showBookmarks}
+						onclick={() => (showBookmarks = !showBookmarks)}
 						title="Saved content"
 						disabled={loading}
 					>
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" width="16" height="16">
-							<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							aria-hidden="true"
+							width="16"
+							height="16"
+						>
+							<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
 						</svg>
 						{bookmarks.length}
 					</button>
@@ -623,7 +693,12 @@
 								<span class="bookmark-headline">{bm.headline}</span>
 								<span class="bookmark-type">{bm.mediaLabel}</span>
 							</button>
-							<button class="bookmark-delete-btn" onclick={() => deleteBookmark(bm.id)} aria-label="Delete bookmark" title="Remove">
+							<button
+								class="bookmark-delete-btn"
+								onclick={() => deleteBookmark(bm.id)}
+								aria-label="Delete bookmark"
+								title="Remove"
+							>
 								&times;
 							</button>
 						</li>
@@ -634,7 +709,12 @@
 	</div>
 
 	{#if loading}
-		<div class="loading-card skeleton-card" in:fade={{ duration: 200 }} aria-busy="true" aria-label="Generating content">
+		<div
+			class="loading-card skeleton-card"
+			in:fade={{ duration: 200 }}
+			aria-busy="true"
+			aria-label="Generating content"
+		>
 			<!-- Shared: media type badge -->
 			<div class="skeleton-badge"></div>
 
@@ -652,7 +732,6 @@
 				<div class="skeleton-line"></div>
 				<div class="skeleton-line" style="width:85%"></div>
 				<div class="skeleton-line skeleton-line-short"></div>
-
 			{:else if skeletonType === 'advertisement'}
 				<!-- Brand + product + slogan + feature bullets + price + CTA -->
 				<div class="skeleton-pill" style="width:6rem;margin-bottom:0.5rem"></div>
@@ -665,26 +744,36 @@
 				</div>
 				<div class="skeleton-pill" style="width:4rem;margin-top:0.5rem"></div>
 				<div class="skeleton-cta-btn"></div>
-
 			{:else if skeletonType === 'restaurant_menu'}
 				<!-- Restaurant name + tagline + 2 sections with items -->
-				<div class="skeleton-headline" style="width:60%;text-align:center;margin:0 auto 0.5rem"></div>
+				<div
+					class="skeleton-headline"
+					style="width:60%;text-align:center;margin:0 auto 0.5rem"
+				></div>
 				<div class="skeleton-line" style="width:45%;margin:0 auto 1.25rem"></div>
 				<div class="skeleton-section-title"></div>
 				<div class="skeleton-menu-item">
-					<div style="flex:1"><div class="skeleton-line" style="width:55%"></div><div class="skeleton-line skeleton-line-short"></div></div>
+					<div style="flex:1">
+						<div class="skeleton-line" style="width:55%"></div>
+						<div class="skeleton-line skeleton-line-short"></div>
+					</div>
 					<div class="skeleton-pill" style="width:2.5rem"></div>
 				</div>
 				<div class="skeleton-menu-item">
-					<div style="flex:1"><div class="skeleton-line" style="width:65%"></div><div class="skeleton-line skeleton-line-short"></div></div>
+					<div style="flex:1">
+						<div class="skeleton-line" style="width:65%"></div>
+						<div class="skeleton-line skeleton-line-short"></div>
+					</div>
 					<div class="skeleton-pill" style="width:2.5rem"></div>
 				</div>
 				<div class="skeleton-section-title" style="margin-top:1rem"></div>
 				<div class="skeleton-menu-item">
-					<div style="flex:1"><div class="skeleton-line" style="width:50%"></div><div class="skeleton-line skeleton-line-short"></div></div>
+					<div style="flex:1">
+						<div class="skeleton-line" style="width:50%"></div>
+						<div class="skeleton-line skeleton-line-short"></div>
+					</div>
 					<div class="skeleton-pill" style="width:2.5rem"></div>
 				</div>
-
 			{:else if skeletonType === 'social_post'}
 				<!-- Avatar + username/handle + timestamp + content + hashtags + stats -->
 				<div class="skeleton-social-header">
@@ -707,7 +796,6 @@
 					<div class="skeleton-pill" style="width:3.5rem"></div>
 					<div class="skeleton-pill" style="width:3.5rem"></div>
 				</div>
-
 			{:else if skeletonType === 'recipe'}
 				<!-- Title + meta chips + two-column: ingredients / steps -->
 				<div class="skeleton-headline" style="width:70%"></div>
@@ -732,7 +820,6 @@
 						<div class="skeleton-line" style="width:80%"></div>
 					</div>
 				</div>
-
 			{:else if skeletonType === 'review'}
 				<!-- Subject + stars + author/date + body + verdict -->
 				<div class="skeleton-row" style="align-items:flex-start;justify-content:space-between">
@@ -749,7 +836,6 @@
 				<div class="skeleton-line"></div>
 				<div class="skeleton-line skeleton-line-short"></div>
 				<div class="skeleton-verdict"></div>
-
 			{:else if skeletonType === 'letter'}
 				<!-- Location/date, salutation, body paragraphs, closing, signature -->
 				<div class="skeleton-line" style="width:10rem;margin-bottom:1rem"></div>
@@ -763,14 +849,22 @@
 				<div class="skeleton-line" style="width:8rem;margin-top:0.25rem"></div>
 			{/if}
 
-			<div class="skeleton-hint">Generating your {selectedMediaType === 'random' ? 'content' : selectedMediaType.replace(/_/g, ' ')}...</div>
+			<div class="skeleton-hint">
+				Generating your {selectedMediaType === 'random'
+					? 'content'
+					: selectedMediaType.replace(/_/g, ' ')}...
+			</div>
 		</div>
 	{/if}
 
 	{#if session && !loading}
 		<div class="session-wrapper" in:fly={{ y: 20, duration: 400 }}>
 			<!-- Media template -->
-			<div class="media-card" class:no-word-hover={disableHoverTranslation} aria-label="Reading content">
+			<div
+				class="media-card"
+				class:no-word-hover={disableHoverTranslation}
+				aria-label="Reading content"
+			>
 				<div class="media-type-badge">
 					{MEDIA_LABELS[session.mediaType].icon}
 					{MEDIA_LABELS[session.mediaType].label}
@@ -779,30 +873,93 @@
 					{/if}
 				</div>
 
-					<!-- NEWS ARTICLE -->
+				<!-- NEWS ARTICLE -->
 				{#if session.mediaType === 'news_article'}
 					<div class="template news-template">
 						<div class="news-source-bar">
 							<span class="news-source">{session.templateData.source}</span>
 							<span class="news-date">{session.templateData.date}</span>
 						</div>
-						<h1 class="news-headline">{#each tokenize(session.templateData.headline || '') as tok}{#if tok.word}<span class="w-tok" role="button" tabindex="0" onclick={(e) => handleWordClick(e, tok.value)} onkeydown={(e) => e.key === "Enter" && handleWordClick(e, tok.value)}>{tok.value}</span>{:else}{tok.value}{/if}{/each}</h1>
-						<p class="news-byline">{#each tokenize(session.templateData.byline || '') as tok}{#if tok.word}<span class="w-tok" role="button" tabindex="0" onclick={(e) => handleWordClick(e, tok.value)} onkeydown={(e) => e.key === "Enter" && handleWordClick(e, tok.value)}>{tok.value}</span>{:else}{tok.value}{/if}{/each}</p>
+						<h1 class="news-headline">
+							{#each tokenize(session.templateData.headline || '') as tok}{#if tok.word}<span
+										class="w-tok"
+										role="button"
+										tabindex="0"
+										onclick={(e) => handleWordClick(e, tok.value)}
+										onkeydown={(e) => e.key === 'Enter' && handleWordClick(e, tok.value)}
+										>{tok.value}</span
+									>{:else}{tok.value}{/if}{/each}
+						</h1>
+						<p class="news-byline">
+							{#each tokenize(session.templateData.byline || '') as tok}{#if tok.word}<span
+										class="w-tok"
+										role="button"
+										tabindex="0"
+										onclick={(e) => handleWordClick(e, tok.value)}
+										onkeydown={(e) => e.key === 'Enter' && handleWordClick(e, tok.value)}
+										>{tok.value}</span
+									>{:else}{tok.value}{/if}{/each}
+						</p>
 						<hr class="news-rule" />
-						<p class="news-lead">{#each tokenize(session.templateData.lead || '') as tok}{#if tok.word}<span class="w-tok" role="button" tabindex="0" onclick={(e) => handleWordClick(e, tok.value)} onkeydown={(e) => e.key === "Enter" && handleWordClick(e, tok.value)}>{tok.value}</span>{:else}{tok.value}{/if}{/each}</p>
-						<p class="news-body">{#each tokenize(session.templateData.body || '') as tok}{#if tok.word}<span class="w-tok" role="button" tabindex="0" onclick={(e) => handleWordClick(e, tok.value)} onkeydown={(e) => e.key === "Enter" && handleWordClick(e, tok.value)}>{tok.value}</span>{:else}{tok.value}{/if}{/each}</p>
+						<p class="news-lead">
+							{#each tokenize(session.templateData.lead || '') as tok}{#if tok.word}<span
+										class="w-tok"
+										role="button"
+										tabindex="0"
+										onclick={(e) => handleWordClick(e, tok.value)}
+										onkeydown={(e) => e.key === 'Enter' && handleWordClick(e, tok.value)}
+										>{tok.value}</span
+									>{:else}{tok.value}{/if}{/each}
+						</p>
+						<p class="news-body">
+							{#each tokenize(session.templateData.body || '') as tok}{#if tok.word}<span
+										class="w-tok"
+										role="button"
+										tabindex="0"
+										onclick={(e) => handleWordClick(e, tok.value)}
+										onkeydown={(e) => e.key === 'Enter' && handleWordClick(e, tok.value)}
+										>{tok.value}</span
+									>{:else}{tok.value}{/if}{/each}
+						</p>
 					</div>
 
-				<!-- ADVERTISEMENT -->
+					<!-- ADVERTISEMENT -->
 				{:else if session.mediaType === 'advertisement'}
 					<div class="template ad-template">
 						<div class="ad-brand">{session.templateData.brand}</div>
-						<h2 class="ad-product">{#each tokenize(session.templateData.product || '') as tok}{#if tok.word}<span class="w-tok" role="button" tabindex="0" onclick={(e) => handleWordClick(e, tok.value)} onkeydown={(e) => e.key === "Enter" && handleWordClick(e, tok.value)}>{tok.value}</span>{:else}{tok.value}{/if}{/each}</h2>
-						<p class="ad-slogan">"{#each tokenize(session.templateData.slogan || '') as tok}{#if tok.word}<span class="w-tok" role="button" tabindex="0" onclick={(e) => handleWordClick(e, tok.value)} onkeydown={(e) => e.key === "Enter" && handleWordClick(e, tok.value)}>{tok.value}</span>{:else}{tok.value}{/if}{/each}"</p>
+						<h2 class="ad-product">
+							{#each tokenize(session.templateData.product || '') as tok}{#if tok.word}<span
+										class="w-tok"
+										role="button"
+										tabindex="0"
+										onclick={(e) => handleWordClick(e, tok.value)}
+										onkeydown={(e) => e.key === 'Enter' && handleWordClick(e, tok.value)}
+										>{tok.value}</span
+									>{:else}{tok.value}{/if}{/each}
+						</h2>
+						<p class="ad-slogan">
+							"{#each tokenize(session.templateData.slogan || '') as tok}{#if tok.word}<span
+										class="w-tok"
+										role="button"
+										tabindex="0"
+										onclick={(e) => handleWordClick(e, tok.value)}
+										onkeydown={(e) => e.key === 'Enter' && handleWordClick(e, tok.value)}
+										>{tok.value}</span
+									>{:else}{tok.value}{/if}{/each}"
+						</p>
 						{#if session.templateData.features?.length}
 							<ul class="ad-features">
 								{#each session.templateData.features as feat}
-									<li>{#each tokenize(feat || '') as tok}{#if tok.word}<span class="w-tok" role="button" tabindex="0" onclick={(e) => handleWordClick(e, tok.value)} onkeydown={(e) => e.key === "Enter" && handleWordClick(e, tok.value)}>{tok.value}</span>{:else}{tok.value}{/if}{/each}</li>
+									<li>
+										{#each tokenize(feat || '') as tok}{#if tok.word}<span
+													class="w-tok"
+													role="button"
+													tabindex="0"
+													onclick={(e) => handleWordClick(e, tok.value)}
+													onkeydown={(e) => e.key === 'Enter' && handleWordClick(e, tok.value)}
+													>{tok.value}</span
+												>{:else}{tok.value}{/if}{/each}
+									</li>
 								{/each}
 							</ul>
 						{/if}
@@ -815,21 +972,39 @@
 						{/if}
 					</div>
 
-				<!-- RESTAURANT MENU -->
+					<!-- RESTAURANT MENU -->
 				{:else if session.mediaType === 'restaurant_menu'}
 					<div class="template menu-template">
 						<div class="menu-header">
 							<h1 class="menu-name">{session.templateData.restaurantName}</h1>
 							<p class="menu-tagline">{session.templateData.tagline}</p>
 						</div>
-						{#each (session.templateData.sections || []) as section}
+						{#each session.templateData.sections || [] as section}
 							<div class="menu-section">
 								<h3 class="menu-section-title">{section.name}</h3>
-								{#each (section.items || []) as item}
+								{#each section.items || [] as item}
 									<div class="menu-item">
 										<div class="menu-item-info">
-											<span class="menu-item-name">{#each tokenize(item.name || '') as tok}{#if tok.word}<span class="w-tok" role="button" tabindex="0" onclick={(e) => handleWordClick(e, tok.value)} onkeydown={(e) => e.key === "Enter" && handleWordClick(e, tok.value)}>{tok.value}</span>{:else}{tok.value}{/if}{/each}</span>
-											<span class="menu-item-desc">{#each tokenize(item.description || '') as tok}{#if tok.word}<span class="w-tok" role="button" tabindex="0" onclick={(e) => handleWordClick(e, tok.value)} onkeydown={(e) => e.key === "Enter" && handleWordClick(e, tok.value)}>{tok.value}</span>{:else}{tok.value}{/if}{/each}</span>
+											<span class="menu-item-name"
+												>{#each tokenize(item.name || '') as tok}{#if tok.word}<span
+															class="w-tok"
+															role="button"
+															tabindex="0"
+															onclick={(e) => handleWordClick(e, tok.value)}
+															onkeydown={(e) => e.key === 'Enter' && handleWordClick(e, tok.value)}
+															>{tok.value}</span
+														>{:else}{tok.value}{/if}{/each}</span
+											>
+											<span class="menu-item-desc"
+												>{#each tokenize(item.description || '') as tok}{#if tok.word}<span
+															class="w-tok"
+															role="button"
+															tabindex="0"
+															onclick={(e) => handleWordClick(e, tok.value)}
+															onkeydown={(e) => e.key === 'Enter' && handleWordClick(e, tok.value)}
+															>{tok.value}</span
+														>{:else}{tok.value}{/if}{/each}</span
+											>
 										</div>
 										<span class="menu-item-price">{item.price}</span>
 									</div>
@@ -838,7 +1013,7 @@
 						{/each}
 					</div>
 
-				<!-- SOCIAL POST -->
+					<!-- SOCIAL POST -->
 				{:else if session.mediaType === 'social_post'}
 					<div class="template social-template">
 						<div class="social-header">
@@ -849,7 +1024,16 @@
 							</div>
 							<span class="social-timestamp">{session.templateData.timestamp}</span>
 						</div>
-						<p class="social-content">{#each tokenize(session.templateData.content || '') as tok}{#if tok.word}<span class="w-tok" role="button" tabindex="0" onclick={(e) => handleWordClick(e, tok.value)} onkeydown={(e) => e.key === "Enter" && handleWordClick(e, tok.value)}>{tok.value}</span>{:else}{tok.value}{/if}{/each}</p>
+						<p class="social-content">
+							{#each tokenize(session.templateData.content || '') as tok}{#if tok.word}<span
+										class="w-tok"
+										role="button"
+										tabindex="0"
+										onclick={(e) => handleWordClick(e, tok.value)}
+										onkeydown={(e) => e.key === 'Enter' && handleWordClick(e, tok.value)}
+										>{tok.value}</span
+									>{:else}{tok.value}{/if}{/each}
+						</p>
 						{#if session.templateData.hashtags?.length}
 							<p class="social-hashtags">
 								{session.templateData.hashtags.join(' ')}
@@ -861,7 +1045,7 @@
 						</div>
 					</div>
 
-				<!-- RECIPE -->
+					<!-- RECIPE -->
 				{:else if session.mediaType === 'recipe'}
 					<div class="template recipe-template">
 						<h1 class="recipe-title">{session.templateData.title}</h1>
@@ -875,28 +1059,47 @@
 							<div class="recipe-ingredients">
 								<h3>Zutaten</h3>
 								<ul>
-									{#each (session.templateData.ingredients || []) as ing}
-										<li>{#each tokenize(ing || '') as tok}{#if tok.word}<span class="w-tok" role="button" tabindex="0" onclick={(e) => handleWordClick(e, tok.value)} onkeydown={(e) => e.key === "Enter" && handleWordClick(e, tok.value)}>{tok.value}</span>{:else}{tok.value}{/if}{/each}</li>
+									{#each session.templateData.ingredients || [] as ing}
+										<li>
+											{#each tokenize(ing || '') as tok}{#if tok.word}<span
+														class="w-tok"
+														role="button"
+														tabindex="0"
+														onclick={(e) => handleWordClick(e, tok.value)}
+														onkeydown={(e) => e.key === 'Enter' && handleWordClick(e, tok.value)}
+														>{tok.value}</span
+													>{:else}{tok.value}{/if}{/each}
+										</li>
 									{/each}
 								</ul>
 							</div>
 							<div class="recipe-steps">
 								<h3>Zubereitung</h3>
 								<ol>
-									{#each (session.templateData.steps || []) as step}
-										<li>{#each tokenize(step || '') as tok}{#if tok.word}<span class="w-tok" role="button" tabindex="0" onclick={(e) => handleWordClick(e, tok.value)} onkeydown={(e) => e.key === "Enter" && handleWordClick(e, tok.value)}>{tok.value}</span>{:else}{tok.value}{/if}{/each}</li>
+									{#each session.templateData.steps || [] as step}
+										<li>
+											{#each tokenize(step || '') as tok}{#if tok.word}<span
+														class="w-tok"
+														role="button"
+														tabindex="0"
+														onclick={(e) => handleWordClick(e, tok.value)}
+														onkeydown={(e) => e.key === 'Enter' && handleWordClick(e, tok.value)}
+														>{tok.value}</span
+													>{:else}{tok.value}{/if}{/each}
+										</li>
 									{/each}
 								</ol>
 							</div>
 						</div>
 						{#if session.templateData.tips}
 							<div class="recipe-tip">
-								<strong>Tipp:</strong> {session.templateData.tips}
+								<strong>Tipp:</strong>
+								{session.templateData.tips}
 							</div>
 						{/if}
 					</div>
 
-				<!-- REVIEW -->
+					<!-- REVIEW -->
 				{:else if session.mediaType === 'review'}
 					<div class="template review-template">
 						<div class="review-header">
@@ -909,21 +1112,65 @@
 								<span class="review-date">{session.templateData.date}</span>
 							</div>
 						</div>
-						<p class="review-body">{#each tokenize(session.templateData.body || '') as tok}{#if tok.word}<span class="w-tok" role="button" tabindex="0" onclick={(e) => handleWordClick(e, tok.value)} onkeydown={(e) => e.key === "Enter" && handleWordClick(e, tok.value)}>{tok.value}</span>{:else}{tok.value}{/if}{/each}</p>
+						<p class="review-body">
+							{#each tokenize(session.templateData.body || '') as tok}{#if tok.word}<span
+										class="w-tok"
+										role="button"
+										tabindex="0"
+										onclick={(e) => handleWordClick(e, tok.value)}
+										onkeydown={(e) => e.key === 'Enter' && handleWordClick(e, tok.value)}
+										>{tok.value}</span
+									>{:else}{tok.value}{/if}{/each}
+						</p>
 						<div class="review-verdict">
-							<strong>Fazit:</strong> {#each tokenize(session.templateData.verdict || '') as tok}{#if tok.word}<span class="w-tok" role="button" tabindex="0" onclick={(e) => handleWordClick(e, tok.value)} onkeydown={(e) => e.key === "Enter" && handleWordClick(e, tok.value)}>{tok.value}</span>{:else}{tok.value}{/if}{/each}
+							<strong>Fazit:</strong>
+							{#each tokenize(session.templateData.verdict || '') as tok}{#if tok.word}<span
+										class="w-tok"
+										role="button"
+										tabindex="0"
+										onclick={(e) => handleWordClick(e, tok.value)}
+										onkeydown={(e) => e.key === 'Enter' && handleWordClick(e, tok.value)}
+										>{tok.value}</span
+									>{:else}{tok.value}{/if}{/each}
 						</div>
 					</div>
 
-				<!-- LETTER -->
+					<!-- LETTER -->
 				{:else if session.mediaType === 'letter'}
 					<div class="template letter-template">
 						<div class="letter-location-date">
 							{session.templateData.location}, {session.templateData.date}
 						</div>
-						<p class="letter-salutation">{#each tokenize(session.templateData.salutation || '') as tok}{#if tok.word}<span class="w-tok" role="button" tabindex="0" onclick={(e) => handleWordClick(e, tok.value)} onkeydown={(e) => e.key === "Enter" && handleWordClick(e, tok.value)}>{tok.value}</span>{:else}{tok.value}{/if}{/each}</p>
-						<p class="letter-body">{#each tokenize(session.templateData.body || '') as tok}{#if tok.word}<span class="w-tok" role="button" tabindex="0" onclick={(e) => handleWordClick(e, tok.value)} onkeydown={(e) => e.key === "Enter" && handleWordClick(e, tok.value)}>{tok.value}</span>{:else}{tok.value}{/if}{/each}</p>
-						<p class="letter-closing">{#each tokenize(session.templateData.closing || '') as tok}{#if tok.word}<span class="w-tok" role="button" tabindex="0" onclick={(e) => handleWordClick(e, tok.value)} onkeydown={(e) => e.key === "Enter" && handleWordClick(e, tok.value)}>{tok.value}</span>{:else}{tok.value}{/if}{/each}</p>
+						<p class="letter-salutation">
+							{#each tokenize(session.templateData.salutation || '') as tok}{#if tok.word}<span
+										class="w-tok"
+										role="button"
+										tabindex="0"
+										onclick={(e) => handleWordClick(e, tok.value)}
+										onkeydown={(e) => e.key === 'Enter' && handleWordClick(e, tok.value)}
+										>{tok.value}</span
+									>{:else}{tok.value}{/if}{/each}
+						</p>
+						<p class="letter-body">
+							{#each tokenize(session.templateData.body || '') as tok}{#if tok.word}<span
+										class="w-tok"
+										role="button"
+										tabindex="0"
+										onclick={(e) => handleWordClick(e, tok.value)}
+										onkeydown={(e) => e.key === 'Enter' && handleWordClick(e, tok.value)}
+										>{tok.value}</span
+									>{:else}{tok.value}{/if}{/each}
+						</p>
+						<p class="letter-closing">
+							{#each tokenize(session.templateData.closing || '') as tok}{#if tok.word}<span
+										class="w-tok"
+										role="button"
+										tabindex="0"
+										onclick={(e) => handleWordClick(e, tok.value)}
+										onkeydown={(e) => e.key === 'Enter' && handleWordClick(e, tok.value)}
+										>{tok.value}</span
+									>{:else}{tok.value}{/if}{/each}
+						</p>
 						<p class="letter-signature">{session.templateData.signature}</p>
 					</div>
 				{/if}
@@ -933,10 +1180,25 @@
 			<div class="questions-section">
 				<div class="questions-header">
 					<h3 class="questions-title">Comprehension Questions</h3>
-					<span class="questions-progress">{session.questions.filter(q => { const s = answers[q.id] || {}; return s.mcqSubmitted || s.frSubmitted; }).length} / {session.questions.length}</span>
+					<span class="questions-progress"
+						>{session.questions.filter((q) => {
+							const s = answers[q.id] || {};
+							return s.mcqSubmitted || s.frSubmitted;
+						}).length} / {session.questions.length}</span
+					>
 				</div>
 				<div class="questions-progress-bar">
-					<div class="questions-progress-fill" style="width: {session.questions.length > 0 ? (session.questions.filter(q => { const s = answers[q.id] || {}; return s.mcqSubmitted || s.frSubmitted; }).length / session.questions.length) * 100 : 0}%"></div>
+					<div
+						class="questions-progress-fill"
+						style="width: {session.questions.length > 0
+							? (session.questions.filter((q) => {
+									const s = answers[q.id] || {};
+									return s.mcqSubmitted || s.frSubmitted;
+								}).length /
+									session.questions.length) *
+								100
+							: 0}%"
+					></div>
 				</div>
 				<p class="questions-subtitle">Answer in English based on what you read.</p>
 
@@ -945,7 +1207,11 @@
 					<div class="question-card" in:fly={{ y: 16, duration: 300, delay: i * 80 }}>
 						<div class="question-header">
 							<span class="question-num">Q{i + 1}</span>
-							<span class="question-badge {question.type === 'multiple_choice' ? 'badge-mcq' : 'badge-fr'}">
+							<span
+								class="question-badge {question.type === 'multiple_choice'
+									? 'badge-mcq'
+									: 'badge-fr'}"
+							>
 								{question.type === 'multiple_choice' ? 'Multiple Choice' : 'Short Answer'}
 							</span>
 							<span class="question-points">{question.points} pts</span>
@@ -954,7 +1220,7 @@
 
 						{#if question.type === 'multiple_choice'}
 							<div class="mcq-options">
-								{#each (question.options || []) as option, idx}
+								{#each question.options || [] as option, idx}
 									<button
 										class="mcq-option"
 										class:selected={state.selectedOption === idx && !state.mcqSubmitted}
@@ -962,7 +1228,9 @@
 										class:incorrect={state.mcqSubmitted &&
 											state.selectedOption === idx &&
 											idx !== question.correctIndex}
-										class:dimmed={state.mcqSubmitted && idx !== question.correctIndex && state.selectedOption !== idx}
+										class:dimmed={state.mcqSubmitted &&
+											idx !== question.correctIndex &&
+											state.selectedOption !== idx}
 										disabled={state.mcqSubmitted}
 										onclick={() => handleMcqSelect(question.id, idx, question)}
 									>
@@ -982,7 +1250,6 @@
 									<p class="mcq-explanation">{question.explanation}</p>
 								{/if}
 							{/if}
-
 						{:else}
 							<!-- Free response -->
 							<textarea
@@ -990,7 +1257,10 @@
 								placeholder="Type your answer here..."
 								bind:value={state.frText}
 								disabled={state.frSubmitted || state.frSubmitting}
-								oninput={() => { answers[question.id] = state; answers = answers; }}
+								oninput={() => {
+									answers[question.id] = state;
+									answers = answers;
+								}}
 							></textarea>
 							{#if !state.frSubmitted}
 								<button
@@ -1007,7 +1277,9 @@
 										<span class="fr-score-label">Score:</span>
 										<span class="fr-score-pct">{Math.round((state.frScore ?? 0) * 100)}%</span>
 										{#if (state.frScore ?? 0) > 0}
-											<span class="xp-badge">+{Math.round(question.points * (state.frScore ?? 0))} XP</span>
+											<span class="xp-badge"
+												>+{Math.round(question.points * (state.frScore ?? 0))} XP</span
+											>
 										{/if}
 									</div>
 									{#if state.frFeedback}
@@ -1033,7 +1305,18 @@
 					<h3>Session Complete!</h3>
 					<p class="summary-xp">You earned <strong>{totalXpEarned} XP</strong> this session.</p>
 					<button class="generate-btn" onclick={generate}>
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.1rem;height:1.1rem;flex-shrink:0;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							style="width:1.1rem;height:1.1rem;flex-shrink:0;"
+							><path
+								d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"
+							/></svg
+						>
 						Read Another
 					</button>
 				</div>
@@ -1159,18 +1442,24 @@
 
 	.bookmark-btn {
 		background: none;
-		border: 2px solid rgba(255,255,255,0.2);
+		border: 2px solid rgba(255, 255, 255, 0.2);
 		border-radius: 0.6rem;
 		padding: 0.55rem;
 		cursor: pointer;
-		color: rgba(255,255,255,0.5);
+		color: rgba(255, 255, 255, 0.5);
 		display: flex;
 		align-items: center;
-		transition: color 0.15s, border-color 0.15s, background 0.15s;
+		transition:
+			color 0.15s,
+			border-color 0.15s,
+			background 0.15s;
 		line-height: 0;
 	}
 
-	.bookmark-btn:hover { color: #fbbf24; border-color: #fbbf24; }
+	.bookmark-btn:hover {
+		color: #fbbf24;
+		border-color: #fbbf24;
+	}
 
 	.bookmark-btn.bookmarked {
 		color: #fbbf24;
@@ -1182,25 +1471,27 @@
 		display: flex;
 		align-items: center;
 		gap: 0.35rem;
-		background: rgba(255,255,255,0.08);
-		border: 2px solid rgba(255,255,255,0.15);
+		background: rgba(255, 255, 255, 0.08);
+		border: 2px solid rgba(255, 255, 255, 0.15);
 		border-radius: 0.6rem;
 		padding: 0.45rem 0.75rem;
 		font-size: 0.8rem;
 		font-weight: 700;
-		color: rgba(255,255,255,0.6);
+		color: rgba(255, 255, 255, 0.6);
 		cursor: pointer;
-		transition: background 0.15s, color 0.15s;
+		transition:
+			background 0.15s,
+			color 0.15s;
 	}
 
 	.bookmark-list-btn:hover {
-		background: rgba(255,255,255,0.15);
+		background: rgba(255, 255, 255, 0.15);
 		color: #fff;
 	}
 
 	.bookmarks-panel {
-		background: rgba(255,255,255,0.06);
-		border: 1px solid rgba(255,255,255,0.12);
+		background: rgba(255, 255, 255, 0.06);
+		border: 1px solid rgba(255, 255, 255, 0.12);
 		border-radius: 0.75rem;
 		padding: 0.75rem;
 		margin-top: 0.5rem;
@@ -1211,7 +1502,7 @@
 		font-weight: 800;
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
-		color: rgba(255,255,255,0.4);
+		color: rgba(255, 255, 255, 0.4);
 		margin: 0 0 0.5rem;
 	}
 
@@ -1235,8 +1526,8 @@
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
-		background: rgba(255,255,255,0.04);
-		border: 1px solid rgba(255,255,255,0.1);
+		background: rgba(255, 255, 255, 0.04);
+		border: 1px solid rgba(255, 255, 255, 0.1);
 		border-radius: 0.5rem;
 		padding: 0.5rem 0.75rem;
 		cursor: pointer;
@@ -1246,9 +1537,14 @@
 		font-family: inherit;
 	}
 
-	.bookmark-load-btn:hover { background: rgba(255,255,255,0.1); }
+	.bookmark-load-btn:hover {
+		background: rgba(255, 255, 255, 0.1);
+	}
 
-	.bookmark-icon { font-size: 1rem; flex-shrink: 0; }
+	.bookmark-icon {
+		font-size: 1rem;
+		flex-shrink: 0;
+	}
 
 	.bookmark-headline {
 		flex: 1;
@@ -1263,24 +1559,29 @@
 	.bookmark-type {
 		font-size: 0.65rem;
 		font-weight: 700;
-		color: rgba(255,255,255,0.35);
+		color: rgba(255, 255, 255, 0.35);
 		flex-shrink: 0;
 	}
 
 	.bookmark-delete-btn {
 		background: none;
 		border: none;
-		color: rgba(255,255,255,0.3);
+		color: rgba(255, 255, 255, 0.3);
 		font-size: 1.2rem;
 		cursor: pointer;
 		padding: 0.25rem 0.4rem;
 		border-radius: 0.35rem;
 		line-height: 1;
-		transition: color 0.15s, background 0.15s;
+		transition:
+			color 0.15s,
+			background 0.15s;
 		flex-shrink: 0;
 	}
 
-	.bookmark-delete-btn:hover { color: #f87171; background: rgba(248,113,113,0.1); }
+	.bookmark-delete-btn:hover {
+		color: #f87171;
+		background: rgba(248, 113, 113, 0.1);
+	}
 
 	.generate-btn {
 		padding: 0.8rem 1.5rem;
@@ -1295,7 +1596,9 @@
 		align-items: center;
 		gap: 0.625rem;
 		justify-content: center;
-		transition: background 0.15s, transform 0.1s;
+		transition:
+			background 0.15s,
+			transform 0.1s;
 		box-shadow: 0 4px 0 #5b21b6;
 	}
 
@@ -1314,7 +1617,7 @@
 	.spinner {
 		width: 16px;
 		height: 16px;
-		border: 2px solid rgba(255,255,255,0.4);
+		border: 2px solid rgba(255, 255, 255, 0.4);
 		border-top-color: #fff;
 		border-radius: 50%;
 		animation: spin 0.7s linear infinite;
@@ -1322,7 +1625,9 @@
 	}
 
 	@keyframes spin {
-		to { transform: rotate(360deg); }
+		to {
+			transform: rotate(360deg);
+		}
 	}
 
 	/* Loading */
@@ -1340,8 +1645,13 @@
 
 	/* Skeleton card styles */
 	@keyframes skeleton-pulse {
-		0%, 100% { opacity: 1; }
-		50% { opacity: 0.4; }
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.4;
+		}
 	}
 
 	/* Base pulse applied to all skeleton shapes */
@@ -1661,7 +1971,7 @@
 		font-size: 0.75rem;
 		text-transform: uppercase;
 		letter-spacing: 0.15em;
-		color: rgba(255,255,255,0.6);
+		color: rgba(255, 255, 255, 0.6);
 		margin-bottom: 0.5rem;
 	}
 
@@ -1674,7 +1984,7 @@
 	.ad-slogan {
 		font-size: 1.1rem;
 		font-style: italic;
-		color: rgba(255,255,255,0.85);
+		color: rgba(255, 255, 255, 0.85);
 		margin: 0 0 1.25rem;
 	}
 
@@ -1719,7 +2029,7 @@
 
 	.ad-disclaimer {
 		font-size: 0.7rem;
-		color: rgba(255,255,255,0.4);
+		color: rgba(255, 255, 255, 0.4);
 		margin: 0;
 	}
 
@@ -2620,7 +2930,9 @@
 	.w-tok {
 		cursor: pointer;
 		border-radius: 2px;
-		transition: background 0.1s, color 0.1s;
+		transition:
+			background 0.1s,
+			color 0.1s;
 		display: inline;
 	}
 
@@ -2650,7 +2962,7 @@
 		padding: 0.75rem 1rem;
 		min-width: 200px;
 		max-width: 280px;
-		box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 		display: flex;
 		flex-direction: column;
 		gap: 0.4rem;
@@ -2659,7 +2971,7 @@
 	:global(html[data-theme='dark']) .word-popup {
 		background: #1e293b;
 		border-color: #475569;
-		box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 	}
 
 	.word-popup-header {
@@ -2690,7 +3002,9 @@
 		flex-shrink: 0;
 	}
 
-	.word-popup-close:hover { color: #475569; }
+	.word-popup-close:hover {
+		color: #475569;
+	}
 
 	.word-popup-lemma {
 		font-size: 0.82rem;

@@ -273,139 +273,276 @@ export const FUNCTION_WORDS = new Set([
  */
 export const GERMAN_STRONG_VERB_LOOKUP: Record<string, string> = {
 	// fahren
-	fuhr: 'fahren', fuhren: 'fahren', fuhst: 'fahren',
+	fuhr: 'fahren',
+	fuhren: 'fahren',
+	fuhst: 'fahren',
 	// laufen
-	lief: 'laufen', liefen: 'laufen', liefst: 'laufen',
+	lief: 'laufen',
+	liefen: 'laufen',
+	liefst: 'laufen',
 	// stehen
-	stand: 'stehen', standen: 'stehen', standst: 'stehen',
+	stand: 'stehen',
+	standen: 'stehen',
+	standst: 'stehen',
 	// gehen
-	ging: 'gehen', gingen: 'gehen', gingst: 'gehen',
+	ging: 'gehen',
+	gingen: 'gehen',
+	gingst: 'gehen',
 	// kommen
-	kam: 'kommen', kamen: 'kommen', kamst: 'kommen',
+	kam: 'kommen',
+	kamen: 'kommen',
+	kamst: 'kommen',
 	// sehen
-	sah: 'sehen', sahen: 'sehen', sahst: 'sehen',
+	sah: 'sehen',
+	sahen: 'sehen',
+	sahst: 'sehen',
 	// lesen (gelesen caught by ge- stripping, but past tense not)
-	las: 'lesen', lasen: 'lesen', lasest: 'lesen',
+	las: 'lesen',
+	lasen: 'lesen',
+	lasest: 'lesen',
 	// essen
-	aß: 'essen', aßen: 'essen', aßt: 'essen',
-	ass: 'essen', assen: 'essen', // ASCII alternative for aß
+	aß: 'essen',
+	aßen: 'essen',
+	aßt: 'essen',
+	ass: 'essen',
+	assen: 'essen', // ASCII alternative for aß
 	// trinken
-	trank: 'trinken', tranken: 'trinken', trankst: 'trinken',
+	trank: 'trinken',
+	tranken: 'trinken',
+	trankst: 'trinken',
 	// schreiben
-	schrieb: 'schreiben', schrieben: 'schreiben', schriebst: 'schreiben',
+	schrieb: 'schreiben',
+	schrieben: 'schreiben',
+	schriebst: 'schreiben',
 	// sprechen
-	sprach: 'sprechen', sprachen: 'sprechen', sprachst: 'sprechen',
+	sprach: 'sprechen',
+	sprachen: 'sprechen',
+	sprachst: 'sprechen',
 	spricht: 'sprechen',
 	// bleiben
-	blieb: 'bleiben', blieben: 'bleiben', bliebst: 'bleiben',
+	blieb: 'bleiben',
+	blieben: 'bleiben',
+	bliebst: 'bleiben',
 	// rufen
-	rief: 'rufen', riefen: 'rufen', riefst: 'rufen',
+	rief: 'rufen',
+	riefen: 'rufen',
+	riefst: 'rufen',
 	// finden
-	fand: 'finden', fanden: 'finden', fandst: 'finden',
+	fand: 'finden',
+	fanden: 'finden',
+	fandst: 'finden',
 	// geben
-	gab: 'geben', gaben: 'geben', gabst: 'geben',
+	gab: 'geben',
+	gaben: 'geben',
+	gabst: 'geben',
 	gibt: 'geben',
 	// nehmen
-	nahm: 'nehmen', nahmen: 'nehmen', nahmst: 'nehmen',
+	nahm: 'nehmen',
+	nahmen: 'nehmen',
+	nahmst: 'nehmen',
 	nimmt: 'nehmen',
 	// wissen
-	wusste: 'wissen', wussten: 'wissen', wusstest: 'wissen', weiß: 'wissen', weiss: 'wissen',
+	wusste: 'wissen',
+	wussten: 'wissen',
+	wusstest: 'wissen',
+	weiß: 'wissen',
+	weiss: 'wissen',
 	// haben
-	hatte: 'haben', hatten: 'haben', hattest: 'haben', hattet: 'haben',
+	hatte: 'haben',
+	hatten: 'haben',
+	hattest: 'haben',
+	hattet: 'haben',
 	// sein
-	war: 'sein', waren: 'sein', warst: 'sein', wart: 'sein',
-	ist: 'sein', bist: 'sein', bin: 'sein', seid: 'sein',
+	war: 'sein',
+	waren: 'sein',
+	warst: 'sein',
+	wart: 'sein',
+	ist: 'sein',
+	bist: 'sein',
+	bin: 'sein',
+	seid: 'sein',
 	// werden
-	wurde: 'werden', wurden: 'werden', wurdest: 'werden', wurdet: 'werden',
+	wurde: 'werden',
+	wurden: 'werden',
+	wurdest: 'werden',
+	wurdet: 'werden',
 	ward: 'werden',
 	// modal verbs (past tense forms)
-	wollte: 'wollen', wollten: 'wollen', wolltest: 'wollen',
-	musste: 'müssen', mussten: 'müssen', musstest: 'müssen', müssen: 'müssen',
-	konnte: 'können', konnten: 'können', konntest: 'können', kann: 'können',
-	durfte: 'dürfen', durften: 'dürfen', durftest: 'dürfen', darf: 'dürfen',
-	sollte: 'sollen', sollten: 'sollen', solltest: 'sollen',
-	mochte: 'mögen', mochten: 'mögen', mochtest: 'mögen', mag: 'mögen',
+	wollte: 'wollen',
+	wollten: 'wollen',
+	wolltest: 'wollen',
+	musste: 'müssen',
+	mussten: 'müssen',
+	musstest: 'müssen',
+	müssen: 'müssen',
+	konnte: 'können',
+	konnten: 'können',
+	konntest: 'können',
+	kann: 'können',
+	durfte: 'dürfen',
+	durften: 'dürfen',
+	durftest: 'dürfen',
+	darf: 'dürfen',
+	sollte: 'sollen',
+	sollten: 'sollen',
+	solltest: 'sollen',
+	mochte: 'mögen',
+	mochten: 'mögen',
+	mochtest: 'mögen',
+	mag: 'mögen',
 	// lassen
-	ließ: 'lassen', ließen: 'lassen', ließest: 'lassen', liess: 'lassen',
+	ließ: 'lassen',
+	ließen: 'lassen',
+	ließest: 'lassen',
+	liess: 'lassen',
 	// halten
-	hielt: 'halten', hielten: 'halten', hieltest: 'halten',
-	hält: 'halten', haelt: 'halten',
+	hielt: 'halten',
+	hielten: 'halten',
+	hieltest: 'halten',
+	hält: 'halten',
+	haelt: 'halten',
 	// fallen
-	fiel: 'fallen', fielen: 'fallen', fielst: 'fallen',
-	fällt: 'fallen', faellt: 'fallen',
+	fiel: 'fallen',
+	fielen: 'fallen',
+	fielst: 'fallen',
+	fällt: 'fallen',
+	faellt: 'fallen',
 	// schlafen
-	schlief: 'schlafen', schliefen: 'schlafen', schliefst: 'schlafen',
-	schläft: 'schlafen', schlaeft: 'schlafen',
+	schlief: 'schlafen',
+	schliefen: 'schlafen',
+	schliefst: 'schlafen',
+	schläft: 'schlafen',
+	schlaeft: 'schlafen',
 	// tragen
-	trug: 'tragen', trugen: 'tragen', trugst: 'tragen',
-	trägt: 'tragen', traegt: 'tragen',
+	trug: 'tragen',
+	trugen: 'tragen',
+	trugst: 'tragen',
+	trägt: 'tragen',
+	traegt: 'tragen',
 	// wachsen
-	wuchs: 'wachsen', wuchsen: 'wachsen', wuchsest: 'wachsen',
+	wuchs: 'wachsen',
+	wuchsen: 'wachsen',
+	wuchsest: 'wachsen',
 	// ziehen
-	zog: 'ziehen', zogen: 'ziehen', zogst: 'ziehen',
+	zog: 'ziehen',
+	zogen: 'ziehen',
+	zogst: 'ziehen',
 	// lügen
-	log: 'lügen', logen: 'lügen', logst: 'lügen',
+	log: 'lügen',
+	logen: 'lügen',
+	logst: 'lügen',
 	// bitten
-	bat: 'bitten', baten: 'bitten', batest: 'bitten',
+	bat: 'bitten',
+	baten: 'bitten',
+	batest: 'bitten',
 	// bieten
-	bot: 'bieten', boten: 'bieten', botst: 'bieten',
+	bot: 'bieten',
+	boten: 'bieten',
+	botst: 'bieten',
 	// fliegen
-	flog: 'fliegen', flogen: 'fliegen', flogst: 'fliegen',
+	flog: 'fliegen',
+	flogen: 'fliegen',
+	flogst: 'fliegen',
 	// schwimmen
-	schwamm: 'schwimmen', schwammen: 'schwimmen', schwammst: 'schwimmen',
+	schwamm: 'schwimmen',
+	schwammen: 'schwimmen',
+	schwammst: 'schwimmen',
 	// werfen
-	warf: 'werfen', warfen: 'werfen', warfst: 'werfen',
+	warf: 'werfen',
+	warfen: 'werfen',
+	warfst: 'werfen',
 	wirft: 'werfen',
 	// treffen
-	traf: 'treffen', trafen: 'treffen', trafst: 'treffen',
+	traf: 'treffen',
+	trafen: 'treffen',
+	trafst: 'treffen',
 	trifft: 'treffen',
 	// helfen
-	half: 'helfen', halfen: 'helfen', halfst: 'helfen',
+	half: 'helfen',
+	halfen: 'helfen',
+	halfst: 'helfen',
 	hilft: 'helfen',
 	// sterben
-	starb: 'sterben', starben: 'sterben', starbst: 'sterben',
+	starb: 'sterben',
+	starben: 'sterben',
+	starbst: 'sterben',
 	stirbt: 'sterben',
 	// werben
-	warb: 'werben', warben: 'werben', warbst: 'werben',
+	warb: 'werben',
+	warben: 'werben',
+	warbst: 'werben',
 	wirbt: 'werben',
 	// brechen
-	brach: 'brechen', brachen: 'brechen', brachst: 'brechen',
+	brach: 'brechen',
+	brachen: 'brechen',
+	brachst: 'brechen',
 	bricht: 'brechen',
 	// schwören
-	schwor: 'schwören', schworen: 'schwören',
+	schwor: 'schwören',
+	schworen: 'schwören',
 	// streiten
-	stritt: 'streiten', stritten: 'streiten', strittest: 'streiten',
+	stritt: 'streiten',
+	stritten: 'streiten',
+	strittest: 'streiten',
 	// reiten
-	ritt: 'reiten', ritten: 'reiten', rittest: 'reiten',
+	ritt: 'reiten',
+	ritten: 'reiten',
+	rittest: 'reiten',
 	// schneiden
-	schnitt: 'schneiden', schnitten: 'schneiden', schnittest: 'schneiden',
+	schnitt: 'schneiden',
+	schnitten: 'schneiden',
+	schnittest: 'schneiden',
 	// leiden
-	litt: 'leiden', litten: 'leiden', littest: 'leiden',
+	litt: 'leiden',
+	litten: 'leiden',
+	littest: 'leiden',
 	// greifen
-	griff: 'greifen', griffen: 'greifen', griffst: 'greifen',
+	griff: 'greifen',
+	griffen: 'greifen',
+	griffst: 'greifen',
 	// treiben
-	trieb: 'treiben', trieben: 'treiben', triebst: 'treiben',
+	trieb: 'treiben',
+	trieben: 'treiben',
+	triebst: 'treiben',
 	// scheinen
-	schien: 'scheinen', schienen: 'scheinen', schienst: 'scheinen',
+	schien: 'scheinen',
+	schienen: 'scheinen',
+	schienst: 'scheinen',
 	// steigen
-	stieg: 'steigen', stiegen: 'steigen', stiegst: 'steigen',
+	stieg: 'steigen',
+	stiegen: 'steigen',
+	stiegst: 'steigen',
 	// schreien
-	schrie: 'schreien', schrien: 'schreien',
+	schrie: 'schreien',
+	schrien: 'schreien',
 	// fließen
-	floss: 'fließen', flossen: 'fließen',
+	floss: 'fließen',
+	flossen: 'fließen',
 	// schießen
-	schoss: 'schießen', schossen: 'schießen',
+	schoss: 'schießen',
+	schossen: 'schießen',
 	// genießen
-	genoss: 'genießen', genossen: 'genießen',
+	genoss: 'genießen',
+	genossen: 'genießen',
 	// vergessen
-	vergaß: 'vergessen', vergaßen: 'vergessen',
-	vergass: 'vergessen', vergassen: 'vergessen',
+	vergaß: 'vergessen',
+	vergaßen: 'vergessen',
+	vergass: 'vergessen',
+	vergassen: 'vergessen',
 	vergisst: 'vergessen',
 	// anfangen (past: fing; present umlaut 2nd/3rd person: fängst/fängt)
-	fing: 'anfangen', fingen: 'anfangen', fingst: 'anfangen',
-	fängst: 'anfangen', faengst: 'anfangen', fängt: 'anfangen', faengt: 'anfangen',
+	fing: 'anfangen',
+	fingen: 'anfangen',
+	fingst: 'anfangen',
+	fängst: 'anfangen',
+	faengst: 'anfangen',
+	fängt: 'anfangen',
+	faengt: 'anfangen',
 	// einladen (umlaut forms unique to this verb)
-	lädst: 'einladen', laedst: 'einladen', lädt: 'einladen', laedt: 'einladen',
+	lädst: 'einladen',
+	laedst: 'einladen',
+	lädt: 'einladen',
+	laedt: 'einladen'
 	// abfahren 2nd/3rd person umlaut forms (fährst/fährt) — note: these are
 	// already mapped to "fahren" via the fahren entry above; we leave them there
 	// since bare "fahren" is the correct fallback and the AI prompt will resolve
@@ -431,7 +568,7 @@ function restoreUmlauts(stem: string): string[] {
 		[/ss/g, 'ß'],
 		[/ae/g, 'ä'],
 		[/oe/g, 'ö'],
-		[/ue/g, 'ü'],
+		[/ue/g, 'ü']
 	];
 
 	// Single substitutions
@@ -507,7 +644,24 @@ export function stemWord(word: string, language: string): Set<string> {
 			if (rest.endsWith('t')) addBoth(rest.slice(0, -1) + 'en');
 		}
 	} else if (language === 'French') {
-		const suffixes = ['es', 's', 'ent', 'ons', 'ez', 'ais', 'ait', 'ions', 'iez', 'aient', 'er', 'ir', 're', 'ée', 'ées', 'és'];
+		const suffixes = [
+			'es',
+			's',
+			'ent',
+			'ons',
+			'ez',
+			'ais',
+			'ait',
+			'ions',
+			'iez',
+			'aient',
+			'er',
+			'ir',
+			're',
+			'ée',
+			'ées',
+			'és'
+		];
 		for (const suffix of suffixes) {
 			if (lower.length > suffix.length + 2 && lower.endsWith(suffix)) {
 				const stem = lower.slice(0, -suffix.length);
@@ -518,7 +672,44 @@ export function stemWord(word: string, language: string): Set<string> {
 			}
 		}
 	} else if (language === 'Spanish') {
-		const suffixes = ['as', 'a', 'amos', 'áis', 'an', 'es', 'e', 'emos', 'éis', 'en', 'is', 'imos', 'ís', 'aba', 'abas', 'ábamos', 'abais', 'aban', 'ía', 'ías', 'íamos', 'íais', 'ían', 'ar', 'er', 'ir', 'ado', 'ido', 'ados', 'idos', 'ada', 'ida', 'adas', 'idas', 's', 'es'];
+		const suffixes = [
+			'as',
+			'a',
+			'amos',
+			'áis',
+			'an',
+			'es',
+			'e',
+			'emos',
+			'éis',
+			'en',
+			'is',
+			'imos',
+			'ís',
+			'aba',
+			'abas',
+			'ábamos',
+			'abais',
+			'aban',
+			'ía',
+			'ías',
+			'íamos',
+			'íais',
+			'ían',
+			'ar',
+			'er',
+			'ir',
+			'ado',
+			'ido',
+			'ados',
+			'idos',
+			'ada',
+			'ida',
+			'adas',
+			'idas',
+			's',
+			'es'
+		];
 		for (const suffix of suffixes) {
 			if (lower.length > suffix.length + 2 && lower.endsWith(suffix)) {
 				const stem = lower.slice(0, -suffix.length);
@@ -538,7 +729,13 @@ export function stemWord(word: string, language: string): Set<string> {
  * Returns the resulting Vocabulary record, or null if skipped.
  */
 async function upsertAiVocabEntry(
-	v: { lemma?: string; meaning?: string; partOfSpeech?: string; gender?: string | null; plural?: string | null },
+	v: {
+		lemma?: string;
+		meaning?: string;
+		partOfSpeech?: string;
+		gender?: string | null;
+		plural?: string | null;
+	},
 	activeLangName: string,
 	activeLanguageId: string,
 	skipDbWrite: boolean,
@@ -567,7 +764,9 @@ async function upsertAiVocabEntry(
 			return prisma.vocabulary.update({
 				where: { id: existing.id },
 				data: {
-					meanings: { create: [{ value: v.meaning, partOfSpeech: v.partOfSpeech ?? existing.partOfSpeech }] },
+					meanings: {
+						create: [{ value: v.meaning, partOfSpeech: v.partOfSpeech ?? existing.partOfSpeech }]
+					},
 					partOfSpeech: v.partOfSpeech ?? existing.partOfSpeech,
 					isAutoGenerated: false
 				},
@@ -581,12 +780,13 @@ async function upsertAiVocabEntry(
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const gender = (v.gender ?? null) as any;
 		const frequency =
-			getFrequencyRank(cleanLemma, activeLangName) ??
-			estimateFrequencyRank(cleanLemma);
+			getFrequencyRank(cleanLemma, activeLangName) ?? estimateFrequencyRank(cleanLemma);
 		return prisma.vocabulary.create({
 			data: {
 				lemma: cleanLemma,
-				meanings: { create: [{ value: v.meaning ?? '', partOfSpeech: v.partOfSpeech ?? fallbackPartOfSpeech }] },
+				meanings: {
+					create: [{ value: v.meaning ?? '', partOfSpeech: v.partOfSpeech ?? fallbackPartOfSpeech }]
+				},
 				partOfSpeech: v.partOfSpeech ?? fallbackPartOfSpeech,
 				gender,
 				plural: v.plural ?? null,
@@ -656,14 +856,7 @@ export async function processVocabEnrichment(
 		]);
 
 		const unknownContentWords = [
-			...new Set(
-				rawWords
-					.filter(
-						(w) =>
-							w.length >= 2 &&
-							!foundLemmas.has(w.toLowerCase())
-					)
-			)
+			...new Set(rawWords.filter((w) => w.length >= 2 && !foundLemmas.has(w.toLowerCase())))
 		].slice(0, 20);
 
 		const ambiguousForLang = AMBIGUOUS_WORDS_BY_LANG[activeLangName] ?? [];
@@ -677,7 +870,10 @@ export async function processVocabEnrichment(
 				: [];
 		const fullSentence = targetLanguageText.replace(/<[^>]+>/g, '').trim();
 
-		if ((unknownContentWords.length > 0 || ambiguousInSentence.length > 0) && !enrichmentLlmInFlight) {
+		if (
+			(unknownContentWords.length > 0 || ambiguousInSentence.length > 0) &&
+			!enrichmentLlmInFlight
+		) {
 			enqueue({ type: 'vocab_enrichment', data: [], status: 'searching' });
 			enrichmentLlmInFlight = true;
 			try {
@@ -694,20 +890,25 @@ export async function processVocabEnrichment(
 							systemPrompt: `You are an expert ${activeLangName} lexicographer. For each word given (which may be an inflected or conjugated form), output its canonical dictionary lemma in ${activeLangName} with an English meaning. CRITICAL: The lemma must be the full canonical infinitive or base form as it appears in a dictionary — including any separable or inseparable prefix. For example, if given "fange" (from "anfangen"), return lemma "anfangen", not "fangen". If given "rufe" (from "anrufen"), return lemma "anrufen". If given "kommt" (from "ankommen"), return lemma "ankommen". For nouns, return the nominative singular form with correct capitalisation. Output ONLY valid JSON matching the requested schema, no markdown or extra text.`,
 							jsonMode: true,
 							temperature: 0.1,
-							onUsage: chargeQuota ? ({ totalTokens }) => {
-								recordTokenUsage(userId, totalTokens, true);
-							} : undefined
+							onUsage: chargeQuota
+								? ({ totalTokens }) => {
+										recordTokenUsage(userId, totalTokens, true);
+									}
+								: undefined
 						});
-						const aiResultRaw = typeof aiRes.choices?.[0]?.message?.content === 'string'
-							? aiRes.choices[0].message.content
-							: JSON.stringify(aiRes);
+						const aiResultRaw =
+							typeof aiRes.choices?.[0]?.message?.content === 'string'
+								? aiRes.choices[0].message.content
+								: JSON.stringify(aiRes);
 						const aiResult = JSON.parse(aiResultRaw);
 						if (aiResult?.vocabulary?.length > 0) {
-							const aiVocabEntries = (await Promise.all(
-								aiResult.vocabulary.map((v: any) =>
-									upsertAiVocabEntry(v, activeLangName, activeLanguageId, skipDbWrite, 'other')
+							const aiVocabEntries = (
+								await Promise.all(
+									aiResult.vocabulary.map((v: any) =>
+										upsertAiVocabEntry(v, activeLangName, activeLanguageId, skipDbWrite, 'other')
+									)
 								)
-							)).filter(Boolean);
+							).filter(Boolean);
 							enqueue({ type: 'vocab_enrichment', data: aiVocabEntries });
 						}
 					} catch (aiFallbackErr) {
@@ -728,20 +929,25 @@ export async function processVocabEnrichment(
 							systemPrompt: `You are an expert ${activeLangName} lexicographer. For each word given, provide a generic, dictionary-style definition and its grammatical role. DO NOT provide a definition that is tied to a specific context or sentence. Output ONLY valid JSON, no markdown.`,
 							jsonMode: true,
 							temperature: 0.1,
-							onUsage: chargeQuota ? ({ totalTokens }) => {
-								recordTokenUsage(userId, totalTokens, true);
-							} : undefined
+							onUsage: chargeQuota
+								? ({ totalTokens }) => {
+										recordTokenUsage(userId, totalTokens, true);
+									}
+								: undefined
 						});
-						const ctxRaw = typeof ctxRes.choices?.[0]?.message?.content === 'string'
-							? ctxRes.choices[0].message.content
-							: JSON.stringify(ctxRes);
+						const ctxRaw =
+							typeof ctxRes.choices?.[0]?.message?.content === 'string'
+								? ctxRes.choices[0].message.content
+								: JSON.stringify(ctxRes);
 						const ctxResult = JSON.parse(ctxRaw);
 						if (ctxResult?.vocabulary?.length > 0) {
-							const ctxEntries = (await Promise.all(
-								ctxResult.vocabulary.map((v: any) =>
-									upsertAiVocabEntry(v, activeLangName, activeLanguageId, skipDbWrite, 'pronoun')
+							const ctxEntries = (
+								await Promise.all(
+									ctxResult.vocabulary.map((v: any) =>
+										upsertAiVocabEntry(v, activeLangName, activeLanguageId, skipDbWrite, 'pronoun')
+									)
 								)
-							)).filter(Boolean);
+							).filter(Boolean);
 							enqueue({ type: 'vocab_enrichment', data: ctxEntries });
 						}
 					} catch (ctxErr) {

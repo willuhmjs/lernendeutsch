@@ -46,7 +46,12 @@ export const load = async ({ params, locals, url }) => {
 		}
 	}
 
-	if (!game.isPublished && game.creatorId !== locals.user.id && locals.user.role !== 'ADMIN' && !hasAssignmentAccess) {
+	if (
+		!game.isPublished &&
+		game.creatorId !== locals.user.id &&
+		locals.user.role !== 'ADMIN' &&
+		!hasAssignmentAccess
+	) {
 		throw redirect(302, '/play?tab=games');
 	}
 

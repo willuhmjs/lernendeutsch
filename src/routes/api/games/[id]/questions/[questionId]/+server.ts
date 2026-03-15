@@ -35,7 +35,9 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 		let filteredOptions = options;
 		if (options !== undefined && Array.isArray(options)) {
 			const targetAnswer = answer !== undefined ? answer : gameQuestion.answer;
-			filteredOptions = options.filter((opt: string) => opt.toLowerCase() !== targetAnswer.toLowerCase());
+			filteredOptions = options.filter(
+				(opt: string) => opt.toLowerCase() !== targetAnswer.toLowerCase()
+			);
 		}
 
 		const updatedQuestion = await prisma.gameQuestion.update({
@@ -44,7 +46,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 				question: question !== undefined ? question : gameQuestion.question,
 				answer: answer !== undefined ? answer : gameQuestion.answer,
 				options: filteredOptions !== undefined ? filteredOptions : gameQuestion.options,
-				order: order !== undefined ? order : gameQuestion.order,
+				order: order !== undefined ? order : gameQuestion.order
 			}
 		});
 

@@ -24,8 +24,12 @@
 		try {
 			await navigator.clipboard.writeText(text);
 			copiedId = id;
-			setTimeout(() => { copiedId = null; }, 1500);
-		} catch { /* clipboard unavailable */ }
+			setTimeout(() => {
+				copiedId = null;
+			}, 1500);
+		} catch {
+			/* clipboard unavailable */
+		}
 	}
 
 	// Track selected word for modal
@@ -79,7 +83,10 @@
 					// Also update the word in the results/learningWords lists so the
 					// data is fresh if the user closes and reopens the modal
 					results = results.map((r) => (r.id === enriched.id ? { ...r, ...enriched } : r));
-					learningWords = learningWords.map((r) => (r.id === enriched.id ? { ...r, ...enriched } : r));
+					// eslint-disable-next-line svelte/no-reactive-reassign
+					learningWords = learningWords.map((r) =>
+						r.id === enriched.id ? { ...r, ...enriched } : r
+					);
 				}
 			}
 		} catch (err) {
@@ -104,7 +111,7 @@
 	$: grammarRules = data.grammarRules || [];
 	$: learningWords = data.learningWords || [];
 	$: displayResults = query.trim() ? results : learningWords;
-	
+
 	let grammarSortMode: 'prereq' | 'alpha' = 'prereq';
 
 	// Topological sort (prerequisite chain order)
@@ -142,9 +149,10 @@
 	$: filteredTopoRules = (() => {
 		if (!grammarQuery.trim()) return topoSortedRules;
 		const q = grammarQuery.toLowerCase();
-		return topoSortedRules.filter((rule: any) =>
-			rule.title.toLowerCase().includes(q) ||
-			(rule.description && rule.description.toLowerCase().includes(q))
+		return topoSortedRules.filter(
+			(rule: any) =>
+				rule.title.toLowerCase().includes(q) ||
+				(rule.description && rule.description.toLowerCase().includes(q))
 		);
 	})();
 
@@ -153,9 +161,10 @@
 		const q = grammarQuery.toLowerCase();
 		const filtered: any = {};
 		for (const level of sortedLevels) {
-			const matching = groupedGrammar[level].filter((rule: any) =>
-				rule.title.toLowerCase().includes(q) ||
-				(rule.description && rule.description.toLowerCase().includes(q))
+			const matching = groupedGrammar[level].filter(
+				(rule: any) =>
+					rule.title.toLowerCase().includes(q) ||
+					(rule.description && rule.description.toLowerCase().includes(q))
 			);
 			if (matching.length > 0) filtered[level] = matching;
 		}
@@ -312,15 +321,15 @@
 	</div>
 
 	<div class="tabs-container">
-		<button 
-			class="tab-btn {activeTab === 'vocabulary' ? 'active' : ''}" 
-			onclick={() => activeTab = 'vocabulary'}
+		<button
+			class="tab-btn {activeTab === 'vocabulary' ? 'active' : ''}"
+			onclick={() => (activeTab = 'vocabulary')}
 		>
 			Vocabulary
 		</button>
-		<button 
-			class="tab-btn {activeTab === 'grammar' ? 'active' : ''}" 
-			onclick={() => activeTab = 'grammar'}
+		<button
+			class="tab-btn {activeTab === 'grammar' ? 'active' : ''}"
+			onclick={() => (activeTab = 'grammar')}
 		>
 			Grammar Library
 		</button>
@@ -368,7 +377,7 @@
 					</div>
 				{/if}
 			</div>
-			
+
 			<div class="keyboard-wrapper">
 				<SpecialCharKeyboard
 					language={currentLanguage}
@@ -405,7 +414,6 @@
 						<li class="result-item">
 							<div class="result-content">
 								<div class="result-details">
-									<!-- svelte-ignore a11y-no-static-element-interactions -->
 									<div
 										class="result-clickable"
 										onclick={() => openModal(result)}
@@ -427,8 +435,27 @@
 													</span>
 												{/if}
 											</h3>
-											<button class="copy-btn" onclick={(e) => { e.stopPropagation(); copyWord(result.id, result.lemma); }} title="Copy word" aria-label="Copy {result.lemma}">
-												{#if copiedId === result.id}✓{:else}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:0.9rem;height:0.9rem"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>{/if}
+											<button
+												class="copy-btn"
+												onclick={(e) => {
+													e.stopPropagation();
+													copyWord(result.id, result.lemma);
+												}}
+												title="Copy word"
+												aria-label="Copy {result.lemma}"
+											>
+												{#if copiedId === result.id}✓{:else}<svg
+														viewBox="0 0 24 24"
+														fill="none"
+														stroke="currentColor"
+														stroke-width="2"
+														stroke-linecap="round"
+														stroke-linejoin="round"
+														style="width:0.9rem;height:0.9rem"
+														><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path
+															d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+														></path></svg
+													>{/if}
 											</button>
 										</div>
 										<p class="result-meaning">
@@ -444,7 +471,10 @@
 											</p>
 										{/if}
 										{#if result.userSrsState}
-											<span class="srs-badge srs-{result.userSrsState.toLowerCase()}">{result.userSrsState.charAt(0) + result.userSrsState.slice(1).toLowerCase()}</span>
+											<span class="srs-badge srs-{result.userSrsState.toLowerCase()}"
+												>{result.userSrsState.charAt(0) +
+													result.userSrsState.slice(1).toLowerCase()}</span
+											>
 										{/if}
 									</div>
 								</div>
@@ -468,7 +498,18 @@
 							{#if llmLoading}
 								<span class="spinner-small"></span> Asking AI...
 							{:else}
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.1rem;height:1.1rem;flex-shrink:0;margin-right:0.5rem;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+								<svg
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									style="width:1.1rem;height:1.1rem;flex-shrink:0;margin-right:0.5rem;"
+									><path
+										d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"
+									/></svg
+								>
 								Ask AI about "{query}"
 							{/if}
 						</button>
@@ -492,14 +533,25 @@
 					</svg>
 					<h3 class="no-results-title">Word not found</h3>
 					<p class="no-results-text">Would you like to ask the AI to define it?</p>
-					
+
 					<div class="ask-ai-section">
 						{#if activeLanguageId}
 							<button onclick={handleAskAI} class="btn-ask-ai" disabled={llmLoading}>
 								{#if llmLoading}
 									<span class="spinner-small"></span> Asking AI...
 								{:else}
-									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.25rem;height:1.25rem;flex-shrink:0;margin-right:0.5rem;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+									<svg
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										style="width:1.25rem;height:1.25rem;flex-shrink:0;margin-right:0.5rem;"
+										><path
+											d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"
+										/></svg
+									>
 									Ask AI about "{query}"
 								{/if}
 							</button>
@@ -523,8 +575,19 @@
 			<div class="grammar-library-toolbar">
 				<div class="grammar-search-wrapper">
 					<div class="search-icon-wrapper">
-						<svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+						<svg
+							class="search-icon"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+							></path>
 						</svg>
 					</div>
 					<input
@@ -542,11 +605,21 @@
 							title="Sort by prerequisite chain"
 							aria-pressed={grammarSortMode === 'prereq'}
 						>
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true">
-								<path d="M8 6h13M8 12h9M8 18h5"/>
-								<circle cx="3" cy="6" r="1.5" fill="currentColor" stroke="none"/>
-								<circle cx="3" cy="12" r="1.5" fill="currentColor" stroke="none"/>
-								<circle cx="3" cy="18" r="1.5" fill="currentColor" stroke="none"/>
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								width="15"
+								height="15"
+								aria-hidden="true"
+							>
+								<path d="M8 6h13M8 12h9M8 18h5" />
+								<circle cx="3" cy="6" r="1.5" fill="currentColor" stroke="none" />
+								<circle cx="3" cy="12" r="1.5" fill="currentColor" stroke="none" />
+								<circle cx="3" cy="18" r="1.5" fill="currentColor" stroke="none" />
 							</svg>
 							<span>Chain</span>
 						</button>
@@ -556,14 +629,39 @@
 							title="Sort alphabetically by level"
 							aria-pressed={grammarSortMode === 'alpha'}
 						>
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true">
-								<path d="M3 6h4l3 12M3 6l3 12m-3 0h6M14 6l4 12m0 0l-2-6m2 6h-4m4 0l2-6"/>
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								width="15"
+								height="15"
+								aria-hidden="true"
+							>
+								<path d="M3 6h4l3 12M3 6l3 12m-3 0h6M14 6l4 12m0 0l-2-6m2 6h-4m4 0l2-6" />
 							</svg>
 							<span>A–Z</span>
 						</button>
 					</div>
-					<button class="btn-export-pdf no-print" onclick={() => window.print()} title="Export grammar guide as PDF">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+					<button
+						class="btn-export-pdf no-print"
+						onclick={() => window.print()}
+						title="Export grammar guide as PDF"
+					>
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							style="width:1rem;height:1rem"
+							><polyline points="6 9 6 2 18 2 18 9"></polyline><path
+								d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"
+							></path><rect x="6" y="14" width="12" height="8"></rect></svg
+						>
 						Export PDF
 					</button>
 				</div>
@@ -601,21 +699,58 @@
 										{/if}
 										<span class="grammar-toggle-btn" aria-hidden="true">
 											{#if expandedGrammarId === rule.id}
-												<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+												<svg
+													fill="none"
+													stroke="currentColor"
+													viewBox="0 0 24 24"
+													width="24"
+													height="24"
+													aria-hidden="true"
+													><path
+														stroke-linecap="round"
+														stroke-linejoin="round"
+														stroke-width="2"
+														d="M5 15l7-7 7 7"
+													></path></svg
+												>
 											{:else}
-												<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+												<svg
+													fill="none"
+													stroke="currentColor"
+													viewBox="0 0 24 24"
+													width="24"
+													height="24"
+													aria-hidden="true"
+													><path
+														stroke-linecap="round"
+														stroke-linejoin="round"
+														stroke-width="2"
+														d="M19 9l-7 7-7-7"
+													></path></svg
+												>
 											{/if}
 										</span>
 									</div>
 								</button>
 
 								{#if expandedGrammarId === rule.id}
-									<div class="grammar-rule-content" id="grammar-{rule.id}" transition:slide={{ duration: 200 }}>
+									<div
+										class="grammar-rule-content"
+										id="grammar-{rule.id}"
+										transition:slide={{ duration: 200 }}
+									>
 										{#if rule.dependencies?.length > 0}
 											<div class="grammar-prereqs">
 												<span class="prereq-label">Requires:</span>
 												{#each rule.dependencies as dep, i}
-													<button type="button" class="prereq-link" onclick={() => toggleGrammar(dep.id)} title="Jump to: {dep.title}">{dep.title}</button>{#if i < rule.dependencies.length - 1}<span class="prereq-arrow"> → </span>{/if}
+													<button
+														type="button"
+														class="prereq-link"
+														onclick={() => toggleGrammar(dep.id)}
+														title="Jump to: {dep.title}">{dep.title}</button
+													>{#if i < rule.dependencies.length - 1}<span class="prereq-arrow">
+															→
+														</span>{/if}
 												{/each}
 											</div>
 										{/if}
@@ -630,63 +765,98 @@
 						{/each}
 					</div>
 				{/if}
+			{:else if filteredLevels.length === 0}
+				<div class="empty-state">
+					<p>No rules match "{grammarQuery}".</p>
+				</div>
 			{:else}
-				{#if filteredLevels.length === 0}
-					<div class="empty-state">
-						<p>No rules match "{grammarQuery}".</p>
-					</div>
-				{:else}
-					{#each filteredLevels as level}
-						<div class="grammar-level-section">
-							<h2 class="level-heading">Level {level}</h2>
-							<div class="grammar-rules-list">
-								{#each filteredGroupedGrammar[level] as rule}
-									<div class="grammar-rule-card">
-										<button
-											type="button"
-											class="grammar-rule-header"
-											onclick={() => toggleGrammar(rule.id)}
-											aria-expanded={expandedGrammarId === rule.id}
-											aria-controls="grammar-{rule.id}"
-										>
-											<div class="grammar-rule-title-wrapper">
-												<h3 class="grammar-rule-title">{rule.title}</h3>
-												{#if rule.description}
-													<p class="grammar-rule-desc">{rule.description}</p>
-												{/if}
-											</div>
-											<span class="grammar-toggle-btn" aria-hidden="true">
-												{#if expandedGrammarId === rule.id}
-													<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
-												{:else}
-													<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-												{/if}
-											</span>
-										</button>
+				{#each filteredLevels as level}
+					<div class="grammar-level-section">
+						<h2 class="level-heading">Level {level}</h2>
+						<div class="grammar-rules-list">
+							{#each filteredGroupedGrammar[level] as rule}
+								<div class="grammar-rule-card">
+									<button
+										type="button"
+										class="grammar-rule-header"
+										onclick={() => toggleGrammar(rule.id)}
+										aria-expanded={expandedGrammarId === rule.id}
+										aria-controls="grammar-{rule.id}"
+									>
+										<div class="grammar-rule-title-wrapper">
+											<h3 class="grammar-rule-title">{rule.title}</h3>
+											{#if rule.description}
+												<p class="grammar-rule-desc">{rule.description}</p>
+											{/if}
+										</div>
+										<span class="grammar-toggle-btn" aria-hidden="true">
+											{#if expandedGrammarId === rule.id}
+												<svg
+													fill="none"
+													stroke="currentColor"
+													viewBox="0 0 24 24"
+													width="24"
+													height="24"
+													aria-hidden="true"
+													><path
+														stroke-linecap="round"
+														stroke-linejoin="round"
+														stroke-width="2"
+														d="M5 15l7-7 7 7"
+													></path></svg
+												>
+											{:else}
+												<svg
+													fill="none"
+													stroke="currentColor"
+													viewBox="0 0 24 24"
+													width="24"
+													height="24"
+													aria-hidden="true"
+													><path
+														stroke-linecap="round"
+														stroke-linejoin="round"
+														stroke-width="2"
+														d="M19 9l-7 7-7-7"
+													></path></svg
+												>
+											{/if}
+										</span>
+									</button>
 
-										{#if expandedGrammarId === rule.id}
-											<div class="grammar-rule-content" id="grammar-{rule.id}" transition:slide={{ duration: 200 }}>
-												{#if rule.dependencies?.length > 0}
-													<div class="grammar-prereqs">
-														<span class="prereq-label">Requires:</span>
-														{#each rule.dependencies as dep, i}
-															<button type="button" class="prereq-link" onclick={() => toggleGrammar(dep.id)} title="Jump to: {dep.title}">{dep.title}</button>{#if i < rule.dependencies.length - 1}<span class="prereq-arrow"> → </span>{/if}
-														{/each}
-													</div>
-												{/if}
-												{#if rule.guide}
-													<div class="grammar-guide markdown-body">
-														{@html marked(rule.guide)}
-													</div>
-												{/if}
-											</div>
-										{/if}
-									</div>
-								{/each}
-							</div>
+									{#if expandedGrammarId === rule.id}
+										<div
+											class="grammar-rule-content"
+											id="grammar-{rule.id}"
+											transition:slide={{ duration: 200 }}
+										>
+											{#if rule.dependencies?.length > 0}
+												<div class="grammar-prereqs">
+													<span class="prereq-label">Requires:</span>
+													{#each rule.dependencies as dep, i}
+														<button
+															type="button"
+															class="prereq-link"
+															onclick={() => toggleGrammar(dep.id)}
+															title="Jump to: {dep.title}">{dep.title}</button
+														>{#if i < rule.dependencies.length - 1}<span class="prereq-arrow">
+																→
+															</span>{/if}
+													{/each}
+												</div>
+											{/if}
+											{#if rule.guide}
+												<div class="grammar-guide markdown-body">
+													{@html marked(rule.guide)}
+												</div>
+											{/if}
+										</div>
+									{/if}
+								</div>
+							{/each}
 						</div>
-					{/each}
-				{/if}
+					</div>
+				{/each}
 			{/if}
 		</div>
 	{/if}
@@ -696,16 +866,57 @@
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
 	<div class="modal-backdrop" onclick={closeModal} transition:fade={{ duration: 200 }}>
-		<div class="modal-content" onclick={(e) => e.stopPropagation()} transition:fly={{ y: 20, duration: 200 }}>
+		<div
+			class="modal-content"
+			onclick={(e) => e.stopPropagation()}
+			transition:fly={{ y: 20, duration: 200 }}
+		>
 			<!-- Header band -->
-			<div class="modal-header" class:gender-feminine={selectedResult.gender?.toLowerCase() === 'feminine'} class:gender-masculine={selectedResult.gender?.toLowerCase() === 'masculine'} class:gender-neuter={selectedResult.gender?.toLowerCase() === 'neuter'}>
+			<div
+				class="modal-header"
+				class:gender-feminine={selectedResult.gender?.toLowerCase() === 'feminine'}
+				class:gender-masculine={selectedResult.gender?.toLowerCase() === 'masculine'}
+				class:gender-neuter={selectedResult.gender?.toLowerCase() === 'neuter'}
+			>
 				<button class="modal-close" onclick={closeModal} aria-label="Close">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+					<svg
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2.5"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg
+					>
 				</button>
 				<div class="modal-header-main">
 					<div class="modal-title-row">
 						<h2 class="modal-title">{selectedResult.lemma}</h2>
-						<button class="copy-btn copy-btn-modal" onclick={() => copyWord('modal-' + selectedResult.id, selectedResult.lemma + (selectedResult.meanings?.[0]?.value ? ' — ' + selectedResult.meanings[0].value : ''))} title="Copy word" aria-label="Copy {selectedResult.lemma}">{#if copiedId === 'modal-' + selectedResult.id}✓{:else}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>{/if}</button>
+						<button
+							class="copy-btn copy-btn-modal"
+							onclick={() =>
+								copyWord(
+									'modal-' + selectedResult.id,
+									selectedResult.lemma +
+										(selectedResult.meanings?.[0]?.value
+											? ' — ' + selectedResult.meanings[0].value
+											: '')
+								)}
+							title="Copy word"
+							aria-label="Copy {selectedResult.lemma}"
+							>{#if copiedId === 'modal-' + selectedResult.id}✓{:else}<svg
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									style="width:1rem;height:1rem"
+									><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path
+										d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+									></path></svg
+								>{/if}</button
+						>
 					</div>
 					<div class="modal-header-meta">
 						{#if selectedResult.partOfSpeech}
@@ -717,11 +928,16 @@
 							</span>
 						{/if}
 						{#if selectedResult.metadata?.level}
-							<span class="modal-level-badge level-{selectedResult.metadata.level.toLowerCase()}">{selectedResult.metadata.level}</span>
+							<span class="modal-level-badge level-{selectedResult.metadata.level.toLowerCase()}"
+								>{selectedResult.metadata.level}</span
+							>
 						{/if}
 						{#if selectedResult.frequency != null}
 							{@const rank = selectedResult.frequency}
-							<span class="modal-freq-badge" title="Corpus frequency rank #{rank} — lower = more common">
+							<span
+								class="modal-freq-badge"
+								title="Corpus frequency rank #{rank} — lower = more common"
+							>
 								#{rank.toLocaleString()}
 							</span>
 						{/if}
@@ -738,18 +954,44 @@
 				<!-- Meaning -->
 				<div class="dict-entry">
 					<span class="dict-entry-icon">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path
+								d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
+							/></svg
+						>
 					</span>
 					<div class="dict-entry-body">
 						<span class="dict-label">meaning</span>
-						<p class="dict-meaning">{selectedResult.meanings?.[0]?.value || 'No meaning provided'}</p>
+						<p class="dict-meaning">
+							{selectedResult.meanings?.[0]?.value || 'No meaning provided'}
+						</p>
 					</div>
 				</div>
 
 				{#if selectedResult.plural}
 					<div class="dict-entry">
 						<span class="dict-entry-icon">
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="8" height="14" rx="1"/><rect x="14" y="3" width="8" height="18" rx="1"/></svg>
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								><rect x="2" y="7" width="8" height="14" rx="1" /><rect
+									x="14"
+									y="3"
+									width="8"
+									height="18"
+									rx="1"
+								/></svg
+							>
 						</span>
 						<div class="dict-entry-body">
 							<span class="dict-label">plural</span>
@@ -762,7 +1004,17 @@
 					{#if selectedResult.metadata.declensions}
 						<div class="dict-entry dict-entry-block">
 							<span class="dict-entry-icon">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>
+								<svg
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									><rect x="3" y="3" width="18" height="18" rx="2" /><path
+										d="M3 9h18M3 15h18M9 3v18"
+									/></svg
+								>
 							</span>
 							<div class="dict-entry-body">
 								<span class="dict-label">declensions</span>
@@ -771,7 +1023,7 @@
 										<tr>
 											<th>case</th>
 											{#if typeof Object.values(selectedResult.metadata.declensions)[0] === 'object'}
-												{#each Object.keys(Object.values(selectedResult.metadata.declensions)[0] as Record<string,string>) as col}
+												{#each Object.keys(Object.values(selectedResult.metadata.declensions)[0] as Record<string, string>) as col}
 													<th>{col}</th>
 												{/each}
 											{:else}
@@ -801,7 +1053,15 @@
 					{#if selectedResult.metadata.example}
 						<div class="dict-entry dict-entry-example">
 							<span class="dict-entry-icon">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+								<svg
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg
+								>
 							</span>
 							<div class="dict-entry-body">
 								<span class="dict-label">example</span>
@@ -816,7 +1076,15 @@
 					{#if selectedResult.metadata.synonyms?.length > 0 || selectedResult.metadata.antonyms?.length > 0}
 						<div class="dict-entry">
 							<span class="dict-entry-icon">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4m0 0L3 8m4-4 4 4"/><path d="M17 8v12m0 0 4-4m-4 4-4-4"/></svg>
+								<svg
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									><path d="M7 16V4m0 0L3 8m4-4 4 4" /><path d="M17 8v12m0 0 4-4m-4 4-4-4" /></svg
+								>
 							</span>
 							<div class="dict-entry-body">
 								{#if selectedResult.metadata.synonyms?.length > 0}
@@ -842,7 +1110,17 @@
 					{#if selectedResult.metadata.conjugations}
 						<div class="dict-entry dict-entry-block">
 							<span class="dict-entry-icon">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+								<svg
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									><path d="M12 20h9" /><path
+										d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
+									/></svg
+								>
 							</span>
 							<div class="dict-entry-body">
 								<span class="dict-label">conjugations</span>
@@ -870,7 +1148,20 @@
 					{#if !selectedResult.metadata.conjugations && !selectedResult.metadata.declensions && !selectedResult.metadata.example && !selectedResult.metadata.synonyms && !selectedResult.metadata.antonyms && !selectedResult.metadata.level && Object.keys(selectedResult.metadata).length > 0}
 						<div class="dict-entry">
 							<span class="dict-entry-icon">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+								<svg
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line
+										x1="12"
+										y1="16"
+										x2="12.01"
+										y2="16"
+									/></svg
+								>
 							</span>
 							<div class="dict-entry-body">
 								<span class="dict-label">details</span>
@@ -884,7 +1175,15 @@
 			<div class="modal-footer">
 				{#if addedWords.includes(selectedResult.id)}
 					<button disabled class="btn-added">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem"><polyline points="20 6 9 17 4 12"/></svg>
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2.5"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							style="width:1rem;height:1rem"><polyline points="20 6 9 17 4 12" /></svg
+						>
 						Added to List
 					</button>
 				{:else}
@@ -895,7 +1194,16 @@
 						}}
 						class="btn-add"
 					>
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2.5"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							style="width:1rem;height:1rem"
+							><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg
+						>
 						Add to My List
 					</button>
 				{/if}
@@ -949,7 +1257,9 @@
 		opacity: 0.6;
 		cursor: pointer;
 		position: relative;
-		transition: color 0.2s, opacity 0.2s;
+		transition:
+			color 0.2s,
+			opacity 0.2s;
 	}
 
 	.tab-btn:hover {
@@ -1026,7 +1336,9 @@
 		display: flex;
 		align-items: center;
 		gap: 0.75rem;
-		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+		box-shadow:
+			0 4px 6px -1px rgba(0, 0, 0, 0.1),
+			0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		z-index: 10;
 	}
 
@@ -1075,7 +1387,9 @@
 	}
 
 	@keyframes spin {
-		to { transform: rotate(360deg); }
+		to {
+			transform: rotate(360deg);
+		}
 	}
 
 	.learning-words-label {
@@ -1097,8 +1411,13 @@
 
 	/* Skeleton loading */
 	@keyframes skeleton-pulse {
-		0%, 100% { opacity: 1; }
-		50% { opacity: 0.4; }
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.4;
+		}
 	}
 
 	.skeleton-list .result-item {
@@ -1142,7 +1461,9 @@
 		border: 1px solid var(--card-border, #e5e7eb);
 		border-radius: 0.5rem;
 		overflow: hidden;
-		transition: transform 0.2s, box-shadow 0.2s;
+		transition:
+			transform 0.2s,
+			box-shadow 0.2s;
 	}
 
 	.result-item:hover {
@@ -1177,7 +1498,8 @@
 		color: var(--text-color, #111827);
 	}
 
-	.copy-btn, .copy-btn-modal {
+	.copy-btn,
+	.copy-btn-modal {
 		background: none;
 		border: none;
 		cursor: pointer;
@@ -1191,7 +1513,8 @@
 		flex-shrink: 0;
 	}
 
-	.copy-btn:hover, .copy-btn-modal:hover {
+	.copy-btn:hover,
+	.copy-btn-modal:hover {
 		color: #3b82f6;
 	}
 
@@ -1243,15 +1566,39 @@
 		letter-spacing: 0.04em;
 	}
 
-	.srs-unseen  { background: #e2e8f0; color: #475569; }
-	.srs-learning { background: #fef9c3; color: #854d0e; }
-	.srs-known   { background: #d1fae5; color: #065f46; }
-	.srs-mastered { background: #a7f3d0; color: #064e3b; }
+	.srs-unseen {
+		background: #e2e8f0;
+		color: #475569;
+	}
+	.srs-learning {
+		background: #fef9c3;
+		color: #854d0e;
+	}
+	.srs-known {
+		background: #d1fae5;
+		color: #065f46;
+	}
+	.srs-mastered {
+		background: #a7f3d0;
+		color: #064e3b;
+	}
 
-	:global(html[data-theme='dark']) .srs-unseen   { background: #334155; color: #94a3b8; }
-	:global(html[data-theme='dark']) .srs-learning { background: #422006; color: #fde68a; }
-	:global(html[data-theme='dark']) .srs-known    { background: #064e3b; color: #6ee7b7; }
-	:global(html[data-theme='dark']) .srs-mastered { background: #022c22; color: #34d399; }
+	:global(html[data-theme='dark']) .srs-unseen {
+		background: #334155;
+		color: #94a3b8;
+	}
+	:global(html[data-theme='dark']) .srs-learning {
+		background: #422006;
+		color: #fde68a;
+	}
+	:global(html[data-theme='dark']) .srs-known {
+		background: #064e3b;
+		color: #6ee7b7;
+	}
+	:global(html[data-theme='dark']) .srs-mastered {
+		background: #022c22;
+		color: #34d399;
+	}
 
 	.btn-add {
 		background-color: #3b82f6;
@@ -1264,11 +1611,18 @@
 		display: inline-flex;
 		align-items: center;
 		gap: 0.375rem;
-		transition: background-color 0.15s, transform 0.1s;
+		transition:
+			background-color 0.15s,
+			transform 0.1s;
 	}
 
-	.btn-add:hover { background-color: #2563eb; transform: translateY(-1px); }
-	.btn-add:active { transform: translateY(0); }
+	.btn-add:hover {
+		background-color: #2563eb;
+		transform: translateY(-1px);
+	}
+	.btn-add:active {
+		transform: translateY(0);
+	}
 
 	.btn-added {
 		background-color: #dcfce7;
@@ -1685,7 +2039,9 @@
 		background-color: var(--card-bg, #ffffff);
 		border: 1px solid var(--card-border, #e5e7eb);
 		border-radius: 0.875rem;
-		box-shadow: 0 24px 48px -8px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0,0,0,0.04);
+		box-shadow:
+			0 24px 48px -8px rgba(0, 0, 0, 0.22),
+			0 0 0 1px rgba(0, 0, 0, 0.04);
 		max-width: 34rem;
 		width: 100%;
 		max-height: 90vh;
@@ -1714,9 +2070,15 @@
 		border-radius: 0.875rem 0 0 0;
 	}
 
-	.modal-header.gender-feminine::before { background: #ec4899; }
-	.modal-header.gender-masculine::before { background: #3b82f6; }
-	.modal-header.gender-neuter::before { background: #10b981; }
+	.modal-header.gender-feminine::before {
+		background: #ec4899;
+	}
+	.modal-header.gender-masculine::before {
+		background: #3b82f6;
+	}
+	.modal-header.gender-neuter::before {
+		background: #10b981;
+	}
 
 	.modal-close {
 		position: absolute;
@@ -1733,12 +2095,20 @@
 		color: var(--text-color, #9ca3af);
 		opacity: 0.6;
 		cursor: pointer;
-		transition: opacity 0.15s, background 0.15s;
+		transition:
+			opacity 0.15s,
+			background 0.15s;
 		padding: 0;
 	}
 
-	.modal-close svg { width: 1rem; height: 1rem; }
-	.modal-close:hover { opacity: 1; background: var(--link-hover-bg, #f3f4f6); }
+	.modal-close svg {
+		width: 1rem;
+		height: 1rem;
+	}
+	.modal-close:hover {
+		opacity: 1;
+		background: var(--link-hover-bg, #f3f4f6);
+	}
 
 	.modal-header-main {
 		padding-left: 0.5rem;
@@ -1798,9 +2168,18 @@
 		border-radius: 999px;
 	}
 
-	.gender-badge-feminine  { background: #fce7f3; color: #be185d; }
-	.gender-badge-masculine { background: #dbeafe; color: #1d4ed8; }
-	.gender-badge-neuter    { background: #d1fae5; color: #065f46; }
+	.gender-badge-feminine {
+		background: #fce7f3;
+		color: #be185d;
+	}
+	.gender-badge-masculine {
+		background: #dbeafe;
+		color: #1d4ed8;
+	}
+	.gender-badge-neuter {
+		background: #d1fae5;
+		color: #065f46;
+	}
 
 	.modal-level-badge {
 		font-size: 0.7rem;
@@ -1855,7 +2234,9 @@
 		align-items: flex-start;
 	}
 
-	.dict-entry:last-child { border-bottom: none; }
+	.dict-entry:last-child {
+		border-bottom: none;
+	}
 
 	.dict-entry-icon {
 		flex-shrink: 0;
@@ -1866,7 +2247,10 @@
 		opacity: 0.5;
 	}
 
-	.dict-entry-icon svg { width: 100%; height: 100%; }
+	.dict-entry-icon svg {
+		width: 100%;
+		height: 100%;
+	}
 
 	.dict-entry-body {
 		flex: 1;
@@ -1900,7 +2284,9 @@
 	}
 
 	/* Declension / conjugation table */
-	.dict-entry-block { align-items: flex-start; }
+	.dict-entry-block {
+		align-items: flex-start;
+	}
 
 	.declension-table {
 		width: 100%;
@@ -1926,7 +2312,9 @@
 		border-bottom: 1px solid var(--card-border, #f3f4f6);
 	}
 
-	.declension-table tr:last-child td { border-bottom: none; }
+	.declension-table tr:last-child td {
+		border-bottom: none;
+	}
 
 	.case-name {
 		font-weight: 600;
@@ -1952,7 +2340,9 @@
 	}
 
 	/* Example block */
-	.dict-entry-example { background: var(--link-hover-bg, #f9fafb); }
+	.dict-entry-example {
+		background: var(--link-hover-bg, #f9fafb);
+	}
 
 	.example-sentence {
 		font-size: 0.9375rem;
@@ -1983,8 +2373,16 @@
 		font-weight: 500;
 	}
 
-	.word-tag-syn { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
-	.word-tag-ant { background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; }
+	.word-tag-syn {
+		background: #eff6ff;
+		color: #1d4ed8;
+		border: 1px solid #bfdbfe;
+	}
+	.word-tag-ant {
+		background: #fff1f2;
+		color: #be123c;
+		border: 1px solid #fecdd3;
+	}
 
 	.modal-metadata {
 		font-size: 0.75rem;

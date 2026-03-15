@@ -21,7 +21,13 @@ export async function POST({ request, locals }) {
 		// don't inflate stability as fast as a genuinely perfect answer.
 		const effectiveScore = wasOverridden ? Math.min(score, 0.8) : score;
 
-		await updateSrsMetrics(locals.user.id, vocabularyId, effectiveScore, 'vocabulary', wasOverridden);
+		await updateSrsMetrics(
+			locals.user.id,
+			vocabularyId,
+			effectiveScore,
+			'vocabulary',
+			wasOverridden
+		);
 
 		if (effectiveScore >= XP_CONFIG.SCORE_THRESHOLD) {
 			const cefrLevel = locals.user.cefrLevel || 'A1';

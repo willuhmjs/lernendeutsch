@@ -38,7 +38,7 @@ Be lenient with spelling variations and accept common synonyms.`;
 Correct meaning: ${correctMeaning}
 Student's answer: ${userAnswer}`;
 
-		if (!useLocalLlm && await isQuotaExceeded(userId, false)) {
+		if (!useLocalLlm && (await isQuotaExceeded(userId, false))) {
 			return json({ correct: false, score: 0 });
 		}
 
@@ -48,9 +48,11 @@ Student's answer: ${userAnswer}`;
 			systemPrompt,
 			jsonMode: true,
 			temperature: 0.1,
-			onUsage: useLocalLlm ? undefined : ({ totalTokens }) => {
-				recordTokenUsage(userId, totalTokens);
-			}
+			onUsage: useLocalLlm
+				? undefined
+				: ({ totalTokens }) => {
+						recordTokenUsage(userId, totalTokens);
+					}
 		});
 
 		const result = JSON.parse(response.choices[0].message.content);

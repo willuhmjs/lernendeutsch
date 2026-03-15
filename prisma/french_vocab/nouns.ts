@@ -331,5 +331,5 @@ export const nouns = [
 	{ word: 'coin', translation: 'corner' },
 	{ word: 'sort', translation: 'fate' },
 	{ word: 'effort', translation: 'effort' },
-	{ word: 'succès', translation: 'success' },
+	{ word: 'succès', translation: 'success' }
 ];

@@ -77,7 +77,9 @@
 	</div>
 	<div class="feature-card">
 		<h3>🌍 Multiple Languages</h3>
-		<p>Learn German, Spanish, and French with dedicated vocabulary, grammar, and exercises for each.</p>
+		<p>
+			Learn German, Spanish, and French with dedicated vocabulary, grammar, and exercises for each.
+		</p>
 	</div>
 	<div class="feature-card">
 		<h3>⚡ Instant Feedback</h3>

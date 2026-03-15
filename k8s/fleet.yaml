@@ -8,5 +8,5 @@ imageScans:
     tagName: lingolearn-image
     policy:
       semver:
-        range: ">=0.0.0"
+        range: '>=0.0.0'
     interval: 5m0s

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { prisma } from '$lib/server/prisma';
@@ -105,7 +104,11 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 					await prisma.vocabulary.update({
 						where: { id: existing.id },
 						data: {
-							meanings: { create: [{ value: v.meaning, partOfSpeech: v.partOfSpeech ?? existing.partOfSpeech }] },
+							meanings: {
+								create: [
+									{ value: v.meaning, partOfSpeech: v.partOfSpeech ?? existing.partOfSpeech }
+								]
+							},
 							partOfSpeech: v.partOfSpeech ?? existing.partOfSpeech,
 							gender: v.gender ?? existing.gender,
 							plural: v.plural ?? existing.plural,
@@ -128,7 +131,9 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 				await prisma.vocabulary.create({
 					data: {
 						lemma: v.lemma,
-						meanings: v.meaning ? { create: [{ value: v.meaning, partOfSpeech: v.partOfSpeech ?? null }] } : undefined,
+						meanings: v.meaning
+							? { create: [{ value: v.meaning, partOfSpeech: v.partOfSpeech ?? null }] }
+							: undefined,
 						partOfSpeech: v.partOfSpeech ?? null,
 						gender: v.gender ?? null,
 						plural: v.plural ?? null,

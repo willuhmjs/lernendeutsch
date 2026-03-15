@@ -10,7 +10,7 @@ export const GET: RequestHandler = async ({ url }) => {
 
 		const skip = (page - 1) * limit;
 
-		const where = { 
+		const where = {
 			isPublished: true,
 			...(category && category !== 'All' ? { category } : {})
 		};
@@ -66,7 +66,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				title,
 				description,
 				language,
-				creatorId: session.user.id,
+				creatorId: session.user.id
 			}
 		});
 

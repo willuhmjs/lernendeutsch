@@ -22,16 +22,18 @@ function stemForComparison(word: string): string {
 }
 
 function normalizeForFuzzy(text: string): string {
-	return text
-		.toLowerCase()
-		// Normalize German special characters so "ß"/"ss", "ä"/"ae", etc. compare equal
-		.replace(/ß/g, 'ss')
-		.replace(/ä/g, 'ae')
-		.replace(/ö/g, 'oe')
-		.replace(/ü/g, 'ue')
-		.replace(/[^\w\s]/g, ' ')
-		.replace(/\s+/g, ' ')
-		.trim();
+	return (
+		text
+			.toLowerCase()
+			// Normalize German special characters so "ß"/"ss", "ä"/"ae", etc. compare equal
+			.replace(/ß/g, 'ss')
+			.replace(/ä/g, 'ae')
+			.replace(/ö/g, 'oe')
+			.replace(/ü/g, 'ue')
+			.replace(/[^\w\s]/g, ' ')
+			.replace(/\s+/g, ' ')
+			.trim()
+	);
 }
 
 function tokenize(text: string): string[] {
@@ -72,9 +74,7 @@ function levenshteinSimilarity(a: string, b: string): number {
 		const curr = [i];
 		for (let j = 1; j <= n; j++) {
 			curr[j] =
-				a[i - 1] === b[j - 1]
-					? prev[j - 1]
-					: 1 + Math.min(prev[j], curr[j - 1], prev[j - 1]);
+				a[i - 1] === b[j - 1] ? prev[j - 1] : 1 + Math.min(prev[j], curr[j - 1], prev[j - 1]);
 		}
 		prev = curr;
 	}
@@ -103,11 +103,13 @@ export function isClearlyCorrect(userAnswer: string, referenceAnswer: string): b
 	const refTokens = tokenize(normRef);
 
 	const len = refTokens.length;
-	const jaccardThreshold = len <= 3 ? 0.90 : len <= 6 ? 0.85 : 0.80;
+	const jaccardThreshold = len <= 3 ? 0.9 : len <= 6 ? 0.85 : 0.8;
 	const jaccard = jaccardSimilarity(userTokens, refTokens);
 	const levenshtein = levenshteinSimilarity(normUser, normRef);
 
-	console.log(`[fuzzyGrade] isClearlyCorrect: jaccard=${jaccard.toFixed(3)} (threshold ${jaccardThreshold}), levenshtein=${levenshtein.toFixed(3)}`);
+	console.log(
+		`[fuzzyGrade] isClearlyCorrect: jaccard=${jaccard.toFixed(3)} (threshold ${jaccardThreshold}), levenshtein=${levenshtein.toFixed(3)}`
+	);
 
 	if (jaccard >= jaccardThreshold) {
 		console.log('[fuzzyGrade] isClearlyCorrect: approved via jaccard');

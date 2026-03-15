@@ -17,12 +17,15 @@ export async function POST(event) {
 	});
 
 	if (!user?.useLocalLlm && (await testOutRateLimiter.isLimited(event))) {
-		return json({ error: 'Too many requests. Please wait before generating more questions.' }, { status: 429 });
+		return json(
+			{ error: 'Too many requests. Please wait before generating more questions.' },
+			{ status: 429 }
+		);
 	}
 
 	const userId = locals.user.id;
 
-	if (!user?.useLocalLlm && await isQuotaExceeded(userId, false)) {
+	if (!user?.useLocalLlm && (await isQuotaExceeded(userId, false))) {
 		return json({ error: 'Daily AI quota exceeded. Please try again tomorrow.' }, { status: 429 });
 	}
 
@@ -111,9 +114,11 @@ Requirements:
 			jsonMode: true,
 			stream: false,
 			signal: request.signal,
-			onUsage: useLocalLlm ? undefined : ({ totalTokens }) => {
-				recordTokenUsage(userId, totalTokens);
-			}
+			onUsage: useLocalLlm
+				? undefined
+				: ({ totalTokens }) => {
+						recordTokenUsage(userId, totalTokens);
+					}
 		});
 
 		let content = response.choices?.[0]?.message?.content || '';
@@ -129,7 +134,10 @@ Requirements:
 		const parsed = JSON.parse(content);
 
 		if (!parsed.questions || !Array.isArray(parsed.questions) || parsed.questions.length < 5) {
-			return json({ error: 'Failed to generate enough questions. Please try again.' }, { status: 500 });
+			return json(
+				{ error: 'Failed to generate enough questions. Please try again.' },
+				{ status: 500 }
+			);
 		}
 
 		const questions = parsed.questions.slice(0, 10);

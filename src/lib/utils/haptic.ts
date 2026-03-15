@@ -32,7 +32,7 @@ export const HapticPattern = {
 	NOTIFICATION: [10, 20, 10],
 
 	// Selection pattern (short burst)
-	SELECTION: [5, 10, 5],
+	SELECTION: [5, 10, 5]
 } as const;
 
 /**
@@ -43,7 +43,7 @@ export function haptic(pattern: number | readonly number[]): void {
 	if (!isVibrateSupported) return;
 
 	try {
-		navigator.vibrate(Array.isArray(pattern) ? [...pattern] : pattern as number);
+		navigator.vibrate(Array.isArray(pattern) ? [...pattern] : (pattern as number));
 	} catch (error) {
 		console.warn('Haptic feedback failed:', error);
 	}
@@ -80,5 +80,5 @@ export const haptics = {
 	error: () => haptic(HapticPattern.ERROR),
 	warning: () => haptic(HapticPattern.WARNING),
 	notification: () => haptic(HapticPattern.NOTIFICATION),
-	selection: () => haptic(HapticPattern.SELECTION),
+	selection: () => haptic(HapticPattern.SELECTION)
 };

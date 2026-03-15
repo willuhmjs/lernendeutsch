@@ -4,7 +4,8 @@
 	import { page } from '$app/stores';
 	import { fly } from 'svelte/transition';
 	import { toastError } from '$lib/utils/toast';
-	let { data, form }: { data: { localLoginEnabled: boolean }; form: { error?: string } | null } = $props();
+	let { data, form }: { data: { localLoginEnabled: boolean }; form: { error?: string } | null } =
+		$props();
 
 	const errorMessages: Record<string, string> = {
 		OAuthAccountNotLinked:
@@ -36,7 +37,7 @@
 		isGoogleSigningIn = true;
 		try {
 			await signIn('google', { callbackUrl: validRedirect });
-		} catch (error) {
+		} catch (_) {
 			toastError('Failed to sign in with Google');
 			isGoogleSigningIn = false;
 		}
@@ -62,7 +63,13 @@
 				{#if isGoogleSigningIn}
 					<span class="spinner" aria-hidden="true"></span>
 				{:else}
-					<svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+					<svg
+						viewBox="0 0 24 24"
+						width="20"
+						height="20"
+						xmlns="http://www.w3.org/2000/svg"
+						aria-hidden="true"
+					>
 						<path
 							d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
 							fill="#4285F4"
@@ -272,10 +279,6 @@
 		font-size: 0.875rem;
 		font-weight: 500;
 		color: #374151;
-	}
-
-	:global(html[data-theme='dark']) .form-group label {
-		color: #cbd5e1;
 	}
 
 	:global(html[data-theme='dark']) .form-group label {

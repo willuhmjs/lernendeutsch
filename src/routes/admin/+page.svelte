@@ -66,14 +66,16 @@
 					aiCheckResult = `Checking in progress... ${totalApproved} approved, ${totalRejected} rejected so far.`;
 				} else {
 					console.error('Batch error:', result.error);
-					await modal.alert(`Error on batch ${i / batchSize + 1}: ${result.error || 'Failed to run AI check.'}`);
+					await modal.alert(
+						`Error on batch ${i / batchSize + 1}: ${result.error || 'Failed to run AI check.'}`
+					);
 					break; // Stop on error
 				}
 			}
 
 			aiCheckResult = `AI Check complete: ${totalApproved} approved, ${totalRejected} rejected.`;
 			await invalidateAll();
-		} catch (error) {
+		} catch (_) {
 			console.error('AI check error:', error);
 			await modal.alert('An error occurred during AI check.');
 		} finally {
@@ -92,7 +94,7 @@
 					await invalidateAll();
 				}
 			}
-		} catch (error) {
+		} catch (_) {
 			console.error('Auto-review check error:', error);
 		}
 	}
@@ -131,7 +133,7 @@
 			} else {
 				availableModels = [];
 			}
-		} catch (error) {
+		} catch (_) {
 			console.error('Failed to fetch models', error);
 			availableModels = [];
 		} finally {
@@ -361,7 +363,7 @@
 				const data = await res.json();
 				await modal.alert(data.error || 'Failed to reset progress.');
 			}
-		} catch (error) {
+		} catch (_) {
 			await modal.alert('An error occurred.');
 		}
 	}
@@ -395,7 +397,9 @@
 	}
 
 	async function deleteClass(classId: string) {
-		if (!(await modal.confirm('Are you sure you want to delete this class? This cannot be undone.')))
+		if (
+			!(await modal.confirm('Are you sure you want to delete this class? This cannot be undone.'))
+		)
 			return;
 		try {
 			const res = await fetch(`/api/admin/classes/${classId}`, { method: 'DELETE' });
@@ -882,7 +886,13 @@
 				</div>
 			{/if}
 
-			<form class="modal-form" onsubmit={(e) => { e.preventDefault(); saveUser(); }}>
+			<form
+				class="modal-form"
+				onsubmit={(e) => {
+					e.preventDefault();
+					saveUser();
+				}}
+			>
 				<div class="form-group">
 					<label for="edit-username">Username</label>
 					<input id="edit-username" type="text" bind:value={editingUser.username} required />

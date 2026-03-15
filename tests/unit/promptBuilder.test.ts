@@ -30,7 +30,12 @@ describe('buildLessonPrompt', () => {
 		it('schema requires challengeText, targetSentence, targetedVocabularyIds, targetedGrammarIds', () => {
 			const { jsonSchemaObj } = buildLessonPrompt({ ...BASE_PARAMS, gameMode: 'native-to-target' });
 			expect(jsonSchemaObj.required).toEqual(
-				expect.arrayContaining(['challengeText', 'targetSentence', 'targetedVocabularyIds', 'targetedGrammarIds'])
+				expect.arrayContaining([
+					'challengeText',
+					'targetSentence',
+					'targetedVocabularyIds',
+					'targetedGrammarIds'
+				])
 			);
 		});
 
@@ -51,7 +56,12 @@ describe('buildLessonPrompt', () => {
 		it('schema requires challengeText, targetSentence, targetedVocabularyIds, targetedGrammarIds', () => {
 			const { jsonSchemaObj } = buildLessonPrompt({ ...BASE_PARAMS, gameMode: 'target-to-native' });
 			expect(jsonSchemaObj.required).toEqual(
-				expect.arrayContaining(['challengeText', 'targetSentence', 'targetedVocabularyIds', 'targetedGrammarIds'])
+				expect.arrayContaining([
+					'challengeText',
+					'targetSentence',
+					'targetedVocabularyIds',
+					'targetedGrammarIds'
+				])
 			);
 		});
 
@@ -187,7 +197,12 @@ describe('buildLessonPrompt', () => {
 	});
 
 	describe('JSON schema structure', () => {
-		const modes: GameMode[] = ['native-to-target', 'target-to-native', 'fill-blank', 'multiple-choice'];
+		const modes: GameMode[] = [
+			'native-to-target',
+			'target-to-native',
+			'fill-blank',
+			'multiple-choice'
+		];
 
 		for (const mode of modes) {
 			it(`${mode}: schema type is object`, () => {

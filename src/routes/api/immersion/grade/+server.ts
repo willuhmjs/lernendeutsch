@@ -46,7 +46,16 @@ export async function POST({ request, locals }) {
 	const useLocalLlm = dbUser?.useLocalLlm ?? false;
 
 	try {
-		const { question, userAnswer, sampleAnswer, awardXp, directXp, assignmentId, correctCount, vocabIds } = await request.json();
+		const {
+			question,
+			userAnswer,
+			sampleAnswer,
+			awardXp,
+			directXp,
+			assignmentId,
+			correctCount,
+			vocabIds
+		} = await request.json();
 
 		// directXp: skip LLM grading, just award this XP amount directly (used for MCQ batches)
 		if (typeof directXp === 'number' && (directXp > 0 || assignmentId)) {
@@ -56,7 +65,11 @@ export async function POST({ request, locals }) {
 			// Update assignment score for MCQ batch if in assignment context
 			let assignmentProgress = null;
 			if (assignmentId && typeof correctCount === 'number' && correctCount > 0) {
-				assignmentProgress = await updateAssignmentScore(assignmentId, locals.user.id, correctCount);
+				assignmentProgress = await updateAssignmentScore(
+					assignmentId,
+					locals.user.id,
+					correctCount
+				);
 			}
 			return json({ score: 1, feedback: '', assignmentProgress });
 		}
@@ -91,7 +104,7 @@ Be lenient with phrasing as long as the core meaning is correct. Accept synonyms
 Sample answer: ${sampleAnswer}
 Student's answer: ${userAnswer}`;
 
-		if (!useLocalLlm && await isQuotaExceeded(userId, false)) {
+		if (!useLocalLlm && (await isQuotaExceeded(userId, false))) {
 			return json({ score: 0, feedback: 'Daily AI quota exceeded. Please try again tomorrow.' });
 		}
 
@@ -101,9 +114,11 @@ Student's answer: ${userAnswer}`;
 			systemPrompt,
 			jsonMode: true,
 			temperature: 0.1,
-			onUsage: useLocalLlm ? undefined : ({ totalTokens }) => {
-				recordTokenUsage(userId, totalTokens);
-			}
+			onUsage: useLocalLlm
+				? undefined
+				: ({ totalTokens }) => {
+						recordTokenUsage(userId, totalTokens);
+					}
 		});
 
 		const result = JSON.parse(response.choices[0].message.content);

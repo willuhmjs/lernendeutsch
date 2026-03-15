@@ -9,7 +9,7 @@ import { LESSON_CONFIG } from '$lib/server/srsConfig';
 
 export async function POST(event) {
 	const { request, locals } = event;
-	
+
 	if (!locals.user) {
 		return json({ error: 'Unauthorized' }, { status: 401 });
 	}
@@ -19,11 +19,11 @@ export async function POST(event) {
 		select: { useLocalLlm: true }
 	});
 
-	if (!user?.useLocalLlm && await generateLessonRateLimiter.isLimited(event)) {
+	if (!user?.useLocalLlm && (await generateLessonRateLimiter.isLimited(event))) {
 		return json({ error: 'Too many requests. Limit is 10/min, 200/day.' }, { status: 429 });
 	}
 
-	if (!user?.useLocalLlm && await isQuotaExceeded(locals.user.id, false)) {
+	if (!user?.useLocalLlm && (await isQuotaExceeded(locals.user.id, false))) {
 		return json({ error: 'Daily AI quota exceeded. Please try again tomorrow.' }, { status: 429 });
 	}
 
@@ -137,7 +137,7 @@ export async function POST(event) {
 			}
 
 			const newUserVocabs = await Promise.all(
-				unseenVocabs.map(vocab =>
+				unseenVocabs.map((vocab) =>
 					prisma.userVocabulary.create({
 						data: {
 							userId,
@@ -180,12 +180,13 @@ export async function POST(event) {
 
 		// Fetch lastErrorType for all selected items so we can boost items with recent errors.
 		const selectedVocabIds = selectedLearning.map((uv) => uv.vocabularyId);
-		const errorTypeRows = selectedVocabIds.length > 0
-			? await prisma.userVocabularyProgress.findMany({
-				where: { userId, vocabularyId: { in: selectedVocabIds } },
-				select: { vocabularyId: true, lastErrorType: true }
-			})
-			: [];
+		const errorTypeRows =
+			selectedVocabIds.length > 0
+				? await prisma.userVocabularyProgress.findMany({
+						where: { userId, vocabularyId: { in: selectedVocabIds } },
+						select: { vocabularyId: true, lastErrorType: true }
+					})
+				: [];
 		const errorTypeMap = new Map(errorTypeRows.map((r) => [r.vocabularyId, r.lastErrorType]));
 
 		// Final selection for the lesson — items with a recent error come first (they need
@@ -207,46 +208,47 @@ export async function POST(event) {
 
 		// 4. Fetch Mastered Vocabulary and Grammar
 		let masteredGrammarDb: any[];
-		const [masteredVocabDb, knownVocabDb, initialMasteredGrammarDb, allMasteredGrammarIdsQuery] = await Promise.all([
-			prisma.userVocabulary.findMany({
-				where: {
-					userId,
-					srsState: SrsState.MASTERED,
-					OR: [{ nextReviewDate: null }, { nextReviewDate: { lte: now } }],
-					vocabulary: { meanings: { some: {} }, languageId: activeLanguageId } as any
-				},
-				include: { vocabulary: { include: { meanings: true } } },
-				take: 20
-			}),
-			prisma.userVocabulary.findMany({
-				where: {
-					userId,
-					srsState: SrsState.KNOWN,
-					OR: [{ nextReviewDate: null }, { nextReviewDate: { lte: nearDue } }],
-					vocabulary: { meanings: { some: {} }, languageId: activeLanguageId } as any
-				},
-				include: { vocabulary: { include: { meanings: true } } },
-				orderBy: { nextReviewDate: 'asc' },
-				take: 3
-			}),
-			prisma.userGrammarRule.findMany({
-				where: {
-					userId,
-					srsState: { in: [SrsState.KNOWN, SrsState.MASTERED] },
-					OR: [{ nextReviewDate: null }, { nextReviewDate: { lte: now } }]
-				},
-				orderBy: [{ eloRating: 'asc' }, { nextReviewDate: 'asc' }],
-				include: { grammarRule: true },
-				take: 5
-			}),
-			prisma.userGrammarRule.findMany({
-				where: {
-					userId,
-					srsState: { in: [SrsState.KNOWN, SrsState.MASTERED] }
-				},
-				select: { grammarRuleId: true }
-			})
-		]);
+		const [masteredVocabDb, knownVocabDb, initialMasteredGrammarDb, allMasteredGrammarIdsQuery] =
+			await Promise.all([
+				prisma.userVocabulary.findMany({
+					where: {
+						userId,
+						srsState: SrsState.MASTERED,
+						OR: [{ nextReviewDate: null }, { nextReviewDate: { lte: now } }],
+						vocabulary: { meanings: { some: {} }, languageId: activeLanguageId } as any
+					},
+					include: { vocabulary: { include: { meanings: true } } },
+					take: 20
+				}),
+				prisma.userVocabulary.findMany({
+					where: {
+						userId,
+						srsState: SrsState.KNOWN,
+						OR: [{ nextReviewDate: null }, { nextReviewDate: { lte: nearDue } }],
+						vocabulary: { meanings: { some: {} }, languageId: activeLanguageId } as any
+					},
+					include: { vocabulary: { include: { meanings: true } } },
+					orderBy: { nextReviewDate: 'asc' },
+					take: 3
+				}),
+				prisma.userGrammarRule.findMany({
+					where: {
+						userId,
+						srsState: { in: [SrsState.KNOWN, SrsState.MASTERED] },
+						OR: [{ nextReviewDate: null }, { nextReviewDate: { lte: now } }]
+					},
+					orderBy: [{ eloRating: 'asc' }, { nextReviewDate: 'asc' }],
+					include: { grammarRule: true },
+					take: 5
+				}),
+				prisma.userGrammarRule.findMany({
+					where: {
+						userId,
+						srsState: { in: [SrsState.KNOWN, SrsState.MASTERED] }
+					},
+					select: { grammarRuleId: true }
+				})
+			]);
 		masteredGrammarDb = initialMasteredGrammarDb;
 
 		const masteredGrammarIds = new Set(allMasteredGrammarIdsQuery.map((g) => g.grammarRuleId));
@@ -308,18 +310,21 @@ export async function POST(event) {
 
 			prereqGrammarDb = [...prereqUserRules, ...unseenPrereqRules]
 				// Only include prereqs whose own prerequisites are mastered (no multi-hop skipping)
-				.filter((ug) => ug.grammarRule.dependencies.every((dep: any) => masteredGrammarIds.has(dep.id)))
+				.filter((ug) =>
+					ug.grammarRule.dependencies.every((dep: any) => masteredGrammarIds.has(dep.id))
+				)
 				.slice(0, 1);
 		}
 
 		// Use prerequisite rules if available (they must be learned first), otherwise use eligible learning rules.
-		let learningGrammarDb = prereqGrammarDb.length > 0
-			? prereqGrammarDb
-			: learningGrammarDbQuery
-				.filter((ug) => {
-					return ug.grammarRule.dependencies.every((dep) => masteredGrammarIds.has(dep.id));
-				})
-				.slice(0, 1);
+		let learningGrammarDb =
+			prereqGrammarDb.length > 0
+				? prereqGrammarDb
+				: learningGrammarDbQuery
+						.filter((ug) => {
+							return ug.grammarRule.dependencies.every((dep) => masteredGrammarIds.has(dep.id));
+						})
+						.slice(0, 1);
 
 		// Grammar fallback logic
 		if (masteredGrammarDb.length === 0 && learningGrammarDb.length === 0) {
@@ -470,7 +475,8 @@ export async function POST(event) {
 		// knows these are reinforcement targets that must be used, not just background context.
 		const interleavedVocabLines = interleavedVocab
 			.map(
-				(v: any, i: number) => `${formatVocab(v as unknown as Parameters<typeof formatVocab>[0])} - ID: v${knownOffset + i} [review]`
+				(v: any, i: number) =>
+					`${formatVocab(v as unknown as Parameters<typeof formatVocab>[0])} - ID: v${knownOffset + i} [review]`
 			)
 			.join('\n');
 		const learningVocabList = [
@@ -481,22 +487,34 @@ export async function POST(event) {
 		].join('\n');
 		const knownVocabList = knownVocab
 			.map(
-				(v, i) => `${formatVocab(v as unknown as Parameters<typeof formatVocab>[0])} - ID: v${learnOffset + i}`
+				(v, i) =>
+					`${formatVocab(v as unknown as Parameters<typeof formatVocab>[0])} - ID: v${learnOffset + i}`
 			)
 			.join('\n');
 		const masteredGrammarList = masteredGrammar
-			.map((g: { title: string; description: string; id: string }) => `- ${g.title} (${g.description}) - ID: ${Object.keys(idMap).find(k => idMap[k] === g.id)}`)
+			.map(
+				(g: { title: string; description: string; id: string }) =>
+					`- ${g.title} (${g.description}) - ID: ${Object.keys(idMap).find((k) => idMap[k] === g.id)}`
+			)
 			.join('\n');
 		const learningGrammarList = learningGrammar
-			.map((g: { title: string; description: string; id: string }) => `- ${g.title} (${g.description}) - ID: ${Object.keys(idMap).find(k => idMap[k] === g.id)}`)
+			.map(
+				(g: { title: string; description: string; id: string }) =>
+					`- ${g.title} (${g.description}) - ID: ${Object.keys(idMap).find((k) => idMap[k] === g.id)}`
+			)
 			.join('\n');
 		// Grammar rules the LLM can identify if used implicitly (excludes mastered/learning to avoid duplication).
 		// Capped at 25 — enough coverage for identification without bloating the prompt.
-		const trackedGrammarIds = new Set([...masteredGrammar, ...learningGrammar].map((g: any) => g.id));
+		const trackedGrammarIds = new Set(
+			[...masteredGrammar, ...learningGrammar].map((g: any) => g.id)
+		);
 		const additionalGrammarList = allLanguageGrammarDb
-			.filter(g => !trackedGrammarIds.has(g.id))
+			.filter((g) => !trackedGrammarIds.has(g.id))
 			.slice(0, 25)
-			.map(g => `- ${g.title} (${g.description}) - ID: ${Object.keys(idMap).find(k => idMap[k] === g.id)}`)
+			.map(
+				(g) =>
+					`- ${g.title} (${g.description}) - ID: ${Object.keys(idMap).find((k) => idMap[k] === g.id)}`
+			)
 			.join('\n');
 
 		const userLevel = locals.user.cefrLevel || 'A1';
@@ -524,7 +542,12 @@ export async function POST(event) {
 			requestSignal: request.signal,
 			targetedVocabulary: [...learningVocab, ...knownVocab, ...interleavedVocab],
 			targetedGrammar: allLanguageGrammarDb, // full list so client filter can resolve any returned ID
-			allVocabulary: [...masteredVocabBackground, ...learningVocab, ...knownVocab, ...interleavedVocab],
+			allVocabulary: [
+				...masteredVocabBackground,
+				...learningVocab,
+				...knownVocab,
+				...interleavedVocab
+			],
 			gameMode,
 			idMap,
 			userLevel,
@@ -535,9 +558,11 @@ export async function POST(event) {
 			masteredVocab: masteredVocabBackground,
 			learningVocab,
 			useLocalLlm: user?.useLocalLlm ?? false,
-			onUsage: user?.useLocalLlm ? undefined : ({ totalTokens }) => {
-				recordTokenUsage(userId, totalTokens);
-			}
+			onUsage: user?.useLocalLlm
+				? undefined
+				: ({ totalTokens }) => {
+						recordTokenUsage(userId, totalTokens);
+					}
 		});
 
 		return new Response(stream, {

@@ -6,9 +6,9 @@ metadata:
   labels:
     app: lingolearn
   annotations:
-    traefik.ingress.kubernetes.io/service.sticky.cookie: "true"
-    traefik.ingress.kubernetes.io/service.sticky.cookie.name: "sticky-session"
-    traefik.ingress.kubernetes.io/service.sticky.cookie.secure: "true"
+    traefik.ingress.kubernetes.io/service.sticky.cookie: 'true'
+    traefik.ingress.kubernetes.io/service.sticky.cookie.name: 'sticky-session'
+    traefik.ingress.kubernetes.io/service.sticky.cookie.secure: 'true'
 spec:
   ports:
     - name: http

@@ -92,12 +92,17 @@ export async function POST({ params, request, locals }) {
 			data: {
 				status: status !== undefined ? status : activeSession.status,
 				currentQuestionIndex:
-					currentQuestionIndex !== undefined ? currentQuestionIndex : activeSession.currentQuestionIndex
+					currentQuestionIndex !== undefined
+						? currentQuestionIndex
+						: activeSession.currentQuestionIndex
 			}
 		});
 
 		// If moving to next question, reset participant answer status
-		if (currentQuestionIndex !== undefined && currentQuestionIndex !== activeSession.currentQuestionIndex) {
+		if (
+			currentQuestionIndex !== undefined &&
+			currentQuestionIndex !== activeSession.currentQuestionIndex
+		) {
 			await prisma.liveSessionParticipant.updateMany({
 				where: { sessionId: activeSession.id },
 				data: { hasAnswered: false }

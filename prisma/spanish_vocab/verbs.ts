@@ -856,7 +856,7 @@ export const verbs = [
 	},
 	{
 		lemma: 'peinarse',
-		meaning: 'to comb one\'s hair',
+		meaning: "to comb one's hair",
 		partOfSpeech: 'verb'
 	},
 	{
@@ -1951,5 +1951,5 @@ export const verbs = [
 		lemma: 'mostrar',
 		meaning: 'to show',
 		partOfSpeech: 'verb'
-	},
+	}
 ];
