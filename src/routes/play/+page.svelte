@@ -168,6 +168,7 @@
 	let userInput = '';
 	let feedback: any = null;
 	let submitting = false;
+	let challengeStartMs: number | null = null; // timestamp when challenge became ready for input
 	let sessionXp = 0;
 	let sessionChallenges = 0;
 	let displayedChallengeNumber = 1;
@@ -1642,6 +1643,7 @@
 				}
 				const parsed = JSON.parse(cleaned);
 				challenge = { ...challenge, ...parsed };
+				challengeStartMs = Date.now(); // start timing from when challenge is fully ready
 
 				// Remap short IDs (v0, g0, ...) from LLM back to real UUIDs
 				if (parsed.targetedVocabularyIds && Array.isArray(parsed.targetedVocabularyIds)) {
@@ -1779,6 +1781,9 @@
 
 		submitController = new AbortController();
 
+		const responseTimeMs = challengeStartMs !== null ? Date.now() - challengeStartMs : null;
+		challengeStartMs = null;
+
 		try {
 			const res = await fetch('/api/submit-answer', {
 				method: 'POST',
@@ -1791,7 +1796,8 @@
 					targetedGrammarIds: challenge.targetedGrammar?.map((g: any) => g.id) || [],
 					gameMode: challenge.gameMode || 'native-to-target',
 					assignmentId: assignment?.id ?? null,
-					activeLanguageName: lessonLanguage?.name || 'German'
+					activeLanguageName: lessonLanguage?.name || 'German',
+					responseTimeMs
 				}),
 				signal: submitController.signal
 			});

@@ -9,13 +9,22 @@ export async function POST({ request, locals }) {
 	}
 
 	try {
-		const { vocabularyId, score, overridden } = await request.json();
+		const {
+			vocabularyId,
+			score,
+			overridden,
+			responseTimeMs: rawResponseTimeMs
+		} = await request.json();
 
 		if (!vocabularyId || typeof score !== 'number') {
 			return json({ error: 'Missing vocabularyId or score' }, { status: 400 });
 		}
 
 		const wasOverridden = overridden === true;
+		const responseTimeMs: number | null =
+			typeof rawResponseTimeMs === 'number' && rawResponseTimeMs > 0
+				? Math.min(Math.round(rawResponseTimeMs), 300_000)
+				: null;
 
 		// Cap overridden scores at 0.8 (FSRS "Good" not "Easy") so overrides
 		// don't inflate stability as fast as a genuinely perfect answer.
@@ -26,7 +35,8 @@ export async function POST({ request, locals }) {
 			vocabularyId,
 			effectiveScore,
 			'vocabulary',
-			wasOverridden
+			wasOverridden,
+			responseTimeMs
 		);
 
 		if (effectiveScore >= XP_CONFIG.SCORE_THRESHOLD) {
